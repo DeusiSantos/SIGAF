@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.bgImage{
+    background-image: url('assets/image3.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+
+.p-confirm-popup-footer {
+    display: flex !important;
+    justify-content: flex-end;
+    gap: 0.75rem; 
+ }

@@ -1,0 +1,907 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import {
+    ArrowLeft,
+    Award,
+    Calendar,
+    MapPin,
+    User,
+    Phone,
+    IdCard,
+    Printer,
+    Download,
+    Eye,
+    CheckCircle,
+    AlertTriangle,
+    X,
+    Clock,
+    AlertCircle,
+    FileText,
+    Tractor,
+    Activity,
+    Info,
+    Globe
+} from 'lucide-react';
+
+import api from '../../services/api';
+// CORREÇÃO: Importar a função correta, não o componente
+import { gerarCertificadoValidacao } from './CertificadoGeneratorBaixar';
+import axios from 'axios';
+
+const VisualizarCertificados = () => {
+    const { produtorId } = useParams();
+    const navigate = useNavigate();
+
+    const [produtor, setProdutor] = useState(null);
+    const [certificadosProdutor, setCertificadosProdutor] = useState([]);
+    const [selectedCertificados, setSelectedCertificados] = useState([]);
+    const [loadingProdutor, setLoadingProdutor] = useState(true);
+    const [loadingCertificados, setLoadingCertificados] = useState(true);
+    const [toastMessage, setToastMessage] = useState(null);
+    const [toastTimeout, setToastTimeout] = useState(null);
+    const [gerandoCertificado, setGerandoCertificado] = useState(null); // ID do certificado sendo gerado
+
+    console.log('🔍 VISUALIZAR CERTIFICADOS - produtorId:', produtorId);
+
+
+    const ProdutorAvatar = ({
+        produtor,
+        size = "w-20 h-20",
+        textSize = "text-lg",
+        showLoadingSpinner = true
+    }) => {
+        const [imageUrl, setImageUrl] = useState(null);
+        const [imageLoading, setImageLoading] = useState(true);
+        const [imageError, setImageError] = useState(false);
+
+        // Gerar iniciais do nome como fallback
+        const getInitials = (nome) => {
+            if (!nome) return 'P';
+            return nome.split(' ')
+                .map(n => n[0])
+                .join('')
+                .slice(0, 2)
+                .toUpperCase();
+        };
+
+        useEffect(() => {
+            const fetchProdutorPhoto = async () => {
+                if (!produtor?.id) {
+                    setImageLoading(false);
+                    setImageError(true);
+                    return;
+                }
+
+                try {
+                    setImageLoading(true);
+                    setImageError(false);
+
+                    const response = await axios.get(
+                        `https://mwangobrainsa-001-site2.mtempurl.com/api/formulario/${produtor.id}/foto-beneficiary`,
+                        {
+                            responseType: 'blob',
+                            timeout: 10000,
+                            headers: {
+                                'Accept': 'image/*'
+                            }
+                        }
+                    );
+
+                    if (response.data && response.data.size > 0) {
+                        const url = URL.createObjectURL(response.data);
+                        setImageUrl(url);
+                        setImageError(false);
+                    } else {
+                        setImageError(true);
+                    }
+
+                } catch (error) {
+                    console.error('Erro ao carregar foto do produtor:', error);
+                    setImageError(true);
+                } finally {
+                    setImageLoading(false);
+                }
+            };
+
+            fetchProdutorPhoto();
+
+            return () => {
+                if (imageUrl) {
+                    URL.revokeObjectURL(imageUrl);
+                }
+            };
+        }, [produtor?.id]);
+
+        if (imageLoading && showLoadingSpinner) {
+            return (
+                <div className={`${size} rounded-full bg-gray-200 flex items-center justify-center shadow-sm animate-pulse`}>
+                    <User className="w-6 h-6 text-gray-400" />
+                </div>
+            );
+        }
+
+        if (imageUrl && !imageError) {
+            return (
+                <div className={`${size} rounded-full overflow-hidden shadow-sm border-2 border-white`}>
+                    <img
+                        src={imageUrl}
+                        alt={`Foto de ${produtor.nome}`}
+                        className="w-full h-full object-cover"
+                        onError={() => {
+                            setImageError(true);
+                            if (imageUrl) {
+                                URL.revokeObjectURL(imageUrl);
+                            }
+                            setImageUrl(null);
+                        }}
+                    />
+                </div>
+            );
+        }
+
+        return (
+            <div className={`${size} rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold ${textSize} shadow-sm`}>
+                {getInitials(produtor?.nome)}
+            </div>
+        );
+    };
+
+    // Verificar se produtorId existe
+    useEffect(() => {
+        if (!produtorId) {
+            console.error('ProdutorId não encontrado na URL!');
+            showToast('error', 'Erro', 'ID do produtor não encontrado na URL');
+            setTimeout(() => {
+                navigate('/GerenciaRNPA/certificados');
+            }, 3000);
+        }
+    }, [produtorId, navigate]);
+
+    // Buscar dados do produtor
+    useEffect(() => {
+        const fetchProdutor = async () => {
+            if (!produtorId) {
+                setLoadingProdutor(false);
+                return;
+            }
+
+            try {
+                console.log('🔍 Buscando produtor:', produtorId);
+                setLoadingProdutor(true);
+                const response = await api.get(`/formulario/${produtorId}`);
+                console.log('✅ Dados do produtor:', response.data);
+                setProdutor(response.data);
+            } catch (error) {
+                console.error('❌ Erro ao buscar produtor:', error);
+                showToast('error', 'Erro', 'Erro ao carregar dados do produtor');
+            } finally {
+                setLoadingProdutor(false);
+            }
+        };
+
+        fetchProdutor();
+    }, [produtorId]);
+
+    // Buscar certificados do produtor diretamente da API
+    useEffect(() => {
+        const fetchCertificados = async () => {
+            if (!produtorId) {
+                setLoadingCertificados(false);
+                return;
+            }
+
+            try {
+                console.log('🔍 Buscando certificados do produtor:', produtorId);
+                setLoadingCertificados(true);
+
+                // Buscar certificados específicos do produtor
+                const response = await api.get(`/certificaoDoProdutor/produtores/${produtorId}`);
+                console.log('✅ Certificados da API:', response.data);
+
+                // Mapear os certificados para o formato esperado
+                const certificadosMapeados = Array.isArray(response.data) ? response.data.map(certificado => {
+                    const getStatusCertificado = (validoDe, validoAte) => {
+                        const hoje = new Date();
+                        const dataInicio = new Date(validoDe);
+                        const dataFim = new Date(validoAte);
+                        if (hoje < dataInicio) return 'AGUARDANDO_VIGENCIA';
+                        if (hoje > dataFim) return 'EXPIRADO';
+                        const diasParaVencer = Math.ceil((dataFim - hoje) / (1000 * 60 * 60 * 24));
+                        if (diasParaVencer <= 30 && diasParaVencer > 0) return 'PROXIMO_VENCIMENTO';
+                        return 'ATIVO';
+                    };
+
+                    let finalidadeCertificado = [];
+
+                    const valor = certificado.finalidadeDoCertificado;
+
+                    if (Array.isArray(valor)) {
+                        finalidadeCertificado = valor;
+                    } else if (typeof valor === 'string' && valor.trim() !== '') {
+                        if (valor.includes('-')) {
+                            finalidadeCertificado = valor
+                                .split('-')
+                                .map(f => f.trim().replace(/-/g, ' '))
+                                .filter(Boolean);
+                        } else {
+                            finalidadeCertificado = [valor.trim().replace(/-/g, ' ')];
+                        }
+                    }
+
+
+                    return {
+                        id: certificado.id?.toString(),
+                        numeroProcesso: certificado.numeroDoProcesso || `PROC-${certificado.id}`,
+                        nomeDaPropriedade: certificado.nomeDaPropriedade || 'Propriedade sem nome',
+                        atividadePrincipal: certificado.atividadePrincipal || 'Não informado',
+                        areaTotalExplorada: parseFloat(certificado.areaTotalExplorada) || 0,
+                        tecnicoResponsavel: certificado.nomeDoTecnicoResponsavel || 'Não informado',
+                        validoDe: certificado.validoDe ? certificado.validoDe.split('T')[0] : '',
+                        validoAte: certificado.validoAte ? certificado.validoAte.split('T')[0] : '',
+                        statusCertificado: getStatusCertificado(certificado.validoDe, certificado.validoAte),
+                        finalidadeCertificado,
+                        observacoesTecnicas: certificado.observacoesTecnicas || 'Nenhuma observação',
+                        coordenadasGPS: certificado.coordenadasGPS || '',
+                        latitude: certificado.latitude || '',
+                        longitude: certificado.longitude || '',
+                        // Dados originais para gerar certificado
+                        dadosOriginais: certificado
+                    };
+                }) : [];
+
+                setCertificadosProdutor(certificadosMapeados);
+                console.log('📋 Certificados processados:', certificadosMapeados);
+
+            } catch (error) {
+                console.error('❌ Erro ao buscar certificados:', error);
+                if (error.response?.status === 404) {
+                    // Produtor não tem certificados
+                    setCertificadosProdutor([]);
+                } else {
+                    showToast('error', 'Erro', 'Erro ao carregar certificados do produtor');
+                }
+            } finally {
+                setLoadingCertificados(false);
+            }
+        };
+
+        fetchCertificados();
+    }, [produtorId]);
+
+    // CORREÇÃO: Função para gerar e baixar certificado
+    const handleDownloadCertificado = async (certificado) => {
+        try {
+            setGerandoCertificado(certificado.id);
+            console.log('🎯 Gerando certificado:', certificado);
+
+            // Mapear dados para o formato esperado pelo gerador de certificado
+            const dadosParaCertificado = {
+                dadosProdutor: {
+                    nomeCompleto: produtor?.beneficiary_name ||
+                        `${produtor?.nome_produtor || ''} ${produtor?.sobrenome_produtor || ''}`.trim(),
+                    bi: produtor?.beneficiary_id_number || 'N/A',
+                    telefone: produtor?.beneficiary_phone_number || 'N/A',
+                    municipio: produtor?.municipio || 'N/A',
+                    provincia: produtor?.provincia || 'N/A',
+                    numeroProcesso: certificado.numeroProcesso,
+                    nomePropriedade: certificado.nomeDaPropriedade,
+                    areaTotalExplorada: certificado.areaTotalExplorada,
+                    atividadePrincipal: certificado.atividadePrincipal,
+                    tecnicoResponsavel: certificado.tecnicoResponsavel,
+                    observacoesTecnicas: certificado.observacoesTecnicas,
+                    validadeInicio: certificado.validoDe,
+                    validadeFim: certificado.validoAte,
+                    latitude: certificado.latitude,
+                    longitude: certificado.longitude,
+                    finalidadeCertificado: certificado.finalidadeCertificado
+                },
+                producaoAgricola: certificado.dadosOriginais?.historicoDeProducaoAgricolas || [],
+                producaoPecuaria: certificado.dadosOriginais?.historicoDeProduaooPecuarias || [],
+                vistorias: certificado.dadosOriginais?.historicoDeVistorias || [],
+                produtorOriginal: {
+                    _id: produtorId
+                }
+            };
+
+            console.log('📊 Dados preparados para certificado:', dadosParaCertificado);
+
+            // CORREÇÃO: Chamar a função correta, não o componente
+            const resultado = await gerarCertificadoValidacao(dadosParaCertificado);
+
+            if (resultado.success) {
+                showToast('success', 'Sucesso', resultado.message);
+            } else {
+                throw new Error(resultado.message || 'Erro desconhecido');
+            }
+
+        } catch (error) {
+            console.error('❌ Erro ao gerar certificado:', error);
+            showToast('error', 'Erro', `Erro ao gerar certificado: ${error.message}`);
+        } finally {
+            setGerandoCertificado(null);
+        }
+    };
+
+    // Função para mostrar toast
+    const showToast = (type, title, message, duration = 5000) => {
+        if (toastTimeout) {
+            clearTimeout(toastTimeout);
+        }
+
+        setToastMessage({ type, title, message });
+
+        const timeout = setTimeout(() => {
+            setToastMessage(null);
+        }, duration);
+
+        setToastTimeout(timeout);
+    };
+
+    // Cleanup do timeout quando component desmonta
+    useEffect(() => {
+        return () => {
+            if (toastTimeout) {
+                clearTimeout(toastTimeout);
+            }
+        };
+    }, [toastTimeout]);
+
+    // Voltar para gestão de certificados
+    const handleBack = () => {
+        navigate('/GerenciaRNPA/certificados');
+    };
+
+    // Selecionar/deselecionar certificado para impressão
+    const handleSelectCertificado = (certificadoId) => {
+        setSelectedCertificados(prev => {
+            if (prev.includes(certificadoId)) {
+                return prev.filter(id => id !== certificadoId);
+            } else {
+                return [...prev, certificadoId];
+            }
+        });
+    };
+
+    // Selecionar todos os certificados
+    const handleSelectAll = () => {
+        if (selectedCertificados.length === certificadosProdutor.length) {
+            setSelectedCertificados([]);
+        } else {
+            setSelectedCertificados(certificadosProdutor.map(cert => cert.id));
+        }
+    };
+
+    // Imprimir certificados selecionados em lote
+    const handlePrintBatch = async () => {
+        if (selectedCertificados.length === 0) {
+            showToast('warning', 'Atenção', 'Selecione pelo menos um certificado para gerar');
+            return;
+        }
+
+        try {
+            showToast('info', 'Processando', `Gerando ${selectedCertificados.length} certificado(s)...`);
+
+            for (const certificadoId of selectedCertificados) {
+                const certificado = certificadosProdutor.find(c => c.id === certificadoId);
+                if (certificado) {
+                    await handleDownloadCertificado(certificado);
+                    // Pequena pausa entre certificados
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
+
+            setSelectedCertificados([]);
+            showToast('success', 'Concluído', 'Todos os certificados foram gerados!');
+
+        } catch (error) {
+            console.error('Erro ao gerar certificados em lote:', error);
+            showToast('error', 'Erro', 'Erro ao gerar certificados em lote');
+        }
+    };
+
+    // Formatar data
+    const formatDate = (dateString) => {
+        if (!dateString) return 'N/A';
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('pt-BR');
+        } catch {
+            return 'N/A';
+        }
+    };
+
+    // Calcular dias restantes para vencimento
+    const getDaysToExpiry = (validoAte) => {
+        if (!validoAte) return null;
+        try {
+            const hoje = new Date();
+            const dataFim = new Date(validoAte);
+            const diffTime = dataFim - hoje;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+        } catch {
+            return null;
+        }
+    };
+
+    // Cores para diferentes status
+    const getStatusColor = (status) => {
+        const statusColors = {
+            'ATIVO': 'bg-green-100 text-green-800 border-green-300',
+            'EXPIRADO': 'bg-red-100 text-red-800 border-red-300',
+            'PROXIMO_VENCIMENTO': 'bg-yellow-100 text-yellow-800 border-yellow-300',
+            'AGUARDANDO_VIGENCIA': 'bg-blue-100 text-blue-800 border-blue-300'
+        };
+        return statusColors[status] || 'bg-gray-100 text-gray-800 border-gray-300';
+    };
+
+    // Labels para status
+    const getStatusLabel = (status) => {
+        const statusLabels = {
+            'ATIVO': 'Ativo',
+            'EXPIRADO': 'Expirado',
+            'PROXIMO_VENCIMENTO': 'Próximo ao Vencimento',
+            'AGUARDANDO_VIGENCIA': 'Aguardando Vigência'
+        };
+        return statusLabels[status] || status;
+    };
+
+    // Componente Toast
+    const Toast = () => {
+        if (!toastMessage) return null;
+
+        const { type, title, message } = toastMessage;
+
+        let bgColor, icon;
+        switch (type) {
+            case 'success':
+                bgColor = 'bg-green-50 border-l-4 border-green-500 text-green-700';
+                icon = <CheckCircle className="w-5 h-5" />;
+                break;
+            case 'error':
+                bgColor = 'bg-red-50 border-l-4 border-red-500 text-red-700';
+                icon = <AlertCircle className="w-5 h-5" />;
+                break;
+            case 'warning':
+                bgColor = 'bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700';
+                icon = <AlertTriangle className="w-5 h-5" />;
+                break;
+            case 'info':
+                bgColor = 'bg-blue-50 border-l-4 border-blue-500 text-blue-700';
+                icon = <AlertCircle className="w-5 h-5" />;
+                break;
+            default:
+                bgColor = 'bg-gray-50 border-l-4 border-gray-500 text-gray-700';
+                icon = <AlertCircle className="w-5 h-5" />;
+        }
+
+        return (
+            <div className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg max-w-md z-50 ${bgColor} animate-fadeIn`}>
+                <div className="flex items-center">
+                    <div className="mr-3">{icon}</div>
+                    <div>
+                        <h3 className="font-medium">{title}</h3>
+                        <p className="text-sm mt-1">{message}</p>
+                    </div>
+                    <button
+                        className="ml-auto p-1 hover:bg-gray-200 rounded-full transition-colors"
+                        onClick={() => setToastMessage(null)}
+                    >
+                        <X className="w-4 h-4" />
+                    </button>
+                </div>
+            </div>
+        );
+    };
+
+    // Se não tem produtorId, mostrar erro
+    if (!produtorId) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <Toast />
+                <div className="text-center max-w-md mx-auto p-8">
+                    <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">ID do Produtor não encontrado</h3>
+                    <p className="text-gray-500 mb-6">
+                        A URL não contém um ID de produtor válido. Verifique o link e tente novamente.
+                    </p>
+                    <button
+                        onClick={handleBack}
+                        className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                        <ArrowLeft className="w-4 h-4 mr-2" />
+                        Voltar para Certificados
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-gray-50">
+            <Toast />
+
+            {/* Cabeçalho */}
+            <div className="bg-white shadow-sm border-b border-gray-200">
+                <div className=" mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex items-center justify-between h-16">
+                        <div className="flex items-center">
+                            <button
+                                onClick={() => navigate(-1)}
+                                className="mr-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
+                                title="Voltar"
+                            >
+                                <ArrowLeft className="w-5 h-5 text-gray-600" />
+                            </button>
+                            <div>
+                                <h1 className="text-xl font-semibold text-gray-900">Certificados do Produtor</h1>
+                                <p className="text-sm text-gray-500">Visualização e gestão de certificados</p>
+                            </div>
+                        </div>
+
+                        {certificadosProdutor.length > 0 && (
+                            <div className="flex items-center space-x-3">
+                                <span className="text-sm text-gray-600">
+                                    {selectedCertificados.length} de {certificadosProdutor.length} selecionados
+                                </span>
+                                <button
+                                    onClick={handleSelectAll}
+                                    className="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+                                >
+                                    {selectedCertificados.length === certificadosProdutor.length ? 'Desmarcar Todos' : 'Selecionar Todos'}
+                                </button>
+                                <button
+                                    onClick={handlePrintBatch}
+                                    disabled={selectedCertificados.length === 0}
+                                    className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors ${selectedCertificados.length === 0
+                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                        : 'bg-blue-600 hover:bg-blue-700 text-white'
+                                        }`}
+                                >
+                                    <Download className="w-4 h-4 mr-2" />
+                                    Gerar Selecionados
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* Informações do Produtor */}
+                {loadingProdutor ? (
+                    <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+                        <div className="animate-pulse">
+                            <div className="flex items-center">
+                                <div className="w-20 h-20 bg-gray-300 rounded-full"></div>
+                                <div className="ml-6 space-y-3">
+                                    <div className="h-6 bg-gray-300 rounded w-64"></div>
+                                    <div className="h-4 bg-gray-300 rounded w-48"></div>
+                                    <div className="h-4 bg-gray-300 rounded w-56"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ) : produtor ? (
+                    <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+                        <div className="flex items-start">
+                            <ProdutorAvatar
+                                produtor={{
+                                    id: produtorId, 
+                                    nome: produtor.beneficiary_name ||
+                                        `${produtor.nome_produtor || ''} ${produtor.sobrenome_produtor || ''}`.trim()
+                                }}
+                                size="w-20 h-20"  
+                                textSize="text-lg"
+                            />
+                            <div className="ml-6 flex-1">
+                                <h2 className="text-2xl font-bold text-gray-900">
+                                    {produtor.beneficiary_name || `${produtor.nome_produtor || ''} ${produtor.sobrenome_produtor || ''}`.trim()}
+                                </h2>
+                                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <div className="flex items-center text-gray-600">
+                                        <IdCard className="w-4 h-4 mr-2 text-blue-500" />
+                                        <span className="text-sm">BI: {produtor.beneficiary_id_number || 'N/A'}</span>
+                                    </div>
+                                    <div className="flex items-center text-gray-600">
+                                        <Phone className="w-4 h-4 mr-2 text-blue-500" />
+                                        <span className="text-sm">{produtor.beneficiary_phone_number || 'N/A'}</span>
+                                    </div>
+                                    <div className="flex items-center text-gray-600">
+                                        <MapPin className="w-4 h-4 mr-2 text-blue-500" />
+                                        <span className="text-sm">{produtor.municipio || 'N/A'}, {produtor.provincia?.toUpperCase() || 'N/A'}</span>
+                                    </div>
+                                    <div className="flex items-center text-gray-600">
+                                        <User className="w-4 h-4 mr-2 text-blue-500" />
+                                        <span className="text-sm">Código: {produtor.codigo_inquiridor || 'N/A'}</span>
+                                    </div>
+                                </div>
+                                <div className="mt-4 flex flex-wrap gap-2">
+                                    {produtor.atividades_produtor?.split(' ').map((atividade, index) => (
+                                        <span key={index} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                            {atividade.toUpperCase()}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+                        <div className="text-center py-4">
+                            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+                            <h3 className="text-lg font-medium text-gray-900">Produtor não encontrado</h3>
+                            <p className="text-gray-500">Não foi possível carregar os dados do produtor.</p>
+                        </div>
+                    </div>
+                )}
+
+                {/* Lista de Certificados */}
+
+                {/* Estatísticas dos certificados */}
+                {!loadingCertificados && certificadosProdutor.length > 0 && (
+                    <div className="mt-8 mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="bg-white rounded-xl shadow-md p-6">
+                            <div className="flex items-center">
+                                <div className="p-3 bg-blue-100 rounded-full">
+                                    <Award className="w-6 h-6 text-blue-600" />
+                                </div>
+                                <div className="ml-4">
+                                    <p className="text-sm font-medium text-gray-500">Total</p>
+                                    <p className="text-2xl font-bold text-gray-900">{certificadosProdutor.length}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-xl shadow-md p-6">
+                            <div className="flex items-center">
+                                <div className="p-3 bg-green-100 rounded-full">
+                                    <CheckCircle className="w-6 h-6 text-green-600" />
+                                </div>
+                                <div className="ml-4">
+                                    <p className="text-sm font-medium text-gray-500">Activos</p>
+                                    <p className="text-2xl font-bold text-gray-900">
+                                        {certificadosProdutor.filter(c => c.statusCertificado === 'ATIVO').length}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-xl shadow-md p-6">
+                            <div className="flex items-center">
+                                <div className="p-3 bg-yellow-100 rounded-full">
+                                    <AlertTriangle className="w-6 h-6 text-yellow-600" />
+                                </div>
+                                <div className="ml-4">
+                                    <p className="text-sm font-medium text-gray-500">Próx. Vencimento</p>
+                                    <p className="text-2xl font-bold text-gray-900">
+                                        {certificadosProdutor.filter(c => c.statusCertificado === 'PROXIMO_VENCIMENTO').length}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-xl shadow-md p-6">
+                            <div className="flex items-center">
+                                <div className="p-3 bg-red-100 rounded-full">
+                                    <X className="w-6 h-6 text-red-600" />
+                                </div>
+                                <div className="ml-4">
+                                    <p className="text-sm font-medium text-gray-500">Expirados</p>
+                                    <p className="text-2xl font-bold text-gray-900">
+                                        {certificadosProdutor.filter(c => c.statusCertificado === 'EXPIRADO').length}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+                <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                            <Award className="w-6 h-6 mr-2 text-blue-600" />
+                            Certificados ({certificadosProdutor.length})
+                        </h3>
+                    </div>
+
+                    {loadingCertificados ? (
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            {[1, 2, 3, 4].map((i) => (
+                                <div key={i} className="bg-white rounded-xl shadow-md p-6">
+                                    <div className="animate-pulse">
+                                        <div className="flex items-start">
+                                            <div className="w-12 h-12 bg-gray-300 rounded-full"></div>
+                                            <div className="ml-4 flex-1 space-y-3">
+                                                <div className="h-5 bg-gray-300 rounded w-3/4"></div>
+                                                <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+                                                <div className="h-4 bg-gray-300 rounded w-2/3"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : certificadosProdutor.length === 0 ? (
+                        <div className="bg-white rounded-xl shadow-md p-12 text-center">
+                            <Award className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                            <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum certificado encontrado</h3>
+                            <p className="text-gray-500 max-w-md mx-auto">
+                                Este produtor ainda não possui certificados cadastrados no sistema.
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            {certificadosProdutor.map((certificado) => (
+                                <div key={certificado.id} className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 overflow-hidden">
+                                    {/* Header do Card */}
+                                    <div className="p-6 border-b border-gray-100">
+                                        <div className="flex items-start justify-between">
+                                            <div className="flex items-start">
+                                                <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center text-white shadow-sm">
+                                                    <Award className="w-6 h-6" />
+                                                </div>
+                                                <div className="ml-4">
+                                                    <h4 className="text-lg font-semibold text-gray-900">{certificado.numeroProcesso}</h4>
+                                                    <p className="text-sm text-gray-600 mt-1">ID: {certificado.id}</p>
+                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border mt-2 ${getStatusColor(certificado.statusCertificado)}`}>
+                                                        {getStatusLabel(certificado.statusCertificado)}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center space-x-2">
+                                                <label className="flex items-center cursor-pointer">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedCertificados.includes(certificado.id)}
+                                                        onChange={() => handleSelectCertificado(certificado.id)}
+                                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                                    />
+                                                    <span className="ml-2 text-sm text-gray-600">Selecionar</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Conteúdo do Card */}
+                                    <div className="p-6 space-y-4">
+                                        {/* Propriedade */}
+                                        <div>
+                                            <h5 className="text-sm font-medium text-gray-700 mb-2 flex items-center">
+                                                <MapPin className="w-4 h-4 mr-1 text-green-500" />
+                                                Propriedade
+                                            </h5>
+                                            <p className="text-sm text-gray-900 font-medium">
+                                                {certificado.nomeDaPropriedade || 'Nome não informado'}
+                                            </p>
+                                            <div className="mt-1 flex items-center text-xs text-gray-600">
+                                                <Tractor className="w-3.5 h-3.5 mr-1" />
+                                                {certificado.atividadePrincipal}
+                                                {certificado.areaTotalExplorada > 0 && ` • ${certificado.areaTotalExplorada} ha`}
+                                            </div>
+                                        </div>
+
+                                        {/* Técnico e Vigência */}
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div>
+                                                <h5 className="text-sm font-medium text-gray-700 mb-1 flex items-center">
+                                                    <User className="w-4 h-4 mr-1 text-blue-500" />
+                                                    Técnico
+                                                </h5>
+                                                <p className="text-sm text-gray-900">{certificado.tecnicoResponsavel}</p>
+                                            </div>
+                                            <div>
+                                                <h5 className="text-sm font-medium text-gray-700 mb-1 flex items-center">
+                                                    <Calendar className="w-4 h-4 mr-1 text-blue-500" />
+                                                    Vigência
+                                                </h5>
+                                                <p className="text-sm text-gray-900">
+                                                    {formatDate(certificado.validoDe)} - {formatDate(certificado.validoAte)}
+                                                </p>
+                                                {certificado.statusCertificado === 'PROXIMO_VENCIMENTO' && (
+                                                    <p className="text-xs text-yellow-600 font-medium mt-1">
+                                                        Vence em {getDaysToExpiry(certificado.validoAte)} dias
+                                                    </p>
+                                                )}
+                                                {certificado.statusCertificado === 'EXPIRADO' && (
+                                                    <p className="text-xs text-red-600 font-medium mt-1">
+                                                        Expirado há {Math.abs(getDaysToExpiry(certificado.validoAte))} dias
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                       {/* Finalidades */}
+                                        {certificado.finalidadeCertificado.length > 0 && (
+                                            <div>
+                                                <h5 className="text-sm font-medium text-gray-700 mb-2 flex items-center">
+                                                    <FileText className="w-4 h-4 mr-1 text-green-500" />
+                                                    Finalidades
+                                                </h5>
+                                                <div className="flex flex-wrap gap-1">
+                                                    {certificado.finalidadeCertificado.slice(0, 3).map((finalidade, index) => (
+                                                        <span key={index} className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-green-50 text-green-700 border border-green-200">
+                                                            {finalidade.replace(/[-_]/g, ' ').toUpperCase()}
+                                                        </span>
+                                                    ))}
+                                                    {certificado.finalidadeCertificado.length > 3 && (
+                                                        <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-50 text-gray-700 border border-gray-200">
+                                                            +{certificado.finalidadeCertificado.length - 3} mais
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+
+
+                                        {/* Históricos */}
+                                        <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-100">
+                                            <div className="text-center">
+                                                <div className="text-lg font-semibold text-gray-900">
+                                                    {certificado.dadosOriginais?.historicoDeProducaoAgricolas?.length || 0}
+                                                </div>
+                                                <div className="text-xs text-gray-500">Agrícola</div>
+                                            </div>
+                                            <div className="text-center">
+                                                <div className="text-lg font-semibold text-gray-900">
+                                                    {certificado.dadosOriginais?.historicoDeProduaooPecuarias?.length || 0}
+                                                </div>
+                                                <div className="text-xs text-gray-500">Pecuária</div>
+                                            </div>
+                                            <div className="text-center">
+                                                <div className="text-lg font-semibold text-gray-900">
+                                                    {certificado.dadosOriginais?.historicoDeVistorias?.length || 0}
+                                                </div>
+                                                <div className="text-xs text-gray-500">Vistorías</div>
+                                            </div>
+                                        </div>
+
+                                        {/* Observações */}
+                                        {certificado.observacoesTecnicas && certificado.observacoesTecnicas !== 'Nenhuma observação' && (
+                                            <div className="pt-4 border-t border-gray-100">
+                                                <h5 className="text-sm font-medium text-gray-700 mb-2 flex items-center">
+                                                    <Info className="w-4 h-4 mr-1 text-green-500" />
+                                                    Observações
+                                                </h5>
+                                                <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+                                                    {certificado.observacoesTecnicas}
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        {/* Botão de Download Individual */}
+                                        <div className="pt-4 border-t border-gray-100">
+                                            <button
+                                                onClick={() => handleDownloadCertificado(certificado)}
+                                                disabled={gerandoCertificado === certificado.id}
+                                                className={`w-full inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors ${gerandoCertificado === certificado.id
+                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                    : 'bg-green-600 hover:bg-green-700 text-white shadow-sm hover:shadow-md'
+                                                    }`}
+                                            >
+                                                {gerandoCertificado === certificado.id ? (
+                                                    <>
+                                                        <Clock className="w-4 h-4 mr-2 animate-spin" />
+                                                        Gerando Certificado...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Download className="w-4 h-4 mr-2" />
+                                                        Baixar Certificado
+                                                    </>
+                                                )}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+
+            </div>
+        </div>
+    );
+};
+
+export default VisualizarCertificados;

@@ -1,0 +1,42 @@
+[
+  {
+    "codigo": "INQ001",
+    "nomeCompleto": "João Manuel Silva Santos"
+  },
+  {
+    "codigo": "INQ002", 
+    "nomeCompleto": "Maria Fernanda Costa Pereira"
+  },
+  {
+    "codigo": "INQ003",
+    "nomeCompleto": "António Carlos Mendes Rodrigues"
+  },
+  {
+    "codigo": "INQ004",
+    "nomeCompleto": "Ana Paula Ferreira Lima"
+  },
+  {
+    "codigo": "INQ005",
+    "nomeCompleto": "Pedro Miguel Sousa Alves"
+  },
+  {
+    "codigo": "INQ006",
+    "nomeCompleto": "Luísa Fernanda Baptista"
+  },
+  {
+    "codigo": "INQ007",
+    "nomeCompleto": "Carlos Alberto Moreira"
+  },
+  {
+    "codigo": "INQ008",
+    "nomeCompleto": "Esperança Maria Neto"
+  },
+  {
+    "codigo": "INQ009",
+    "nomeCompleto": "Fernando José Cardoso"
+  },
+  {
+    "codigo": "INQ010",
+    "nomeCompleto": "Benedita Luís Sebastião"
+  }
+]
