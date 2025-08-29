@@ -34,10 +34,16 @@ const rnpaRoutes = {
       path: '/GerenciaRNPA/gestao-agricultores',
       submenu: true
     },
-     {
+    {
       text: 'Gestão Florestal',
       icon: TreePine,
       path: '/GerenciaRNPA/gestao-florestal',
+      submenu: true
+    },
+    {
+      text: 'Sanções',
+      icon: FileText,
+      path: '/GerenciaRNPA/sancoes',
       submenu: true
     },
     {
@@ -47,10 +53,10 @@ const rnpaRoutes = {
       submenu: true
     },
     //{
-     // text: 'Agentes de Campo',
-     // icon: UserCheck,
-      //path: '/GerenciaRNPA/agentes-campo',
-      //submenu: true
+    // text: 'Agentes de Campo',
+    // icon: UserCheck,
+    //path: '/GerenciaRNPA/agentes-campo',
+    //submenu: true
     //},
     // {
     //   text: 'Validação e Certificação',
@@ -105,17 +111,23 @@ const rnpaRoutes = {
       //{ text: 'Certificação da Qualidade do Produto', icon: Search, path: '/GerenciaRNPA/gestao-agricultores/verificacao' },
       //{ text: 'Geolocalização', icon: MapPin, path: '/GerenciaRNPA/gestao-agricultores/geolocalizacao' },
     ],
+    'Sanções': [
+      { text: 'Registrar Infração', icon: Plus, path: '/GerenciaRNPA/sancoes/inserir' },
+      { text: 'Histórico de Penalidades', icon: Award, path: '/GerenciaRNPA/sancoes/historico' },
+      //{ text: 'Distribuição Insumos', icon: Tractor, path: '/GerenciaRNPA/programas-beneficios/insumos' },
+      //{ text: 'Acompanhamento', icon: TrendingUp, path: '/GerenciaRNPA/programas-beneficios/acompanhamento' }
+    ],
     'Entidades Associativas': [
       { text: 'Cooperativas', icon: Building2, path: '/GerenciaRNPA/entidades-associativas/cooperativas' },
       { text: 'Associações Rurais', icon: TreePine, path: '/GerenciaRNPA/entidades-associativas/associacoes' },
-     
+
       //{ text: 'Documentos Legais', icon: FileText, path: '/GerenciaRNPA/entidades-associativas/documentos' },
       //{ text: 'Membros', icon: Users, path: '/GerenciaRNPA/entidades-associativas/membros' },
       //{ text: 'Histórico de Projectos', icon: Calendar, path: '/GerenciaRNPA/entidades-associativas/projectos' }
     ],
     //'Agentes de Campo': [
     //  { text: 'Perfil dos Agentes', icon: UserCheck, path: '/GerenciaRNPA/agentes-campo/perfis' },
-   //   { text: 'Territórios', icon: MapPin, path: '/GerenciaRNPA/agentes-campo/territorios' },
+    //   { text: 'Territórios', icon: MapPin, path: '/GerenciaRNPA/agentes-campo/territorios' },
     //  { text: 'Interface Móvel', icon: Globe, path: '/GerenciaRNPA/agentes-campo/interface-movel' },
     //  { text: 'Recolha de Dados', icon: FileText, path: '/GerenciaRNPA/agentes-campo/recolha-dados' },
     //  { text: 'Cobertura Geográfica', icon: BarChart3, path: '/GerenciaRNPA/agentes-campo/cobertura' }
@@ -150,7 +162,7 @@ const rnpaRoutes = {
     //  { text: 'Pesquisa Avançada', icon: Search, path: '/GerenciaRNPA/arquivo-digital/pesquisa' },
     //  { text: 'Gestão de Arquivos', icon: Settings, path: '/GerenciaRNPA/arquivo-digital/gestao' }
     //],
-   // 'Helpdesk e Formação': [
+    // 'Helpdesk e Formação': [
     //  { text: 'Sistema de Tickets', icon: HelpCircle, path: '/GerenciaRNPA/helpdesk-formacao/tickets' },
     //  { text: 'Base de Conhecimento', icon: FileText, path: '/GerenciaRNPA/helpdesk-formacao/conhecimento' },
     //  { text: 'Materiais de Formação', icon: Award, path: '/GerenciaRNPA/helpdesk-formacao/materiais' },
@@ -171,7 +183,7 @@ const Layout = () => {
   const [menuTransition, setMenuTransition] = useState('none');
   const [showDashboardStats, setShowDashboardStats] = useState(false);
 
- 
+
 
   // Determinar o menu e submenu ativo com base na URL atual
   useEffect(() => {
@@ -535,7 +547,7 @@ const Layout = () => {
         {/* Main Content */}
         <main className="flex-1 overflow-auto p-4 md:p-6">
           <div className="bg-white border-r-2 border-l-2 rounded-lg shadow-md p-4 md:p-6 ">
-            
+
             <Outlet />
           </div>
         </main>

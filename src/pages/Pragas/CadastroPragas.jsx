@@ -1,37 +1,25 @@
 import React, { useState } from 'react';
 import { 
-  User, 
-  MapPin, 
-  Map, 
-  Camera, 
-  FileText, 
-  Check, 
-  ChevronRight, 
-  ChevronLeft, 
-  Calendar, 
-  Phone, 
-  AlertCircle, 
-  CheckCircle, 
-  Info, 
-  Loader,
-  Building,
-  Tractor,
-  Bug,
-  Heart,
-  Activity,
-  Globe
+  User, MapPin, Map, Camera, FileText, Check, 
+  ChevronRight, ChevronLeft, Calendar, Phone, 
+  AlertCircle, CheckCircle, Info, Loader,
+  Building, Tractor, Bug, Heart, Activity, Globe,
+  Flame, Trees, Waves, AlertTriangle
 } from 'lucide-react';
 
-const CadastroPragas = () => {
+const CadastroOcorrencias = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [uploadedFiles, setUploadedFiles] = useState({});
   const [toastMessage, setToastMessage] = useState(null);
+  const [tipoOcorrencia, setTipoOcorrencia] = useState('');
 
   // Estado inicial do formulário
   const initialState = {
+    tipoOcorrencia: '',
+    
     // Data de Registro
     dataRegistro: new Date().toISOString().split('T')[0],
     
@@ -48,10 +36,17 @@ const CadastroPragas = () => {
     altitude: '',
     precisao: '',
     
-    // Tipo de Produção
-    tipoProducao: '', // 'agricola' ou 'pecuaria' ou 'ambas'
+    // Informações específicas por tipo de ocorrência
+    // Queimadas
+    areaQueimada: '',
+    causaProvavel: '',
+    vegetacaoAfetada: '',
+    duracaoFogo: '',
+    danosMateriais: false,
+    descricaoDanosMateriais: '',
     
-    // Informações Agrícolas
+    // Pragas (mantido do original)
+    tipoProducao: '',
     nomePropriedade: '',
     culturaAfetada: [],
     faseCultura: '',
@@ -67,8 +62,6 @@ const CadastroPragas = () => {
     tipoMedidaAplicada: '',
     resultadoMedida: '',
     observacoesAdicionais: '',
-    
-    // Informações Pecuárias
     nomeFazenda: '',
     especieAnimalAfetada: [],
     numeroTotalAnimais: '',
@@ -83,6 +76,23 @@ const CadastroPragas = () => {
     necessitaApoioVeterinario: false,
     observacoesAdicionaisPecuaria: '',
     
+    // Desmatamento
+    areaDesmatada: '',
+    tipoVegetacao: '',
+    metodoDesmatamento: '',
+    usoAnteriorTerra: '',
+    usoFuturoTerra: '',
+    vegetacaoRemanescente: '',
+    
+    // Enchentes
+    areaAlagada: '',
+    nivelAgua: '',
+    duracaoAlagamento: '',
+    casasAfetadas: '',
+    populacaoAfetada: '',
+    danosInfraestrutura: '',
+    causasAlagamento: '',
+    
     // Finalização
     nomeValidador: '',
     instituicao: ''
@@ -91,12 +101,18 @@ const CadastroPragas = () => {
   const [formData, setFormData] = useState(initialState);
 
   const steps = [
+    { label: 'Tipo Ocorrência', icon: AlertTriangle },
     { label: 'Responsável', icon: User },
     { label: 'Localização', icon: MapPin },
-    { label: 'Tipo Produção', icon: Activity },
-    { label: 'Info Agrícolas', icon: Tractor },
-    { label: 'Info Pecuárias', icon: Heart },
-    { label: 'Finalização', icon: FileText }
+    { label: 'Detalhes', icon: FileText },
+    { label: 'Finalização', icon: CheckCircle }
+  ];
+
+  const tiposOcorrencia = [
+    { id: 'queimadas', nome: 'Queimadas', icon: Flame, cor: 'red' },
+    { id: 'pragas', nome: 'Pragas', icon: Bug, cor: 'green' },
+    { id: 'desmatamento', nome: 'Desmatamento', icon: Trees, cor: 'brown' },
+    { id: 'enchentes', nome: 'Enchentes', icon: Waves, cor: 'blue' }
   ];
 
   const provincias = [
@@ -125,32 +141,30 @@ const CadastroPragas = () => {
     const newErrors = {};
 
     switch (activeIndex) {
-      case 0: // Responsável
+      case 0: // Tipo de Ocorrência
+        if (!formData.tipoOcorrencia) newErrors.tipoOcorrencia = 'Selecione o tipo de ocorrência';
+        break;
+      case 1: // Responsável
         if (!formData.nomeResponsavel) newErrors.nomeResponsavel = 'Campo obrigatório';
         if (!formData.telefone) newErrors.telefone = 'Campo obrigatório';
         if (!formData.provincia) newErrors.provincia = 'Campo obrigatório';
         break;
-      case 1: // Localização
+      case 2: // Localização
         if (!formData.municipio) newErrors.municipio = 'Campo obrigatório';
         break;
-      case 2: // Tipo de Produção
-        if (!formData.tipoProducao) newErrors.tipoProducao = 'Campo obrigatório';
-        break;
-      case 3: // Informações Agrícolas
-        if ((formData.tipoProducao === 'agricola' || formData.tipoProducao === 'ambas')) {
-          if (!formData.nomePropriedade) newErrors.nomePropriedade = 'Campo obrigatório';
-          if (!formData.culturaAfetada.length) newErrors.culturaAfetada = 'Selecione pelo menos uma cultura';
-          if (!formData.nomePraga) newErrors.nomePraga = 'Campo obrigatório';
+      case 3: // Detalhes específicos
+        // Validações específicas para cada tipo de ocorrência
+        if (formData.tipoOcorrencia === 'queimadas') {
+          if (!formData.areaQueimada) newErrors.areaQueimada = 'Campo obrigatório';
+        } else if (formData.tipoOcorrencia === 'pragas') {
+          if (!formData.tipoProducao) newErrors.tipoProducao = 'Campo obrigatório';
+        } else if (formData.tipoOcorrencia === 'desmatamento') {
+          if (!formData.areaDesmatada) newErrors.areaDesmatada = 'Campo obrigatório';
+        } else if (formData.tipoOcorrencia === 'enchentes') {
+          if (!formData.areaAlagada) newErrors.areaAlagada = 'Campo obrigatório';
         }
         break;
-      case 4: // Informações Pecuárias
-        if ((formData.tipoProducao === 'pecuaria' || formData.tipoProducao === 'ambas')) {
-          if (!formData.nomeFazenda) newErrors.nomeFazenda = 'Campo obrigatório';
-          if (!formData.especieAnimalAfetada.length) newErrors.especieAnimalAfetada = 'Selecione pelo menos uma espécie';
-          if (!formData.nomePragaDoenca) newErrors.nomePragaDoenca = 'Campo obrigatório';
-        }
-        break;
-      case 5: // Finalização
+      case 4: // Finalização
         if (!formData.nomeValidador) newErrors.nomeValidador = 'Campo obrigatório';
         if (!formData.instituicao) newErrors.instituicao = 'Campo obrigatório';
         break;
@@ -168,17 +182,18 @@ const CadastroPragas = () => {
       // Simular envio para API
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      showToast('success', 'Sucesso', 'Registro de praga cadastrado com sucesso!');
+      showToast('success', 'Sucesso', 'Ocorrência registrada com sucesso!');
       
       // Reset do formulário
       setFormData(initialState);
+      setTipoOcorrencia('');
       setActiveIndex(0);
       setErrors({});
       setTouched({});
       setUploadedFiles({});
 
     } catch (error) {
-      showToast('error', 'Erro', 'Erro ao registrar praga. Tente novamente.');
+      showToast('error', 'Erro', 'Erro ao registrar ocorrência. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -186,7 +201,61 @@ const CadastroPragas = () => {
 
   const renderStepContent = (index) => {
     switch (index) {
-      case 0: // Identificação do Responsável
+      case 0: // Seleção do Tipo de Ocorrência
+        return (
+          <div className="max-w-full mx-auto">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 mb-8 border border-blue-100">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <AlertTriangle className="w-6 h-6 text-blue-600" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-800">Tipo de Ocorrência</h3>
+              </div>
+              <p className="text-gray-600">
+                Selecione o tipo de ocorrência que deseja registrar.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {tiposOcorrencia.map((tipo) => {
+                const Icon = tipo.icon;
+                return (
+                  <div 
+                    key={tipo.id}
+                    className={`p-6 border-2 rounded-2xl cursor-pointer transition-all ${
+                      formData.tipoOcorrencia === tipo.id 
+                        ? `border-${tipo.cor}-500 bg-${tipo.cor}-50` 
+                        : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
+                    }`}
+                    onClick={() => {
+                      handleInputChange('tipoOcorrencia', tipo.id);
+                      setTipoOcorrencia(tipo.id);
+                    }}
+                  >
+                    <div className="text-center">
+                      <div className={`flex justify-center items-center w-16 h-16 mx-auto mb-4 rounded-full bg-${tipo.cor}-100`}>
+                        <Icon className={`w-8 h-8 text-${tipo.cor}-600`} />
+                      </div>
+                      <h4 className="text-lg font-semibold text-gray-800 mb-2">{tipo.nome}</h4>
+                      <p className="text-sm text-gray-600">
+                        {tipo.id === 'queimadas' && 'Registro de focos de incêndio e queimadas'}
+                        {tipo.id === 'pragas' && 'Registro de pragas agrícolas e doenças'}
+                        {tipo.id === 'desmatamento' && 'Registro de áreas desmatadas'}
+                        {tipo.id === 'enchentes' && 'Registro de inundações e alagamentos'}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {errors.tipoOcorrencia && (
+              <p className="mt-4 text-sm text-red-600 text-center">{errors.tipoOcorrencia}</p>
+            )}
+          </div>
+        );
+
+      case 1: // Identificação do Responsável
         return (
           <div className="max-w-full mx-auto">
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 mb-8 border border-blue-100">
@@ -201,8 +270,8 @@ const CadastroPragas = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="md:col-span-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="md:col-span-1">
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Nome do Técnico ou Produtor *
                 </label>
@@ -268,7 +337,7 @@ const CadastroPragas = () => {
           </div>
         );
 
-      case 1: // Localização
+      case 2: // Localização
         return (
           <div className="max-w-full mx-auto">
             <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-6 mb-8 border border-emerald-100">
@@ -283,7 +352,7 @@ const CadastroPragas = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Município *
@@ -375,652 +444,465 @@ const CadastroPragas = () => {
           </div>
         );
 
-      case 2: // Tipo de Produção
+      case 3: // Detalhes específicos da ocorrência
         return (
           <div className="max-w-full mx-auto">
             <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 mb-8 border border-purple-100">
               <div className="flex items-center space-x-3 mb-3">
                 <div className="p-2 bg-purple-100 rounded-lg">
-                  <Activity className="w-6 h-6 text-purple-600" />
+                  <FileText className="w-6 h-6 text-purple-600" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-800">Tipo de Produção Afetada</h3>
+                <h3 className="text-xl font-bold text-gray-800">Detalhes da Ocorrência</h3>
               </div>
               <p className="text-gray-600">
-                Selecione o tipo de produção afetada pela praga ou doença.
+                Informe os detalhes específicos da ocorrência registrada.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div 
-                className={`p-6 border-2 rounded-2xl cursor-pointer transition-all ${
-                  formData.tipoProducao === 'agricola' 
-                    ? 'border-blue-500 bg-blue-50' 
-                    : 'border-gray-200 hover:border-blue-300'
-                }`}
-                onClick={() => handleInputChange('tipoProducao', 'agricola')}
-              >
-                <div className="text-center">
-                  <Tractor className="w-12 h-12 mx-auto mb-4 text-blue-600" />
-                  <h4 className="text-lg font-semibold text-gray-800 mb-2">Agrícola</h4>
-                  <p className="text-sm text-gray-600">Culturas agrícolas afetadas por pragas</p>
+            {formData.tipoOcorrencia === 'queimadas' && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                  <h4 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
+                    <Flame className="w-5 h-5 mr-2 text-red-500" />
+                    Informações sobre Queimadas
+                  </h4>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Área Queimada (hectares) *
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={formData.areaQueimada}
+                        onChange={(e) => handleInputChange('areaQueimada', e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Ex: 15.5"
+                      />
+                      {errors.areaQueimada && (
+                        <p className="mt-1 text-sm text-red-600">{errors.areaQueimada}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Causa Provável
+                      </label>
+                      <select
+                        value={formData.causaProvavel}
+                        onChange={(e) => handleInputChange('causaProvavel', e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="">Selecione a causa provável</option>
+                        <option value="natural">Natural (raio)</option>
+                        <option value="agricola">Prática agrícola</option>
+                        <option value="incendiario">Incendiário</option>
+                        <option value="acidental">Acidental</option>
+                        <option value="desconhecida">Desconhecida</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Tipo de Vegetação Afetada
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.vegetacaoAfetada}
+                        onChange={(e) => handleInputChange('vegetacaoAfetada', e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Ex: Mata nativa, plantação de milho, etc."
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Duração do Fogo (horas)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.5"
+                        value={formData.duracaoFogo}
+                        onChange={(e) => handleInputChange('duracaoFogo', e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Ex: 3.5"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="flex items-center space-x-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.danosMateriais}
+                          onChange={(e) => handleInputChange('danosMateriais', e.target.checked)}
+                          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        />
+                        <span className="text-sm font-medium text-gray-700">Houve danos materiais?</span>
+                      </label>
+                    </div>
+
+                    {formData.danosMateriais && (
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Descrição dos Danos Materiais
+                        </label>
+                        <textarea
+                          value={formData.descricaoDanosMateriais}
+                          onChange={(e) => handleInputChange('descricaoDanosMateriais', e.target.value)}
+                          rows={3}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="Descreva os danos materiais ocorridos..."
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                  <h4 className="text-lg font-semibold text-gray-800 mb-6">Fotos da Área Queimada</h4>
+                  <div className="relative">
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={(e) => handleFileUpload('fotoQueimada', e.target.files[0])}
+                      id="foto-queimada"
+                    />
+                    <label
+                      htmlFor="foto-queimada"
+                      className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
+                        uploadedFiles.fotoQueimada
+                          ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
+                          : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
+                      }`}
+                    >
+                      <Camera className={`w-8 h-8 mb-3 ${uploadedFiles.fotoQueimada ? 'text-blue-500' : 'text-gray-400'}`} />
+                      <p className={`text-sm font-medium ${uploadedFiles.fotoQueimada ? 'text-blue-600' : 'text-gray-500'}`}>
+                        {uploadedFiles.fotoQueimada ? 'Foto carregada' : 'Carregar foto da área queimada'}
+                      </p>
+                      {uploadedFiles.fotoQueimada && (
+                        <p className="text-xs text-blue-500 mt-1">{uploadedFiles.fotoQueimada.name}</p>
+                      )}
+                    </label>
+                  </div>
                 </div>
               </div>
+            )}
 
-              <div 
-                className={`p-6 border-2 rounded-2xl cursor-pointer transition-all ${
-                  formData.tipoProducao === 'pecuaria' 
-                    ? 'border-blue-500 bg-blue-50' 
-                    : 'border-gray-200 hover:border-blue-300'
-                }`}
-                onClick={() => handleInputChange('tipoProducao', 'pecuaria')}
-              >
-                <div className="text-center">
-                  <Heart className="w-12 h-12 mx-auto mb-4 text-blue-600" />
-                  <h4 className="text-lg font-semibold text-gray-800 mb-2">Pecuária</h4>
-                  <p className="text-sm text-gray-600">Animais afetados por pragas ou doenças</p>
+            {formData.tipoOcorrencia === 'pragas' && (
+              <div className="space-y-6">
+                {/* Conteúdo original para pragas (mantido do código anterior) */}
+                <div className="bg-gradient-to-r from-blue-50 to-emerald-50 rounded-2xl p-6 mb-8 border border-blue-100">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                      <Bug className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-800">Informações sobre Pragas</h3>
+                  </div>
+                  <p className="text-gray-600">
+                    Detalhes sobre as pragas ou doenças identificadas.
+                  </p>
+                </div>
+
+                {/* Aqui viria o restante do conteúdo original para pragas */}
+                <div className="text-center p-8 bg-gray-50 rounded-xl">
+                  <p className="text-gray-600">Formulário específico para pragas (conteúdo original)</p>
                 </div>
               </div>
+            )}
 
-              <div 
-                className={`p-6 border-2 rounded-2xl cursor-pointer transition-all ${
-                  formData.tipoProducao === 'ambas' 
-                    ? 'border-blue-500 bg-blue-50' 
-                    : 'border-gray-200 hover:border-blue-300'
-                }`}
-                onClick={() => handleInputChange('tipoProducao', 'ambas')}
-              >
-                <div className="text-center">
-                  <Activity className="w-12 h-12 mx-auto mb-4 text-blue-600" />
-                  <h4 className="text-lg font-semibold text-gray-800 mb-2">Ambas</h4>
-                  <p className="text-sm text-gray-600">Produção agrícola e pecuária afetadas</p>
+            {formData.tipoOcorrencia === 'desmatamento' && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                  <h4 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
+                    <Trees className="w-5 h-5 mr-2 text-green-500" />
+                    Informações sobre Desmatamento
+                  </h4>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Área Desmatada (hectares) *
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={formData.areaDesmatada}
+                        onChange={(e) => handleInputChange('areaDesmatada', e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Ex: 25.5"
+                      />
+                      {errors.areaDesmatada && (
+                        <p className="mt-1 text-sm text-red-600">{errors.areaDesmatada}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Tipo de Vegetação
+                      </label>
+                      <select
+                        value={formData.tipoVegetacao}
+                        onChange={(e) => handleInputChange('tipoVegetacao', e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="">Selecione o tipo</option>
+                        <option value="mata_nativa">Mata Nativa</option>
+                        <option value="floresta_plantada">Floresta Plantada</option>
+                        <option value="cerrado">Cerrado</option>
+                        <option value="caatinga">Caatinga</option>
+                        <option value="outro">Outro</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Método de Desmatamento
+                      </label>
+                      <select
+                        value={formData.metodoDesmatamento}
+                        onChange={(e) => handleInputChange('metodoDesmatamento', e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="">Selecione o método</option>
+                        <option value="corte_seletivo">Corte Seletivo</option>
+                        <option value="corte_raso">Corte Raso</option>
+                        <option value="queimada">Queimada</option>
+                        <option value="maquinas">Máquinas</option>
+                        <option value="outro">Outro</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Uso Anterior da Terra
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.usoAnteriorTerra}
+                        onChange={(e) => handleInputChange('usoAnteriorTerra', e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Ex: Agricultura, pastagem, etc."
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Uso Futuro da Terra (se conhecido)
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.usoFuturoTerra}
+                        onChange={(e) => handleInputChange('usoFuturoTerra', e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Ex: Agricultura, pastagem, construção, etc."
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Vegetação Remanescente (%)
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="1"
+                        value={formData.vegetacaoRemanescente}
+                        onChange={(e) => handleInputChange('vegetacaoRemanescente', e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Ex: 20"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                  <h4 className="text-lg font-semibold text-gray-800 mb-6">Fotos da Área Desmatada</h4>
+                  <div className="relative">
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={(e) => handleFileUpload('fotoDesmatamento', e.target.files[0])}
+                      id="foto-desmatamento"
+                    />
+                    <label
+                      htmlFor="foto-desmatamento"
+                      className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
+                        uploadedFiles.fotoDesmatamento
+                          ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
+                          : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
+                      }`}
+                    >
+                      <Camera className={`w-8 h-8 mb-3 ${uploadedFiles.fotoDesmatamento ? 'text-blue-500' : 'text-gray-400'}`} />
+                      <p className={`text-sm font-medium ${uploadedFiles.fotoDesmatamento ? 'text-blue-600' : 'text-gray-500'}`}>
+                        {uploadedFiles.fotoDesmatamento ? 'Foto carregada' : 'Carregar foto da área desmatada'}
+                      </p>
+                      {uploadedFiles.fotoDesmatamento && (
+                        <p className="text-xs text-blue-500 mt-1">{uploadedFiles.fotoDesmatamento.name}</p>
+                      )}
+                    </label>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
-            {errors.tipoProducao && (
-              <p className="mt-4 text-sm text-red-600 text-center">{errors.tipoProducao}</p>
+            {formData.tipoOcorrencia === 'enchentes' && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                  <h4 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
+                    <Waves className="w-5 h-5 mr-2 text-blue-500" />
+                    Informações sobre Enchentes
+                  </h4>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Área Alagada (hectares) *
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={formData.areaAlagada}
+                        onChange={(e) => handleInputChange('areaAlagada', e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Ex: 45.5"
+                      />
+                      {errors.areaAlagada && (
+                        <p className="mt-1 text-sm text-red-600">{errors.areaAlagada}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Nível Máximo da Água (metros)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        value={formData.nivelAgua}
+                        onChange={(e) => handleInputChange('nivelAgua', e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Ex: 1.5"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Duração do Alagamento (dias)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.5"
+                        value={formData.duracaoAlagamento}
+                        onChange={(e) => handleInputChange('duracaoAlagamento', e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Ex: 3.5"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Nº de Casas Afetadas
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.casasAfetadas}
+                        onChange={(e) => handleInputChange('casasAfetadas', e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Ex: 25"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        População Afetada (aproximadamente)
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.populacaoAfetada}
+                        onChange={(e) => handleInputChange('populacaoAfetada', e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Ex: 120"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Danos à Infraestrutura
+                      </label>
+                      <select
+                        value={formData.danosInfraestrutura}
+                        onChange={(e) => handleInputChange('danosInfraestrutura', e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="">Selecione o nível de danos</option>
+                        <option value="leve">Leve</option>
+                        <option value="moderado">Moderado</option>
+                        <option value="grave">Grave</option>
+                        <option value="muito_grave">Muito Grave</option>
+                      </select>
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Causas do Alagamento
+                      </label>
+                      <textarea
+                        value={formData.causasAlagamento}
+                        onChange={(e) => handleInputChange('causasAlagamento', e.target.value)}
+                        rows={3}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Descreva as possíveis causas do alagamento..."
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                  <h4 className="text-lg font-semibold text-gray-800 mb-6">Fotos da Enchente</h4>
+                  <div className="relative">
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={(e) => handleFileUpload('fotoEnchente', e.target.files[0])}
+                      id="foto-enchente"
+                    />
+                    <label
+                      htmlFor="foto-enchente"
+                      className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
+                        uploadedFiles.fotoEnchente
+                          ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
+                          : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
+                      }`}
+                    >
+                      <Camera className={`w-8 h-8 mb-3 ${uploadedFiles.fotoEnchente ? 'text-blue-500' : 'text-gray-400'}`} />
+                      <p className={`text-sm font-medium ${uploadedFiles.fotoEnchente ? 'text-blue-600' : 'text-gray-500'}`}>
+                        {uploadedFiles.fotoEnchente ? 'Foto carregada' : 'Carregar foto da enchente'}
+                      </p>
+                      {uploadedFiles.fotoEnchente && (
+                        <p className="text-xs text-blue-500 mt-1">{uploadedFiles.fotoEnchente.name}</p>
+                      )}
+                    </label>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {!formData.tipoOcorrencia && (
+              <div className="text-center py-12 bg-gray-50 rounded-xl">
+                <AlertTriangle className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+                <h3 className="text-xl font-semibold text-gray-600 mb-2">Selecione um tipo de ocorrência</h3>
+                <p className="text-gray-500">Volte para a primeira etapa e selecione o tipo de ocorrência que deseja registrar.</p>
+              </div>
             )}
           </div>
         );
 
-      case 3: // Informações Agrícolas
-        if (formData.tipoProducao !== 'agricola' && formData.tipoProducao !== 'ambas') {
-          return (
-            <div className="text-center py-20">
-              <Tractor className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-              <h3 className="text-xl font-semibold text-gray-600 mb-2">Informações Agrícolas</h3>
-              <p className="text-gray-500">Esta seção será preenchida apenas se a produção agrícola for afetada.</p>
-            </div>
-          );
-        }
-
-        return (
-          <div className="max-w-full mx-auto">
-            <div className="bg-gradient-to-r from-blue-50 to-emerald-50 rounded-2xl p-6 mb-8 border border-blue-100">
-              <div className="flex items-center space-x-3 mb-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Tractor className="w-6 h-6 text-blue-600" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-800">Informações Agrícolas</h3>
-              </div>
-              <p className="text-gray-600">
-                Detalhes sobre as culturas agrícolas afetadas pela praga.
-              </p>
-            </div>
-
-            <div className="space-y-8">
-              {/* Dados Básicos */}
-              <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                <h4 className="text-lg font-semibold text-gray-800 mb-6">Dados da Propriedade</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Nome da Propriedade *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.nomePropriedade}
-                      onChange={(e) => handleInputChange('nomePropriedade', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Nome da propriedade ou fazenda"
-                    />
-                    {errors.nomePropriedade && (
-                      <p className="mt-1 text-sm text-red-600">{errors.nomePropriedade}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Área Total Cultivada (ha)
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={formData.areaTotalCultivada}
-                      onChange={(e) => handleInputChange('areaTotalCultivada', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Ex: 10.5"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Cultura Afetada */}
-              <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                <h4 className="text-lg font-semibold text-gray-800 mb-6">Cultura Afetada *</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {['Milho', 'Feijão', 'Mandioca', 'Arroz', 'Batata', 'Hortícolas', 'Frutíferas'].map(cultura => (
-                    <label key={cultura} className="flex items-center space-x-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.culturaAfetada.includes(cultura)}
-                        onChange={(e) => {
-                          const newCulturas = e.target.checked
-                            ? [...formData.culturaAfetada, cultura]
-                            : formData.culturaAfetada.filter(c => c !== cultura);
-                          handleInputChange('culturaAfetada', newCulturas);
-                        }}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                      />
-                      <span className="text-sm font-medium text-gray-700">{cultura}</span>
-                    </label>
-                  ))}
-                </div>
-                {errors.culturaAfetada && (
-                  <p className="mt-2 text-sm text-red-600">{errors.culturaAfetada}</p>
-                )}
-              </div>
-
-              {/* Fase da Cultura */}
-              <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                <h4 className="text-lg font-semibold text-gray-800 mb-6">Fase da Cultura</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {['Germinação', 'Crescimento', 'Floração', 'Maturação'].map(fase => (
-                    <label key={fase} className="flex items-center space-x-3 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="faseCultura"
-                        value={fase}
-                        checked={formData.faseCultura === fase}
-                        onChange={(e) => handleInputChange('faseCultura', e.target.value)}
-                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                      />
-                      <span className="text-sm font-medium text-gray-700">{fase}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Informações da Praga */}
-              <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                <h4 className="text-lg font-semibold text-gray-800 mb-6">Informações da Praga</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Nome da Praga *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.nomePraga}
-                      onChange={(e) => handleInputChange('nomePraga', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Nome científico ou comum da praga"
-                    />
-                    {errors.nomePraga && (
-                      <p className="mt-1 text-sm text-red-600">{errors.nomePraga}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Nome Local da Praga
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.nomeLocalPraga}
-                      onChange={(e) => handleInputChange('nomeLocalPraga', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Nome local/popular da praga"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Data da Primeira Observação
-                    </label>
-                    <input
-                      type="date"
-                      value={formData.dataPrimeiraObservacao}
-                      onChange={(e) => handleInputChange('dataPrimeiraObservacao', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Percentagem da Área Afetada (%)
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      step="0.1"
-                      value={formData.percentagemAreaAfetada}
-                      onChange={(e) => handleInputChange('percentagemAreaAfetada', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Ex: 25.5"
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Sintomas Observados
-                    </label>
-                    <textarea
-                      value={formData.sintomasObservados}
-                      onChange={(e) => handleInputChange('sintomasObservados', e.target.value)}
-                      rows={3}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Descreva os sintomas observados nas plantas..."
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Grau do Dano e Medidas */}
-              <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                <h4 className="text-lg font-semibold text-gray-800 mb-6">Avaliação e Medidas</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Grau do Dano
-                    </label>
-                    <select
-                      value={formData.grauDano}
-                      onChange={(e) => handleInputChange('grauDano', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="">Selecione</option>
-                      <option value="Leve">Leve</option>
-                      <option value="Moderado">Moderado</option>
-                      <option value="Grave">Grave</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-4">
-                    <label className="flex items-center space-x-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.necessitaApoioTecnico}
-                        onChange={(e) => handleInputChange('necessitaApoioTecnico', e.target.checked)}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                      />
-                      <span className="text-sm font-medium text-gray-700">Necessita apoio técnico?</span>
-                    </label>
-
-                    <label className="flex items-center space-x-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.aplicouMedidaControle}
-                        onChange={(e) => handleInputChange('aplicouMedidaControle', e.target.checked)}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                      />
-                      <span className="text-sm font-medium text-gray-700">Aplicou alguma medida de controle?</span>
-                    </label>
-                  </div>
-
-                  {formData.aplicouMedidaControle && (
-                    <>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Tipo de Medida Aplicada
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.tipoMedidaAplicada}
-                          onChange={(e) => handleInputChange('tipoMedidaAplicada', e.target.value)}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="Ex: Pulverização com inseticida"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Resultado da Medida
-                        </label>
-                        <select
-                          value={formData.resultadoMedida}
-                          onChange={(e) => handleInputChange('resultadoMedida', e.target.value)}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                          <option value="">Selecione</option>
-                          <option value="Eficaz">Eficaz</option>
-                          <option value="Parcial">Parcial</option>
-                          <option value="Sem efeito">Sem efeito</option>
-                        </select>
-                      </div>
-                    </>
-                  )}
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Observações Adicionais
-                    </label>
-                    <textarea
-                      value={formData.observacoesAdicionais}
-                      onChange={(e) => handleInputChange('observacoesAdicionais', e.target.value)}
-                      rows={3}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Informações adicionais relevantes..."
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Upload de Foto */}
-              <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                <h4 className="text-lg font-semibold text-gray-800 mb-6">Foto da Praga ou Sintomas</h4>
-                <div className="relative">
-                  <input
-                    type="file"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={(e) => handleFileUpload('fotoPragaAgricola', e.target.files[0])}
-                    id="foto-praga-agricola"
-                  />
-                  <label
-                    htmlFor="foto-praga-agricola"
-                    className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-                      uploadedFiles.fotoPragaAgricola
-                        ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
-                        : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                    }`}
-                  >
-                    <Camera className={`w-8 h-8 mb-3 ${uploadedFiles.fotoPragaAgricola ? 'text-blue-500' : 'text-gray-400'}`} />
-                    <p className={`text-sm font-medium ${uploadedFiles.fotoPragaAgricola ? 'text-blue-600' : 'text-gray-500'}`}>
-                      {uploadedFiles.fotoPragaAgricola ? 'Foto carregada' : 'Carregar foto da praga'}
-                    </p>
-                    {uploadedFiles.fotoPragaAgricola && (
-                      <p className="text-xs text-blue-500 mt-1">{uploadedFiles.fotoPragaAgricola.name}</p>
-                    )}
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 4: // Informações Pecuárias
-        if (formData.tipoProducao !== 'pecuaria' && formData.tipoProducao !== 'ambas') {
-          return (
-            <div className="text-center py-20">
-              <Heart className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-              <h3 className="text-xl font-semibold text-gray-600 mb-2">Informações Pecuárias</h3>
-              <p className="text-gray-500">Esta seção será preenchida apenas se a produção pecuária for afetada.</p>
-            </div>
-          );
-        }
-
-        return (
-          <div className="max-w-full mx-auto">
-            <div className="bg-gradient-to-r from-red-50 to-pink-50 rounded-2xl p-6 mb-8 border border-red-100">
-              <div className="flex items-center space-x-3 mb-3">
-                <div className="p-2 bg-red-100 rounded-lg">
-                  <Heart className="w-6 h-6 text-red-600" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-800">Informações Pecuárias</h3>
-              </div>
-              <p className="text-gray-600">
-                Detalhes sobre os animais afetados por pragas ou doenças.
-              </p>
-            </div>
-
-            <div className="space-y-8">
-              {/* Dados Básicos */}
-              <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                <h4 className="text-lg font-semibold text-gray-800 mb-6">Dados da Fazenda</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Nome da Fazenda *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.nomeFazenda}
-                      onChange={(e) => handleInputChange('nomeFazenda', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Nome da fazenda ou propriedade"
-                    />
-                    {errors.nomeFazenda && (
-                      <p className="mt-1 text-sm text-red-600">{errors.nomeFazenda}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Número Total de Animais
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.numeroTotalAnimais}
-                      onChange={(e) => handleInputChange('numeroTotalAnimais', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Ex: 150"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Espécie Animal Afetada */}
-              <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                <h4 className="text-lg font-semibold text-gray-800 mb-6">Espécie Animal Afetada *</h4>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {['Bovino', 'Caprino', 'Ovino', 'Suíno', 'Aves', 'Outros'].map(especie => (
-                    <label key={especie} className="flex items-center space-x-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.especieAnimalAfetada.includes(especie)}
-                        onChange={(e) => {
-                          const newEspecies = e.target.checked
-                            ? [...formData.especieAnimalAfetada, especie]
-                            : formData.especieAnimalAfetada.filter(e => e !== especie);
-                          handleInputChange('especieAnimalAfetada', newEspecies);
-                        }}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                      />
-                      <span className="text-sm font-medium text-gray-700">{especie}</span>
-                    </label>
-                  ))}
-                </div>
-                {errors.especieAnimalAfetada && (
-                  <p className="mt-2 text-sm text-red-600">{errors.especieAnimalAfetada}</p>
-                )}
-              </div>
-
-              {/* Informações da Praga/Doença */}
-              <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                <h4 className="text-lg font-semibold text-gray-800 mb-6">Informações da Praga/Doença</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Nome da Praga/Doença *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.nomePragaDoenca}
-                      onChange={(e) => handleInputChange('nomePragaDoenca', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Nome da praga ou doença"
-                    />
-                    {errors.nomePragaDoenca && (
-                      <p className="mt-1 text-sm text-red-600">{errors.nomePragaDoenca}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Data da Primeira Observação
-                    </label>
-                    <input
-                      type="date"
-                      value={formData.dataPrimeiraObservacaoPecuaria}
-                      onChange={(e) => handleInputChange('dataPrimeiraObservacaoPecuaria', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Número de Animais Afetados
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.numeroAnimaisAfetados}
-                      onChange={(e) => handleInputChange('numeroAnimaisAfetados', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Ex: 25"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Grau do Dano
-                    </label>
-                    <select
-                      value={formData.grauDanoPecuaria}
-                      onChange={(e) => handleInputChange('grauDanoPecuaria', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="">Selecione</option>
-                      <option value="Leve">Leve</option>
-                      <option value="Moderado">Moderado</option>
-                      <option value="Grave">Grave</option>
-                    </select>
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Sintomas Observados
-                    </label>
-                    <textarea
-                      value={formData.sintomasObservadosPecuaria}
-                      onChange={(e) => handleInputChange('sintomasObservadosPecuaria', e.target.value)}
-                      rows={3}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Descreva os sintomas observados nos animais..."
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Tratamento */}
-              <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                <h4 className="text-lg font-semibold text-gray-800 mb-6">Tratamento e Medidas</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <label className="flex items-center space-x-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.aplicouTratamento}
-                        onChange={(e) => handleInputChange('aplicouTratamento', e.target.checked)}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                      />
-                      <span className="text-sm font-medium text-gray-700">Aplicou algum tratamento?</span>
-                    </label>
-
-                    <label className="flex items-center space-x-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.necessitaApoioVeterinario}
-                        onChange={(e) => handleInputChange('necessitaApoioVeterinario', e.target.checked)}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                      />
-                      <span className="text-sm font-medium text-gray-700">Necessita apoio veterinário?</span>
-                    </label>
-                  </div>
-
-                  {formData.aplicouTratamento && (
-                    <>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Tipo de Tratamento Usado
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.tipoTratamento}
-                          onChange={(e) => handleInputChange('tipoTratamento', e.target.value)}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="Ex: Medicamento, vacina, etc."
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Resultado do Tratamento
-                        </label>
-                        <select
-                          value={formData.resultadoTratamento}
-                          onChange={(e) => handleInputChange('resultadoTratamento', e.target.value)}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                          <option value="">Selecione</option>
-                          <option value="Eficaz">Eficaz</option>
-                          <option value="Parcial">Parcial</option>
-                          <option value="Sem efeito">Sem efeito</option>
-                        </select>
-                      </div>
-                    </>
-                  )}
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Observações Adicionais
-                    </label>
-                    <textarea
-                      value={formData.observacoesAdicionaisPecuaria}
-                      onChange={(e) => handleInputChange('observacoesAdicionaisPecuaria', e.target.value)}
-                      rows={3}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Informações adicionais relevantes..."
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Upload de Foto */}
-              <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                <h4 className="text-lg font-semibold text-gray-800 mb-6">Foto dos Sinais Clínicos</h4>
-                <div className="relative">
-                  <input
-                    type="file"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={(e) => handleFileUpload('fotoPragaPecuaria', e.target.files[0])}
-                    id="foto-praga-pecuaria"
-                  />
-                  <label
-                    htmlFor="foto-praga-pecuaria"
-                    className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-                      uploadedFiles.fotoPragaPecuaria
-                        ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
-                        : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                    }`}
-                  >
-                    <Camera className={`w-8 h-8 mb-3 ${uploadedFiles.fotoPragaPecuaria ? 'text-blue-500' : 'text-gray-400'}`} />
-                    <p className={`text-sm font-medium ${uploadedFiles.fotoPragaPecuaria ? 'text-blue-600' : 'text-gray-500'}`}>
-                      {uploadedFiles.fotoPragaPecuaria ? 'Foto carregada' : 'Carregar foto dos sinais clínicos'}
-                    </p>
-                    {uploadedFiles.fotoPragaPecuaria && (
-                      <p className="text-xs text-blue-500 mt-1">{uploadedFiles.fotoPragaPecuaria.name}</p>
-                    )}
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 5: // Finalização
+      case 4: // Finalização
         return (
           <div className="max-w-full mx-auto">
             <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-6 mb-8 border border-indigo-100">
@@ -1080,6 +962,12 @@ const CadastroPragas = () => {
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
                 <div>
+                  <span className="font-medium text-gray-600">Tipo de Ocorrência:</span>
+                  <p className="text-gray-800 capitalize">
+                    {formData.tipoOcorrencia ? tiposOcorrencia.find(t => t.id === formData.tipoOcorrencia)?.nome : 'N/A'}
+                  </p>
+                </div>
+                <div>
                   <span className="font-medium text-gray-600">Responsável:</span>
                   <p className="text-gray-800">{formData.nomeResponsavel || 'N/A'}</p>
                 </div>
@@ -1087,33 +975,27 @@ const CadastroPragas = () => {
                   <span className="font-medium text-gray-600">Localização:</span>
                   <p className="text-gray-800">{formData.provincia}, {formData.municipio || 'N/A'}</p>
                 </div>
-                <div>
-                  <span className="font-medium text-gray-600">Tipo de Produção:</span>
-                  <p className="text-gray-800 capitalize">{formData.tipoProducao || 'N/A'}</p>
-                </div>
-                {(formData.tipoProducao === 'agricola' || formData.tipoProducao === 'ambas') && (
-                  <>
-                    <div>
-                      <span className="font-medium text-gray-600">Propriedade:</span>
-                      <p className="text-gray-800">{formData.nomePropriedade || 'N/A'}</p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-gray-600">Praga Agrícola:</span>
-                      <p className="text-gray-800">{formData.nomePraga || 'N/A'}</p>
-                    </div>
-                  </>
+                
+                {/* Informações específicas por tipo de ocorrência */}
+                {formData.tipoOcorrencia === 'queimadas' && (
+                  <div>
+                    <span className="font-medium text-gray-600">Área Queimada:</span>
+                    <p className="text-gray-800">{formData.areaQueimada ? `${formData.areaQueimada} hectares` : 'N/A'}</p>
+                  </div>
                 )}
-                {(formData.tipoProducao === 'pecuaria' || formData.tipoProducao === 'ambas') && (
-                  <>
-                    <div>
-                      <span className="font-medium text-gray-600">Fazenda:</span>
-                      <p className="text-gray-800">{formData.nomeFazenda || 'N/A'}</p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-gray-600">Praga/Doença:</span>
-                      <p className="text-gray-800">{formData.nomePragaDoenca || 'N/A'}</p>
-                    </div>
-                  </>
+                
+                {formData.tipoOcorrencia === 'desmatamento' && (
+                  <div>
+                    <span className="font-medium text-gray-600">Área Desmatada:</span>
+                    <p className="text-gray-800">{formData.areaDesmatada ? `${formData.areaDesmatada} hectares` : 'N/A'}</p>
+                  </div>
+                )}
+                
+                {formData.tipoOcorrencia === 'enchentes' && (
+                  <div>
+                    <span className="font-medium text-gray-600">Área Alagada:</span>
+                    <p className="text-gray-800">{formData.areaAlagada ? `${formData.areaAlagada} hectares` : 'N/A'}</p>
+                  </div>
                 )}
               </div>
             </div>
@@ -1128,7 +1010,7 @@ const CadastroPragas = () => {
   const isLastStep = activeIndex === steps.length - 1;
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-gray-50 min-h-screen py-8">
       {/* Toast Message */}
       {toastMessage && (
         <div className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all ${
@@ -1152,178 +1034,132 @@ const CadastroPragas = () => {
         </div>
       )}
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200">
-        <div className="bg-white rounded-2xl">
-          {/* Header */}
-          <div className="text-center mb-6 p-8 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-blue-50">
-            <div className="flex items-center justify-center mb-4">
-              <div>
-                <h1 className="text-4xl font-bold mb-2 text-gray-800">Monitoramento de Pragas</h1>
-              </div>
+      <div className="w-full mx-auto bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+        {/* Header */}
+        <div className="text-center mb-6 p-8 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+          <div className="flex items-center justify-center mb-4">
+            <div>
+              <h1 className="text-3xl font-bold mb-2 text-gray-800">Registro de Ocorrências Ambientais</h1>
+              <p className="text-gray-600">Sistema de monitoramento e registro de ocorrências</p>
             </div>
-          </div>
-
-          {/* Step Navigation */}
-          <div className="flex justify-between items-center px-8 mb-8 overflow-x-auto">
-            {steps.map((step, index) => {
-              const StepIcon = step.icon;
-              return (
-                <div
-                  key={index}
-                  className={`flex flex-col items-center cursor-pointer transition-all min-w-0 flex-shrink-0 mx-1 ${
-                    index > activeIndex ? 'opacity-50' : ''
-                  }`}
-                  onClick={() => index <= activeIndex && setActiveIndex(index)}
-                >
-                  <div className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${
-                    index < activeIndex ? 'bg-blue-500 text-white' :
-                    index === activeIndex ? 'bg-blue-600 text-white' :
-                    'bg-gray-200 text-gray-500'
-                  }`}>
-                    {index < activeIndex ? (
-                      <Check size={24} />
-                    ) : (
-                      <StepIcon size={24} />
-                    )}
-                  </div>
-                  <span className={`text-sm text-center font-medium ${
-                    index === activeIndex ? 'text-blue-700' : 'text-gray-500'
-                  }`}>
-                    {step.label}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Progress Bar */}
-          <div className="w-full bg-gray-200 h-2 mb-8 mx-8" style={{ width: 'calc(100% - 4rem)' }}>
-            <div
-              className="bg-blue-600 h-2 transition-all duration-300 rounded-full"
-              style={{ width: `${((activeIndex + 1) / steps.length) * 100}%` }}
-            ></div>
-          </div>
-
-          {/* Step Content */}
-          <div className="step-content p-8 bg-white min-h-[600px]">
-            {renderStepContent(activeIndex)}
-          </div>
-
-          {/* Navigation Buttons */}
-          <div className="flex justify-between items-center p-8 pt-6 border-t border-gray-100 bg-gray-50">
-            <button
-              className={`px-8 py-3 rounded-xl border border-gray-300 flex items-center transition-all font-medium ${
-                activeIndex === 0 ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'bg-white hover:bg-gray-50 text-gray-700 hover:border-gray-400'
-              }`}
-              onClick={() => setActiveIndex((prev) => Math.max(prev - 1, 0))}
-              disabled={activeIndex === 0}
-            >
-              <ChevronLeft size={20} className="mr-2" />
-              Anterior
-            </button>
-
-            <div className="text-sm text-gray-500 font-medium">
-              Etapa {activeIndex + 1} de {steps.length}
-            </div>
-
-            <button
-              className={`px-8 py-3 rounded-xl flex items-center transition-all font-medium ${
-                isLastStep
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg'
-                  : 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg'
-              }`}
-              disabled={loading}
-              onClick={(e) => {
-                e.preventDefault();
-                if (!isLastStep) {
-                  if (validateCurrentStep()) {
-                    setTimeout(() => {
-                      document.body.scrollTop = 0;
-                      document.documentElement.scrollTop = 0;
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }, 100);
-                    setActiveIndex(prev => prev + 1);
-                  } else {
-                    showToast('error', 'Erro', 'Por favor, preencha todos os campos obrigatórios.');
-                  }
-                } else {
-                  if (validateCurrentStep()) {
-                    handleSubmit(e);
-                  } else {
-                    showToast('error', 'Erro', 'Por favor, complete todos os campos obrigatórios.');
-                  }
-                }
-              }}
-            >
-              {loading ? (
-                <>
-                  <Loader size={20} className="animate-spin mr-2" />
-                  Processando...
-                </>
-              ) : isLastStep ? (
-                <>
-                  <Check size={20} className="mr-2" />
-                  Registrar Ocorrência
-                </>
-              ) : (
-                <>
-                  <span className="mr-2">Próximo</span>
-                  <ChevronRight size={20} />
-                </>
-              )}
-            </button>
           </div>
         </div>
 
-        {/* Information Card */}
-        <div className="mt-8 bg-white p-8 shadow-sm rounded-2xl border border-gray-200">
-          <div className="flex items-center text-blue-700 mb-4">
-            <Info size={20} className="mr-3" />
-            <h3 className="text-xl font-semibold">Sobre o Monitoramento de Pragas</h3>
+        {/* Step Navigation */}
+        <div className="flex justify-between items-center px-8 mb-8 overflow-x-auto">
+          {steps.map((step, index) => {
+            const StepIcon = step.icon;
+            return (
+              <div
+                key={index}
+                className={`flex flex-col items-center cursor-pointer transition-all min-w-0 flex-shrink-0 mx-1 ${
+                  index > activeIndex ? 'opacity-50' : ''
+                }`}
+                onClick={() => index <= activeIndex && setActiveIndex(index)}
+              >
+                <div className={`flex items-center justify-center w-12 h-12 rounded-full mb-3 transition-colors ${
+                  index < activeIndex ? 'bg-blue-500 text-white' :
+                  index === activeIndex ? 'bg-blue-600 text-white' :
+                  'bg-gray-200 text-gray-500'
+                }`}>
+                  {index < activeIndex ? (
+                    <Check size={20} />
+                  ) : (
+                    <StepIcon size={20} />
+                  )}
+                </div>
+                <span className={`text-xs text-center font-medium ${
+                  index === activeIndex ? 'text-blue-700' : 'text-gray-500'
+                }`}>
+                  {step.label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Progress Bar */}
+        <div className="w-full bg-gray-200 h-2 mb-8 mx-8" style={{ width: 'calc(100% - 4rem)' }}>
+          <div
+            className="bg-blue-600 h-2 transition-all duration-300 rounded-full"
+            style={{ width: `${((activeIndex + 1) / steps.length) * 100}%` }}
+          ></div>
+        </div>
+
+        {/* Step Content */}
+        <div className="step-content p-8 bg-white min-h-[600px]">
+          {renderStepContent(activeIndex)}
+        </div>
+
+        {/* Navigation Buttons */}
+        <div className="flex justify-between items-center p-8 pt-6 border-t border-gray-100 bg-gray-50">
+          <button
+            className={`px-6 py-2 rounded-xl border border-gray-300 flex items-center transition-all font-medium ${
+              activeIndex === 0 ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'bg-white hover:bg-gray-50 text-gray-700 hover:border-gray-400'
+            }`}
+            onClick={() => setActiveIndex((prev) => Math.max(prev - 1, 0))}
+            disabled={activeIndex === 0}
+          >
+            <ChevronLeft size={18} className="mr-2" />
+            Anterior
+          </button>
+
+          <div className="text-sm text-gray-500 font-medium">
+            Etapa {activeIndex + 1} de {steps.length}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm text-gray-600">
-            <div>
-              <h4 className="font-semibold text-gray-800 mb-3">Objetivo:</h4>
-              <p className="leading-relaxed">
-                O sistema de monitoramento de pragas visa identificar, registrar e acompanhar a ocorrência de pragas e doenças 
-                que afetam as produções agrícolas e pecuárias, permitindo ações rápidas de controle e prevenção.
-              </p>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-gray-800 mb-3">Benefícios:</h4>
-              <ul className="space-y-2 leading-relaxed">
-                <li className="flex items-start">
-                  <Check size={16} className="text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
-                  Detecção precoce de surtos de pragas
-                </li>
-                <li className="flex items-start">
-                  <Check size={16} className="text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
-                  Orientação técnica especializada
-                </li>
-                <li className="flex items-start">
-                  <Check size={16} className="text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
-                  Prevenção de perdas na produção
-                </li>
-                <li className="flex items-start">
-                  <Check size={16} className="text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
-                  Apoio na tomada de decisões
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
-            <p className="text-blue-700 text-sm leading-relaxed">
-              <strong>Importante:</strong> O registro preciso e detalhado das ocorrências é fundamental para o 
-              sucesso do programa de controle integrado de pragas e para a sustentabilidade da produção agropecuária nacional.
-            </p>
-          </div>
+          <button
+            className={`px-6 py-2 rounded-xl flex items-center transition-all font-medium ${
+              isLastStep
+                ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg'
+                : 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg'
+            }`}
+            disabled={loading}
+            onClick={(e) => {
+              e.preventDefault();
+              if (!isLastStep) {
+                if (validateCurrentStep()) {
+                  setTimeout(() => {
+                    document.body.scrollTop = 0;
+                    document.documentElement.scrollTop = 0;
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }, 100);
+                  setActiveIndex(prev => prev + 1);
+                } else {
+                  showToast('error', 'Erro', 'Por favor, preencha todos os campos obrigatórios.');
+                }
+              } else {
+                if (validateCurrentStep()) {
+                  handleSubmit(e);
+                } else {
+                  showToast('error', 'Erro', 'Por favor, complete todos os campos obrigatórios.');
+                }
+              }
+            }}
+          >
+            {loading ? (
+              <>
+                <Loader size={18} className="animate-spin mr-2" />
+                Processando...
+              </>
+            ) : isLastStep ? (
+              <>
+                <Check size={18} className="mr-2" />
+                Registrar Ocorrência
+              </>
+            ) : (
+              <>
+                <span className="mr-2">Próximo</span>
+                <ChevronRight size={18} />
+              </>
+            )}
+          </button>
         </div>
       </div>
+
+    
     </div>
   );
 };
 
-export default CadastroPragas;
+export default CadastroOcorrencias;

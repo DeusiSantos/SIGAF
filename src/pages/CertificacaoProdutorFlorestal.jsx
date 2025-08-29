@@ -492,7 +492,7 @@ const CertificacaoProdutorFlorestal = () => {
                 <div className="p-2 bg-green-100 rounded-lg">
                   <Search className="w-6 h-6 text-green-600" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-800">Identificação do Produtor Florestal</h3>
+                <h3 className="text-xl font-bold text-gray-800">Identificação do Produtor ou Empresa Florestal</h3>
               </div>
               <p className="text-gray-600">
                 Primeiro, vamos identificar se o produtor já está cadastrado no sistema ou se é um novo cadastro.
@@ -546,7 +546,7 @@ const CertificacaoProdutorFlorestal = () => {
 
               {modoBusca ? (
                 <div className="space-y-4">
-                  <h4 className="text-lg font-semibold text-gray-800 mb-4">Buscar Produtor Existente</h4>
+                  <h4 className="text-lg font-semibold text-gray-800 mb-4">Buscar Produtor ou Empresa Existente</h4>
 
                   {loadingProdutores ? (
                     <div className="flex items-center justify-center py-8">
@@ -556,7 +556,7 @@ const CertificacaoProdutorFlorestal = () => {
                   ) : (
                     <CustomInput
                       type="select"
-                      label="Selecionar Produtor"
+                      label="Selecionar Produtor ou Empresa"
                       value=""
                       options={produtoresOptions}
                       onChange={(value) => buscarProdutor(value)}
@@ -1311,7 +1311,7 @@ const CertificacaoProdutorFlorestal = () => {
                 <div className="p-2 bg-green-100 rounded-lg">
                   <Award className="w-6 h-6 text-green-600" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-800">Certificado de Emissão de Licença Florestal</h3>
+                <h3 className="text-xl font-bold text-gray-800">Certificado de Licença Florestal</h3>
               </div>
               <p className="text-gray-600">
                 Complete as informações finais para emissão do certificado de licença florestal.
@@ -1451,7 +1451,7 @@ const CertificacaoProdutorFlorestal = () => {
                     <div className="text-xs font-bold mb-1">REPÚBLICA DE ANGOLA</div>
                     <div className="text-xs font-bold mb-1">MINISTÉRIO DA AGRICULTURA E FLORESTAS</div>
                     <div className="text-xs font-bold mb-1">DIRECÇÃO NACIONAL DE FLORESTAS (DNF)</div>
-                    <div className="text-sm font-bold underline mb-2">CERTIFICADO DE EMISSÃO DE LICENÇA FLORESTAL</div>
+                    <div className="text-sm font-bold underline mb-2">CERTIFICADO DE LICENÇA FLORESTAL</div>
                     
                   </div>
 
@@ -1574,7 +1574,7 @@ const CertificacaoProdutorFlorestal = () => {
       console.log("✅ Certificado florestal gerado:", resultado);
 
       setLoading(false);
-      showToast('success', 'Sucesso', 'Certificado de Emissão de Licença Florestal gerado com sucesso!');
+      showToast('success', 'Sucesso', 'Certificado de Licença Florestal gerado com sucesso!');
 
     } catch (error) {
       setLoading(false);

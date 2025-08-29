@@ -285,7 +285,7 @@ const HeaderSection = () => (
     <Text style={styles.republica}>REPÚBLICA DE ANGOLA</Text>
     <Text style={styles.ministerio}>MINISTÉRIO DA AGRICULTURA E FLORESTAS</Text>
     <Text style={styles.dnf}>DIRECÇÃO NACIONAL DE FLORESTAS (DNF)</Text>
-    <Text style={styles.tituloDocumento}>CERTIFICADO DE EMISSÃO DE LICENÇA FLORESTAL</Text>
+    <Text style={styles.tituloDocumento}>CERTIFICADO DE LICENÇA FLORESTAL</Text>
     
   </View>
 );
@@ -657,7 +657,7 @@ export const gerarCertificadoFlorestal = async (dadosFormulario) => {
 
     console.log('Download do certificado florestal iniciado');
 
-    return { success: true, message: 'Certificado de Emissão de Licença Florestal gerado com sucesso!' };
+    return { success: true, message: 'Certificado de Licença Florestal gerado com sucesso!' };
 
   } catch (error) {
     console.error('Erro ao gerar certificado florestal:', error);

@@ -459,7 +459,7 @@ const ProdutoresGestao = () => {
     const handleConfirmDelete = async () => {
         if (!produtorToDelete) return;
         try {
-            await api.delete(`/api/formulario/${produtorToDelete}`);
+            await api.delete(`/formulario/${produtorToDelete}`);
             setLocalProdutores(prevProdutores =>
                 prevProdutores.filter(produtor => produtor.id !== produtorToDelete)
             );
@@ -1121,51 +1121,7 @@ const ProdutoresGestao = () => {
                     </div>
 
                     {/* Paginação */}
-                    <div className="px-6 py-4 border-t border-gray-200 bg-white">
-                        <div className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
-                            <div className="text-sm text-gray-700">
-                                A mostrar{' '}
-                                <span className="font-medium">{((currentPage - 1) * itemsPerPage) + 1}</span>
-                                {' '}a{' '}
-                                <span className="font-medium">
-                                    {Math.min(currentPage * itemsPerPage, filteredProdutores.length)}
-                                </span>
-                                {' '}de{' '}
-                                <span className="font-medium">{filteredProdutores.length}</span>
-                                {' '}resultados
-                            </div>
-
-                            <div className="flex space-x-2">
-                                <button
-                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                                    disabled={currentPage === 1}
-                                    className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
-                                        ${currentPage === 1
-                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                            : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
-                                        }
-                                    `}
-                                >
-                                    <ChevronLeft className="w-4 h-4 mr-1" />
-                                    Anterior
-                                </button>
-
-                                <button
-                                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                                    disabled={currentPage === totalPages || totalPages === 0}
-                                    className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
-                                        ${currentPage === totalPages || totalPages === 0
-                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                            : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
-                                        }
-                                    `}
-                                >
-                                    Próximo
-                                    <ChevronRight className="w-4 h-4 ml-1" />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                   
 
                     {/* Nenhum resultado encontrado */}
                     {!loadingProdutor && !loadingAprovados && filteredProdutores.length === 0 && (

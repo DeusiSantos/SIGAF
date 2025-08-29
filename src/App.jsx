@@ -34,6 +34,8 @@ import VisualizarIncentivo from './pages/public/VisualizarIncentivo';
 import AddHistoricoProducao from './pages/public/AddHistoricoProducao';
 import CertificacaoProdutorFlorestal from './pages/CertificacaoProdutorFlorestal';
 import GestaoProdutoresFlorestais from './pages/GestaoProdutoresFlorestais';
+import HistoricoMultasApreensoes from './pages/Sancoes/HistoricoMultasApreensoes';
+import GestaoMultasApreensoes from './pages/Sancoes/GestaoMultasApreensoes';
 
 
 function App() {
@@ -93,6 +95,12 @@ function App() {
             <Route path="verificacao" element={<h1 className="text-2xl font-semibold">Certificação da Qualidade do Produto</h1>} />
             <Route path="geolocalizacao" element={<Geolocalizacao />} />
             <Route path="categorizacao" element={<h1 className="text-2xl font-semibold">Categorização Automática (UFPAs, Empreendimentos, Associações)</h1>} />
+          </Route>
+
+          <Route path="sancoes">
+            <Route index element={<HistoricoMultasApreensoes />} />
+            <Route path="inserir" element={<HistoricoMultasApreensoes />} />
+            <Route path="historico" element={< GestaoMultasApreensoes />} />
           </Route>
 
           {/* 2. Gestão de Entidades Associativas */}
