@@ -424,7 +424,7 @@ const ProdutoresGestao = () => {
 
     // Navegação para diferentes telas
     const handleViewProdutor = (produtorId) => {
-        navigate(`/GerenciaRNPA/produtores/visualizar/${produtorId}`);
+        navigate(`/GerenciaRNPA/gestao-florestal/visualizarprodutorflorestal/${produtorId}`);
     };
 
     const handleHistoricoProducao = (produtorId) => {

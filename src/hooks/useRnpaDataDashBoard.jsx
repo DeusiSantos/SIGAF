@@ -269,7 +269,7 @@ export const useAtividades = () => {
   const [atividades, setAtividades] = useState({
     agricultura: 0,
     pecuaria: 0,
-    florestal: 0,
+    : 0,
     aquicultura: 0,
     agropecuaria: 0
   });
@@ -282,7 +282,7 @@ export const useAtividades = () => {
         const requests = [
           api.get('/dashboard/totalAgricultura'),
           api.get('/dashboard/totalPecuaria'),
-          api.get('/dashboard/totalProdutorFlorestal'),
+          api.get('/dashboard/totalProdutor'),
           api.get('/dashboard/totalAquicultura')
         ];
 
