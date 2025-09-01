@@ -34,8 +34,11 @@ import VisualizarIncentivo from './pages/public/VisualizarIncentivo';
 import AddHistoricoProducao from './pages/public/AddHistoricoProducao';
 import CertificacaoProdutorFlorestal from './pages/CertificacaoProdutorFlorestal';
 import GestaoProdutoresFlorestais from './pages/GestaoProdutoresFlorestais';
+import LicencaMenu from './pages/Licencas/LicencaMenu';
+import GestaoFiscalizacao from './pages/Fiscalizacao/GestaoFiscalizacao';
 import HistoricoMultasApreensoes from './pages/Sancoes/HistoricoMultasApreensoes';
 import GestaoMultasApreensoes from './pages/Sancoes/GestaoMultasApreensoes';
+import VisualizarProdutorFlorestal from './pages/VisualizarProdutorFlorestal';
 
 
 function App() {
@@ -87,6 +90,9 @@ function App() {
           <Route path="gestao-florestal">
             <Route index element={<GestaoProdutoresFlorestais />} />
             <Route path="produtoresflorestais" element={<GestaoProdutoresFlorestais />} />
+            <Route path="licencas" element={<LicencaMenu />} />
+            <Route path="fiscalizacao" element={<GestaoFiscalizacao />} />
+            <Route path='visualizarprodutorflorestal/:id' element={<VisualizarProdutorFlorestal />} />
             <Route path="certificacaoFlorestal" element={< CertificacaoProdutorFlorestal />} />
             <Route path="registo-individual" element={<h1 className="text-2xl font-semibold">Registo Individual de Produtor</h1>} />
             <Route path="registo-familiar" element={<h1 className="text-2xl font-semibold">Registo de Agregado Familiar</h1>} />

@@ -105,6 +105,8 @@ const rnpaRoutes = {
     ],
     'Gestão Florestal': [
       { text: 'Produtor', icon: Users, path: '/GerenciaRNPA/gestao-florestal/produtoresFlorestais' },
+      { text: 'Licenças', icon: FileText, path: '/GerenciaRNPA/gestao-florestal/licencas' },
+      { text: 'Fiscalização', icon: Shield, path: '/GerenciaRNPA/gestao-florestal/fiscalizacao' },
       { text: 'Validação da Produção', icon: Shield, path: '/GerenciaRNPA/gestao-florestal/workflow' },
       { text: 'Emissão de Certificado digital', icon: Award, path: '/GerenciaRNPA/gestao-florestal/certificados' },
       { text: 'Certificação Florestal', icon: File, path: '/GerenciaRNPA/gestao-florestal/certificacaoFlorestal' },

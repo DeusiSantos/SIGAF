@@ -52,7 +52,7 @@ const MapClickHandler = ({ onLocationSelect }) => {
     }
   });
   return null;
-};
+}
 
 // Componente de Mapa
 const MapaGPS = ({ latitude, longitude, onLocationSelect }) => {
@@ -255,12 +255,12 @@ const CadastroProdutorFlorestal = () => {
     { label: 'Produtor', icon: User },
     { label: 'Áreas', icon: Trees },
     { label: 'Espécies', icon: Leaf },
-    { label: 'Licenças', icon: FileText },
-    { label: 'Fiscalização', icon: Shield },
-    { label: 'Ocorrências', icon: AlertTriangle },
+    //{ label: 'Licenças', icon: FileText },
+    //{ label: 'Fiscalização', icon: Shield },
+    //{ label: 'Ocorrências', icon: AlertTriangle },
     { label: 'Transportes', icon: Truck },
     { label: 'Produtos', icon: Package },
-    { label: 'Sanções', icon: Gavel }
+   // { label: 'Sanções', icon: Gavel }
   ];
 
   // Debounce para consulta do BI
