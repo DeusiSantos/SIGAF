@@ -21,7 +21,9 @@ import {
     Clock,
     Warehouse,
     Truck,
-    Settings
+    Settings,
+    Phone,
+    Map
 } from 'lucide-react';
 
 //import { useNavigate } from 'react-router-dom';
@@ -38,140 +40,144 @@ const GestaoApoioAgricola = () => {
     const itemsPerPage = 20;
 
     // Dados fictícios para demonstração
-   const infraestruturas = [
-    {
-        id: '1',
-        nome_infrastrutura: 'Floresta Modelo de Dundo',
-        tipo_infrastrutura: 'Canal de Irrigação',
-        localizacao: {
-            provincia: 'LUANDA',
-            municipio: 'Cacuaco',
-            comuna: 'Funda',
-            aldeia_zona: 'Zona Industrial',
-            coordenadas: {
-                latitude: '-8.956',
-                longitude: '13.234',
-                altitude: '45m',
-                precisao_m: '5m'
-            }
+    const infraestruturas = [
+        {
+            id: '1',
+            nome_infrastrutura: 'Floresta Modelo de Dundo',
+            tipo_infrastrutura: 'Canal de Irrigação',
+            bi_nif: '500675321V',
+            localizacao: {
+                provincia: 'Luanda',
+                municipio: 'Cacuaco',
+                comuna: 'Funda',
+                aldeia_zona: 'Zona Industrial',
+                coordenadas: {
+                    latitude: '-8.956',
+                    longitude: '13.234',
+                    altitude: '45m',
+                    precisao_m: '5m'
+                }
+            },
+            caracteristicas_tecnicas: {
+                dimensao: '50m x 30m x 8m',
+                capacidade: '1200 toneladas',
+                estado_conservacao: 'Bom'
+            },
+            entidade_responsavel: {
+                proprietario_instituicao: 'Cooperativa Agrícola Luanda',
+                contacto: '+244 923 456 789',
+                email: 'cooperativa@luanda.ao'
+            },
+            utilizacao: {
+                beneficiarios_directos: '150 produtores',
+                principais_culturas_atividades: 'Milho, Feijão, Mandioca',
+                frequencia_utilizacao: 'Diária'
+            },
+            estado: 'Bom'
         },
-        caracteristicas_tecnicas: {
-            dimensao: '50m x 30m x 8m',
-            capacidade: '1200 toneladas',
-            estado_conservacao: 'Bom'
+        {
+            id: '2',
+            nome_infrastrutura: 'Represa de Cazenga',
+            tipo_infrastrutura: 'Represa/Barragem',
+            bi_nif: '500675321V',
+            localizacao: {
+                provincia: 'Luanda',
+                municipio: 'Cazenga',
+                comuna: 'Sambizanga',
+                aldeia_zona: 'Zona Norte',
+                coordenadas: {
+                    latitude: '-8.830',
+                    longitude: '13.250',
+                    altitude: '60m',
+                    precisao_m: '10m'
+                }
+            },
+            caracteristicas_tecnicas: {
+                dimensao: '100m x 50m x 12m',
+                capacidade: '5000 m³',
+                estado_conservacao: 'Razoável'
+            },
+            entidade_responsavel: {
+                proprietario_instituicao: 'Administração Municipal de Cazenga',
+                contacto: '+244 923 456 789',
+                email: 'adm@cazenga.ao'
+            },
+            utilizacao: {
+                beneficiarios_directos: '300 produtores',
+                principais_culturas_atividades: 'Hortaliças e Milho',
+                frequencia_utilizacao: 'Semanal'
+            },
+            estado: 'Razoável'
         },
-        entidade_responsavel: {
-            proprietario_instituicao: 'Cooperativa Agrícola Luanda',
-            contacto: '+244 923 456 789',
-            email: 'cooperativa@luanda.ao'
+        {
+            id: '3',
+            nome_infrastrutura: 'Poço Artesiano de Viana',
+            tipo_infrastrutura: 'Furo de Água/Poço Artesiano',
+            bi_nif: '500675321V',
+            localizacao: {
+                provincia: 'Luanda',
+                municipio: 'Viana',
+                comuna: 'Zango',
+                aldeia_zona: 'Bairro Central',
+                coordenadas: {
+                    latitude: '-8.800',
+                    longitude: '13.250',
+                    altitude: '30m',
+                    precisao_m: '5m'
+                }
+            },
+            caracteristicas_tecnicas: {
+                dimensao: 'Profundidade 50m',
+                capacidade: '50 m³/dia',
+                estado_conservacao: 'Mau'
+            },
+            entidade_responsavel: {
+                proprietario_instituicao: 'Cooperativa Água Rural Viana',
+                contacto: '+244 923 456 789',
+                email: 'agua@viana.ao'
+            },
+            utilizacao: {
+                beneficiarios_directos: '80 produtores',
+                principais_culturas_atividades: 'Hortaliças',
+                frequencia_utilizacao: 'Diária'
+            },
+            estado: 'Mau'
         },
-        utilizacao: {
-            beneficiarios_directos: '150 produtores',
-            principais_culturas_atividades: 'Milho, Feijão, Mandioca',
-            frequencia_utilizacao: 'Diária'
-        },
-        estado: 'Bom'
-    },
-    {
-        id: '2',
-        nome_infrastrutura: 'Represa de Cazenga',
-        tipo_infrastrutura: 'Represa/Barragem',
-        localizacao: {
-            provincia: 'LUANDA',
-            municipio: 'Cazenga',
-            comuna: 'Sambizanga',
-            aldeia_zona: 'Zona Norte',
-            coordenadas: {
-                latitude: '-8.830',
-                longitude: '13.250',
-                altitude: '60m',
-                precisao_m: '10m'
-            }
-        },
-        caracteristicas_tecnicas: {
-            dimensao: '100m x 50m x 12m',
-            capacidade: '5000 m³',
-            estado_conservacao: 'Razoável'
-        },
-        entidade_responsavel: {
-            proprietario_instituicao: 'Administração Municipal de Cazenga',
-            contacto: '+244 923 111 222',
-            email: 'adm@cazenga.ao'
-        },
-        utilizacao: {
-            beneficiarios_directos: '300 produtores',
-            principais_culturas_atividades: 'Hortaliças e Milho',
-            frequencia_utilizacao: 'Semanal'
-        },
-        estado: 'Razoável'
-    },
-    {
-        id: '3',
-        nome_infrastrutura: 'Poço Artesiano de Viana',
-        tipo_infrastrutura: 'Furo de Água/Poço Artesiano',
-        localizacao: {
-            provincia: 'LUANDA',
-            municipio: 'Viana',
-            comuna: 'Zango',
-            aldeia_zona: 'Bairro Central',
-            coordenadas: {
-                latitude: '-8.800',
-                longitude: '13.250',
-                altitude: '30m',
-                precisao_m: '5m'
-            }
-        },
-        caracteristicas_tecnicas: {
-            dimensao: 'Profundidade 50m',
-            capacidade: '50 m³/dia',
-            estado_conservacao: 'Mau'
-        },
-        entidade_responsavel: {
-            proprietario_instituicao: 'Cooperativa Água Rural Viana',
-            contacto: '+244 923 333 444',
-            email: 'agua@viana.ao'
-        },
-        utilizacao: {
-            beneficiarios_directos: '80 produtores',
-            principais_culturas_atividades: 'Hortaliças',
-            frequencia_utilizacao: 'Diária'
-        },
-        estado: 'Mau'
-    },
-    {
-        id: '4',
-        nome_infrastrutura: 'Silo de Grãos de Belas',
-        tipo_infrastrutura: 'Silo de Grãos',
-        localizacao: {
-            provincia: 'LUANDA',
-            municipio: 'Belas',
-            comuna: 'Quicabo',
-            aldeia_zona: 'Zona Industrial',
-            coordenadas: {
-                latitude: '-8.900',
-                longitude: '13.200',
-                altitude: '50m',
-                precisao_m: '8m'
-            }
-        },
-        caracteristicas_tecnicas: {
-            dimensao: '30m x 20m x 10m',
-            capacidade: '2000 toneladas',
-            estado_conservacao: 'Bom'
-        },
-        entidade_responsavel: {
-            proprietario_instituicao: 'Empresa de Armazenagem Belas',
-            contacto: '+244 923 555 666',
-            email: 'silo@belas.ao'
-        },
-        utilizacao: {
-            beneficiarios_directos: '200 produtores',
-            principais_culturas_atividades: 'Milho, Feijão, Soja',
-            frequencia_utilizacao: 'Mensal'
-        },
-        estado: 'Bom'
-    }
-];
+        {
+            id: '4',
+            nome_infrastrutura: 'Silo de Grãos de Belas',
+            tipo_infrastrutura: 'Silo de Grãos',
+            bi_nif: '500675321V',
+            localizacao: {
+                provincia: 'Luanda',
+                municipio: 'Belas',
+                comuna: 'Quicabo',
+                aldeia_zona: 'Zona Industrial',
+                coordenadas: {
+                    latitude: '-8.900',
+                    longitude: '13.200',
+                    altitude: '50m',
+                    precisao_m: '8m'
+                }
+            },
+            caracteristicas_tecnicas: {
+                dimensao: '30m x 20m x 10m',
+                capacidade: '2000 toneladas',
+                estado_conservacao: 'Bom'
+            },
+            entidade_responsavel: {
+                proprietario_instituicao: 'Empresa de Armazenagem Belas',
+                contacto: '+244 923 456 789',
+                email: 'silo@belas.ao'
+            },
+            utilizacao: {
+                beneficiarios_directos: '200 produtores',
+                principais_culturas_atividades: 'Milho, Feijão, Soja',
+                frequencia_utilizacao: 'Mensal'
+            },
+            estado: 'Bom'
+        }
+    ];
 
 
     const [localInfraestruturas, setLocalInfraestruturas] = useState(infraestruturas);
@@ -216,7 +222,7 @@ const GestaoApoioAgricola = () => {
 
     const handleConfirmDelete = () => {
         if (!infraestruturaToDelete) return;
-        
+
         setLocalInfraestruturas(prev =>
             prev.filter(infra => infra.id !== infraestruturaToDelete)
         );
@@ -226,11 +232,11 @@ const GestaoApoioAgricola = () => {
 
     // Filtragem
     const filteredInfraestruturas = localInfraestruturas.filter(infra => {
-        const matchesSearch = 
+        const matchesSearch =
             infra.nome_infrastrutura.toLowerCase().includes(searchTerm.toLowerCase()) ||
             infra.localizacao.provincia.toLowerCase().includes(searchTerm.toLowerCase()) ||
             infra.entidade_responsavel.proprietario_instituicao.toLowerCase().includes(searchTerm.toLowerCase());
-        
+
         const matchesTipo = !selectedTipo || infra.tipo_infrastrutura === selectedTipo;
         const matchesEstado = !selectedEstado || infra.caracteristicas_tecnicas.estado_conservacao === selectedEstado;
 
@@ -280,7 +286,7 @@ const GestaoApoioAgricola = () => {
 
         const { type, title, message } = toastMessage;
         let bgColor, icon;
-        
+
         switch (type) {
             case 'success':
                 bgColor = 'bg-blue-50 border-l-4 border-blue-500 text-blue-700';
@@ -322,7 +328,7 @@ const GestaoApoioAgricola = () => {
     const DeleteConfirmModal = () => {
         if (!showDeleteModal) return null;
         const infra = localInfraestruturas.find(i => i.id === infraestruturaToDelete);
-        
+
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
                 <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm flex flex-col items-center">
@@ -331,7 +337,7 @@ const GestaoApoioAgricola = () => {
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Confirmar Exclusão</h3>
                     <p className="text-gray-600 text-center text-sm mb-4">
-                        Tem certeza que deseja excluir a infraestrutura <span className="font-semibold text-red-600">{infra?.nome_infrastrutura || 'Selecionada'}</span>?<br/>
+                        Tem certeza que deseja excluir a infraestrutura <span className="font-semibold text-red-600">{infra?.nome_infrastrutura || 'Selecionada'}</span>?<br />
                         Esta ação não pode ser desfeita.
                     </p>
                     <div className="flex gap-3 mt-2 w-full">
@@ -356,7 +362,7 @@ const GestaoApoioAgricola = () => {
     return (
         <div>
             <Toast />
-            
+
             {/* Indicadores do topo */}
             <div className="w-full flex justify-center bg-transparent pb-[30px] pt-2">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 w-full">
@@ -371,7 +377,7 @@ const GestaoApoioAgricola = () => {
                             </div>
                         </div>
                     </div>
-                   
+
                     <div className="bg-white rounded-xl shadow-md p-6">
                         <div className="flex items-center">
                             <div className="p-3 bg-blue-100 rounded-full">
@@ -452,10 +458,22 @@ const GestaoApoioAgricola = () => {
                                         { label: 'Todos os Tipos', value: '' },
                                         { label: 'Canal de Irrigação', value: 'Canal de Irrigação' },
                                         { label: 'Represa/Barragem', value: 'Represa/Barragem' },
-                                        { label: 'Furo de Água/Poço Artesiano', value: 'Furo de Água/Poço Artesiano' },
-                                        { label: 'Silo de Grãos', value: 'Silo de Grãos' },
-                                        { label: 'Armazém', value: 'Armazém' },
-                                        { label: 'Mercado', value: 'Mercado' }
+                                        { label: 'Furo de Água / Poço Artesiano', value: 'Furo de Água / Poço Artesiano' },
+                                        { label: 'Sistema de Rega (aspersão/gota-a-gota)', value: 'Sistema de Rega (aspersão/gota-a-gota)' },
+                                        { label: 'Armazém de Conservação', value: 'Armazém de Conservação' },
+                                        { label: 'Silos de Grãos', value: 'Silos de Grãos' },
+                                        { label: 'Estufa Agrícola', value: 'Estufa Agrícola' },
+                                        { label: 'Estação Meteorológica', value: 'Estação Meteorológica' },
+                                        { label: 'Estrada de Acesso Rural', value: 'Estrada de Acesso Rural' },
+                                        { label: 'Mercado de Produtos Agrícolas', value: 'Mercado de Produtos Agrícolas' },
+                                        { label: 'Centro de Formação Agrária', value: 'Centro de Formação Agrária' },
+                                        { label: 'Centro de Extensão Rural', value: 'Centro de Extensão Rural' },
+                                        { label: 'Posto de Assistência Veterinária', value: 'Posto de Assistência Veterinária' },
+                                        { label: 'Matadouro Municipal / Abatedouro', value: 'Matadouro Municipal / Abatedouro' },
+                                        { label: 'Cais de Pesca / Infraestrutura Aquícola', value: 'Cais de Pesca / Infraestrutura Aquícola' },
+                                        { label: 'Centros de Processamento Agroalimentar', value: 'Centros de Processamento Agroalimentar' },
+                                        { label: 'Tratores/Equipamentos Agrícolas Comunitários', value: 'Tratores/Equipamentos Agrícolas Comunitários' },
+                                        { label: 'Outro', value: 'Outro' }
                                     ]}
                                     onChange={(option) => setSelectedTipo(option?.value || '')}
                                     iconStart={<Filter size={18} />}
@@ -488,21 +506,23 @@ const GestaoApoioAgricola = () => {
                             <thead className="bg-gray-50 sticky top-0 z-10">
                                 <tr>
                                     <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                       Infraestrutura 
+                                        Infraestrutura
                                     </th>
+                                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                                        Entidade
+                                    </th>
+
                                     <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                         Localização
                                     </th>
                                     <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                         Características
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                        Entidade 
-                                    </th>
+
                                     <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                         Utilização
                                     </th>
-                                   
+
                                     <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                         Estado
                                     </th>
@@ -514,39 +534,50 @@ const GestaoApoioAgricola = () => {
                             <tbody className="divide-y text-start divide-gray-200 bg-white">
                                 {getCurrentItems().map((infra) => (
                                     <tr key={infra.id} className="hover:bg-blue-50 transition-colors">
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            
-                                            <div className="text-sm font-medium text-gray-900 max-w-[200px] truncate">
-                                                {infra.nome_infrastrutura}
+
+
+
+                                        <td className="px-6 py-4 whitespace-nowrap flex items-center space-x-3">
+                                            <div className="p-3 flex justify-center  bg-blue-100 rounded-full">
+                                                <Building className=" text-blue-600" />
                                             </div>
-                                            <div className="flex items-center text-xs text-gray-500 mt-1">
-                                                
-                                                {infra.tipo_infrastrutura}
-                                            </div>
-                                            <div className="flex items-center text-xs text-gray-500 mt-1">
-                                                
-                                                {infra.bi_nif}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm text-gray-900">
-                                                {infra.localizacao.provincia}
-                                            </div>
-                                             <div className="flex items-center text-xs text-gray-500 mt-1">
-                                                 {infra.localizacao.municipio} 
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm text-gray-900">
-                                               
-                                                <div className="text-xs text-gray-900">{infra.caracteristicas_tecnicas.capacidade}</div>
+                                            <div>
+                                                <div className="text-sm font-medium text-gray-900 max-w-[200px] truncate">
+                                                    {infra.nome_infrastrutura}
+                                                </div>
+                                                <div className="flex items-center text-xs text-gray-500 mt-1">
+                                                    Tipo: {infra.tipo_infrastrutura}
+                                                </div>
+                                                <div className="flex items-center text-xs text-gray-500 mt-1">
+                                                    BI/NIF: {infra.bi_nif}
+                                                </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-sm text-gray-900 max-w-[150px] truncate">
                                                 {infra.entidade_responsavel.proprietario_instituicao}
+
+                                            </div>
+                                            <div className="flex items-center text-xs text-gray-500 mt-1">
+                                                <Phone size={'12'} ></Phone> {infra.entidade_responsavel.contacto}
+                                            </div>
+
+                                        </td>
+                                        <td className="px-6 py-4 ">
+                                            <div className="text-sm text-gray-900">
+                                                {infra.localizacao.provincia}
+                                            </div>
+                                            <div className="flex items-center text-xs text-gray-500 mt-1">
+                                                <MapPin size={'12'} ></MapPin>  {infra.localizacao.municipio}
                                             </div>
                                         </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="text-sm text-gray-900">
+
+                                                <div className="text-xs text-gray-900">{infra.caracteristicas_tecnicas.capacidade}</div>
+                                            </div>
+                                        </td>
+
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-sm text-gray-900">
                                                 <div>{infra.utilizacao.beneficiarios_directos}</div>
@@ -567,7 +598,7 @@ const GestaoApoioAgricola = () => {
                                                 >
                                                     <Eye className="w-5 h-5" />
                                                 </button>
-                                               
+
                                                 <button
                                                     onClick={() => openDeleteModal(infra.id)}
                                                     className="p-2 hover:bg-red-100 text-red-600 hover:text-red-800 rounded-full transition-colors"
@@ -702,7 +733,7 @@ const GestaoApoioAgricola = () => {
                         </div>
                     )}
                 </div>
-                
+
                 <DeleteConfirmModal />
             </div>
         </div>

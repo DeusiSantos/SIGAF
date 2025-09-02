@@ -40,6 +40,7 @@ import HistoricoMultasApreensoes from './pages/Sancoes/HistoricoMultasApreensoes
 import GestaoMultasApreensoes from './pages/Sancoes/GestaoMultasApreensoes';
 import MenuApoioAgricola from './pages/ApoioAgricola/MenuApoioAgricola';
 import GestaoApoioAgricola from './pages/ApoioAgricola/GestaoApoioAgricola';
+import RegistroApoioAgricola from './pages/ApoioAgricola/RegistroApoioAgricola';
 //import VisualizarProdutorFlorestal from './pages/VisualizarProdutorFlorestal';
 
 
@@ -116,6 +117,7 @@ function App() {
           <Route path="gestao-infraestrutura">
             <Route index element={<MenuApoioAgricola />} />
             <Route path='apoio-agricola' element={<GestaoApoioAgricola />} />
+             <Route path='registro-apoioAgricola' element={<RegistroApoioAgricola />} />
           </Route>
 
 

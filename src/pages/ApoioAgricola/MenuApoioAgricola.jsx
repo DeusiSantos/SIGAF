@@ -6,6 +6,7 @@ import ProdutoresGestao from '../../pages/ProdutoresGestao';
 import ProdutoresGestaoAprovados from '../../pages/ProdutoresGestaoAprovados';
 import { useProdutores, useProdutoresAprovados } from '../../hooks/useRnpaData';
 import GestaoApoioAgricola from './GestaoApoioAgricola';
+import RegistroApoioAgricola from './RegistroApoioAgricola';
 
 const MenuApoioAgricola = () => {
     const [activeSection, setActiveSection] = useState('gestao');
@@ -82,21 +83,11 @@ const MenuApoioAgricola = () => {
                         </div>
                     </div>
                 );
-
-            case 'aprovados':
-                return (
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-                        <div className="text-center">
-                            <ProdutoresGestaoAprovados />
-                        </div>
-                    </div>
-                );
-
             case 'cadastro':
                 return (
                     <div className="bg-white  shadow-sm ">
                         <div className="text-center">
-                            <CadastroProdutor />
+                            <RegistroApoioAgricola />
                         </div>
                     </div>
                 );
