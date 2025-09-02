@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, } from 'react';
 import {
     Search,
     Pencil,
@@ -24,11 +24,11 @@ import {
     Settings
 } from 'lucide-react';
 
-import { useNavigate } from 'react-router-dom';
+//import { useNavigate } from 'react-router-dom';
 import CustomInput from '../../components/CustomInput';
 
 const GestaoApoioAgricola = () => {
-    const navigate = useNavigate();
+    //const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedTipo, setSelectedTipo] = useState('');
     const [selectedEstado, setSelectedEstado] = useState('');
@@ -450,11 +450,12 @@ const GestaoApoioAgricola = () => {
                                     value={selectedTipo ? { label: selectedTipo, value: selectedTipo } : null}
                                     options={[
                                         { label: 'Todos os Tipos', value: '' },
+                                        { label: 'Canal de Irrigação', value: 'Canal de Irrigação' },
+                                        { label: 'Represa/Barragem', value: 'Represa/Barragem' },
+                                        { label: 'Furo de Água/Poço Artesiano', value: 'Furo de Água/Poço Artesiano' },
+                                        { label: 'Silo de Grãos', value: 'Silo de Grãos' },
                                         { label: 'Armazém', value: 'Armazém' },
-                                        { label: 'Sistema de Irrigação', value: 'Sistema de Irrigação' },
-                                        { label: 'Mercado', value: 'Mercado' },
-                                        { label: 'Unidade de Processamento', value: 'Unidade de Processamento' },
-                                        { label: 'Infraestrutura de Transporte', value: 'Infraestrutura de Transporte' }
+                                        { label: 'Mercado', value: 'Mercado' }
                                     ]}
                                     onChange={(option) => setSelectedTipo(option?.value || '')}
                                     iconStart={<Filter size={18} />}
@@ -510,90 +511,73 @@ const GestaoApoioAgricola = () => {
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-200 bg-white">
+                            <tbody className="divide-y text-start divide-gray-200 bg-white">
                                 {getCurrentItems().map((infra) => (
-                                      <div key={infra.id} className="p-4 border-b border-gray-200 hover:bg-blue-50 transition-colors">
-                                    <div className="flex items-start">
-                                        <ProdutorAvatar 
-                                            infra={infra}
-                                            size="w-14 h-14"
-                                            textSize="text-sm"
-                                        />
-                                        <div className="flex-1 ml-4">
-                                            <div className="flex justify-between items-start">
-                                                <div>
-                                                    <h3 className="text-sm font-semibold text-gray-900">{infra.nome}</h3>
-                                                    <div className="text-xs text-gray-500 mt-1">Código: {infra.codigoRNPA}</div>
-                                                    <div className="text-xs text-gray-500">GPS: {infra.coordenadasGPS}</div>
-                                                </div>
-                                                <StatusMenu infra={infra} />
+                                    <tr key={infra.id} className="hover:bg-blue-50 transition-colors">
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            
+                                            <div className="text-sm font-medium text-gray-900 max-w-[200px] truncate">
+                                                {infra.nome_infrastrutura}
                                             </div>
-
-                                            <div className="mt-3 space-y-2">
-                                                <div className="flex items-center text-xs">
-                                                    <Building className="w-3 h-3 mr-1 text-blue-500" />
-                                                    <span className="font-medium">{infra.propriedade.tipo}:</span>
-                                                    <span className="ml-1 text-gray-600">{infra.propriedade.nome}</span>
-                                                </div>
-                                                <div className="flex flex-wrap gap-1">
-                                                    {infra.especiesPredominantes.slice(0, 2).map((especie, index) => (
-                                                        <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                            <Leaf className="w-3 h-3 mr-1" />
-                                                            {especie}
-                                                        </span>
-                                                    ))}
-                                                    {infra.especiesPredominantes.length > 2 && (
-                                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                                                            +{infra.especiesPredominantes.length - 2}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <div className="flex items-center text-xs">
-                                                    <TreePine className="w-3 h-3 mr-1 text-green-500" />
-                                                    <span className="font-medium">{infra.volumeEstimado} m³</span>
-                                                    <span className="ml-2 text-gray-500">|</span>
-                                                    <FileText className="w-3 h-3 ml-2 mr-1 text-blue-500" />
-                                                    <span className={`px-2 py-0.5 rounded text-xs ${
-                                                        infra.licenciamento.status === 'Aprovada' ? 'bg-green-100 text-green-800' :
-                                                        infra.licenciamento.status === 'Pendente' ? 'bg-yellow-100 text-yellow-800' :
-                                                        'bg-red-100 text-red-800'
-                                                    }`}>
-                                                        {infra.licenciamento.status}
-                                                    </span>
-                                                </div>
-                                                {infra.transporte.destino !== 'N/A' && (
-                                                    <div className="flex items-center text-xs text-gray-600">
-                                                        <Truck className="w-3 h-3 mr-1 text-blue-500" />
-                                                        <span>{infra.transporte.destino}</span>
-                                                        {infra.transporte.placa !== 'N/A' && (
-                                                            <span className="ml-2">({infra.transporte.placa})</span>
-                                                        )}
-                                                    </div>
-                                                )}
+                                            <div className="flex items-center text-xs text-gray-500 mt-1">
+                                                
+                                                {infra.tipo_infrastrutura}
                                             </div>
-
-                                            <div className="mt-3 flex justify-between items-center">
-                                                <div className="flex space-x-1">
-                                                    <button
-                                                        onClick={(infra.id)}
-                                                        className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-full transition-colors"
-                                                        title="Visualizar"
-                                                    >
-                                                        <Eye className="w-4 h-4" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => openDeleteModal(infra.id)}
-                                                        className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-full transition-colors"
-                                                        title="Remover"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
-                                                </div>
-                                                <ActionMenu infra={infra} />
+                                            <div className="flex items-center text-xs text-gray-500 mt-1">
+                                                
+                                                {infra.bi_nif}
                                             </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="text-sm text-gray-900">
+                                                {infra.localizacao.provincia}
+                                            </div>
+                                             <div className="flex items-center text-xs text-gray-500 mt-1">
+                                                 {infra.localizacao.municipio} 
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="text-sm text-gray-900">
+                                               
+                                                <div className="text-xs text-gray-900">{infra.caracteristicas_tecnicas.capacidade}</div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="text-sm text-gray-900 max-w-[150px] truncate">
+                                                {infra.entidade_responsavel.proprietario_instituicao}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="text-sm text-gray-900">
+                                                <div>{infra.utilizacao.beneficiarios_directos}</div>
+                                                <div className="text-xs text-gray-500">{infra.utilizacao.frequencia_utilizacao}</div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className={`px-3 py-1.5 rounded-full text-xs font-medium border ${getEstadoColor(infra.caracteristicas_tecnicas.estado_conservacao)}`}>
+                                                {infra.caracteristicas_tecnicas.estado_conservacao}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="flex items-center justify-center space-x-1">
+                                                <button
+                                                    onClick={() => handleViewInfraestrutura(infra.id)}
+                                                    className="p-2 hover:bg-blue-100 text-blue-600 hover:text-blue-800 rounded-full transition-colors"
+                                                    title="Visualizar"
+                                                >
+                                                    <Eye className="w-5 h-5" />
+                                                </button>
+                                               
+                                                <button
+                                                    onClick={() => openDeleteModal(infra.id)}
+                                                    className="p-2 hover:bg-red-100 text-red-600 hover:text-red-800 rounded-full transition-colors"
+                                                    title="Remover"
+                                                >
+                                                    <Trash2 className="w-5 h-5" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 ))}
                             </tbody>
                         </table>
@@ -602,10 +586,10 @@ const GestaoApoioAgricola = () => {
                     {/* Visualização em cards para mobile */}
                     <div className="md:hidden overflow-auto">
                         {getCurrentItems().map((infra) => (
-                            <div key={infra.id} className="p-4 border-b border-gray-200 hover:bg-blue-50 transition-colors">
-                                <div className="flex justify-between items-start mb-3">
+                            <div key={infra.id} className="p-4 border-b border-gray-200 text-end hover:bg-blue-50 transition-colors">
+                                <div className="flex text-end justify-between items-end mb-3">
                                     <div>
-                                        <h3 className="text-sm font-semibold text-gray-900">{infra.nome_infrastrutura}</h3>
+                                        <h3 className="text-sm font-semibold  text-gray-900">{infra.nome_infrastrutura}</h3>
                                         <div className="text-xs text-gray-500 mt-1">BI/NIF: {infra.bi_nif}</div>
                                         <div className="text-xs text-gray-500">Data: {new Date(infra.data_registo).toLocaleDateString('pt-BR')}</div>
                                     </div>
@@ -617,7 +601,7 @@ const GestaoApoioAgricola = () => {
                                 <div className="space-y-2">
                                     <div className="flex items-center text-xs">
                                         <span className="mr-2 text-blue-500">
-                                            {getTipoIcon(infra.tipo_infrastrutura)}
+                                            {infra.tipo_infrastrutura}
                                         </span>
                                         <span className="font-medium">Tipo:</span>
                                         <span className="ml-1 text-gray-600">{infra.tipo_infrastrutura}</span>
