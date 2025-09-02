@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect, useMemo } from 'react';
 import {
   User,
   Building,
-  Trees,
+  Droplets,
   FileText,
   Check,
   ChevronRight,
@@ -29,13 +29,19 @@ import {
   X,
   AlertTriangle,
   Activity,
-  Clock
+  Clock,
+  Settings,
+  Target,
+  Wrench,
+  Thermometer,
+  Zap,
+  Users
 } from 'lucide-react';
 
 const CustomInput = ({ type, label, value, onChange, options, required, errorMessage, disabled, placeholder, iconStart, helperText, rows, ...props }) => {
   const baseInputClasses = `w-full p-3 border rounded-xl transition-all ${
-    errorMessage ? 'border-red-500 bg-red-50' : 'border-gray-200 focus:border-red-500'
-  } ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'} focus:outline-none focus:ring-2 focus:ring-red-200`;
+    errorMessage ? 'border-red-500 bg-red-50' : 'border-gray-200 focus:border-cyan-500'
+  } ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'} focus:outline-none focus:ring-2 focus:ring-cyan-200`;
 
   const renderInput = () => {
     switch (type) {
@@ -123,7 +129,7 @@ const CustomInput = ({ type, label, value, onChange, options, required, errorMes
   );
 };
 
-const GestaoMultasApreensoes = () => {
+const GestaoSistemasIrrigacao = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTipo, setSelectedTipo] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
@@ -136,79 +142,106 @@ const GestaoMultasApreensoes = () => {
   const itemsPerPage = 8;
   const containerRef = useRef(null);
 
-  // Dados mock para demonstração
-  const [multasApreensoes, setMultasApreensoes] = useState([
+  // Dados mock para sistemas de irrigação
+  const [sistemasIrrigacao, setSistemasIrrigacao] = useState([
     {
       id: 1,
-      numeroProcesso: 'MF-2024-001',
-      nomeInfrator: 'João Silva Santos',
-      documentoInfrator: '123456789LA041',
-      telefoneInfrator: '923456789',
-      provinciaInfrator: 'LUANDA',
-      municipioInfrator: 'LUANDA',
-      propriedadeAfetada: 'Floresta do Norte',
-      coordenadasPropriedade: '-8.7832, 13.3432',
-      tipoSancao: 'MULTA',
-      valorMulta: 50000,
-      motivoSancao: 'DESMATAMENTO_ILEGAL',
-      dataOcorrencia: '2024-01-15',
-      dataAplicacao: '2024-01-20',
-      localOcorrencia: 'Área florestal protegida',
-      descricaoDetalhada: 'Desmatamento de aproximadamente 2 hectares de floresta nativa sem autorização.',
-      responsavelNome: 'Maria Costa',
-      responsavelCargo: 'Fiscal Florestal',
-      responsavelInstituicao: 'DNF',
-      statusProcesso: 'ATIVO',
-      observacoes: 'Processo em andamento, aguardando pagamento da multa.',
-      documentosAnexados: ['auto_infracao.pdf', 'fotos_area.zip']
+      codigoSistema: 'SIR-2024-001',
+      nomeProjeto: 'Sistema de Irrigação Cacuaco Norte',
+      localizacao: {
+        provincia: 'LUANDA',
+        municipio: 'CACUACO',
+        aldeia: 'Funda',
+        coordenadas: '-8.7832, 13.3432'
+      },
+      fonteAgua: 'Rio Bengo',
+      areaIrrigada: 25.5,
+      numeroFamiliasAtendidas: 45,
+      culturasPrincipais: ['Milho', 'Feijão', 'Hortaliças'],
+      tipoIrrigacao: 'GOTEJAMENTO',
+      statusSistema: 'ATIVO',
+      dataInstalacao: '2024-01-15',
+      dataUltimaManutencao: '2024-08-20',
+      proximaManutencao: '2024-11-20',
+      custoInstalacao: 850000,
+      custoManutencaoMensal: 35000,
+      responsavelTecnico: {
+        nome: 'Eng. Carlos Mendes',
+        telefone: '923456789',
+        instituicao: 'MINAGRIF'
+      },
+      cooperativaVinculada: 'Cooperativa Agrícola do Cacuaco',
+      eficienciaHidrica: 85,
+      producaoAnual: 12.8,
+      observacoes: 'Sistema funcionando adequadamente. Produtores satisfeitos com os resultados.',
+      problemasRecentes: [],
+      documentosAnexados: ['projeto_tecnico.pdf', 'licenca_agua.pdf', 'manual_operacao.pdf']
     },
     {
       id: 2,
-      numeroProcesso: 'AF-2024-002',
-      nomeInfrator: 'Empresa Florestal Lda',
-      documentoInfrator: '987654321LA042',
-      telefoneInfrator: '924567890',
-      provinciaInfrator: 'BENGUELA',
-      municipioInfrator: 'BENGUELA',
-      propriedadeAfetada: 'Concessão Benguela',
-      coordenadasPropriedade: '-12.3532, 13.5356',
-      tipoSancao: 'APREENSAO_EQUIPAMENTOS',
-      valorMulta: 0,
-      motivoSancao: 'EXPLORACAO_SEM_LICENCA',
-      dataOcorrencia: '2024-02-10',
-      dataAplicacao: '2024-02-12',
-      localOcorrencia: 'Área de concessão florestal',
-      descricaoDetalhada: 'Exploração de madeira sem licença válida. Apreendidos 3 tratores e equipamentos de corte.',
-      responsavelNome: 'António Ferreira',
-      responsavelCargo: 'Técnico Superior Florestal',
-      responsavelInstituicao: 'MINAGRIF',
-      statusProcesso: 'RESOLVIDO',
-      observacoes: 'Equipamentos devolvidos após regularização da documentação.',
-      documentosAnexados: ['auto_apreensao.pdf', 'inventario_equipamentos.xlsx']
+      codigoSistema: 'SIR-2024-002',
+      nomeProjeto: 'Irrigação Comunitária Benguela Sul',
+      localizacao: {
+        provincia: 'BENGUELA',
+        municipio: 'BENGUELA',
+        aldeia: 'Cavaco',
+        coordenadas: '-12.3532, 13.5356'
+      },
+      fonteAgua: 'Poço Artesiano',
+      areaIrrigada: 18.2,
+      numeroFamiliasAtendidas: 32,
+      culturasPrincipais: ['Tomate', 'Cebola', 'Pimentão'],
+      tipoIrrigacao: 'ASPERSAO',
+      statusSistema: 'MANUTENCAO',
+      dataInstalacao: '2023-11-08',
+      dataUltimaManutencao: '2024-08-15',
+      proximaManutencao: '2024-09-10',
+      custoInstalacao: 620000,
+      custoManutencaoMensal: 28000,
+      responsavelTecnico: {
+        nome: 'Eng. Ana Cristina',
+        telefone: '924567890',
+        instituicao: 'ADMIN_MUNICIPAL'
+      },
+      cooperativaVinculada: 'Associação de Produtores de Benguela',
+      eficienciaHidrica: 78,
+      producaoAnual: 9.5,
+      observacoes: 'Sistema em manutenção preventiva. Substituição de equipamentos de bombeamento.',
+      problemasRecentes: ['Falha no sistema de bombeamento', 'Entupimento em alguns aspersores'],
+      documentosAnexados: ['relatorio_manutencao.pdf', 'orcamento_pecas.xlsx']
     },
     {
       id: 3,
-      numeroProcesso: 'QF-2024-003',
-      nomeInfrator: 'Pedro Manuel',
-      documentoInfrator: '456789123LA043',
-      telefoneInfrator: '925678901',
-      provinciaInfrator: 'HUILA',
-      municipioInfrator: 'LUBANGO',
-      propriedadeAfetada: 'Área Rural Sul',
-      coordenadasPropriedade: '-14.9167, 13.4833',
-      tipoSancao: 'MULTA',
-      valorMulta: 25000,
-      motivoSancao: 'QUEIMADAS_NAO_AUTORIZADAS',
-      dataOcorrencia: '2024-03-05',
-      dataAplicacao: '2024-03-08',
-      localOcorrencia: 'Zona rural do Lubango',
-      descricaoDetalhada: 'Queimada não autorizada em área de 5 hectares para limpeza de terreno.',
-      responsavelNome: 'Ana Joaquina',
-      responsavelCargo: 'Inspectora Florestal',
-      responsavelInstituicao: 'ADMIN_MUNICIPAL',
-      statusProcesso: 'PENDENTE',
-      observacoes: 'Aguardando pagamento da multa e plano de recuperação da área.',
-      documentosAnexados: ['relatorio_queimada.pdf']
+      codigoSistema: 'SIR-2024-003',
+      nomeProjeto: 'Sistema Irrigação Huíla Centro',
+      localizacao: {
+        provincia: 'HUILA',
+        municipio: 'LUBANGO',
+        aldeia: 'Hoque',
+        coordenadas: '-14.9167, 13.4833'
+      },
+      fonteAgua: 'Barragem Matala',
+      areaIrrigada: 42.8,
+      numeroFamiliasAtendidas: 78,
+      culturasPrincipais: ['Milho', 'Feijão', 'Batata-doce'],
+      tipoIrrigacao: 'SUPERFICIE',
+      statusSistema: 'INATIVO',
+      dataInstalacao: '2023-08-22',
+      dataUltimaManutencao: '2024-07-10',
+      proximaManutencao: '2024-10-05',
+      custoInstalacao: 1200000,
+      custoManutencaoMensal: 45000,
+      responsavelTecnico: {
+        nome: 'Técn. João Baptista',
+        telefone: '925678901',
+        instituicao: 'DNF'
+      },
+      cooperativaVinculada: 'Cooperativa do Planalto Central',
+      eficienciaHidrica: 65,
+      producaoAnual: 18.3,
+      observacoes: 'Sistema temporariamente inativo devido a problemas no canal principal de distribuição.',
+      problemasRecentes: ['Erosão no canal principal', 'Necessidade de limpeza geral', 'Reparação de comportas'],
+      documentosAnexados: ['diagnostico_problemas.pdf', 'plano_recuperacao.pdf']
     }
   ]);
 
@@ -238,20 +271,21 @@ const GestaoMultasApreensoes = () => {
 
   // Filtragem dos registros
   const filteredRecords = useMemo(() => {
-    return multasApreensoes.filter(record => {
+    return sistemasIrrigacao.filter(record => {
       const matchesSearch =
-        record.nomeInfrator.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.numeroProcesso.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.documentoInfrator.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.telefoneInfrator.includes(searchTerm) ||
-        record.propriedadeAfetada.toLowerCase().includes(searchTerm.toLowerCase());
+        record.nomeProjeto.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.codigoSistema.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.localizacao.provincia.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.localizacao.municipio.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.cooperativaVinculada.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.responsavelTecnico.nome.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesTipo = !selectedTipo || record.tipoSancao === selectedTipo;
-      const matchesStatus = !selectedStatus || record.statusProcesso === selectedStatus;
+      const matchesTipo = !selectedTipo || record.tipoIrrigacao === selectedTipo;
+      const matchesStatus = !selectedStatus || record.statusSistema === selectedStatus;
 
       return matchesSearch && matchesTipo && matchesStatus;
     });
-  }, [multasApreensoes, searchTerm, selectedTipo, selectedStatus]);
+  }, [sistemasIrrigacao, searchTerm, selectedTipo, selectedStatus]);
 
   // Reset página quando filtros mudarem
   useEffect(() => {
@@ -286,38 +320,25 @@ const GestaoMultasApreensoes = () => {
     }).format(value);
   };
 
-  // Labels para tipos de sanção
-  const getTipoSancaoLabel = (tipo) => {
+  // Labels para tipos de irrigação
+  const getTipoIrrigacaoLabel = (tipo) => {
     const labels = {
-      'MULTA': 'Multa',
-      'APREENSAO_EQUIPAMENTOS': 'Apreensão de Equipamentos',
-      'APREENSAO_MADEIRA': 'Apreensão de Madeira',
-      'SUSPENSAO_ATIVIDADE': 'Suspensão de Atividade',
-      'EMBARGAMENTO_OBRA': 'Embargamento de Obra'
+      'GOTEJAMENTO': 'Gotejamento',
+      'ASPERSAO': 'Aspersão',
+      'SUPERFICIE': 'Superfície',
+      'MICROASPERSAO': 'Micro Aspersão',
+      'SULCOS': 'Sulcos'
     };
     return labels[tipo] || tipo;
-  };
-
-  // Labels para motivos
-  const getMotivoLabel = (motivo) => {
-    const labels = {
-      'DESMATAMENTO_ILEGAL': 'Desmatamento Ilegal',
-      'EXPLORACAO_SEM_LICENCA': 'Exploração sem Licença',
-      'QUEIMADAS_NAO_AUTORIZADAS': 'Queimadas não Autorizadas',
-      'TRANSPORTE_ILEGAL_MADEIRA': 'Transporte Ilegal de Madeira',
-      'VIOLACAO_AREA_PROTEGIDA': 'Violação de Área Protegida',
-      'OUTROS': 'Outros'
-    };
-    return labels[motivo] || motivo;
   };
 
   // Labels para status
   const getStatusLabel = (status) => {
     const labels = {
       'ATIVO': 'Ativo',
-      'PENDENTE': 'Pendente',
-      'RESOLVIDO': 'Resolvido',
-      'CANCELADO': 'Cancelado'
+      'MANUTENCAO': 'Manutenção',
+      'INATIVO': 'Inativo',
+      'PLANEJAMENTO': 'Planejamento'
     };
     return labels[status] || status;
   };
@@ -325,10 +346,10 @@ const GestaoMultasApreensoes = () => {
   // Cores para status
   const getStatusColor = (status) => {
     const colors = {
-      'ATIVO': 'bg-blue-100 text-blue-800 border-blue-300',
-      'PENDENTE': 'bg-yellow-100 text-yellow-800 border-yellow-300',
-      'RESOLVIDO': 'bg-green-100 text-green-800 border-green-300',
-      'CANCELADO': 'bg-gray-100 text-gray-800 border-gray-300'
+      'ATIVO': 'bg-green-100 text-green-800 border-green-300',
+      'MANUTENCAO': 'bg-yellow-100 text-yellow-800 border-yellow-300',
+      'INATIVO': 'bg-red-100 text-red-800 border-red-300',
+      'PLANEJAMENTO': 'bg-blue-100 text-blue-800 border-blue-300'
     };
     return colors[status] || 'bg-gray-100 text-gray-800 border-gray-300';
   };
@@ -337,21 +358,20 @@ const GestaoMultasApreensoes = () => {
   const handleExportData = () => {
     try {
       const dataToExport = filteredRecords.map(record => ({
-        'Nº Processo': record.numeroProcesso,
-        'Nome/Empresa': record.nomeInfrator,
-        'Documento': record.documentoInfrator,
-        'Telefone': record.telefoneInfrator,
-        'Província': record.provinciaInfrator,
-        'Município': record.municipioInfrator,
-        'Propriedade': record.propriedadeAfetada,
-        'Tipo de Sanção': getTipoSancaoLabel(record.tipoSancao),
-        'Valor da Multa': record.valorMulta > 0 ? formatCurrency(record.valorMulta) : 'N/A',
-        'Motivo': getMotivoLabel(record.motivoSancao),
-        'Data Ocorrência': formatDate(record.dataOcorrencia),
-        'Data Aplicação': formatDate(record.dataAplicacao),
-        'Responsável': record.responsavelNome,
-        'Instituição': record.responsavelInstituicao,
-        'Status': getStatusLabel(record.statusProcesso)
+        'Código Sistema': record.codigoSistema,
+        'Nome Projeto': record.nomeProjeto,
+        'Localização': `${record.localizacao.municipio}, ${record.localizacao.provincia}`,
+        'Fonte Água': record.fonteAgua,
+        'Área Irrigada (ha)': record.areaIrrigada,
+        'Famílias Atendidas': record.numeroFamiliasAtendidas,
+        'Tipo Irrigação': getTipoIrrigacaoLabel(record.tipoIrrigacao),
+        'Status': getStatusLabel(record.statusSistema),
+        'Data Instalação': formatDate(record.dataInstalacao),
+        'Custo Instalação': formatCurrency(record.custoInstalacao),
+        'Responsável': record.responsavelTecnico.nome,
+        'Cooperativa': record.cooperativaVinculada,
+        'Eficiência (%)': record.eficienciaHidrica,
+        'Produção Anual (t)': record.producaoAnual
       }));
 
       const csv = [
@@ -363,7 +383,7 @@ const GestaoMultasApreensoes = () => {
       const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
       link.setAttribute('href', url);
-      link.setAttribute('download', `historico_multas_apreensoes_${new Date().toISOString().split('T')[0]}.csv`);
+      link.setAttribute('download', `sistemas_irrigacao_${new Date().toISOString().split('T')[0]}.csv`);
       link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();
@@ -435,7 +455,7 @@ const GestaoMultasApreensoes = () => {
         <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
           <div className="sticky top-0 bg-white border-b p-6 flex justify-between items-center">
             <h2 className="text-xl font-bold text-gray-900">
-              Detalhes do Processo {selectedRecord.numeroProcesso}
+              Detalhes do Sistema {selectedRecord.codigoSistema}
             </h2>
             <button
               onClick={() => setShowModal(false)}
@@ -446,69 +466,109 @@ const GestaoMultasApreensoes = () => {
           </div>
 
           <div className="p-6 space-y-6">
-            {/* Informações do Infrator */}
-            <div className="bg-gray-50 rounded-lg p-4">
+            {/* Informações Gerais */}
+            <div className="bg-cyan-50 rounded-lg p-4">
               <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
-                <User className="w-5 h-5 mr-2 text-red-600" />
-                Dados do Infrator
+                <Droplets className="w-5 h-5 mr-2 text-cyan-600" />
+                Informações Gerais
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div><strong>Nome/Empresa:</strong> {selectedRecord.nomeInfrator}</div>
-                <div><strong>Documento:</strong> {selectedRecord.documentoInfrator}</div>
-                <div><strong>Telefone:</strong> {selectedRecord.telefoneInfrator}</div>
-                <div><strong>Localização:</strong> {selectedRecord.municipioInfrator}, {selectedRecord.provinciaInfrator}</div>
+                <div><strong>Nome do Projeto:</strong> {selectedRecord.nomeProjeto}</div>
+                <div><strong>Código:</strong> {selectedRecord.codigoSistema}</div>
+                <div><strong>Fonte de Água:</strong> {selectedRecord.fonteAgua}</div>
+                <div><strong>Tipo de Irrigação:</strong> {getTipoIrrigacaoLabel(selectedRecord.tipoIrrigacao)}</div>
+                <div><strong>Status:</strong> 
+                  <span className={`ml-2 px-2 py-1 rounded-full text-xs ${getStatusColor(selectedRecord.statusSistema)}`}>
+                    {getStatusLabel(selectedRecord.statusSistema)}
+                  </span>
+                </div>
+                <div><strong>Data de Instalação:</strong> {formatDate(selectedRecord.dataInstalacao)}</div>
               </div>
             </div>
 
-            {/* Informações da Sanção */}
-            <div className="bg-red-50 rounded-lg p-4">
+            {/* Localização */}
+            <div className="bg-green-50 rounded-lg p-4">
               <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
-                <Scale className="w-5 h-5 mr-2 text-red-600" />
-                Sanção Aplicada
+                <MapPin className="w-5 h-5 mr-2 text-green-600" />
+                Localização
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div><strong>Tipo:</strong> {getTipoSancaoLabel(selectedRecord.tipoSancao)}</div>
-                <div><strong>Valor:</strong> {selectedRecord.valorMulta > 0 ? formatCurrency(selectedRecord.valorMulta) : 'N/A'}</div>
-                <div><strong>Motivo:</strong> {getMotivoLabel(selectedRecord.motivoSancao)}</div>
-                <div><strong>Status:</strong> 
-                  <span className={`ml-2 px-2 py-1 rounded-full text-xs ${getStatusColor(selectedRecord.statusProcesso)}`}>
-                    {getStatusLabel(selectedRecord.statusProcesso)}
-                  </span>
+                <div><strong>Província:</strong> {selectedRecord.localizacao.provincia}</div>
+                <div><strong>Município:</strong> {selectedRecord.localizacao.municipio}</div>
+                <div><strong>Aldeia:</strong> {selectedRecord.localizacao.aldeia}</div>
+                <div><strong>Coordenadas:</strong> {selectedRecord.localizacao.coordenadas}</div>
+              </div>
+            </div>
+
+            {/* Dados Técnicos */}
+            <div className="bg-blue-50 rounded-lg p-4">
+              <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
+                <Settings className="w-5 h-5 mr-2 text-blue-600" />
+                Dados Técnicos
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div><strong>Área Irrigada:</strong> {selectedRecord.areaIrrigada} hectares</div>
+                <div><strong>Famílias Atendidas:</strong> {selectedRecord.numeroFamiliasAtendidas}</div>
+                <div><strong>Eficiência Hídrica:</strong> {selectedRecord.eficienciaHidrica}%</div>
+                <div><strong>Produção Anual:</strong> {selectedRecord.producaoAnual} toneladas</div>
+                <div className="md:col-span-2">
+                  <strong>Culturas Principais:</strong> {selectedRecord.culturasPrincipais.join(', ')}
                 </div>
               </div>
             </div>
 
-            {/* Informações da Ocorrência */}
+            {/* Custos */}
             <div className="bg-yellow-50 rounded-lg p-4">
               <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
-                <MapPin className="w-5 h-5 mr-2 text-yellow-600" />
-                Local e Data da Ocorrência
+                <DollarSign className="w-5 h-5 mr-2 text-yellow-600" />
+                Informações Financeiras
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div><strong>Propriedade:</strong> {selectedRecord.propriedadeAfetada}</div>
-                <div><strong>Coordenadas:</strong> {selectedRecord.coordenadasPropriedade}</div>
-                <div><strong>Local:</strong> {selectedRecord.localOcorrencia}</div>
-                <div><strong>Data:</strong> {formatDate(selectedRecord.dataOcorrencia)}</div>
-              </div>
-              <div className="mt-3">
-                <strong>Descrição:</strong>
-                <p className="mt-1 text-gray-700">{selectedRecord.descricaoDetalhada}</p>
+                <div><strong>Custo de Instalação:</strong> {formatCurrency(selectedRecord.custoInstalacao)}</div>
+                <div><strong>Custo Mensal Manutenção:</strong> {formatCurrency(selectedRecord.custoManutencaoMensal)}</div>
               </div>
             </div>
 
-            {/* Informações do Responsável */}
-            <div className="bg-blue-50 rounded-lg p-4">
+            {/* Responsável Técnico */}
+            <div className="bg-purple-50 rounded-lg p-4">
               <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
-                <UserCheck className="w-5 h-5 mr-2 text-blue-600" />
-                Responsável pela Aplicação
+                <UserCheck className="w-5 h-5 mr-2 text-purple-600" />
+                Responsável Técnico
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div><strong>Nome:</strong> {selectedRecord.responsavelNome}</div>
-                <div><strong>Cargo:</strong> {selectedRecord.responsavelCargo}</div>
-                <div><strong>Instituição:</strong> {selectedRecord.responsavelInstituicao}</div>
-                <div><strong>Data Aplicação:</strong> {formatDate(selectedRecord.dataAplicacao)}</div>
+                <div><strong>Nome:</strong> {selectedRecord.responsavelTecnico.nome}</div>
+                <div><strong>Telefone:</strong> {selectedRecord.responsavelTecnico.telefone}</div>
+                <div><strong>Instituição:</strong> {selectedRecord.responsavelTecnico.instituicao}</div>
+                <div><strong>Cooperativa:</strong> {selectedRecord.cooperativaVinculada}</div>
               </div>
             </div>
+
+            {/* Manutenção */}
+            <div className="bg-orange-50 rounded-lg p-4">
+              <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
+                <Wrench className="w-5 h-5 mr-2 text-orange-600" />
+                Manutenção
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div><strong>Última Manutenção:</strong> {formatDate(selectedRecord.dataUltimaManutencao)}</div>
+                <div><strong>Próxima Manutenção:</strong> {formatDate(selectedRecord.proximaManutencao)}</div>
+              </div>
+            </div>
+
+            {/* Problemas Recentes */}
+            {selectedRecord.problemasRecentes?.length > 0 && (
+              <div className="bg-red-50 rounded-lg p-4">
+                <h3 className="font-semibold text-gray-900 mb-2 flex items-center">
+                  <AlertTriangle className="w-5 h-5 mr-2 text-red-600" />
+                  Problemas Recentes
+                </h3>
+                <ul className="text-sm text-gray-700 list-disc list-inside">
+                  {selectedRecord.problemasRecentes.map((problema, index) => (
+                    <li key={index}>{problema}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {/* Observações */}
             {selectedRecord.observacoes && (
@@ -523,14 +583,14 @@ const GestaoMultasApreensoes = () => {
 
             {/* Documentos Anexados */}
             {selectedRecord.documentosAnexados?.length > 0 && (
-              <div className="bg-green-50 rounded-lg p-4">
+              <div className="bg-indigo-50 rounded-lg p-4">
                 <h3 className="font-semibold text-gray-900 mb-2 flex items-center">
-                  <Upload className="w-5 h-5 mr-2 text-green-600" />
+                  <Upload className="w-5 h-5 mr-2 text-indigo-600" />
                   Documentos Anexados
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {selectedRecord.documentosAnexados.map((doc, index) => (
-                    <span key={index} className="bg-white px-3 py-1 rounded-full text-xs border border-green-200">
+                    <span key={index} className="bg-white px-3 py-1 rounded-full text-xs border border-indigo-200">
                       {doc}
                     </span>
                   ))}
@@ -552,25 +612,25 @@ const GestaoMultasApreensoes = () => {
       <div className="mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl shadow-md p-6">
           <div className="flex items-center">
-            <div className="p-3 bg-red-100 rounded-full">
-              <Scale className="w-6 h-6 text-red-600" />
+            <div className="p-3 bg-cyan-100 rounded-full">
+              <Droplets className="w-6 h-6 text-cyan-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Total de Processos</p>
-              <p className="text-2xl font-bold text-gray-900">{multasApreensoes.length}</p>
+              <p className="text-sm font-medium text-gray-500">Total de Sistemas</p>
+              <p className="text-2xl font-bold text-gray-900">{sistemasIrrigacao.length}</p>
             </div>
           </div>
         </div>
 
         <div className="bg-white rounded-xl shadow-md p-6">
           <div className="flex items-center">
-            <div className="p-3 bg-blue-100 rounded-full">
-              <Activity className="w-6 h-6 text-blue-600" />
+            <div className="p-3 bg-green-100 rounded-full">
+              <Activity className="w-6 h-6 text-green-600" />
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Ativos</p>
               <p className="text-2xl font-bold text-gray-900">
-                {multasApreensoes.filter(m => m.statusProcesso === 'ATIVO').length}
+                {sistemasIrrigacao.filter(s => s.statusSistema === 'ATIVO').length}
               </p>
             </div>
           </div>
@@ -579,12 +639,12 @@ const GestaoMultasApreensoes = () => {
         <div className="bg-white rounded-xl shadow-md p-6">
           <div className="flex items-center">
             <div className="p-3 bg-yellow-100 rounded-full">
-              <Clock className="w-6 h-6 text-yellow-600" />
+              <Wrench className="w-6 h-6 text-yellow-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Pendentes</p>
+              <p className="text-sm font-medium text-gray-500">Em Manutenção</p>
               <p className="text-2xl font-bold text-gray-900">
-                {multasApreensoes.filter(m => m.statusProcesso === 'PENDENTE').length}
+                {sistemasIrrigacao.filter(s => s.statusSistema === 'MANUTENCAO').length}
               </p>
             </div>
           </div>
@@ -592,13 +652,13 @@ const GestaoMultasApreensoes = () => {
 
         <div className="bg-white rounded-xl shadow-md p-6">
           <div className="flex items-center">
-            <div className="p-3 bg-green-100 rounded-full">
-              <CheckCircle className="w-6 h-6 text-green-600" />
+            <div className="p-3 bg-blue-100 rounded-full">
+              <Users className="w-6 h-6 text-blue-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Resolvidos</p>
+              <p className="text-sm font-medium text-gray-500">Famílias Atendidas</p>
               <p className="text-2xl font-bold text-gray-900">
-                {multasApreensoes.filter(m => m.statusProcesso === 'RESOLVIDO').length}
+                {sistemasIrrigacao.reduce((total, s) => total + s.numeroFamiliasAtendidas, 0)}
               </p>
             </div>
           </div>
@@ -607,26 +667,26 @@ const GestaoMultasApreensoes = () => {
 
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
         {/* Cabeçalho */}
-        <div className="bg-gradient-to-r from-red-700 to-red-500 p-6 text-white">
+        <div className="bg-gradient-to-r from-cyan-700 to-cyan-500 p-6 text-white">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
             <div>
-              <h1 className="text-2xl font-bold">Histórico de Multas e Apreensões</h1>
-              <p className="text-red-100 mt-1">Gestão de sanções e infrações florestais</p>
+              <h1 className="text-2xl font-bold">Gestão de Sistemas de Irrigação</h1>
+              <p className="text-cyan-100 mt-1">Monitoramento e controle dos sistemas de irrigação implantados</p>
             </div>
 
             <div className="flex gap-4">
               <button
-                onClick={() => showToast('info', 'Nova Multa', 'Funcionalidade de registro será implementada em breve')}
-                className="inline-flex items-center px-4 py-2 bg-white text-red-700 rounded-lg hover:bg-red-50 transition-colors shadow-sm font-medium"
+                onClick={() => showToast('info', 'Novo Sistema', 'Funcionalidade de cadastro será implementada em breve')}
+                className="inline-flex items-center px-4 py-2 bg-white text-cyan-700 rounded-lg hover:bg-cyan-50 transition-colors shadow-sm font-medium"
               >
                 <Plus className="w-5 h-5 mr-2" />
-                Novo Registro
+                Novo Sistema
               </button>
               
               <button
                 onClick={handleExportData}
-                disabled={multasApreensoes.length === 0}
-                className="inline-flex items-center px-4 py-2 bg-white text-red-700 rounded-lg hover:bg-red-50 transition-colors shadow-sm font-medium disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed"
+                disabled={sistemasIrrigacao.length === 0}
+                className="inline-flex items-center px-4 py-2 bg-white text-cyan-700 rounded-lg hover:bg-cyan-50 transition-colors shadow-sm font-medium disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed"
               >
                 <Download className="w-5 h-5 mr-2" />
                 Exportar
@@ -642,7 +702,7 @@ const GestaoMultasApreensoes = () => {
             <div className="lg:col-span-1">
               <CustomInput
                 type="text"
-                placeholder="Pesquisar por nome, documento, processo..."
+                placeholder="Pesquisar por projeto, código, localização..."
                 value={searchTerm}
                 onChange={(value) => setSearchTerm(value)}
                 iconStart={<Search size={18} />}
@@ -653,15 +713,15 @@ const GestaoMultasApreensoes = () => {
             <div>
               <CustomInput
                 type="select"
-                placeholder="Tipo de Sanção"
+                placeholder="Tipo de Irrigação"
                 value={selectedTipo}
                 options={[
                   { label: 'Todos os Tipos', value: '' },
-                  { label: 'Multa', value: 'MULTA' },
-                  { label: 'Apreensão de Equipamentos', value: 'APREENSAO_EQUIPAMENTOS' },
-                  { label: 'Apreensão de Madeira', value: 'APREENSAO_MADEIRA' },
-                  { label: 'Suspensão de Atividade', value: 'SUSPENSAO_ATIVIDADE' },
-                  { label: 'Embargamento de Obra', value: 'EMBARGAMENTO_OBRA' }
+                  { label: 'Gotejamento', value: 'GOTEJAMENTO' },
+                  { label: 'Aspersão', value: 'ASPERSAO' },
+                  { label: 'Superfície', value: 'SUPERFICIE' },
+                  { label: 'Micro Aspersão', value: 'MICROASPERSAO' },
+                  { label: 'Sulcos', value: 'SULCOS' }
                 ]}
                 onChange={(value) => setSelectedTipo(value)}
                 iconStart={<Filter size={18} />}
@@ -672,14 +732,14 @@ const GestaoMultasApreensoes = () => {
             <div>
               <CustomInput
                 type="select"
-                placeholder="Status do Processo"
+                placeholder="Status do Sistema"
                 value={selectedStatus}
                 options={[
                   { label: 'Todos os Status', value: '' },
                   { label: 'Ativo', value: 'ATIVO' },
-                  { label: 'Pendente', value: 'PENDENTE' },
-                  { label: 'Resolvido', value: 'RESOLVIDO' },
-                  { label: 'Cancelado', value: 'CANCELADO' }
+                  { label: 'Manutenção', value: 'MANUTENCAO' },
+                  { label: 'Inativo', value: 'INATIVO' },
+                  { label: 'Planejamento', value: 'PLANEJAMENTO' }
                 ]}
                 onChange={(value) => setSelectedStatus(value)}
                 iconStart={<Filter size={18} />}
@@ -692,21 +752,21 @@ const GestaoMultasApreensoes = () => {
         <div className="hidden md:block">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
-              <span className="ml-3 text-gray-600">Carregando registros...</span>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-600"></div>
+              <span className="ml-3 text-gray-600">Carregando sistemas...</span>
             </div>
           ) : (
             <table className="w-full border-collapse">
               <thead className="bg-gray-50 sticky top-0 z-10">
                 <tr>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                    Processo/Infrator
+                    Sistema/Localização
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                    Sanção
+                    Especificações
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                    Data/Responsável
+                    Performance
                   </th>
                   <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                     Status
@@ -718,62 +778,60 @@ const GestaoMultasApreensoes = () => {
               </thead>
               <tbody className="divide-y divide-gray-200 bg-white">
                 {getCurrentItems().map((record) => (
-                  <tr key={record.id} className="hover:bg-red-50 transition-colors">
+                  <tr key={record.id} className="hover:bg-cyan-50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                          <User className="w-6 h-6 text-red-600" />
+                        <div className="w-12 h-12 bg-cyan-100 rounded-full flex items-center justify-center">
+                          <Droplets className="w-6 h-6 text-cyan-600" />
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-semibold text-gray-900">{record.nomeInfrator}</div>
+                          <div className="text-sm font-semibold text-gray-900">{record.nomeProjeto}</div>
                           <div className="flex items-center text-xs text-gray-600 mt-1">
-                            <CreditCard className="w-3.5 h-3.5 mr-1" />
-                            {record.documentoInfrator}
+                            <MapPin className="w-3.5 h-3.5 mr-1" />
+                            {record.localizacao.municipio}, {record.localizacao.provincia}
                           </div>
                           <div className="flex items-center text-xs text-gray-600">
                             <FileText className="w-3.5 h-3.5 mr-1" />
-                            {record.numeroProcesso}
+                            {record.codigoSistema}
                           </div>
                         </div>
                       </div>
                     </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap text-start">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <div className="space-y-1">
                         <div className="text-sm font-medium text-gray-900">
-                          {getTipoSancaoLabel(record.tipoSancao)}
+                          {getTipoIrrigacaoLabel(record.tipoIrrigacao)}
                         </div>
-                        {record.valorMulta > 0 && (
-                          <div className="text-sm text-green-600 font-semibold">
-                            {formatCurrency(record.valorMulta)}
-                          </div>
-                        )}
+                        <div className="text-sm text-green-600">
+                          {record.areaIrrigada} hectares
+                        </div>
                         <div className="text-xs text-gray-600">
-                          {getMotivoLabel(record.motivoSancao)}
+                          Fonte: {record.fonteAgua}
                         </div>
                       </div>
                     </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap text-start">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <div className="space-y-1">
                         <div className="flex items-center text-xs text-gray-700">
-                          <Calendar className="w-3.5 h-3.5 mr-1" />
-                          Ocorrência: {formatDate(record.dataOcorrencia)}
+                          <Users className="w-3.5 h-3.5 mr-1" />
+                          {record.numeroFamiliasAtendidas} famílias
                         </div>
                         <div className="flex items-center text-xs text-gray-700">
-                          <Calendar className="w-3.5 h-3.5 mr-1" />
-                          Aplicação: {formatDate(record.dataAplicacao)}
+                          <Thermometer className="w-3.5 h-3.5 mr-1" />
+                          Eficiência: {record.eficienciaHidrica}%
                         </div>
-                        <div className="text-xs text-gray-600">
-                          Por: {record.responsavelNome}
+                        <div className="text-xs text-start text-gray-600">
+                          Produção: {record.producaoAnual}t/ano
                         </div>
                       </div>
                     </td>
 
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center justify-center">
-                        <span className={`px-3 py-1.5 rounded-full text-xs font-medium border ${getStatusColor(record.statusProcesso)}`}>
-                          {getStatusLabel(record.statusProcesso)}
+                        <span className={`px-3 py-1.5 rounded-full text-xs font-medium border ${getStatusColor(record.statusSistema)}`}>
+                          {getStatusLabel(record.statusSistema)}
                         </span>
                       </div>
                     </td>
@@ -782,7 +840,7 @@ const GestaoMultasApreensoes = () => {
                       <div className="flex items-center justify-center space-x-1">
                         <button
                           onClick={() => handleViewDetails(record)}
-                          className="p-2 hover:bg-red-100 text-red-600 hover:text-red-800 rounded-full transition-colors"
+                          className="p-2 hover:bg-cyan-100 text-cyan-600 hover:text-cyan-800 rounded-full transition-colors"
                           title="Ver detalhes"
                         >
                           <Eye className="w-5 h-5" />
@@ -800,51 +858,46 @@ const GestaoMultasApreensoes = () => {
         <div className="md:hidden">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
-              <span className="ml-3 text-gray-600">Carregando registros...</span>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-600"></div>
+              <span className="ml-3 text-gray-600">Carregando sistemas...</span>
             </div>
           ) : (
             getCurrentItems().map((record) => (
-              <div key={record.id} className="p-4 border-b border-gray-200 hover:bg-red-50 transition-colors">
+              <div key={record.id} className="p-4 border-b border-gray-200 hover:bg-cyan-50 transition-colors">
                 <div className="flex items-start">
-                  <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <User className="w-6 h-6 text-red-600" />
+                  <div className="w-12 h-12 bg-cyan-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Droplets className="w-6 h-6 text-cyan-600" />
                   </div>
                   <div className="flex-1 ml-4">
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="text-sm font-semibold text-gray-900">{record.nomeInfrator}</h3>
-                        <div className="text-xs text-gray-500 mt-1">Processo: {record.numeroProcesso}</div>
+                        <h3 className="text-sm font-semibold text-gray-900">{record.nomeProjeto}</h3>
+                        <div className="text-xs text-gray-500 mt-1">Código: {record.codigoSistema}</div>
                       </div>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(record.statusProcesso)}`}>
-                        {getStatusLabel(record.statusProcesso)}
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(record.statusSistema)}`}>
+                        {getStatusLabel(record.statusSistema)}
                       </span>
                     </div>
 
                     <div className="mt-3 space-y-2">
                       <div className="text-xs text-gray-700">
-                        <strong>Sanção:</strong> {getTipoSancaoLabel(record.tipoSancao)}
-                        {record.valorMulta > 0 && (
-                          <span className="ml-2 text-green-600 font-semibold">
-                            {formatCurrency(record.valorMulta)}
-                          </span>
-                        )}
+                        <strong>Local:</strong> {record.localizacao.municipio}, {record.localizacao.provincia}
                       </div>
                       <div className="text-xs text-gray-700">
-                        <strong>Motivo:</strong> {getMotivoLabel(record.motivoSancao)}
+                        <strong>Tipo:</strong> {getTipoIrrigacaoLabel(record.tipoIrrigacao)}
                       </div>
                       <div className="text-xs text-gray-700">
-                        <strong>Data:</strong> {formatDate(record.dataOcorrencia)}
+                        <strong>Área:</strong> {record.areaIrrigada} ha | <strong>Famílias:</strong> {record.numeroFamiliasAtendidas}
                       </div>
                       <div className="text-xs text-gray-700">
-                        <strong>Responsável:</strong> {record.responsavelNome}
+                        <strong>Eficiência:</strong> {record.eficienciaHidrica}% | <strong>Responsável:</strong> {record.responsavelTecnico.nome}
                       </div>
                     </div>
 
                     <div className="mt-3 flex justify-end">
                       <button
                         onClick={() => handleViewDetails(record)}
-                        className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-full transition-colors"
+                        className="p-1.5 bg-cyan-50 hover:bg-cyan-100 text-cyan-600 rounded-full transition-colors"
                         title="Ver detalhes"
                       >
                         <Eye className="w-4 h-4" />
@@ -880,7 +933,7 @@ const GestaoMultasApreensoes = () => {
                   className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
                     ${currentPage === 1
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-white text-red-700 hover:bg-red-50 border border-red-200'
+                      : 'bg-white text-cyan-700 hover:bg-cyan-50 border border-cyan-200'
                     }
                   `}
                 >
@@ -894,7 +947,7 @@ const GestaoMultasApreensoes = () => {
                   className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
                     ${currentPage === totalPages || totalPages === 0
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-white text-red-700 hover:bg-red-50 border border-red-200'
+                      : 'bg-white text-cyan-700 hover:bg-cyan-50 border border-cyan-200'
                     }
                   `}
                 >
@@ -909,13 +962,13 @@ const GestaoMultasApreensoes = () => {
         {/* Nenhum resultado encontrado */}
         {!loading && filteredRecords.length === 0 && (
           <div className="py-12 flex flex-col items-center justify-center text-center px-4">
-            <AlertTriangle className="w-16 h-16 text-gray-300 mb-4" />
+            <Droplets className="w-16 h-16 text-gray-300 mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-1">
-              {multasApreensoes.length === 0 ? 'Nenhum registro encontrado' : 'Nenhum resultado encontrado'}
+              {sistemasIrrigacao.length === 0 ? 'Nenhum sistema encontrado' : 'Nenhum resultado encontrado'}
             </h3>
             <p className="text-gray-500 max-w-md mb-6">
-              {multasApreensoes.length === 0
-                ? 'Ainda não existem registros de multas e apreensões no sistema.'
+              {sistemasIrrigacao.length === 0
+                ? 'Ainda não existem sistemas de irrigação cadastrados no sistema.'
                 : 'Não foram encontrados resultados para a sua pesquisa. Tente outros termos ou remova os filtros aplicados.'
               }
             </p>
@@ -926,7 +979,7 @@ const GestaoMultasApreensoes = () => {
                   setSelectedTipo('');
                   setSelectedStatus('');
                 }}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                className="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors"
               >
                 Limpar filtros
               </button>
@@ -938,4 +991,4 @@ const GestaoMultasApreensoes = () => {
   );
 };
 
-export default GestaoMultasApreensoes;
+export default GestaoSistemasIrrigacao;

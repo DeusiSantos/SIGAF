@@ -7,7 +7,11 @@ import {
   EyeOff, Sprout, TreePine, Tractor, PanelLeftClose, PanelLeftOpen,
   Plus, Clock, AlertTriangle, CheckCircle,
   BuildingIcon,Wheat, 
-  File
+  File,
+  Building,
+  ShieldAlert,
+  Scale,
+  Gavel
 } from 'lucide-react';
 
 
@@ -42,17 +46,12 @@ const rnpaRoutes = {
       submenu: true
     },
      {
-      text: 'Infraestrutura ',
+      text: 'Infraestrutura',
       icon: Sprout,
       path: '/GerenciaRNPA/gestao-infraestrutura',
       submenu: true
     },
-    {
-      text: 'Sanções',
-      icon: FileText,
-      path: '/GerenciaRNPA/sancoes',
-      submenu: true
-    },
+    
     {
       text: 'Entidades Associativas',
       icon: Building2,
@@ -117,10 +116,13 @@ const rnpaRoutes = {
       { text: 'Validação da Produção', icon: Shield, path: '/GerenciaRNPA/gestao-florestal/workflow' },
       { text: 'Emissão de Certificado digital', icon: Award, path: '/GerenciaRNPA/gestao-florestal/certificados' },
       { text: 'Certificação Florestal', icon: File, path: '/GerenciaRNPA/gestao-florestal/certificacaoFlorestal' },
+      { text: 'Sanções', icon: Gavel, path: '/GerenciaRNPA/sancoes' },
       //{ text: 'Certificação da Qualidade do Produto', icon: Search, path: '/GerenciaRNPA/gestao-agricultores/verificacao' },
       //{ text: 'Geolocalização', icon: MapPin, path: '/GerenciaRNPA/gestao-agricultores/geolocalizacao' },
     ],
-    'Infraestrutura Agrícola': [
+    'Infraestrutura': [
+      { text: 'Irrigacao', icon: Building , path: '/GerenciaRNPA/gestao-infraestrutura/Irrigacao' },
+      { text: 'AmostrasDeSolo', icon: Building , path: '/GerenciaRNPA/gestao-infraestrutura/AmostrasDeSolo' },
       { text: 'Apoio Agrícola', icon: Tractor , path: '/GerenciaRNPA/gestao-infraestrutura/apoio-agricola' },
      
     ],
