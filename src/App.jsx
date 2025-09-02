@@ -38,7 +38,9 @@ import LicencaMenu from './pages/Licencas/LicencaMenu';
 import GestaoFiscalizacao from './pages/Fiscalizacao/GestaoFiscalizacao';
 import HistoricoMultasApreensoes from './pages/Sancoes/HistoricoMultasApreensoes';
 import GestaoMultasApreensoes from './pages/Sancoes/GestaoMultasApreensoes';
-import VisualizarProdutorFlorestal from './pages/VisualizarProdutorFlorestal';
+import MenuApoioAgricola from './pages/ApoioAgricola/MenuApoioAgricola';
+import GestaoApoioAgricola from './pages/ApoioAgricola/GestaoApoioAgricola';
+//import VisualizarProdutorFlorestal from './pages/VisualizarProdutorFlorestal';
 
 
 function App() {
@@ -92,7 +94,7 @@ function App() {
             <Route path="produtoresflorestais" element={<GestaoProdutoresFlorestais />} />
             <Route path="licencas" element={<LicencaMenu />} />
             <Route path="fiscalizacao" element={<GestaoFiscalizacao />} />
-            <Route path='visualizarprodutorflorestal/:id' element={<VisualizarProdutorFlorestal />} />
+            {/*<Route path='visualizarprodutorflorestal/:id' element={<VisualizarProdutorFlorestal />} />   */}
             <Route path="certificacaoFlorestal" element={< CertificacaoProdutorFlorestal />} />
             <Route path="registo-individual" element={<h1 className="text-2xl font-semibold">Registo Individual de Produtor</h1>} />
             <Route path="registo-familiar" element={<h1 className="text-2xl font-semibold">Registo de Agregado Familiar</h1>} />
@@ -108,6 +110,14 @@ function App() {
             <Route path="inserir" element={<HistoricoMultasApreensoes />} />
             <Route path="historico" element={< GestaoMultasApreensoes />} />
           </Route>
+
+
+           {/* 3. Infraestrutura Agrícola */}
+          <Route path="gestao-infraestrutura">
+            <Route index element={<MenuApoioAgricola />} />
+            <Route path='apoio-agricola' element={<GestaoApoioAgricola />} />
+          </Route>
+
 
           {/* 2. Gestão de Entidades Associativas */}
           <Route path="entidades-associativas">

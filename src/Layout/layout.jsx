@@ -6,7 +6,7 @@ import {
   Calendar, Settings, Globe, TrendingUp, FileBarChart,
   EyeOff, Sprout, TreePine, Tractor, PanelLeftClose, PanelLeftOpen,
   Plus, Clock, AlertTriangle, CheckCircle,
-  BuildingIcon,
+  BuildingIcon,Wheat, 
   File
 } from 'lucide-react';
 
@@ -34,10 +34,17 @@ const rnpaRoutes = {
       path: '/GerenciaRNPA/gestao-agricultores',
       submenu: true
     },
+    
     {
       text: 'Gestão Florestal',
       icon: TreePine,
       path: '/GerenciaRNPA/gestao-florestal',
+      submenu: true
+    },
+     {
+      text: 'Infraestrutura ',
+      icon: Sprout,
+      path: '/GerenciaRNPA/gestao-infraestrutura',
       submenu: true
     },
     {
@@ -105,13 +112,17 @@ const rnpaRoutes = {
     ],
     'Gestão Florestal': [
       { text: 'Produtor', icon: Users, path: '/GerenciaRNPA/gestao-florestal/produtoresFlorestais' },
-      { text: 'Licenças', icon: FileText, path: '/GerenciaRNPA/gestao-florestal/licencas' },
-      { text: 'Fiscalização', icon: Shield, path: '/GerenciaRNPA/gestao-florestal/fiscalizacao' },
+      //{ text: 'Licenças', icon: FileText, path: '/GerenciaRNPA/gestao-florestal/licencas' },
+      //{ text: 'Fiscalização', icon: Shield, path: '/GerenciaRNPA/gestao-florestal/fiscalizacao' },
       { text: 'Validação da Produção', icon: Shield, path: '/GerenciaRNPA/gestao-florestal/workflow' },
       { text: 'Emissão de Certificado digital', icon: Award, path: '/GerenciaRNPA/gestao-florestal/certificados' },
       { text: 'Certificação Florestal', icon: File, path: '/GerenciaRNPA/gestao-florestal/certificacaoFlorestal' },
       //{ text: 'Certificação da Qualidade do Produto', icon: Search, path: '/GerenciaRNPA/gestao-agricultores/verificacao' },
       //{ text: 'Geolocalização', icon: MapPin, path: '/GerenciaRNPA/gestao-agricultores/geolocalizacao' },
+    ],
+    'Infraestrutura Agrícola': [
+      { text: 'Apoio Agrícola', icon: Tractor , path: '/GerenciaRNPA/gestao-infraestrutura/apoio-agricola' },
+     
     ],
     'Sanções': [
       { text: 'Registrar Infração', icon: Plus, path: '/GerenciaRNPA/sancoes/inserir' },
