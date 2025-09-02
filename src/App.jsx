@@ -38,8 +38,12 @@ import LicencaMenu from './pages/Licencas/LicencaMenu';
 import GestaoFiscalizacao from './pages/Fiscalizacao/GestaoFiscalizacao';
 import HistoricoMultasApreensoes from './pages/Sancoes/HistoricoMultasApreensoes';
 import GestaoMultasApreensoes from './pages/Sancoes/GestaoMultasApreensoes';
-import MenuApoioAgricola from './pages/ApoioAgricola/MenuApoioAgricola';
-import GestaoApoioAgricola from './pages/ApoioAgricola/GestaoApoioAgricola';
+import MenuApoioAgricola from './pages/InfraEstrutura/MenuApoioAgricola';
+import GestaoApoioAgricola from './pages/InfraEstrutura/GestaoApoioAgricola';
+import InfraestruturaMenu from './Layout/other/IrrigacaoMenu';
+import IrrigacaoMenu from './Layout/other/IrrigacaoMenu';
+import TesteAmostrasSolo from './pages/InfraEstrutura/TesteAmostrasSolo';
+import AmostrasDeSoloMenu from './Layout/other/AmostrasDeSoloMenu';
 //import VisualizarProdutorFlorestal from './pages/VisualizarProdutorFlorestal';
 
 
@@ -115,7 +119,9 @@ function App() {
            {/* 3. Infraestrutura Agrícola */}
           <Route path="gestao-infraestrutura">
             <Route index element={<MenuApoioAgricola />} />
+            <Route path='Irrigacao' element={<IrrigacaoMenu />} />
             <Route path='apoio-agricola' element={<GestaoApoioAgricola />} />
+            <Route path='AmostrasDeSolo' element={<AmostrasDeSoloMenu />} />
           </Route>
 
 
@@ -185,7 +191,6 @@ function App() {
 
           {/* 8. Documentação e Arquivo Digital */}
           <Route path="arquivo-digital">
-            <Route index element={<h1 className="text-2xl font-semibold">Documentação e Arquivo Digital</h1>} />
             <Route path="upload" element={<h1 className="text-2xl font-semibold">Upload e Organização de Documentos</h1>} />
             <Route path="organizacao" element={<h1 className="text-2xl font-semibold">Organização de Documentos</h1>} />
             <Route path="pesquisa" element={<h1 className="text-2xl font-semibold">Pesquisa Avançada por CPF/NIF, Nome, Entidade, Localização</h1>} />

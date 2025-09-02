@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { UserPlus, Users,Info, FileText, User, MapPin, Award, Check, X, Clock, AlertTriangle, CheckCircle } from 'lucide-react';
 
-import CadastroProdutor from '../../pages/CadastroProdutor';
-import ProdutoresGestao from '../../pages/ProdutoresGestao';
-import ProdutoresGestaoAprovados from '../../pages/ProdutoresGestaoAprovados';
+import CadastroProdutor from '../CadastroProdutor';
+import ProdutoresGestao from '../ProdutoresGestao';
+import ProdutoresGestaoAprovados from '../ProdutoresGestaoAprovados';
 import { useProdutores, useProdutoresAprovados } from '../../hooks/useRnpaData';
 import GestaoApoioAgricola from './GestaoApoioAgricola';
 

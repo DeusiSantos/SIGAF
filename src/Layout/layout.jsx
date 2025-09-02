@@ -7,7 +7,8 @@ import {
   EyeOff, Sprout, TreePine, Tractor, PanelLeftClose, PanelLeftOpen,
   Plus, Clock, AlertTriangle, CheckCircle,
   BuildingIcon,Wheat, 
-  File
+  File,
+  Building
 } from 'lucide-react';
 
 
@@ -42,7 +43,7 @@ const rnpaRoutes = {
       submenu: true
     },
      {
-      text: 'Infraestrutura ',
+      text: 'Infraestrutura',
       icon: Sprout,
       path: '/GerenciaRNPA/gestao-infraestrutura',
       submenu: true
@@ -120,7 +121,9 @@ const rnpaRoutes = {
       //{ text: 'Certificação da Qualidade do Produto', icon: Search, path: '/GerenciaRNPA/gestao-agricultores/verificacao' },
       //{ text: 'Geolocalização', icon: MapPin, path: '/GerenciaRNPA/gestao-agricultores/geolocalizacao' },
     ],
-    'Infraestrutura Agrícola': [
+    'Infraestrutura': [
+      { text: 'Irrigacao', icon: Building , path: '/GerenciaRNPA/gestao-infraestrutura/Irrigacao' },
+      { text: 'AmostrasDeSolo', icon: Building , path: '/GerenciaRNPA/gestao-infraestrutura/AmostrasDeSolo' },
       { text: 'Apoio Agrícola', icon: Tractor , path: '/GerenciaRNPA/gestao-infraestrutura/apoio-agricola' },
      
     ],
