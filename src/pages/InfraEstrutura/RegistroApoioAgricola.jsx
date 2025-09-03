@@ -1204,30 +1204,7 @@ const RegistroApoioAgricola = () => {
                                 iconStart={<Home size={18} />}
                             />
 
-                            <CustomInput
-                                type="text"
-                                label="Nome da Secção"
-                                value={formData.nomeSecao}
-                                onChange={(value) => handleInputChange('nomeSecao', value)}
-                                placeholder="Nome da secção"
-                                iconStart={<Building size={18} />}
-                            />
-
-                            <CustomInput
-                                type="select"
-                                label="Local da Residência"
-                                value={formData.localResidencia}
-                                options={[
-                                    { label: 'Urbana', value: 'URBANA' },
-                                    { label: 'Rural', value: 'RURAL' }
-                                ]}
-                                onChange={(value) => handleInputChange('localResidencia', value)}
-                                placeholder="Selecione o tipo"
-                                required
-                                errorMessage={errors.localResidencia}
-
-                                iconStart={<Home size={18} />}
-                            />
+                           
                         </div>
 
                         <div className="bg-white rounded-2xl border border-gray-200 p-6">

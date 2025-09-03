@@ -146,6 +146,8 @@ const RegistroApoioAgricola = () => {
     const [toastMessage, setToastMessage] = useState(null);
     const [consultingBI, setConsultingBI] = useState(false);
     const [biData, setBiData] = useState(null);
+    const [consultingNif, setConsultingNif] = useState(false);
+    const [nifData, setNifData] = useState(null);
 
     // Estado inicial simplificado
     const initialState = {
@@ -171,7 +173,8 @@ const RegistroApoioAgricola = () => {
         // Seção C: Identificação da Infraestrutura
         nomeInfraestrutura: '',
         tipoInfraestrutura: '',
-        bi_nif: '',
+        numeroBI: '',
+        numeroNIF: '',
 
         // Entidade Responsável
         proprietario_instituicao: '',
@@ -182,7 +185,7 @@ const RegistroApoioAgricola = () => {
         dimensao: '',
         capacidade: '',
         estado_conservacao: '',
-        
+
         // Utilização
         beneficiarios_directos: '',
         principais_culturas_actividades: [],
@@ -347,17 +350,81 @@ const RegistroApoioAgricola = () => {
         setToastMessage({ severity, summary, detail, visible: true });
         setTimeout(() => setToastMessage(null), duration);
     };
-    // Função auxiliar para obter o label do estado civil
-    const getEstadoCivilLabel = (value) => {
-        const estadosCivis = {
-            'SOLTEIRO': 'Solteiro(a)',
-            'UNIAO_FACTO': 'União de facto',
-            'CASADO': 'Casado(a)',
-            'DIVORCIADO': 'Divorciado(a)',
-            'SEPARADO': 'Separado(a)',
-            'VIUVO': 'Viúvo(a)'
-        };
-        return estadosCivis[value] || value;
+
+
+    // Função para consultar NIF na API
+    const consultarNIF = async (nifValue) => {
+        console.log('🚀 FUNÇÃO CONSULTAR NIF CHAMADA!');
+        console.log('📝 Valor do NIF recebido:', nifValue);
+        console.log('📏 Comprimento do NIF:', nifValue?.length);
+
+        if (!nifValue || nifValue.length < 9) {
+            console.log('❌ NIF inválido ou muito curto, saindo da função');
+            return;
+        }
+
+        console.log('🔍 Consultando NIF:', nifValue);
+        setConsultingNif(true);
+
+        try {
+            const username = 'minagrif';
+            const password = 'Nz#$20!23Mg';
+            const credentials = btoa(`${username}:${password}`);
+
+            const response = await axios.get(`https://api.gov.ao/nif/v1/consultarNIF`, {
+                params: {
+                    tipoDocumento: 'NIF',
+                    numeroDocumento: nifValue
+                },
+                headers: {
+                    'Authorization': `Basic ${credentials}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            console.log('📊 Resposta NIF:', response);
+            console.log('📋 Dados NIF:', response.data);
+
+            const data = response.data;
+            if (response.status === 200 && data.code === 200 && data.data) {
+                const nifInfo = data.data;
+                console.log('✅ Dados NIF processados:', nifInfo);
+                setNifData(nifInfo);
+
+                setFormData(prev => ({
+                    ...prev,
+                    proprietario_instituicao: nifInfo.nome_contribuinte || '',
+                    email: nifInfo.email || '',
+                    contacto: nifInfo.numero_contacto || '',
+                    numeroNIF: nifValue,
+                }));
+
+                showToast('success', 'NIF Consultado', 'Dados da entidade responsável preenchidos automaticamente!');
+            } else {
+                console.log('⚠️ NIF não encontrado:', data);
+                setNifData(null);
+                if (data.code === 404) {
+                    showToast('warn', 'NIF não encontrado', 'Não foi possível encontrar dados para este NIF. Preencha manualmente.');
+                } else {
+                    showToast('warn', 'NIF inválido', 'Este NIF não retornou dados válidos. Verifique o número.');
+                }
+            }
+        } catch (error) {
+            console.error('❌ Erro ao consultar NIF:', error);
+            setNifData(null);
+            if (error.response) {
+                console.error('🚫 Erro de resposta NIF:', error.response.status, error.response.data);
+                showToast('error', 'Erro do servidor', `Erro ${error.response.status}: ${error.response.data?.message || 'Erro na consulta do NIF'}`);
+            } else if (error.request) {
+                console.error('🌐 Erro de rede NIF:', error.request);
+                showToast('error', 'Erro de conexão', 'Não foi possível conectar ao servidor. Verifique sua conexão.');
+            } else {
+                console.error('⚙️ Erro na configuração NIF:', error.message);
+                showToast('error', 'Erro na consulta', 'Erro ao consultar NIF. Tente novamente.');
+            }
+        } finally {
+            setConsultingNif(false);
+        }
     };
 
     // Função para consultar BI na API
@@ -456,25 +523,16 @@ const RegistroApoioAgricola = () => {
                     }
                 }
 
-                // Preencher automaticamente os campos do formulário
+                // Preencher automaticamente os campos da entidade responsável
                 setFormData(prev => ({
                     ...prev,
-                    nomeProdutor: biInfo.first_name || '',
-                    nomeDoMeioProdutor: '',
-                    sobrenomeProdutor: biInfo.last_name || '',
-                    dataNascimento: biInfo.birth_date ? new Date(biInfo.birth_date).toISOString().split('T')[0] : '',
-                    lugarNascimento: lugarNascimentoMapeado,
-                    estadoCivil: estadoCivilMapeado ? {
-                        label: getEstadoCivilLabel(estadoCivilMapeado),
-                        value: estadoCivilMapeado
-                    } : '',
-                    sexoProdutor: sexoMapeado ? {
-                        label: sexoMapeado === 'MASCULINO' ? 'MASCULINO' : 'FEMENINO',
-                        value: sexoMapeado
-                    } : '',
+                    proprietario_instituicao: `${biInfo.first_name || ''} ${biInfo.last_name || ''}`.trim(),
+                    contacto: '', // BI não tem contacto
+                    email: '', // BI não tem email
+                    numeroBI: biValue,
                 }));
 
-                showToast('success', 'BI Consultado', 'Dados do produtor preenchidos automaticamente!');
+                showToast('success', 'BI/NIF Consultado', 'Dados da entidade responsável preenchidos automaticamente!');
             }
             else {
                 console.log('⚠️ BI não encontrado ou resposta inválida:', data);
@@ -511,35 +569,10 @@ const RegistroApoioAgricola = () => {
         }
     };
 
-    // Debounce para consulta do BI
+    // Debounce para consulta do BI/NIF
     const debounceTimer = React.useRef(null);
-    const handleBIChange = (value) => {
-        setFormData(prev => ({ ...prev, numeroDocumento: value }));
 
-        // Limpar timer anterior
-        if (debounceTimer.current) {
-            clearTimeout(debounceTimer.current);
-        }
 
-        // Só consultar se o tipo de documento for BI
-        if (formData.tipoDocumento?.value === 'BI' && value && value.length >= 9) {
-            debounceTimer.current = setTimeout(() => {
-                consultarBI(value);
-            }, 1500);
-        }
-    };
-
-    // Verificar se deve mostrar o campo número do documento
-    const shouldShowDocumentNumber = () => {
-        const tipoDoc = formData.tipoDocumento?.value || formData.tipoDocumento;
-        return tipoDoc && tipoDoc !== 'NAO_POSSUI';
-    };
-
-    // Verificar se deve mostrar o campo nome do documento
-    const shouldShowDocumentName = () => {
-        const tipoDoc = formData.tipoDocumento?.value || formData.tipoDocumento;
-        return tipoDoc === 'OUTRO';
-    };
 
     // Calcular total de membros distribuídos
     const getTotalMembrosDistribuidos = () => {
@@ -580,18 +613,34 @@ const RegistroApoioAgricola = () => {
             setFormData(prev => ({
                 ...prev,
                 [field]: value,
-                numeroDocumento: '',
+                numeroBI: '',
+                numeroNIF: '',
                 confirmarNumeroDocumento: '',
                 nomeOutroDocumento: '',
                 outroTipoDocumento: ''
             }));
-            setBiData(null); // Limpar dados do BI quando mudar tipo de documento
+            setBiData(null);
+            setNifData(null);
             return;
         }
 
-        // Lógica para número do documento (com consulta BI)
-        if (field === 'numeroDocumento') {
-            handleBIChange(value);
+        // Lógica para número do BI
+        if (field === 'numeroBI') {
+            setFormData(prev => ({ ...prev, numeroBI: value }));
+            if (value && value.length >= 9) {
+                if (debounceTimer.current) clearTimeout(debounceTimer.current);
+                debounceTimer.current = setTimeout(() => consultarBI(value), 1500);
+            }
+            return;
+        }
+
+        // Lógica para número do NIF
+        if (field === 'numeroNIF') {
+            setFormData(prev => ({ ...prev, numeroNIF: value }));
+            if (value && value.length >= 9) {
+                if (debounceTimer.current) clearTimeout(debounceTimer.current);
+                debounceTimer.current = setTimeout(() => consultarNIF(value), 1500);
+            }
             return;
         }
 
@@ -771,7 +820,7 @@ const RegistroApoioAgricola = () => {
                 break;
 
             case 2: // Responsável
-                // Add validation for responsible entity fields if needed
+                if (!formData.proprietario_instituicao) newErrors.proprietario_instituicao = 'Campo obrigatório';
                 console.log('❌ Erros encontrados:', newErrors);
                 break;
 
@@ -983,41 +1032,50 @@ const RegistroApoioAgricola = () => {
                                 iconStart={<CreditCard size={18} />}
                             />
 
-                            {shouldShowDocumentName() && (
-                                <CustomInput
-                                    type="text"
-                                    label="Nome do Documento"
-                                    value={formData.nomeOutroDocumento}
-                                    onChange={(value) => handleInputChange('nomeOutroDocumento', value)}
-                                    required
-                                    errorMessage={errors.nomeOutroDocumento}
-                                    placeholder="Digite o nome do documento"
-                                    iconStart={<FileText size={18} />}
-                                />
+                            {/* Campo BI */}
+                            {(formData.tipoDocumento?.value === 'BI' || formData.tipoDocumento === 'BI') && (
+                                <div className="relative">
+                                    <CustomInput
+                                        type="text"
+                                        label="Número do BI"
+                                        value={formData.numeroBI}
+                                        onChange={(value) => handleInputChange('numeroBI', value)}
+                                        required
+                                        errorMessage={errors.numeroBI}
+                                        placeholder="Digite o número do BI"
+                                        iconStart={<CreditCard size={18} />}
+                                        helperText="Digite o BI para consulta automática dos dados"
+                                    />
+                                    {consultingBI && (
+                                        <div className="absolute right-3 top-9 flex items-center">
+                                            <Loader size={16} className="animate-spin text-blue-600" />
+                                            <span className="ml-2 text-sm text-blue-600">Consultando BI...</span>
+                                        </div>
+                                    )}
+                                </div>
                             )}
 
-                            {shouldShowDocumentNumber() && (
-                                <>
-                                    <div className="relative">
-                                        <CustomInput
-                                            type="text"
-                                            label="Número do Documento"
-                                            value={formData.numeroDocumento}
-                                            onChange={(value) => handleInputChange('numeroDocumento', value)}
-                                            required
-                                            errorMessage={errors.numeroDocumento}
-                                            placeholder="Digite o número"
-                                            iconStart={<CreditCard size={18} />}
-                                            helperText={formData.tipoDocumento?.value === 'BI' ? 'Digite o BI para consulta automática dos dados' : ''}
-                                        />
-                                        {consultingBI && (
-                                            <div className="absolute right-3 top-9 flex items-center">
-                                                <Loader size={16} className="animate-spin text-blue-600" />
-                                                <span className="ml-2 text-sm text-blue-600">Consultando...</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                </>
+                            {/* Campo NIF */}
+                            {(formData.tipoDocumento?.value === 'NIF' || formData.tipoDocumento === 'NIF') && (
+                                <div className="relative">
+                                    <CustomInput
+                                        type="text"
+                                        label="Número do NIF"
+                                        value={formData.numeroNIF}
+                                        onChange={(value) => handleInputChange('numeroNIF', value)}
+                                        required
+                                        errorMessage={errors.numeroNIF}
+                                        placeholder="Digite o número do NIF"
+                                        iconStart={<CreditCard size={18} />}
+                                        helperText="Digite o NIF para consulta automática dos dados"
+                                    />
+                                    {consultingNif && (
+                                        <div className="absolute right-3 top-9 flex items-center">
+                                            <Loader size={16} className="animate-spin text-blue-600" />
+                                            <span className="ml-2 text-sm text-blue-600">Consultando NIF...</span>
+                                        </div>
+                                    )}
+                                </div>
                             )}
 
 
@@ -1091,6 +1149,30 @@ const RegistroApoioAgricola = () => {
                                 </div>
                             </div>
                         )}
+                        
+                        {/* Informações do NIF consultado */}
+                        {nifData && (
+                            <div className="mt-8 bg-green-50 rounded-2xl p-6 border border-green-200">
+                                <h4 className="text-lg font-semibold text-green-800 mb-4 flex items-center">
+                                    <Info className="w-5 h-5 mr-2" />
+                                    Informações do NIF Consultado
+                                </h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                                    <div>
+                                        <span className="font-medium text-gray-600">Nome/Razão Social:</span>
+                                        <p className="text-gray-800">{nifData.nome_contribuinte || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                        <span className="font-medium text-gray-600">Email:</span>
+                                        <p className="text-gray-800">{nifData.email || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                        <span className="font-medium text-gray-600">Contacto:</span>
+                                        <p className="text-gray-800">{nifData.numero_contacto || 'N/A'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 );
 
@@ -1100,16 +1182,133 @@ const RegistroApoioAgricola = () => {
                         <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-6 mb-8 border border-orange-100">
                             <div className="flex items-center space-x-3 mb-3">
                                 <div className="p-2 bg-orange-100 rounded-lg">
-                                    <User className="w-6 h-6 text-orange-600" />
+                                    <UserCog className="w-6 h-6 text-orange-600" />
                                 </div>
                                 <h3 className="text-xl font-bold text-gray-800">Entidade Responsável</h3>
                             </div>
                             <p className="text-gray-600">
-                                Informações sobre a entidade responsável pela infraestrutura.
+                                Informações sobre a entidade responsável pela infraestrutura. Selecione o tipo de documento para consulta automática.
                             </p>
                         </div>
 
+                        {/* Caixa de dados consultados do BI */}
+                        {biData && (
+                            <div className="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center">
+                                        <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
+                                        <p className="text-green-700 text-sm font-medium">
+                                            Dados preenchidos automaticamente através da consulta do BI.
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                proprietario_instituicao: '',
+                                                contacto: '',
+                                                email: '',
+                                                numeroBI: ''
+                                            }));
+                                            setBiData(null);
+                                            showToast('info', 'Dados limpos', 'Campos limpos. Preencha manualmente.');
+                                        }}
+                                        className="text-sm text-green-600 hover:text-green-800 underline"
+                                    >
+                                        Limpar e preencher manualmente
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Caixa de dados consultados do NIF */}
+                        {nifData && (
+                            <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center">
+                                        <CheckCircle className="w-5 h-5 text-blue-600 mr-2" />
+                                        <p className="text-blue-700 text-sm font-medium">
+                                            Dados preenchidos automaticamente através da consulta do NIF.
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                proprietario_instituicao: '',
+                                                contacto: '',
+                                                email: '',
+                                                numeroNIF: ''
+                                            }));
+                                            setNifData(null);
+                                            showToast('info', 'Dados limpos', 'Campos limpos. Preencha manualmente.');
+                                        }}
+                                        className="text-sm text-blue-600 hover:text-blue-800 underline"
+                                    >
+                                        Limpar e preencher manualmente
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <CustomInput
+                                type="select"
+                                label="Tipo de Documento"
+                                value={formData.tipoDocumento}
+                                options={[
+                                    { label: 'Bilhete de Identidade', value: 'BI' },
+                                    { label: 'NIF', value: 'NIF' },
+                                ]}
+                                onChange={(value) => handleInputChange('tipoDocumento', value)}
+                                placeholder="Selecione o tipo"
+                                iconStart={<CreditCard size={18} />}
+                            />
+
+                            {/* Campo BI */}
+                            {(formData.tipoDocumento?.value === 'BI' || formData.tipoDocumento === 'BI') && (
+                                <div className="relative">
+                                    <CustomInput
+                                        type="text"
+                                        label="Número do BI"
+                                        value={formData.numeroBI}
+                                        onChange={(value) => handleInputChange('numeroBI', value)}
+                                        placeholder="Digite o número do BI"
+                                        iconStart={<CreditCard size={18} />}
+                                        helperText="Digite o BI para consulta automática dos dados"
+                                    />
+                                    {consultingBI && (
+                                        <div className="absolute right-3 top-9 flex items-center">
+                                            <Loader size={16} className="animate-spin text-blue-600" />
+                                            <span className="ml-2 text-sm text-blue-600">Consultando BI...</span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Campo NIF */}
+                            {(formData.tipoDocumento?.value === 'NIF' || formData.tipoDocumento === 'NIF') && (
+                                <div className="relative">
+                                    <CustomInput
+                                        type="text"
+                                        label="Número do NIF"
+                                        value={formData.numeroNIF}
+                                        onChange={(value) => handleInputChange('numeroNIF', value)}
+                                        placeholder="Digite o número do NIF"
+                                        iconStart={<CreditCard size={18} />}
+                                        helperText="Digite o NIF para consulta automática dos dados"
+                                    />
+                                    {consultingNif && (
+                                        <div className="absolute right-3 top-9 flex items-center">
+                                            <Loader size={16} className="animate-spin text-blue-600" />
+                                            <span className="ml-2 text-sm text-blue-600">Consultando NIF...</span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
                             <CustomInput
                                 type="text"
                                 label="Proprietário/Instituição Gestora"
@@ -1117,6 +1316,8 @@ const RegistroApoioAgricola = () => {
                                 onChange={(value) => handleInputChange('proprietario_instituicao', value)}
                                 placeholder="Nome da entidade responsável"
                                 iconStart={<Building size={18} />}
+                                required
+                                errorMessage={errors.proprietario_instituicao}
                             />
 
                             <CustomInput
@@ -1429,7 +1630,7 @@ const RegistroApoioAgricola = () => {
                                 iconStart={<Users size={18} />}
                                 helperText="Número de pessoas que utilizam diretamente a infraestrutura"
                             />
-                            
+
                             <CustomInput
                                 type="select"
                                 label="Frequência de Utilização"
@@ -1444,7 +1645,7 @@ const RegistroApoioAgricola = () => {
                                 iconStart={<Calendar size={18} />}
                             />
                         </div>
-                        
+
                         <div className="mt-6">
                             <CustomInput
                                 type="multiselect"
@@ -1476,7 +1677,7 @@ const RegistroApoioAgricola = () => {
                                 placeholder="Selecione as culturas/atividades"
                             />
                         </div>
-                        
+
                         <div className="mt-6">
                             <CustomInput
                                 type="textarea"
@@ -1487,972 +1688,6 @@ const RegistroApoioAgricola = () => {
                                 rows={4}
                                 maxLength={500}
                             />
-                        </div>
-                    </div>
-                );
-
-
-                return (
-                    <div className="max-w-full mx-auto">
-                        <div className="bg-gradient-to-r from-green-50 to-teal-50 rounded-2xl p-6 mb-8 border border-green-100">
-                            <div className="flex items-center space-x-3 mb-3">
-                                <div className="p-2 bg-green-100 rounded-lg">
-                                    <Tractor className="w-6 h-6 text-green-600" />
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-800">Actividades e Activos Agrícolas</h3>
-                            </div>
-                            <p className="text-gray-600">
-                                Informações sobre as actividades praticadas, terras cultiváveis e recursos agrícolas.
-                            </p>
-                        </div>
-
-                        <div className="space-y-8">
-                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
-                                    <Wheat className="w-5 h-5 mr-2 text-green-600" />
-                                    Tipos de Actividades Praticadas
-                                </h4>
-                                <CustomInput
-                                    type="multiselect"
-                                    value={formData.tiposAtividades}
-                                    options={[
-                                        { label: 'Agricultura', value: 'AGRICULTURA' },
-                                        { label: 'Pecuária', value: 'PECUARIA' },
-                                        { label: 'Agropecuária', value: 'AGROPECUARIA' },
-                                        { label: 'Aquicultura', value: 'AQUICULTURA' },
-                                        { label: 'Produtos Florestais', value: 'FLORESTAIS' },
-                                        { label: 'Outro', value: 'OUTRO' }
-                                    ]}
-                                    onChange={(value) => handleInputChange('tiposAtividades', value)}
-                                    errorMessage={errors.tiposAtividades}
-                                />
-
-                                {formData.tiposAtividades && formData.tiposAtividades.includes('OUTRO') && (
-                                    <div className="mt-4">
-                                        <CustomInput
-                                            type="text"
-                                            label="Especificar Outro Tipo de Actividade"
-                                            value={formData.outroTipoAtividade}
-                                            onChange={(value) => handleInputChange('outroTipoAtividade', value)}
-                                            placeholder="Digite o tipo de catividade"
-                                            iconStart={<FileText size={18} />}
-                                        />
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
-                                    <Map className="w-5 h-5 mr-2 text-green-600" />
-                                    Informações sobre Terras
-                                </h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    <CustomInput
-                                        type="select"
-                                        label="Tem acesso a terras cultiváveis?"
-                                        value={formData.acessoTerras}
-                                        options={[
-                                            { label: 'Sim', value: true },
-                                            { label: 'Não', value: false }
-                                        ]}
-                                        onChange={(value) => handleInputChange('acessoTerras', value)}
-                                        placeholder="Selecione uma opção"
-                                    />
-
-                                    {(formData.acessoTerras === true || formData.acessoTerras?.value === true) && (
-                                        <>
-                                            <CustomInput
-                                                type="select"
-                                                label="É proprietário da terra?"
-                                                value={formData.proprietarioTerra}
-                                                options={[
-                                                    { label: 'Sim', value: true },
-                                                    { label: 'Não', value: false }
-                                                ]}
-                                                onChange={(value) => handleInputChange('proprietarioTerra', value)}
-                                                placeholder="Selecione uma opção"
-                                            />
-
-                                            {(formData.proprietarioTerra === true || formData.proprietarioTerra?.value === true) && (
-                                                <>
-                                                    <CustomInput
-                                                        type="select"
-                                                        label="Possui título de concessão?"
-                                                        value={formData.tituloConcessao}
-                                                        options={[
-                                                            { label: 'Sim', value: true },
-                                                            { label: 'Não', value: false }
-                                                        ]}
-                                                        onChange={(value) => handleInputChange('tituloConcessao', value)}
-                                                        placeholder="Selecione uma opção"
-                                                    />
-
-                                                    {(formData.tituloConcessao === true || formData.tituloConcessao?.value === true) && (
-                                                        <CustomInput
-                                                            type="select"
-                                                            label="Tipo de Documento"
-                                                            value={formData.tipoTitulo}
-                                                            options={[
-                                                                { label: 'Direito consuetudinário', value: 'CONSUETUDINARIO' },
-                                                                { label: 'Formalizado', value: 'FORMALIZADO' }
-                                                            ]}
-                                                            onChange={(value) => handleInputChange('tipoTitulo', value)}
-                                                            placeholder="Selecione o tipo"
-                                                        />
-                                                    )}
-                                                </>
-                                            )}
-                                        </>
-                                    )}
-
-                                    <CustomInput
-                                        type="number"
-                                        label="Área Total dos Campos (ha)"
-                                        value={formData.areaTotalCampos}
-                                        onChange={(value) => handleInputChange('areaTotalCampos', parseFloat(value) || 0)}
-                                        placeholder="0.0"
-                                        step="0.1"
-                                        min="0"
-                                    />
-
-                                    <CustomInput
-                                        type="number"
-                                        label="Área Explorada (ha)"
-                                        value={formData.areaExplorada}
-                                        onChange={(value) => handleInputChange('areaExplorada', parseFloat(value) || 0)}
-                                        placeholder="0.0"
-                                        step="0.1"
-                                        min="0"
-                                    />
-
-                                    <CustomInput
-                                        type="number"
-                                        label="Área Agrícola (ha)"
-                                        value={formData.areaAgricola}
-                                        onChange={(value) => handleInputChange('areaAgricola', parseFloat(value) || 0)}
-                                        placeholder="0.0"
-                                        step="0.1"
-                                        min="0"
-                                    />
-
-                                    <CustomInput
-                                        type="number"
-                                        label="Área Pecuária (ha)"
-                                        value={formData.areaPecuaria}
-                                        onChange={(value) => handleInputChange('areaPecuaria', parseFloat(value) || 0)}
-                                        placeholder="0.0"
-                                        step="0.1"
-                                        min="0"
-                                    />
-
-                                    <CustomInput
-                                        type="number"
-                                        label="Área Florestal (ha)"
-                                        value={formData.areaFlorestal}
-                                        onChange={(value) => handleInputChange('areaFlorestal', parseFloat(value) || 0)}
-                                        placeholder="0.0"
-                                        step="0.1"
-                                        min="0"
-                                    />
-
-                                    <CustomInput
-                                        type="select"
-                                        label="Tecnologia Agrícola"
-                                        value={formData.tecnologiaAgricola}
-                                        options={[
-                                            { label: 'Subsistência', value: 'SUBSISTENCIA' },
-                                            { label: 'Comercial', value: 'COMERCIAL' },
-                                            { label: 'Misto', value: 'MISTO' }
-                                        ]}
-                                        onChange={(value) => handleInputChange('tecnologiaAgricola', value)}
-                                        placeholder="Selecione o tipo"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Seção de Agricultura - só aparece se tiver agricultura */}
-                            {shouldShowAgriculture() && (
-                                <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                    <h4 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
-                                        <Wheat className="w-5 h-5 mr-2 text-green-600" />
-                                        Culturas e Produção Agrícola
-                                    </h4>
-                                    <div className="mb-6">
-                                        <CustomInput
-                                            type="multiselect"
-                                            label="Culturas Principais"
-                                            value={formData.culturasPrincipais}
-                                            options={[
-                                                { label: 'Milho', value: 'MILHO' },
-                                                { label: 'Mandioca', value: 'MANDIOCA' },
-                                                { label: 'Amendoim/ginguba', value: 'AMENDOIM' },
-                                                { label: 'Feijões', value: 'FEIJOES' },
-                                                { label: 'Batata-doce', value: 'BATATA_DOCE' },
-                                                { label: 'Banana', value: 'BANANA' },
-                                                { label: 'Massambala', value: 'MASSAMBALA' },
-                                                { label: 'Massango', value: 'MASSANGO' },
-                                                { label: 'Café', value: 'CAFE' },
-                                                { label: 'Cebola', value: 'CEBOLA' },
-                                                { label: 'Tomate', value: 'TOMATE' },
-                                                { label: 'Couve', value: 'COUVE' },
-                                                { label: 'Batata rena', value: 'BATATA_RENA' },
-                                                { label: 'Trigo', value: 'TRIGO' },
-                                                { label: 'Arroz', value: 'ARROZ' },
-                                                { label: 'Soja', value: 'SOJA' },
-                                                { label: 'Outro', value: 'OUTRO' }
-                                            ]}
-                                            onChange={(value) => handleInputChange('culturasPrincipais', value)}
-                                        />
-
-                                        {formData.culturasPrincipais && formData.culturasPrincipais.includes('OUTRO') && (
-                                            <div className="mt-4">
-                                                <CustomInput
-                                                    type="text"
-                                                    label="Especificar Outra Cultura"
-                                                    value={formData.outraCultura}
-                                                    onChange={(value) => handleInputChange('outraCultura', value)}
-                                                    placeholder="Digite o nome da cultura"
-                                                    iconStart={<Wheat size={18} />}
-                                                />
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                        <CustomInput
-                                            type="number"
-                                            label="Produção (sacos 50kg)"
-                                            value={formData.producaoSacos50kg}
-                                            onChange={(value) => handleInputChange('producaoSacos50kg', parseInt(value) || 0)}
-                                            placeholder="0"
-                                            min="0"
-                                        />
-
-                                        <CustomInput
-                                            type="select"
-                                            label="Tipo de Sementeira"
-                                            value={formData.tipoSementeira}
-                                            options={[
-                                                { label: 'Mecanizada', value: 'MECANIZADA' },
-                                                { label: 'Manual', value: 'MANUAL' },
-                                                { label: 'Tração animal', value: 'TRACAO_ANIMAL' },
-                                                { label: 'Nenhuma', value: 'NENHUMA' }
-                                            ]}
-                                            onChange={(value) => handleInputChange('tipoSementeira', value)}
-                                            placeholder="Selecione o tipo"
-                                        />
-
-                                        <CustomInput
-                                            type="select"
-                                            label="Uso de Fertilizantes"
-                                            value={formData.usoFertilizantes}
-                                            options={[
-                                                { label: 'Sim', value: true },
-                                                { label: 'Não', value: false }
-                                            ]}
-                                            onChange={(value) => handleInputChange('usoFertilizantes', value)}
-                                            placeholder="Selecione uma opção"
-                                        />
-
-                                        <CustomInput
-                                            type="select"
-                                            label="Preparação da Terra"
-                                            value={formData.preparacaoTerra}
-                                            options={[
-                                                { label: 'Animal', value: 'ANIMAL' },
-                                                { label: 'Manual', value: 'MANUAL' },
-                                                { label: 'Mecanizada', value: 'MECANIZADA' },
-                                                { label: 'Nenhuma', value: 'NENHUMA' }
-                                            ]}
-                                            onChange={(value) => handleInputChange('preparacaoTerra', value)}
-                                            placeholder="Selecione o tipo"
-                                        />
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Seção de Irrigação - só aparece se tiver agricultura */}
-                            {shouldShowAgriculture() && (
-                                <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                    <h4 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
-                                        <Trees className="w-5 h-5 mr-2 text-blue-600" />
-                                        Sistema de Irrigação
-                                    </h4>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                        <CustomInput
-                                            type="select"
-                                            label="Acesso à Irrigação"
-                                            value={formData.acessoIrrigacao}
-                                            options={[
-                                                { label: 'Sim', value: true },
-                                                { label: 'Não', value: false }
-                                            ]}
-                                            onChange={(value) => handleInputChange('acessoIrrigacao', value)}
-                                            placeholder="Selecione uma opção"
-                                        />
-
-                                        {(formData.acessoIrrigacao === true || formData.acessoIrrigacao?.value === true) && (
-                                            <>
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Sistema de Irrigação"
-                                                    value={formData.sistemaIrrigacao}
-                                                    options={[
-                                                        { label: 'Tipo 1', value: 'TIPO1' },
-                                                        { label: 'Tipo 2', value: 'TIPO2' },
-                                                        { label: 'Outro', value: 'OUTRO' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('sistemaIrrigacao', value)}
-                                                    placeholder="Selecione o sistema"
-                                                />
-
-                                                {formData.sistemaIrrigacao?.value === 'OUTRO' && (
-                                                    <CustomInput
-                                                        type="text"
-                                                        label="Especificar Outro Sistema"
-                                                        value={formData.outroSistemaIrrigacao}
-                                                        onChange={(value) => handleInputChange('outroSistemaIrrigacao', value)}
-                                                        placeholder="Digite o tipo de sistema"
-                                                        iconStart={<FileText size={18} />}
-                                                    />
-                                                )}
-
-                                                <CustomInput
-                                                    type="number"
-                                                    label="Distância da Fonte de Água (m)"
-                                                    value={formData.distanciaFonteAgua}
-                                                    onChange={(value) => handleInputChange('distanciaFonteAgua', parseInt(value) || 0)}
-                                                    placeholder="0"
-                                                    min="0"
-                                                />
-                                            </>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Amanhos Culturais - só aparece se tiver agricultura */}
-                            {shouldShowAgriculture() && (
-                                <div className="bg-orange-50 rounded-2xl p-6 border border-orange-200">
-                                    <h5 className="text-lg font-semibold text-orange-800 mb-6 flex items-center">
-                                        <Wheat className="w-5 h-5 mr-2" />
-                                        Amanhos Culturais
-                                    </h5>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <CustomInput
-                                            type="select"
-                                            label="Realiza amanhos culturais?"
-                                            value={formData.amanhosCulturais}
-                                            options={[
-                                                { label: 'Sim', value: true },
-                                                { label: 'Não', value: false }
-                                            ]}
-                                            onChange={(value) => handleInputChange('amanhosCulturais', value)}
-                                            placeholder="Selecione uma opção"
-                                        />
-
-                                        {(formData.amanhosCulturais === true || formData.amanhosCulturais?.value === true) && (
-                                            <div className="space-y-4">
-                                                <CustomInput
-                                                    type="multiselect"
-                                                    label="Tipos de Amanhos Culturais"
-                                                    value={formData.tipoAmanhos}
-                                                    options={[
-                                                        { label: 'Adubação', value: 'ADUBACAO' },
-                                                        { label: 'Amontoa', value: 'AMONTOA' },
-                                                        { label: 'Sacha', value: 'SACHA' },
-                                                        { label: 'Outros', value: 'OUTROS' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('tipoAmanhos', value)}
-                                                />
-
-                                                {formData.tipoAmanhos && formData.tipoAmanhos.includes('OUTROS') && (
-                                                    <CustomInput
-                                                        type="text"
-                                                        label="Especificar Outros Amanhos"
-                                                        value={formData.outroTipoAmanho}
-                                                        onChange={(value) => handleInputChange('outroTipoAmanho', value)}
-                                                        placeholder="Digite outros tipos de amanhos"
-                                                        iconStart={<FileText size={18} />}
-                                                    />
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Instrumentos e Insumos Agrícolas - só aparece se tiver agricultura */}
-                            {shouldShowAgriculture() && (
-                                <div className="bg-green-50 rounded-2xl p-6 border border-green-200">
-                                    <h5 className="text-lg font-semibold text-green-800 mb-6 flex items-center">
-                                        <Tractor className="w-5 h-5 mr-2" />
-                                        Instrumentos e Insumos Agrícolas
-                                    </h5>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <CustomInput
-                                            type="select"
-                                            label="Acesso a instrumentos e insumos agrícolas"
-                                            value={formData.acessoInstrumentos}
-                                            options={[
-                                                { label: 'Sim', value: true },
-                                                { label: 'Não', value: false }
-                                            ]}
-                                            onChange={(value) => handleInputChange('acessoInstrumentos', value)}
-                                            placeholder="Selecione uma opção"
-                                        />
-
-                                        {(formData.acessoInstrumentos === true || formData.acessoInstrumentos?.value === true) && (
-                                            <div className="space-y-4">
-                                                <CustomInput
-                                                    type="multiselect"
-                                                    label="Fontes de Instrumentos e Insumos"
-                                                    value={formData.fonteInstrumentos}
-                                                    options={[
-                                                        { label: 'Administração Pública', value: 'ADMINISTRACAO_PUBLICA' },
-                                                        { label: 'Caixas comunitárias', value: 'CAIXAS_COMUNITARIAS' },
-                                                        { label: 'Crédito agrícola', value: 'CREDITO_AGRICOLA' },
-                                                        { label: 'Fundo próprio', value: 'FUNDO_PROPRIO' },
-                                                        { label: 'Mercado aberto', value: 'MERCADO_ABERTO' },
-                                                        { label: 'Outra', value: 'OUTRA' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('fonteInstrumentos', value)}
-                                                />
-
-                                                {formData.fonteInstrumentos && formData.fonteInstrumentos.includes('OUTRA') && (
-                                                    <CustomInput
-                                                        type="text"
-                                                        label="Especificar Outra Fonte"
-                                                        value={formData.outraFonteInstrumento}
-                                                        onChange={(value) => handleInputChange('outraFonteInstrumento', value)}
-                                                        placeholder="Digite a fonte de instrumentos"
-                                                        iconStart={<FileText size={18} />}
-                                                    />
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                );
-
-
-                if (!shouldShowLivestock()) {
-                    return (
-                        <div className="max-w-full mx-auto">
-                            <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl p-6 mb-8 border border-gray-200">
-                                <div className="flex items-center space-x-3 mb-3">
-                                    <div className="p-2 bg-gray-200 rounded-lg">
-                                        <Fish className="w-6 h-6 text-gray-500" />
-                                    </div>
-                                    <h3 className="text-xl font-bold text-gray-600">Actividades Pecuárias</h3>
-                                </div>
-                                <p className="text-gray-500">
-                                    Esta seção só é exibida se você selecionou Pecuária ou Agropecuária nas atividades.
-                                </p>
-                            </div>
-                        </div>
-                    );
-                }
-
-                return (
-                    <div className="max-w-full mx-auto">
-                        <div className="bg-gradient-to-r from-emerald-50 to-cyan-50 rounded-2xl p-6 mb-8 border border-emerald-100">
-                            <div className="flex items-center space-x-3 mb-3">
-                                <div className="p-2 bg-emerald-100 rounded-lg">
-                                    <Fish className="w-6 h-6 text-emerald-600" />
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-800">Actividades Pecuárias</h3>
-                            </div>
-                            <p className="text-gray-600">
-                                Informações sobre criação de animais e actividades de pecuária do produtor.
-                            </p>
-                        </div>
-
-                        <div className="space-y-8">
-                            {/* Seleção de Tipos de Criação */}
-                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
-                                    <Fish className="w-5 h-5 mr-2 text-emerald-600" />
-                                    Tipos de Criação Praticados
-                                </h4>
-
-                                <CustomInput
-                                    type="multiselect"
-                                    value={formData.tiposCriacao}
-                                    options={[
-                                        { label: 'Avicultura', value: 'AVICULTURA' },
-                                        { label: 'Ovinocultura', value: 'OVINOCULTURA' },
-                                        { label: 'Piscicultura', value: 'PISCICULTURA' },
-                                        { label: 'Aquicultura', value: 'AQUICULTURA' },
-                                        { label: 'Caprinocultura', value: 'CAPRINOCULTURA' },
-                                        { label: 'Suinocultura', value: 'SUINOCULTURA' },
-                                        { label: 'Bovinocultura', value: 'BOVINOCULTURA' },
-                                        { label: 'Cunicultura', value: 'CUNICULTURA' },
-                                        { label: 'Outro', value: 'OUTRO' }
-                                    ]}
-                                    onChange={(value) => handleInputChange('tiposCriacao', value)}
-                                />
-
-                                {formData.tiposCriacao && formData.tiposCriacao.some(tipo =>
-                                    (typeof tipo === 'object' ? tipo.value : tipo) === 'OUTRO'
-                                ) && (
-                                        <div className="mt-4">
-                                            <CustomInput
-                                                type="text"
-                                                label="Especificar Outro Tipo de Criação"
-                                                value={formData.outroTipoCriacao}
-                                                onChange={(value) => handleInputChange('outroTipoCriacao', value)}
-                                                placeholder="Digite o tipo de criação"
-                                                iconStart={<FileText size={18} />}
-                                            />
-                                        </div>
-                                    )}
-                            </div>
-
-                            {/* Formulários Dinâmicos baseados na seleção */}
-                            {formData.tiposCriacao && formData.tiposCriacao.map((tipo, index) => {
-                                const tipoValue = typeof tipo === 'object' ? tipo.value : tipo;
-
-                                if (tipoValue === 'AVICULTURA') {
-                                    return (
-                                        <div key={`avicultura-${index}`} className="bg-yellow-50 rounded-2xl p-6 border border-yellow-200">
-                                            <h5 className="text-lg font-semibold text-yellow-800 mb-6 flex items-center">
-                                                <Egg className="w-5 h-5 mr-2" />
-                                                Criação de Aves (Avicultura)
-                                            </h5>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                <CustomInput
-                                                    type="number"
-                                                    label="Número de Aves"
-                                                    value={formData.numeroAves}
-                                                    onChange={(value) => handleInputChange('numeroAves', parseInt(value) || 0)}
-                                                    placeholder="0"
-                                                    min="0"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Sistema de Avicultura"
-                                                    value={formData.sistemaAvicultura}
-                                                    options={[
-                                                        { label: 'Em baterias', value: 'BATERIAS' },
-                                                        { label: 'Em cama', value: 'CAMA' },
-                                                        { label: 'Tradicional', value: 'TRADICIONAL' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('sistemaAvicultura', value)}
-                                                    placeholder="Selecione o sistema"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Objetivo da Produção"
-                                                    value={formData.objetivoAvicultura}
-                                                    options={[
-                                                        { label: 'Carne', value: 'CARNE' },
-                                                        { label: 'Ovos', value: 'OVOS' },
-                                                        { label: 'Outro', value: 'OUTRO' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('objetivoAvicultura', value)}
-                                                    placeholder="Selecione o objetivo"
-                                                />
-                                                {formData.objetivoAvicultura?.value === 'OUTRO' && (
-                                                    <CustomInput
-                                                        type="text"
-                                                        label="Especificar Outro Objetivo"
-                                                        value={formData.outroObjetivoAvicultura}
-                                                        onChange={(value) => handleInputChange('outroObjetivoAvicultura', value)}
-                                                        placeholder="Digite o objetivo"
-                                                        iconStart={<FileText size={18} />}
-                                                    />
-                                                )}
-                                            </div>
-                                        </div>
-                                    );
-                                }
-
-                                if (tipoValue === 'BOVINOCULTURA') {
-                                    return (
-                                        <div key={`bovinocultura-${index}`} className="bg-green-50 rounded-2xl p-6 border border-green-200">
-                                            <h5 className="text-lg font-semibold text-green-800 mb-6 flex items-center">
-                                                <Beef className="w-5 h-5 mr-2" />
-                                                Criação de Bovinos (Bovinocultura)
-                                            </h5>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                <CustomInput
-                                                    type="number"
-                                                    label="Número de animais"
-                                                    value={formData.numeroVacas}
-                                                    onChange={(value) => handleInputChange('numeroVacas', parseInt(value) || 0)}
-                                                    placeholder="0"
-                                                    min="0"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Sistema de Criação"
-                                                    value={formData.sistemaBovinocultura}
-                                                    options={[
-                                                        { label: 'Estabulados', value: 'ESTABULADOS' },
-                                                        { label: 'Em pastagem', value: 'PASTAGEM' },
-                                                        { label: 'Em livre acesso', value: 'LIVRE_ACESSO' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('sistemaBovinocultura', value)}
-                                                    placeholder="Selecione o sistema"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Tipo de Criação"
-                                                    value={formData.tipoBovinocultura}
-                                                    options={[
-                                                        { label: 'Intensivo', value: 'INTENSIVO' },
-                                                        { label: 'Semi-intensivo', value: 'SEMI_INTENSIVO' },
-                                                        { label: 'Extensivo', value: 'EXTENSIVO' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('tipoBovinocultura', value)}
-                                                    placeholder="Selecione o tipo"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Objetivo da Produção"
-                                                    value={formData.objetivoBovinos}
-                                                    options={[
-                                                        { label: 'Carne', value: 'CARNE' },
-                                                        { label: 'Leite', value: 'LEITE' },
-                                                        { label: 'Outro', value: 'OUTRO' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('objetivoBovinos', value)}
-                                                    placeholder="Selecione o objetivo"
-                                                />
-                                                {formData.objetivoBovinos?.value === 'OUTRO' && (
-                                                    <CustomInput
-                                                        type="text"
-                                                        label="Especificar Outro Objetivo"
-                                                        value={formData.outroObjetivoBovinos}
-                                                        onChange={(value) => handleInputChange('outroObjetivoBovinos', value)}
-                                                        placeholder="Digite o objetivo"
-                                                        iconStart={<FileText size={18} />}
-                                                    />
-                                                )}
-                                            </div>
-                                        </div>
-                                    );
-                                }
-
-                                if (tipoValue === 'OVINOCULTURA') {
-                                    return (
-                                        <div key={`ovinocultura-${index}`} className="bg-blue-50 rounded-2xl p-6 border border-blue-200">
-                                            <h5 className="text-lg font-semibold text-blue-800 mb-6 flex items-center">
-                                                <Beef className="w-5 h-5 mr-2" />
-                                                Criação de Ovelhas (Ovinocultura)
-                                            </h5>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                <CustomInput
-                                                    type="number"
-                                                    label="Número de Animais"
-                                                    value={formData.numeroOvelhas}
-                                                    onChange={(value) => handleInputChange('numeroOvelhas', parseInt(value) || 0)}
-                                                    placeholder="0"
-                                                    min="0"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Sistema de Criação"
-                                                    value={formData.sistemaOvinocultura}
-                                                    options={[
-                                                        { label: 'Estabulados', value: 'ESTABULADOS' },
-                                                        { label: 'Em pastagem', value: 'PASTAGEM' },
-                                                        { label: 'Em livre acesso', value: 'LIVRE_ACESSO' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('sistemaOvinocultura', value)}
-                                                    placeholder="Selecione o sistema"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Tipo de Criação"
-                                                    value={formData.tipoOvinocultura}
-                                                    options={[
-                                                        { label: 'Intensivo', value: 'INTENSIVO' },
-                                                        { label: 'Semi-intensivo', value: 'SEMI_INTENSIVO' },
-                                                        { label: 'Extensivo', value: 'EXTENSIVO' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('tipoOvinocultura', value)}
-                                                    placeholder="Selecione o tipo"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Objetivo da Produção"
-                                                    value={formData.objetivoOvinos}
-                                                    options={[
-                                                        { label: 'Carne', value: 'CARNE' },
-                                                        { label: 'Leite', value: 'LEITE' },
-                                                        { label: 'Outro', value: 'OUTRO' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('objetivoOvinos', value)}
-                                                    placeholder="Selecione o objetivo"
-                                                />
-                                                {formData.objetivoOvinos?.value === 'OUTRO' && (
-                                                    <CustomInput
-                                                        type="text"
-                                                        label="Especificar Outro Objetivo"
-                                                        value={formData.outroObjetivoOvinos}
-                                                        onChange={(value) => handleInputChange('outroObjetivoOvinos', value)}
-                                                        placeholder="Digite o objetivo"
-                                                        iconStart={<FileText size={18} />}
-                                                    />
-                                                )}
-                                            </div>
-                                        </div>
-                                    );
-                                }
-
-                                if (tipoValue === 'CAPRINOCULTURA') {
-                                    return (
-                                        <div key={`caprinocultura-${index}`} className="bg-orange-50 rounded-2xl p-6 border border-orange-200">
-                                            <h5 className="text-lg font-semibold text-orange-800 mb-6 flex items-center">
-                                                <Beef className="w-5 h-5 mr-2" />
-                                                Criação de Animais (Caprinocultura)
-                                            </h5>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                <CustomInput
-                                                    type="number"
-                                                    label="Número de Cabras"
-                                                    value={formData.numeroCabras}
-                                                    onChange={(value) => handleInputChange('numeroCabras', parseInt(value) || 0)}
-                                                    placeholder="0"
-                                                    min="0"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Sistema de Criação"
-                                                    value={formData.sistemaCaprinocultura}
-                                                    options={[
-                                                        { label: 'Estabulados', value: 'ESTABULADOS' },
-                                                        { label: 'Em pastagem', value: 'PASTAGEM' },
-                                                        { label: 'Em livre acesso', value: 'LIVRE_ACESSO' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('sistemaCaprinocultura', value)}
-                                                    placeholder="Selecione o sistema"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Tipo de Criação"
-                                                    value={formData.tipoCaprinocultura}
-                                                    options={[
-                                                        { label: 'Intensivo', value: 'INTENSIVO' },
-                                                        { label: 'Semi-intensivo', value: 'SEMI_INTENSIVO' },
-                                                        { label: 'Extensivo', value: 'EXTENSIVO' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('tipoCaprinocultura', value)}
-                                                    placeholder="Selecione o tipo"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Objetivo da Produção"
-                                                    value={formData.objetivoCaprinos}
-                                                    options={[
-                                                        { label: 'Carne', value: 'CARNE' },
-                                                        { label: 'Leite', value: 'LEITE' },
-                                                        { label: 'Outro', value: 'OUTRO' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('objetivoCaprinos', value)}
-                                                    placeholder="Selecione o objetivo"
-                                                />
-                                                {formData.objetivoCaprinos?.value === 'OUTRO' && (
-                                                    <CustomInput
-                                                        type="text"
-                                                        label="Especificar Outro Objetivo"
-                                                        value={formData.outroObjetivoCaprinos}
-                                                        onChange={(value) => handleInputChange('outroObjetivoCaprinos', value)}
-                                                        placeholder="Digite o objetivo"
-                                                        iconStart={<FileText size={18} />}
-                                                    />
-                                                )}
-                                            </div>
-                                        </div>
-                                    );
-                                }
-
-                                if (tipoValue === 'SUINOCULTURA') {
-                                    return (
-                                        <div key={`suinocultura-${index}`} className="bg-pink-50 rounded-2xl p-6 border border-pink-200">
-                                            <h5 className="text-lg font-semibold text-pink-800 mb-6 flex items-center">
-                                                <Beef className="w-5 h-5 mr-2" />
-                                                Criação de Animais (Suinocultura)
-                                            </h5>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                <CustomInput
-                                                    type="number"
-                                                    label="Número de Animais"
-                                                    value={formData.numeroPorcos}
-                                                    onChange={(value) => handleInputChange('numeroPorcos', parseInt(value) || 0)}
-                                                    placeholder="0"
-                                                    min="0"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Objetivo da Produção"
-                                                    value={formData.objetivoSuinos}
-                                                    options={[
-                                                        { label: 'Carne', value: 'CARNE' },
-                                                        { label: 'Outro', value: 'OUTRO' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('objetivoSuinos', value)}
-                                                    placeholder="Selecione o objetivo"
-                                                />
-                                                {formData.objetivoSuinos?.value === 'OUTRO' && (
-                                                    <CustomInput
-                                                        type="text"
-                                                        label="Especificar Outro Objetivo"
-                                                        value={formData.outroObjetivoSuinos}
-                                                        onChange={(value) => handleInputChange('outroObjetivoSuinos', value)}
-                                                        placeholder="Digite o objetivo"
-                                                        iconStart={<FileText size={18} />}
-                                                    />
-                                                )}
-                                            </div>
-                                        </div>
-                                    );
-                                }
-
-                                if (tipoValue === 'PISCICULTURA' || tipoValue === 'AQUICULTURA') {
-                                    const jaRenderizado = formData.tiposCriacao.some((t, i) =>
-                                        i < index && (
-                                            (typeof t === 'object' ? t.value : t) === 'PISCICULTURA' ||
-                                            (typeof t === 'object' ? t.value : t) === 'AQUICULTURA'
-                                        )
-                                    );
-
-                                    if (jaRenderizado) return null;
-                                    return (
-                                        <div key={`piscicultura-${index}`} className="bg-cyan-50 rounded-2xl p-6 border border-cyan-200">
-                                            <h5 className="text-lg font-semibold text-cyan-800 mb-6 flex items-center">
-                                                <Fish className="w-5 h-5 mr-2" />
-                                                Criação de Peixes (Piscicultura/Aquicultura)
-                                            </h5>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
-                                                <CustomInput
-                                                    type="number"
-                                                    label="Número de Peixes"
-                                                    value={formData.numeroPeixes}
-                                                    onChange={(value) => handleInputChange('numeroPeixes', parseInt(value) || 0)}
-                                                    placeholder="0"
-                                                    min="0"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Tipo de Produção"
-                                                    value={formData.tipoPiscicultura}
-                                                    options={[
-                                                        { label: 'Piscicultura industrial', value: 'INDUSTRIAL' },
-                                                        { label: 'Pequena piscicultura informal integrada à agricultura familiar', value: 'INFORMAL_FAMILIAR' },
-                                                        { label: 'Piscicultura de subsistência', value: 'SUBSISTENCIA' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('tipoPiscicultura', value)}
-                                                    placeholder="Selecione o tipo"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Objectivo da Produção"
-                                                    value={formData.objetivoPiscicultura}
-                                                    options={[
-                                                        { label: 'Carne', value: 'CARNE' },
-                                                        { label: 'Outro', value: 'OUTRO' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('objetivoPiscicultura', value)}
-                                                    placeholder="Selecione o objetivo"
-                                                />
-                                                {formData.objetivoPiscicultura?.value === 'OUTRO' && (
-                                                    <CustomInput
-                                                        type="text"
-                                                        label="Especificar Outro Objetivo"
-                                                        value={formData.outroObjetivoPiscicultura}
-                                                        onChange={(value) => handleInputChange('outroObjetivoPiscicultura', value)}
-                                                        placeholder="Digite o objetivo"
-                                                        iconStart={<FileText size={18} />}
-                                                    />
-                                                )}
-                                            </div>
-                                        </div>
-                                    );
-                                }
-
-                                if (tipoValue === 'CUNICULTURA') {
-                                    return (
-                                        <div key={`cunicultura-${index}`} className="bg-gray-50 rounded-2xl p-6 border border-gray-200">
-                                            <h5 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
-                                                <User className="w-5 h-5 mr-2" />
-                                                Criação de Animais (Cunicultura)
-                                            </h5>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                <CustomInput
-                                                    type="number"
-                                                    label="Número de Coelhos"
-                                                    value={formData.numeroCoelhos}
-                                                    onChange={(value) => handleInputChange('numeroCoelhos', parseInt(value) || 0)}
-                                                    placeholder="0"
-                                                    min="0"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Objetivo da Produção"
-                                                    value={formData.objetivoCoelhos}
-                                                    options={[
-                                                        { label: 'Carne', value: 'CARNE' },
-                                                        { label: 'Outro', value: 'OUTRO' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('objetivoCoelhos', value)}
-                                                    placeholder="Selecione o objetivo"
-                                                />
-                                                {formData.objetivoCoelhos?.value === 'OUTRO' && (
-                                                    <CustomInput
-                                                        type="text"
-                                                        label="Especificar Outro Objetivo"
-                                                        value={formData.outroObjetivoCoelhos}
-                                                        onChange={(value) => handleInputChange('outroObjetivoCoelhos', value)}
-                                                        placeholder="Digite o objetivo"
-                                                        iconStart={<FileText size={18} />}
-                                                    />
-                                                )}
-                                            </div>
-                                        </div>
-                                    );
-                                }
-
-                                return null; // Para tipos não reconhecidos
-                            })}
-
-                            {/* Aspectos Gerais da Pecuária */}
-                            <div className="bg-green-50 rounded-2xl p-6 border border-green-200">
-                                <h5 className="text-lg font-semibold text-green-800 mb-6 flex items-center">
-                                    <Trees className="w-5 h-5 mr-2" />
-                                    Aspectos Gerais da Pecuária
-                                </h5>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <CustomInput
-                                        type="select"
-                                        label="Acesso à Ração Animal"
-                                        value={formData.acessoRacao}
-                                        options={[
-                                            { label: 'Sim', value: true },
-                                            { label: 'Não', value: false }
-                                        ]}
-                                        onChange={(value) => handleInputChange('acessoRacao', value)}
-                                        placeholder="Selecione uma opção"
-                                    />
-
-                                    <CustomInput
-                                        type="select"
-                                        label="Conhecimento sobre Doenças Animais"
-                                        value={formData.conhecimentoDoencas}
-                                        options={[
-                                            { label: 'Sim', value: true },
-                                            { label: 'Não', value: false }
-                                        ]}
-                                        onChange={(value) => handleInputChange('conhecimentoDoencas', value)}
-                                        placeholder="Selecione uma opção"
-                                    />
-                                </div>
-                            </div>
                         </div>
                     </div>
                 );

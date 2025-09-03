@@ -159,7 +159,7 @@ const GestaoSistemasIrrigacao = () => {
       numeroFamiliasAtendidas: 45,
       culturasPrincipais: ['Milho', 'Feijão', 'Hortaliças'],
       tipoIrrigacao: 'GOTEJAMENTO',
-      statusSistema: 'ATIVO',
+      statusSistema: 'ACTIVO',
       dataInstalacao: '2024-01-15',
       dataUltimaManutencao: '2024-08-20',
       proximaManutencao: '2024-11-20',
@@ -335,7 +335,7 @@ const GestaoSistemasIrrigacao = () => {
   // Labels para status
   const getStatusLabel = (status) => {
     const labels = {
-      'ATIVO': 'Ativo',
+      'ACTIVO': 'Activo',
       'MANUTENCAO': 'Manutenção',
       'INATIVO': 'Inativo',
       'PLANEJAMENTO': 'Planejamento'
@@ -346,7 +346,7 @@ const GestaoSistemasIrrigacao = () => {
   // Cores para status
   const getStatusColor = (status) => {
     const colors = {
-      'ATIVO': 'bg-green-100 text-green-800 border-green-300',
+      'ACTIVO': 'bg-green-100 text-green-800 border-green-300',
       'MANUTENCAO': 'bg-yellow-100 text-yellow-800 border-yellow-300',
       'INATIVO': 'bg-red-100 text-red-800 border-red-300',
       'PLANEJAMENTO': 'bg-blue-100 text-blue-800 border-blue-300'
@@ -628,9 +628,9 @@ const GestaoSistemasIrrigacao = () => {
               <Activity className="w-6 h-6 text-green-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Ativos</p>
+              <p className="text-sm font-medium text-gray-500">Activos</p>
               <p className="text-2xl font-bold text-gray-900">
-                {sistemasIrrigacao.filter(s => s.statusSistema === 'ATIVO').length}
+                {sistemasIrrigacao.filter(s => s.statusSistema === 'ACTIVO').length}
               </p>
             </div>
           </div>
@@ -732,11 +732,11 @@ const GestaoSistemasIrrigacao = () => {
             <div>
               <CustomInput
                 type="select"
-                placeholder="Status do Sistema"
+                placeholder="Estado do Sistema"
                 value={selectedStatus}
                 options={[
                   { label: 'Todos os Status', value: '' },
-                  { label: 'Ativo', value: 'ATIVO' },
+                  { label: 'Activo', value: 'ACTIVO' },
                   { label: 'Manutenção', value: 'MANUTENCAO' },
                   { label: 'Inativo', value: 'INATIVO' },
                   { label: 'Planejamento', value: 'PLANEJAMENTO' }
@@ -769,10 +769,10 @@ const GestaoSistemasIrrigacao = () => {
                     Performance
                   </th>
                   <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                    Status
+                    Estado
                   </th>
                   <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                    Ações
+                    Acções
                   </th>
                 </tr>
               </thead>
@@ -798,7 +798,7 @@ const GestaoSistemasIrrigacao = () => {
                       </div>
                     </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 whitespace-nowrap text-start">
                       <div className="space-y-1">
                         <div className="text-sm font-medium text-gray-900">
                           {getTipoIrrigacaoLabel(record.tipoIrrigacao)}
@@ -812,7 +812,7 @@ const GestaoSistemasIrrigacao = () => {
                       </div>
                     </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 whitespace-nowrap text-start">
                       <div className="space-y-1">
                         <div className="flex items-center text-xs text-gray-700">
                           <Users className="w-3.5 h-3.5 mr-1" />

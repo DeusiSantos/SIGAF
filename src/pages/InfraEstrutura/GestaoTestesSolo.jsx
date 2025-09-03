@@ -892,7 +892,7 @@ const GestaoTestesSolo = () => {
             <div>
               <CustomInput
                 type="select"
-                placeholder="Status da Análise"
+                placeholder="Estado da Análise"
                 value={selectedStatus}
                 options={[
                   { label: 'Todos os Status', value: '' },
@@ -929,10 +929,10 @@ const GestaoTestesSolo = () => {
                     Análise
                   </th>
                   <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                    Status
+                    Estado
                   </th>
                   <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                    Ações
+                    Acções
                   </th>
                 </tr>
               </thead>
@@ -958,7 +958,7 @@ const GestaoTestesSolo = () => {
                       </div>
                     </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 whitespace-nowrap text-start">
                       <div className="space-y-1">
                         <div className="text-sm font-medium text-gray-900">
                           {formatDate(record.dataColeta)}

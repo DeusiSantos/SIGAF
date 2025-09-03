@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import {
   User,
   Home,
@@ -59,9 +60,17 @@ const CertificacaoProdutorFlorestal = () => {
   const [toastMessage, setToastMessage] = useState(null);
   const [produtorSelecionado, setProdutorSelecionado] = useState(null);
   const [modoBusca, setModoBusca] = useState(true);
+  const [consultingBI, setConsultingBI] = useState(false);
+  const [biData, setBiData] = useState(null);
+  const [consultingNif, setConsultingNif] = useState(false);
+  const [nifData, setNifData] = useState(null);
+  const [tipoDocumento, setTipoDocumento] = useState('BI');
 
   // Hook para buscar produtores aprovados
   const { produtor: produtoresAprovados, loading: loadingProdutores } = useProdutoresAprovados();
+
+  // Debounce para consulta do BI
+  const debounceTimer = React.useRef(null);
 
   // Estados para as tabelas dinâmicas
   const [areasFlorestais, setAreasFlorestais] = useState([]);
@@ -73,6 +82,7 @@ const CertificacaoProdutorFlorestal = () => {
     nomeCompleto: '',
     nomeEmpresa: '',
     bi: '',
+    nif: '',
     dataNascimento: '',
     sexo: '',
     nacionalidade: 'ANGOLANA',
@@ -110,6 +120,136 @@ const CertificacaoProdutorFlorestal = () => {
   const showToast = (severity, summary, detail, duration = 3000) => {
     setToastMessage({ severity, summary, detail, visible: true });
     setTimeout(() => setToastMessage(null), duration);
+  };
+
+  // Função para consultar NIF na API
+  const consultarNIF = async (nifValue) => {
+    if (!nifValue || nifValue.length < 9) return;
+
+    setConsultingNif(true);
+
+    try {
+      const username = 'minagrif';
+      const password = 'Nz#$20!23Mg';
+      const credentials = btoa(`${username}:${password}`);
+
+      const response = await axios.get(`https://api.gov.ao/nif/v1/consultarNIF`, {
+        params: {
+          tipoDocumento: 'NIF',
+          numeroDocumento: nifValue
+        },
+        headers: {
+          'Authorization': `Basic ${credentials}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = response.data;
+      if (response.status === 200 && data.code === 200 && data.data) {
+        const nifInfo = data.data;
+        setNifData(nifInfo);
+
+        setFormData(prev => ({
+          ...prev,
+          nomeCompleto: nifInfo.nome_contribuinte || '',
+          nomeEmpresa: nifInfo.nome_contribuinte || '',
+          telefone: nifInfo.numero_contacto || '',
+          provincia: '',
+          municipio: '',
+          comuna: ''
+        }));
+
+        showToast('success', 'NIF Consultado', 'Dados preenchidos automaticamente!');
+      } else {
+        setNifData(null);
+        showToast('warn', 'NIF não encontrado', 'Não foi possível encontrar dados para este NIF.');
+      }
+    } catch (error) {
+      console.error('Erro ao consultar NIF:', error);
+      setNifData(null);
+      showToast('error', 'Erro na consulta', 'Erro ao consultar NIF. Tente novamente.');
+    } finally {
+      setConsultingNif(false);
+    }
+  };
+
+  // Função para consultar BI na API
+  const consultarBI = async (biValue) => {
+    if (!biValue || biValue.length < 9) return;
+
+    setConsultingBI(true);
+
+    try {
+      const username = 'minagrif';
+      const password = 'Nz#$20!23Mg';
+      const credentials = btoa(`${username}:${password}`);
+
+      const response = await axios.get(`https://api.gov.ao/bi/v1/getBI`, {
+        params: { bi: biValue },
+        headers: {
+          'Authorization': `Basic ${credentials}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = response.data;
+      if (response.status === 200 && data.code === 200 && data.data) {
+        const biInfo = data.data;
+        setBiData(biInfo);
+
+        // Mapear província e município de nascimento
+        let provinciaEncontrada = '';
+        let municipioEncontrado = '';
+        
+        if (biInfo.birth_province_name) {
+          const provincia = provinciasData.find(p => 
+            p.nome.toLowerCase().includes(biInfo.birth_province_name.toLowerCase()) ||
+            biInfo.birth_province_name.toLowerCase().includes(p.nome.toLowerCase())
+          );
+          provinciaEncontrada = provincia ? provincia.nome : biInfo.birth_province_name;
+        }
+
+        // O campo "Natural de" contém o município
+        if (biInfo.birth_municipality_name) {
+          municipioEncontrado = biInfo.birth_municipality_name;
+        }
+
+        // Preencher campos automaticamente
+        setFormData(prev => ({
+          ...prev,
+          nomeCompleto: `${biInfo.first_name || ''} ${biInfo.last_name || ''}`.trim(),
+          telefone: '', // BI não tem telefone
+          provincia: provinciaEncontrada,
+          municipio: municipioEncontrado,
+          comuna: ''
+        }));
+
+        // Atualizar municípios se província foi encontrada
+        if (provinciaEncontrada) {
+          const provinciaSelected = provinciasData.find(p => p.nome === provinciaEncontrada);
+          if (provinciaSelected) {
+            try {
+              const municipiosArray = JSON.parse(provinciaSelected.municipios);
+              const municipios = municipiosArray.map(mun => ({ label: mun, value: mun }));
+              setMunicipiosOptions(municipios);
+            } catch (error) {
+              console.error("Erro ao processar municípios:", error);
+            }
+          }
+        }
+
+        showToast('success', 'BI Consultado', 'Dados preenchidos automaticamente!');
+      } else {
+        setBiData(null);
+        showToast('warn', 'BI não encontrado', 'Não foi possível encontrar dados para este BI.');
+      }
+    } catch (error) {
+      console.error('Erro ao consultar BI:', error);
+      setBiData(null);
+      showToast('error', 'Erro na consulta', 'Erro ao consultar BI. Tente novamente.');
+    } finally {
+      setConsultingBI(false);
+    }
   };
 
   // Função auxiliar para extrair valores dos objetos select
@@ -270,6 +410,21 @@ const CertificacaoProdutorFlorestal = () => {
   const handleInputChange = (field, value) => {
     setTouched(prev => ({ ...prev, [field]: true }));
     setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Lógica para consulta automática do BI/NIF
+    if (field === 'bi' && !modoBusca && tipoDocumento === 'BI') {
+      if (value && value.length >= 9) {
+        if (debounceTimer.current) clearTimeout(debounceTimer.current);
+        debounceTimer.current = setTimeout(() => consultarBI(value), 1500);
+      }
+    }
+    
+    if (field === 'nif' && !modoBusca && tipoDocumento === 'NIF') {
+      if (value && value.length >= 9) {
+        if (debounceTimer.current) clearTimeout(debounceTimer.current);
+        debounceTimer.current = setTimeout(() => consultarNIF(value), 1500);
+      }
+    }
     
     if (errors[field]) {
       setErrors(prev => {
@@ -582,7 +737,7 @@ const CertificacaoProdutorFlorestal = () => {
                   )}
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-4 ">
                   <h4 className="text-lg font-semibold text-gray-800 mb-4">Novo Produtor Florestal</h4>
                   <div className="p-4 bg-green-50 rounded-lg border border-green-200">
                     <p className="text-green-700 text-sm">
@@ -591,7 +746,7 @@ const CertificacaoProdutorFlorestal = () => {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className=" grid grid-cols-1 md:grid-cols-2 gap-4">
                     <CustomInput
                       type="text"
                       label="Nome Completo"
@@ -601,19 +756,140 @@ const CertificacaoProdutorFlorestal = () => {
                       errorMessage={errors.nomeCompleto}
                       placeholder="Digite o nome completo"
                       iconStart={<User size={18} />}
+                      disabled={biData !== null || nifData !== null}
                     />
 
                     <CustomInput
-                      type="text"
-                      label="Número do Bilhete de Identidade"
-                      value={formData.bi}
-                      onChange={(value) => handleInputChange('bi', value)}
+                      type="select"
+                      label="Tipo de Documento"
+                      value={{ label: tipoDocumento, value: tipoDocumento }}
+                      options={[
+                        { label: 'BI', value: 'BI' },
+                        { label: 'NIF', value: 'NIF' }
+                      ]}
+                      onChange={(value) => {
+                        setTipoDocumento(typeof value === 'object' ? value.value : value);
+                        setBiData(null);
+                        setNifData(null);
+                        setFormData(prev => ({ ...prev, bi: '', nif: '' }));
+                      }}
                       required
-                      errorMessage={errors.bi}
-                      placeholder="Digite o número do BI"
+                      placeholder="Selecione o tipo de documento"
                       iconStart={<CreditCard size={18} />}
                     />
+
+                    {tipoDocumento === 'BI' && (
+                      <div className="relative">
+                        <CustomInput
+                          type="text"
+                          label="Número do Bilhete de Identidade"
+                          value={formData.bi}
+                          onChange={(value) => handleInputChange('bi', value)}
+                          required
+                          errorMessage={errors.bi}
+                          placeholder="Digite o número do BI"
+                          iconStart={<CreditCard size={18} />}
+                          helperText="Digite o BI para consulta automática dos dados"
+                        />
+                        {consultingBI && (
+                          <div className="absolute right-3 top-9 flex items-center">
+                            <Loader size={16} className="animate-spin text-green-600" />
+                            <span className="ml-2 text-sm text-green-600">Consultando BI...</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {tipoDocumento === 'NIF' && (
+                      <div className="relative">
+                        <CustomInput
+                          type="text"
+                          label="Número de Identificação Fiscal (NIF)"
+                          value={formData.nif}
+                          onChange={(value) => handleInputChange('nif', value)}
+                          required
+                          errorMessage={errors.nif}
+                          placeholder="Digite o número do NIF"
+                          iconStart={<CreditCard size={18} />}
+                          helperText="Digite o NIF para consulta automática dos dados"
+                        />
+                        {consultingNif && (
+                          <div className="absolute right-3 top-9 flex items-center">
+                            <Loader size={16} className="animate-spin text-green-600" />
+                            <span className="ml-2 text-sm text-green-600">Consultando NIF...</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
+
+                  {/*biData && (
+                    <div className="mt-6 p-6 bg-green-50 rounded-xl border border-green-200">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center">
+                          <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
+                          <h5 className="font-semibold text-green-800">Dados do BI Consultado</h5>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setBiData(null);
+                            setFormData(prev => ({
+                              ...prev,
+                              nomeCompleto: '',
+                              telefone: '',
+                              provincia: '',
+                              municipio: '',
+                              comuna: ''
+                            }));
+                            setMunicipiosOptions([]);
+                            showToast('info', 'Dados limpos', 'Preencha manualmente os campos.');
+                          }}
+                          className="text-sm text-green-600 hover:text-green-800 underline"
+                        >
+                          Limpar e preencher manualmente
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div><strong>Nome:</strong> {`${biData.first_name || ''} ${biData.last_name || ''}`.trim()}</div>
+                        <div><strong>Sexo:</strong> {biData.gender_name || 'N/A'}</div>
+                        <div><strong>Data Nascimento:</strong> {biData.birth_date ? new Date(biData.birth_date).toLocaleDateString('pt-BR') : 'N/A'}</div>
+                        <div><strong>Província Nascimento:</strong> {biData.birth_province_name || 'N/A'}</div>
+                        <div><strong>Natural de:</strong> {biData.birth_municipality_name || 'N/A'}</div>
+                      </div>
+                    </div>
+                  )*/}
+
+                  {/*nifData && (
+                    <div className="mt-6 p-6 bg-blue-50 rounded-xl border border-blue-200">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center">
+                          <CheckCircle className="w-5 h-5 text-blue-600 mr-2" />
+                          <h5 className="font-semibold text-blue-800">Dados do NIF Consultado</h5>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setNifData(null);
+                            setFormData(prev => ({
+                              ...prev,
+                              nomeCompleto: '',
+                              telefone: ''
+                            }));
+                            showToast('info', 'Dados limpos', 'Preencha manualmente os campos.');
+                          }}
+                          className="text-sm text-blue-600 hover:text-blue-800 underline"
+                        >
+                          Limpar e preencher manualmente
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div><strong>Nome:</strong> {nifData.nome_contribuinte || 'N/A'}</div>
+                        <div><strong>Email:</strong> {nifData.email || 'N/A'}</div>
+                        <div><strong>Contacto:</strong> {nifData.numero_contacto || 'N/A'}</div>
+                      </div>
+                    </div>
+                  )*/}
                 </div>
               )}
             </div>
@@ -671,6 +947,7 @@ const CertificacaoProdutorFlorestal = () => {
                   disabled={produtorSelecionado !== null}
                   placeholder="Ex: 923456789"
                   iconStart={<Phone size={18} />}
+                  helperText={biData ? "BI não contém telefone, preencha manualmente" : ""}
                 />
 
                 <CustomInput
@@ -742,6 +1019,7 @@ const CertificacaoProdutorFlorestal = () => {
                   errorMessage={errors.nomeEmpresa}
                   placeholder="Nome da empresa exploradora"
                   iconStart={<Building size={18} />}
+                  disabled={nifData !== null}
                 />
 
                 <CustomInput
@@ -756,19 +1034,35 @@ const CertificacaoProdutorFlorestal = () => {
                 />
 
                 <CustomInput
-                  type="select"
+                  type="multiselect"
                   label="Tipo de Licença"
-                  value={formData.tipoLicenca ? { label: formData.tipoLicenca, value: formData.tipoLicenca } : null}
+                  value={Array.isArray(formData.tipoLicenca) 
+                    ? formData.tipoLicenca.map(val => ({ 
+                        label: {
+                          'EXPLORACAOFLORESTAL': 'Licença de Exploração Florestal',
+                          'PLANTIOFLORESTAL': 'Licença de Plantio Florestal',
+                          'MANEJOFLORESTAL': 'Licença de Manejo Florestal',
+                          'REFLORESTAMENTO': 'Licença de Reflorestamento'
+                        }[val] || val,
+                        value: val
+                      }))
+                    : formData.tipoLicenca || []
+                  }
                   options={[
                     { label: 'Licença de Exploração Florestal', value: 'EXPLORACAO_FLORESTAL' },
                     { label: 'Licença de Plantio Florestal', value: 'PLANTIO_FLORESTAL' },
                     { label: 'Licença de Manejo Florestal', value: 'MANEJO_FLORESTAL' },
                     { label: 'Licença de Reflorestamento', value: 'REFLORESTAMENTO' }
                   ]}
-                  onChange={(value) => handleInputChange('tipoLicenca', typeof value === 'object' ? value.value : value)}
+                  onChange={(value) => {
+                    const mappedValue = Array.isArray(value) 
+                      ? value.map(item => (typeof item === 'object' ? item.value : item).replace(/[-_]/g, ''))
+                      : value;
+                    handleInputChange('tipoLicenca', mappedValue);
+                  }}
                   required
                   errorMessage={errors.tipoLicenca}
-                  placeholder="Selecione o tipo de licença"
+                  placeholder="Selecione os tipos de licença"
                   iconStart={<Trees size={18} />}
                 />
 
