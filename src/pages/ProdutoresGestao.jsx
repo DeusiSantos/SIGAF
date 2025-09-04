@@ -254,6 +254,7 @@ const ProdutoresGestao = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedStatus, setSelectedStatus] = useState('');
+    const [selectedProvince, setSelectedProvince] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [toastMessage, setToastMessage] = useState(null);
     const [toastTimeout, setToastTimeout] = useState(null);
@@ -449,8 +450,9 @@ const ProdutoresGestao = () => {
             produtor.numeroBI.toLowerCase().includes(searchTerm.toLowerCase()) ||
             produtor.codigoRNPA.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = !selectedStatus || produtor.statusProcesso === selectedStatus;
+        const matchesProvince = !selectedProvince || produtor.provincia === selectedProvince;
 
-        return matchesSearch && matchesStatus;
+        return matchesSearch && matchesStatus && matchesProvince;
     });
 
     // Paginação
@@ -731,7 +733,7 @@ const ProdutoresGestao = () => {
 
                     {/* Barra de ferramentas */}
                     <div className="p-6 border-b border-gray-200 bg-white">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             {/* Busca */}
                             <div className="lg:col-span-1">
                                 <CustomInput
@@ -759,6 +761,38 @@ const ProdutoresGestao = () => {
                                     ]}
                                     onChange={(option) => setSelectedStatus(option?.value || '')}
                                     iconStart={<Filter size={18} />}
+                                />
+                            </div>
+                            
+                            {/* Filtro por provincia */}
+                            <div>
+                                <CustomInput
+                                    type="select"
+                                    placeholder="Selecione a Província"
+                                    value={selectedProvince ? { label: selectedProvince, value: selectedProvince } : null}
+                                    options={[
+                                        { label: 'Todas as Províncias', value: '' },
+                                        { label: 'Luanda', value: 'LUANDA' },
+                                        { label: 'Benguela', value: 'BENGUELA' },
+                                        { label: 'Huíla', value: 'HUILA' },
+                                        { label: 'Bié', value: 'BIE' },
+                                        { label: 'Malanje', value: 'MALANJE' },
+                                        { label: 'Huambo', value: 'HUAMBO' },
+                                        { label: 'Cabinda', value: 'CABINDA' },
+                                        { label: 'Zaire', value: 'ZAIRE' },
+                                        { label: 'Uíge', value: 'UIGE' },
+                                        { label: 'Cunene', value: 'CUNENE' },
+                                        { label: 'Namibe', value: 'NAMIBE' },
+                                        { label: 'Lunda Norte', value: 'LUNDA_NORTE' },
+                                        { label: 'Lunda Sul', value: 'LUNDA_SUL' },
+                                        { label: 'Moxico', value: 'MOXICO' },
+                                        { label: 'Cuando Cubango', value: 'CUANDO_CUBANGO' },
+                                        { label: 'Bengo', value: 'BENGO' },
+                                        { label: 'Cuanza Norte', value: 'CUANZA_NORTE' },
+                                        { label: 'Cuanza Sul', value: 'CUANZA_SUL' }
+                                    ]}
+                                    onChange={(option) => setSelectedProvince(option?.value || '')}
+                                    iconStart={<MapPin size={18} />}
                                 />
                             </div>
 
