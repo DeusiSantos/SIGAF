@@ -264,14 +264,14 @@ const GestaoApoioAgricola = () => {
     // Ícones por tipo
     const getTipoIcon = (tipo) => {
         const icons = {
-            'Canal de Irrigação': <Activity className="w-4 h-4" />,
-            'Represa/Barragem': <Activity className="w-4 h-4" />,
-            'Furo de Água/Poço Artesiano': <Activity className="w-4 h-4" />,
-            'Silo de Grãos': <Warehouse className="w-4 h-4" />,
-            'Armazém': <Warehouse className="w-4 h-4" />,
-            'Mercado': <Building className="w-4 h-4" />
+            'Canal de Irrigação': <Activity className="w-5 h-5 text-blue-600" />,
+            'Represa/Barragem': <Warehouse className="w-5 h-5 text-cyan-600" />,
+            'Furo de Água/Poço Artesiano': <Activity className="w-5 h-5 text-teal-600" />,
+            'Silo de Grãos': <Warehouse className="w-5 h-5 text-amber-600" />,
+            'Armazém': <Warehouse className="w-5 h-5 text-orange-600" />,
+            'Mercado': <Building className="w-5 h-5 text-purple-600" />
         };
-        return icons[tipo] || <Building className="w-4 h-4" />;
+        return icons[tipo] || <Building className="w-5 h-5 text-gray-600" />;
     };
 
     // Estatísticas
@@ -365,7 +365,7 @@ const GestaoApoioAgricola = () => {
 
             {/* Indicadores do topo */}
             <div className="w-full flex justify-center bg-transparent pb-[30px] pt-2">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+                <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-4 w-full">
                     <div className="bg-white rounded-xl shadow-md p-6">
                         <div className="flex items-center">
                             <div className="p-3 bg-blue-100 rounded-full">
@@ -419,7 +419,7 @@ const GestaoApoioAgricola = () => {
                 <div className="bg-gradient-to-r from-blue-700 to-blue-500 p-6 text-white shadow-md mb-6">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
                         <div>
-                            <h1 className="text-2xl font-bold">Gestão de Infraestruturas de Apoio à Agricultura</h1>
+                            <h1 className="text-2xl font-bold">Gestão de Apoio à Agricultura</h1>
                         </div>
                         <div className="flex gap-4">
                             <button
@@ -503,108 +503,134 @@ const GestaoApoioAgricola = () => {
                     {/* Tabela - Desktop */}
                     <div className="hidden md:block overflow-auto">
                         <table className="w-full border-collapse">
-                            <thead className="bg-gray-50 sticky top-0 z-10">
+                            <thead className="bg-gradient-to-r from-blue-50 to-indigo-50 sticky top-0 z-10">
                                 <tr>
-                                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                        Infraestrutura
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-blue-700 uppercase tracking-wider border-b border-blue-200">
+                                        <div className="flex items-center space-x-2">
+                                            <Building className="w-4 h-4" />
+                                            <span>Infraestrutura</span>
+                                        </div>
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                        Entidade
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-blue-700 uppercase tracking-wider border-b border-blue-200">
+                                        <div className="flex items-center space-x-2">
+                                            <Users className="w-4 h-4" />
+                                            <span>Entidade</span>
+                                        </div>
                                     </th>
-
-                                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                        Localização
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-blue-700 uppercase tracking-wider border-b border-blue-200">
+                                        <div className="flex items-center space-x-2">
+                                            <MapPin className="w-4 h-4" />
+                                            <span>Localização</span>
+                                        </div>
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                        Características
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-blue-700 uppercase tracking-wider border-b border-blue-200">
+                                        <div className="flex items-center space-x-2">
+                                            <Settings className="w-4 h-4" />
+                                            <span>Características</span>
+                                        </div>
                                     </th>
-
-                                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                        Utilização
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-blue-700 uppercase tracking-wider border-b border-blue-200">
+                                        <div className="flex items-center space-x-2">
+                                            <Activity className="w-4 h-4" />
+                                            <span>Utilização</span>
+                                        </div>
                                     </th>
-
-                                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                        Estado
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-blue-700 uppercase tracking-wider border-b border-blue-200">
+                                        <div className="flex items-center space-x-2">
+                                            <CheckCircle className="w-4 h-4" />
+                                            <span>Estado</span>
+                                        </div>
                                     </th>
-                                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                        Ações
+                                    <th className="px-6 py-4 text-center text-xs font-semibold text-blue-700 uppercase tracking-wider border-b border-blue-200">
+                                        <div className="flex items-center justify-center space-x-2">
+                                            <Settings className="w-4 h-4" />
+                                            <span>Ações</span>
+                                        </div>
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y text-start divide-gray-200 bg-white">
+                            <tbody className="divide-y divide-gray-100 bg-white">
                                 {getCurrentItems().map((infra) => (
-                                    <tr key={infra.id} className="hover:bg-blue-50 transition-colors">
-
-
-
-                                        <td className="px-6 py-4 whitespace-nowrap flex items-center space-x-3">
-                                            <div className="p-3 flex justify-center  bg-blue-100 rounded-full">
-                                                <Building className=" text-blue-600" />
+                                    <tr key={infra.id} className="hover:bg-gradient-to-r hover:from-blue-25 hover:to-indigo-25 transition-all duration-200 group">
+                                        <td className="px-6 py-5 flex items-center space-x-4">
+                                            <div className="p-3 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl shadow-sm group-hover:shadow-md transition-shadow">
+                                                {getTipoIcon(infra.tipo_infrastrutura)}
                                             </div>
-                                            <div>
-                                                <div className="text-sm font-medium text-gray-900 max-w-[200px] truncate">
+                                            <div className="min-w-0 flex-1">
+                                                <div className="text-sm font-semibold text-gray-900 max-w-[200px] truncate">
                                                     {infra.nome_infrastrutura}
                                                 </div>
-                                                <div className="flex items-center text-xs text-gray-500 mt-1">
-                                                    Tipo: {infra.tipo_infrastrutura}
+                                                <div className="flex items-center text-xs text-blue-600 mt-1 font-medium">
+                                                    <Wrench className="w-3 h-3 mr-1" />
+                                                    {infra.tipo_infrastrutura}
                                                 </div>
                                                 <div className="flex items-center text-xs text-gray-500 mt-1">
-                                                    BI/NIF: {infra.bi_nif}
+                                                    <CreditCard className="w-3 h-3 mr-1" />
+                                                    {infra.bi_nif}
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm text-gray-900 max-w-[150px] truncate">
+                                        <td className="px-6 py-5">
+                                            <div className="text-sm font-medium text-gray-900 max-w-[150px] truncate">
                                                 {infra.entidade_responsavel.proprietario_instituicao}
-
                                             </div>
-                                            <div className="flex items-center text-xs text-gray-500 mt-1">
-                                                <Phone size={'12'} ></Phone> {infra.entidade_responsavel.contacto}
+                                            <div className="flex items-center text-xs text-green-600 mt-1 font-medium">
+                                                <Phone className="w-3 h-3 mr-1" />
+                                                {infra.entidade_responsavel.contacto}
                                             </div>
-
                                         </td>
-                                        <td className="px-6 py-4 ">
-                                            <div className="text-sm text-gray-900">
+                                        <td className="px-6 py-5">
+                                            <div className="text-sm font-medium text-gray-900">
                                                 {infra.localizacao.provincia}
                                             </div>
-                                            <div className="flex items-center text-xs text-gray-500 mt-1">
-                                                <MapPin size={'12'} ></MapPin>  {infra.localizacao.municipio}
+                                            <div className="flex items-center text-xs text-purple-600 mt-1 font-medium">
+                                                <Map className="w-3 h-3 mr-1" />
+                                                {infra.localizacao.municipio}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm text-gray-900">
-
-                                                <div className="text-xs text-gray-900">{infra.caracteristicas_tecnicas.capacidade}</div>
+                                        <td className="px-6 py-5">
+                                            <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                                                <div className="flex items-center text-sm font-semibold text-gray-900">
+                                                    <Warehouse className="w-4 h-4 mr-2 text-orange-500" />
+                                                    {infra.caracteristicas_tecnicas.capacidade}
+                                                </div>
                                             </div>
                                         </td>
-
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm text-gray-900">
-                                                <div>{infra.utilizacao.beneficiarios_directos}</div>
-                                                <div className="text-xs text-gray-500">{infra.utilizacao.frequencia_utilizacao}</div>
+                                        <td className="px-6 py-5">
+                                            <div className="space-y-1">
+                                                <div className="flex items-center text-sm font-medium text-gray-900">
+                                                    <Users className="w-4 h-4 mr-2 text-emerald-500" />
+                                                    {infra.utilizacao.beneficiarios_directos}
+                                                </div>
+                                                <div className="flex items-center text-xs text-indigo-600 font-medium">
+                                                    <Clock className="w-3 h-3 mr-1" />
+                                                    {infra.utilizacao.frequencia_utilizacao}
+                                                </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`px-3 py-1.5 rounded-full text-xs font-medium border ${getEstadoColor(infra.caracteristicas_tecnicas.estado_conservacao)}`}>
+                                        <td className="px-6 py-5">
+                                            <span className={`inline-flex items-center px-3 py-2 rounded-full text-xs font-semibold shadow-sm ${getEstadoColor(infra.caracteristicas_tecnicas.estado_conservacao)}`}>
+                                                {infra.caracteristicas_tecnicas.estado_conservacao === 'Bom' && <CheckCircle className="w-3 h-3 mr-1" />}
+                                                {infra.caracteristicas_tecnicas.estado_conservacao === 'Razoável' && <Clock className="w-3 h-3 mr-1" />}
+                                                {infra.caracteristicas_tecnicas.estado_conservacao === 'Mau' && <AlertCircle className="w-3 h-3 mr-1" />}
                                                 {infra.caracteristicas_tecnicas.estado_conservacao}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex items-center justify-center space-x-1">
+                                        <td className="px-6 py-5">
+                                            <div className="flex items-center justify-center space-x-2">
                                                 <button
                                                     onClick={() => handleViewInfraestrutura(infra.id)}
-                                                    className="p-2 hover:bg-blue-100 text-blue-600 hover:text-blue-800 rounded-full transition-colors"
+                                                    className="p-2.5 bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 rounded-lg transition-all duration-200 hover:shadow-md group/btn"
                                                     title="Visualizar"
                                                 >
-                                                    <Eye className="w-5 h-5" />
+                                                    <Eye className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
                                                 </button>
-
                                                 <button
                                                     onClick={() => openDeleteModal(infra.id)}
-                                                    className="p-2 hover:bg-red-100 text-red-600 hover:text-red-800 rounded-full transition-colors"
+                                                    className="p-2.5 bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 rounded-lg transition-all duration-200 hover:shadow-md group/btn"
                                                     title="Remover"
                                                 >
-                                                    <Trash2 className="w-5 h-5" />
+                                                    <Trash2 className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
                                                 </button>
                                             </div>
                                         </td>

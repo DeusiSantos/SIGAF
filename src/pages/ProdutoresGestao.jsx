@@ -851,11 +851,11 @@ const ProdutoresGestao = () => {
 
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex flex-col items-start space-y-2">
-                                                    <div className="flex items-start text-xs text-gray-700">
+                                                    <div className="flex items-start text-xs uppercase text-gray-700">
                                                         <MapPin className="w-4 h-4 mr-2 text-blue-500" />
                                                         {produtor.municipio}, {produtor.provincia}
                                                     </div>
-                                                    <div className="text-xs text-gray-600">
+                                                    <div className="text-xs uppercase text-gray-600">
                                                         {produtor.bairro}
                                                     </div>
                                                     <div className="text-xs text-gray-500">
