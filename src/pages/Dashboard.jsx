@@ -276,13 +276,40 @@ const Dashboard = () => {
     { value: 'cuanza_sul', label: 'Cuanza Sul' }
   ];
 
-  // Buscar total de produtores aprovados
+  // Buscar total de produtores aprovados com filtro por província
   useEffect(() => {
     const fetchAprovados = async () => {
       try {
-        const resposta = await api.get('/dashboard/totalDeProdutorAprovado');
+        let endpoint = '/dashboard/totalDeProdutorAprovado';
+        
+        if (selectedProvince !== 'todas') {
+          const provinciaMap = {
+            'luanda': 'Luanda',
+            'benguela': 'Benguela', 
+            'huila': 'Huíla',
+            'bie': 'Bié',
+            'malanje': 'Malanje',
+            'huambo': 'Huambo',
+            'cabinda': 'Cabinda',
+            'zaire': 'Zaire',
+            'uige': 'Uíge',
+            'cunene': 'Cunene',
+            'namibe': 'Namibe',
+            'lunda_norte': 'Lunda Norte',
+            'lunda_sul': 'Lunda Sul',
+            'moxico': 'Moxico',
+            'cuando_cubango': 'Cuando Cubango',
+            'bengo': 'Bengo',
+            'cuanza_norte': 'Cuanza Norte',
+            'cuanza_sul': 'Cuanza Sul'
+          };
+          const nomeProvinciaCompleto = provinciaMap[selectedProvince];
+          endpoint += `?provincia=${encodeURIComponent(nomeProvinciaCompleto)}`;
+        }
+
+        const resposta = await api.get(endpoint);
         setTotalAprovados(resposta.data || 0);
-        console.log('Total aprovados:', resposta.data);
+        console.log('Total aprovados:', resposta.data, 'provincia:', selectedProvince);
       } catch (error) {
         console.error('Erro ao buscar aprovados:', error);
         setTotalAprovados(481200); // Fallback
@@ -290,15 +317,42 @@ const Dashboard = () => {
     };
 
     fetchAprovados();
-  }, []);
+  }, [selectedProvince]);
 
-  // Buscar total de produtores
+  // Buscar total de produtores com filtro por província
   useEffect(() => {
     const fetchTotal = async () => {
       try {
-        const resposta = await api.get('/dashboard/totalDeProdutores');
+        let endpoint = '/dashboard/totalDeProdutores';
+        
+        if (selectedProvince !== 'todas') {
+          const provinciaMap = {
+            'luanda': 'Luanda',
+            'benguela': 'Benguela', 
+            'huila': 'Huíla',
+            'bie': 'Bié',
+            'malanje': 'Malanje',
+            'huambo': 'Huambo',
+            'cabinda': 'Cabinda',
+            'zaire': 'Zaire',
+            'uige': 'Uíge',
+            'cunene': 'Cunene',
+            'namibe': 'Namibe',
+            'lunda_norte': 'Lunda Norte',
+            'lunda_sul': 'Lunda Sul',
+            'moxico': 'Moxico',
+            'cuando_cubango': 'Cuando Cubango',
+            'bengo': 'Bengo',
+            'cuanza_norte': 'Cuanza Norte',
+            'cuanza_sul': 'Cuanza Sul'
+          };
+          const nomeProvinciaCompleto = provinciaMap[selectedProvince];
+          endpoint += `?provincia=${encodeURIComponent(nomeProvinciaCompleto)}`;
+        }
+
+        const resposta = await api.get(endpoint);
         setTotalProdutores(resposta.data || 0);
-        console.log('Total produtores:', resposta.data);
+        console.log('Total produtores:', resposta.data, 'provincia:', selectedProvince);
       } catch (error) {
         console.error('Erro ao buscar total:', error);
         setTotalProdutores(523450); // Fallback
@@ -306,15 +360,42 @@ const Dashboard = () => {
     };
 
     fetchTotal();
-  }, []);
+  }, [selectedProvince]);
 
-  // Buscar total de pecuária
+  // Buscar total de pecuária com filtro por província
   useEffect(() => {
     const fetchPecuaria = async () => {
       try {
-        const resposta = await api.get('/dashboard/totalPecuaria');
+        let endpoint = '/dashboard/totalPecuaria';
+        
+        if (selectedProvince !== 'todas') {
+          const provinciaMap = {
+            'luanda': 'Luanda',
+            'benguela': 'Benguela', 
+            'huila': 'Huíla',
+            'bie': 'Bié',
+            'malanje': 'Malanje',
+            'huambo': 'Huambo',
+            'cabinda': 'Cabinda',
+            'zaire': 'Zaire',
+            'uige': 'Uíge',
+            'cunene': 'Cunene',
+            'namibe': 'Namibe',
+            'lunda_norte': 'Lunda Norte',
+            'lunda_sul': 'Lunda Sul',
+            'moxico': 'Moxico',
+            'cuando_cubango': 'Cuando Cubango',
+            'bengo': 'Bengo',
+            'cuanza_norte': 'Cuanza Norte',
+            'cuanza_sul': 'Cuanza Sul'
+          };
+          const nomeProvinciaCompleto = provinciaMap[selectedProvince];
+          endpoint += `?provincia=${encodeURIComponent(nomeProvinciaCompleto)}`;
+        }
+
+        const resposta = await api.get(endpoint);
         setTotalPecuaria(resposta.data || 0);
-        console.log('Total pecuária:', resposta.data);
+        console.log('Total pecuária:', resposta.data, 'provincia:', selectedProvince);
       } catch (error) {
         console.error('Erro ao buscar pecuária:', error);
         setTotalPecuaria(89300); // Fallback
@@ -322,15 +403,42 @@ const Dashboard = () => {
     };
 
     fetchPecuaria();
-  }, []);
+  }, [selectedProvince]);
 
-  // Buscar total de produtor florestal
+  // Buscar total de produtor florestal com filtro por província
   useEffect(() => {
     const fetchFlorestal = async () => {
       try {
-        const resposta = await api.get('/dashboard/totalProdutorFlorestal');
+        let endpoint = '/dashboard/totalProdutorFlorestal';
+        
+        if (selectedProvince !== 'todas') {
+          const provinciaMap = {
+            'luanda': 'Luanda',
+            'benguela': 'Benguela', 
+            'huila': 'Huíla',
+            'bie': 'Bié',
+            'malanje': 'Malanje',
+            'huambo': 'Huambo',
+            'cabinda': 'Cabinda',
+            'zaire': 'Zaire',
+            'uige': 'Uíge',
+            'cunene': 'Cunene',
+            'namibe': 'Namibe',
+            'lunda_norte': 'Lunda Norte',
+            'lunda_sul': 'Lunda Sul',
+            'moxico': 'Moxico',
+            'cuando_cubango': 'Cuando Cubango',
+            'bengo': 'Bengo',
+            'cuanza_norte': 'Cuanza Norte',
+            'cuanza_sul': 'Cuanza Sul'
+          };
+          const nomeProvinciaCompleto = provinciaMap[selectedProvince];
+          endpoint += `?provincia=${encodeURIComponent(nomeProvinciaCompleto)}`;
+        }
+
+        const resposta = await api.get(endpoint);
         setTotalProdutorFlorestal(resposta.data || 0);
-        console.log('Total produtor florestal:', resposta.data);
+        console.log('Total produtor florestal:', resposta.data, 'provincia:', selectedProvince);
       } catch (error) {
         console.error('Erro ao buscar produtor florestal:', error);
         setTotalProdutorFlorestal(45600); // Fallback
@@ -338,15 +446,42 @@ const Dashboard = () => {
     };
 
     fetchFlorestal();
-  }, []);
+  }, [selectedProvince]);
 
-  // Buscar total de aquicultura
+  // Buscar total de aquicultura com filtro por província
   useEffect(() => {
     const fetchAquicultura = async () => {
       try {
-        const resposta = await api.get('/dashboard/totalAquicultura');
+        let endpoint = '/dashboard/totalAquicultura';
+        
+        if (selectedProvince !== 'todas') {
+          const provinciaMap = {
+            'luanda': 'Luanda',
+            'benguela': 'Benguela', 
+            'huila': 'Huíla',
+            'bie': 'Bié',
+            'malanje': 'Malanje',
+            'huambo': 'Huambo',
+            'cabinda': 'Cabinda',
+            'zaire': 'Zaire',
+            'uige': 'Uíge',
+            'cunene': 'Cunene',
+            'namibe': 'Namibe',
+            'lunda_norte': 'Lunda Norte',
+            'lunda_sul': 'Lunda Sul',
+            'moxico': 'Moxico',
+            'cuando_cubango': 'Cuando Cubango',
+            'bengo': 'Bengo',
+            'cuanza_norte': 'Cuanza Norte',
+            'cuanza_sul': 'Cuanza Sul'
+          };
+          const nomeProvinciaCompleto = provinciaMap[selectedProvince];
+          endpoint += `?provincia=${encodeURIComponent(nomeProvinciaCompleto)}`;
+        }
+
+        const resposta = await api.get(endpoint);
         setTotalAquicultura(resposta.data || 0);
-        console.log('Total aquicultura:', resposta.data);
+        console.log('Total aquicultura:', resposta.data, 'provincia:', selectedProvince);
       } catch (error) {
         console.error('Erro ao buscar aquicultura:', error);
         setTotalAquicultura(31850); // Fallback
@@ -354,31 +489,85 @@ const Dashboard = () => {
     };
 
     fetchAquicultura();
-  }, []);
+  }, [selectedProvince]);
 
-  // Buscar total de agricultura
+  // Buscar total de agricultura com filtro por província
   useEffect(() => {
     const fetchAgricultura = async () => {
       try {
-        const resposta = await api.get('/dashboard/totalAgricultura');
+        let endpoint = '/dashboard/totalAgricultura';
+        
+        if (selectedProvince !== 'todas') {
+          const provinciaMap = {
+            'luanda': 'Luanda',
+            'benguela': 'Benguela', 
+            'huila': 'Huíla',
+            'bie': 'Bié',
+            'malanje': 'Malanje',
+            'huambo': 'Huambo',
+            'cabinda': 'Cabinda',
+            'zaire': 'Zaire',
+            'uige': 'Uíge',
+            'cunene': 'Cunene',
+            'namibe': 'Namibe',
+            'lunda_norte': 'Lunda Norte',
+            'lunda_sul': 'Lunda Sul',
+            'moxico': 'Moxico',
+            'cuando_cubango': 'Cuando Cubango',
+            'bengo': 'Bengo',
+            'cuanza_norte': 'Cuanza Norte',
+            'cuanza_sul': 'Cuanza Sul'
+          };
+          const nomeProvinciaCompleto = provinciaMap[selectedProvince];
+          endpoint += `?provincia=${encodeURIComponent(nomeProvinciaCompleto)}`;
+        }
+
+        const resposta = await api.get(endpoint);
         setTotalAgricultura(resposta.data || 0);
-        console.log('Total agricultura:', resposta.data);
+        console.log('Total agricultura:', resposta.data, 'provincia:', selectedProvince);
       } catch (error) {
         console.error('Erro ao buscar agricultura:', error);
-        // Calcular baseado nos outros dados se não houver endpoint específico
         setTotalAgricultura(356700); // Fallback
       }
     };
 
     fetchAgricultura();
-  }, []);
+  }, [selectedProvince]);
 
-  // Buscar dados de gênero
+  // Buscar dados de gênero com filtro por província
   useEffect(() => {
     const fetchGeneroData = async () => {
       try {
         setLoadingGenero(true);
-        const resposta = await api.get('/dashboard/totalFemenino');
+        let endpoint = '/dashboard/totalFemenino';
+        
+        // Adicionar filtro por província se selecionada
+        if (selectedProvince !== 'todas') {
+          const provinciaMap = {
+            'luanda': 'Luanda',
+            'benguela': 'Benguela', 
+            'huila': 'Huíla',
+            'bie': 'Bié',
+            'malanje': 'Malanje',
+            'huambo': 'Huambo',
+            'cabinda': 'Cabinda',
+            'zaire': 'Zaire',
+            'uige': 'Uíge',
+            'cunene': 'Cunene',
+            'namibe': 'Namibe',
+            'lunda_norte': 'Lunda Norte',
+            'lunda_sul': 'Lunda Sul',
+            'moxico': 'Moxico',
+            'cuando_cubango': 'Cuando Cubango',
+            'bengo': 'Bengo',
+            'cuanza_norte': 'Cuanza Norte',
+            'cuanza_sul': 'Cuanza Sul'
+          };
+          const nomeProvinciaCompleto = provinciaMap[selectedProvince];
+          endpoint += `?provincia=${encodeURIComponent(nomeProvinciaCompleto)}`;
+        }
+
+        const resposta = await api.get(endpoint);
         const formularios = resposta.data;
 
         const totalMasculinos = formularios.filter(f => f.sexo === 'Masculino').length;
@@ -387,7 +576,7 @@ const Dashboard = () => {
         setMasculino(totalMasculinos);
         setFeminino(totalFemininos);
 
-        console.log('Dados de gênero:', { masculino: totalMasculinos, feminino: totalFemininos });
+        console.log('Dados de gênero:', { masculino: totalMasculinos, feminino: totalFemininos, provincia: selectedProvince });
       } catch (error) {
         console.error('Erro ao buscar dados de gênero:', error);
         // Fallback baseado no total de produtores
@@ -398,10 +587,8 @@ const Dashboard = () => {
       }
     };
 
-    if (totalProdutores > 0) {
-      fetchGeneroData();
-    }
-  }, [totalProdutores]);
+    fetchGeneroData();
+  }, [selectedProvince, totalProdutores]);
 
   // Buscar certificados
   useEffect(() => {
@@ -444,7 +631,7 @@ const Dashboard = () => {
     }
   }, [totalPecuaria, totalAgricultura, totalProdutorFlorestal, totalAquicultura]);
 
-  // Calcular dados filtrados por província
+  // Calcular dados filtrados (agora os dados já vêm filtrados da API)
   const dadosFiltrados = useMemo(() => {
     let base = {
       totalProdutores,
@@ -459,99 +646,8 @@ const Dashboard = () => {
       projetos
     };
 
-    // Filtro por província
-    if (selectedProvince !== 'todas') {
-      // Ajuste para comparar corretamente
-      const provincia = mockAgricultureData.dadosPorProvincia.find(
-        p => p.nome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '_') === selectedProvince
-      );
-
-      if (provincia) {
-        const fatorTotal = provincia.produtores / mockAgricultureData.estatisticasGerais.totalProdutores;
-        const fatorAprovados = provincia.registros / mockAgricultureData.estatisticasGerais.totalRegistrosAprovados;
-
-        base = {
-          totalProdutores: provincia.produtores,
-          totalAprovados: provincia.registros,
-          totalPecuaria: Math.round(totalPecuaria * fatorTotal),
-          totalAgricultura: Math.round(totalAgricultura * fatorTotal),
-          totalProdutorFlorestal: Math.round(totalProdutorFlorestal * fatorTotal),
-          totalAquicultura: Math.round(totalAquicultura * fatorTotal),
-          masculino: Math.round(masculino * fatorTotal),
-          feminino: Math.round(feminino * fatorTotal),
-          certificados: Math.round(certificados * fatorAprovados),
-          projetos: Math.round(projetos * fatorTotal)
-        };
-      } else {
-        base = Object.fromEntries(Object.keys(base).map(key => [key, 0]));
-      }
-    }
-
-    // Filtro por estado
-    if (selectedEstado === 'aprovados') {
-      base.totalProdutores = base.totalAprovados;
-      const fatorGenero = base.totalAprovados / (base.masculino + base.feminino);
-      base.masculino = Math.round(base.masculino * fatorGenero);
-      base.feminino = Math.round(base.feminino * fatorGenero);
-    } else if (selectedEstado === 'pendentes') {
-      base.totalAprovados = 0;
-      const pendentes = base.totalProdutores - base.totalAprovados;
-      const fatorGenero = pendentes / (base.masculino + base.feminino);
-      base.masculino = Math.round(base.masculino * fatorGenero);
-      base.feminino = Math.round(base.feminino * fatorGenero);
-    }
-
-    // Filtro por atividade
-    if (selectedAtividade !== 'todos') {
-      const atividadeMap = {
-        'agricultura': 'totalAgricultura',
-        'pecuaria': 'totalPecuaria',
-        'florestal': 'totalProdutorFlorestal',
-        'aquicultura': 'totalAquicultura'
-      };
-
-      const chave = atividadeMap[selectedAtividade];
-      if (chave) {
-        const totalAtividadeSelecionada = base[chave];
-        const totalAtividades = base.totalAgricultura + base.totalPecuaria +
-          base.totalProdutorFlorestal + base.totalAquicultura;
-
-        if (totalAtividades > 0) {
-          const fator = totalAtividadeSelecionada / totalAtividades;
-          Object.keys(base).forEach(key => {
-            if (typeof base[key] === 'number' && key !== chave) {
-              base[key] = Math.round(base[key] * fator);
-            }
-          });
-          base[chave] = totalAtividadeSelecionada;
-        }
-      }
-    }
-
-    // Filtro por período
-    if (selectedPeriodo !== 'todos') {
-      const fatores = {
-        'ultimomes': 0.1,
-        'ultimos3meses': 0.3,
-        'ultimosano': 0.6
-      };
-      const fator = fatores[selectedPeriodo] || 1;
-      Object.keys(base).forEach(k => {
-        if (typeof base[k] === 'number') {
-          base[k] = Math.round(base[k] * fator);
-        }
-      });
-    }
-
-    Object.keys(base).forEach(k => {
-      if (typeof base[k] === 'number') {
-        base[k] = Math.max(0, base[k]);
-      }
-    });
-
     return base;
   }, [
-    selectedProvince, selectedPeriodo, selectedEstado, selectedAtividade,
     totalProdutores, totalAprovados, totalPecuaria, totalAgricultura,
     totalProdutorFlorestal, totalAquicultura, masculino, feminino,
     certificados, projetos
@@ -708,9 +804,9 @@ const Dashboard = () => {
               </button>
             </div>
 
-            {/* Controles do Header 
+            {/* Controles do Header  */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-              {/* Seletor de Província 
+              {/* Seletor de Província  */}
               <div className="relative">
                 <label className="block text-xs font-medium text-gray-700 mb-1">
                   Filtrar por Província
@@ -726,7 +822,7 @@ const Dashboard = () => {
                   <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                 </div>
               </div>
-              {/* Filtros 
+              {/* Filtros  */}
               <button
                 onClick={() => setShowFilters(!showFilters)}
                 className="flex items-center mt-4 space-x-2 px-3 py-2 text-gray-600 hover:text-gray-900 transition-colors border rounded-lg"
@@ -737,14 +833,14 @@ const Dashboard = () => {
               </button>
 
 
-              </div> */}
+              </div>
           </div>
 
           {/* Filtros Expandidos */}
-          {/*showFilters && (
+          {showFilters && (
             <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Período 
+                {/* Período */ }
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Período
@@ -757,7 +853,7 @@ const Dashboard = () => {
                   />
                 </div>
 
-                {/* Estado 
+                {/* Estado { */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Estado
@@ -770,7 +866,7 @@ const Dashboard = () => {
                   />
                 </div>
 
-                {/* Actividade 
+                {/* Actividade {*/}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Actividade
@@ -784,7 +880,7 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
-          )*/}
+          )}
         </div>
       </div>
 

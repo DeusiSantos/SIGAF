@@ -46,6 +46,7 @@ import TesteAmostrasSolo from './pages/InfraEstrutura/TesteAmostrasSolo';
 import AmostrasDeSoloMenu from './Layout/other/AmostrasDeSoloMenu';
 import SancoesMenu from './Layout/other/SancoesMenu';
 import EmpresasMenu from './pages/SociedadeAgricola/EmpresasMenu';
+import VisualizarProdutorFlorestal from './pages/VisualizarProdutorFlorestal';
 //import VisualizarProdutorFlorestal from './pages/VisualizarProdutorFlorestal';
 
 
@@ -100,7 +101,7 @@ function App() {
             <Route path="produtoresflorestais" element={<GestaoProdutoresFlorestais />} />
             <Route path="licencas" element={<LicencaMenu />} />
             <Route path="fiscalizacao" element={<GestaoFiscalizacao />} />
-            {/*<Route path='visualizarprodutorflorestal/:id' element={<VisualizarProdutorFlorestal />} />   */}
+            <Route path='visualizarprodutorflorestal/:id' element={<VisualizarProdutorFlorestal />} />   
             <Route path="certificacaoFlorestal" element={< CertificacaoProdutorFlorestal />} />
             <Route path="registo-individual" element={<h1 className="text-2xl font-semibold">Registo Individual de Produtor</h1>} />
             <Route path="registo-familiar" element={<h1 className="text-2xl font-semibold">Registo de Agregado Familiar</h1>} />

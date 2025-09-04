@@ -233,7 +233,7 @@ const ProdutoresGestao = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedStatus, setSelectedStatus] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage,] = useState(1);
     const [toastMessage, setToastMessage] = useState(null);
     const [toastTimeout, setToastTimeout] = useState(null);
     const [contentHeight, setContentHeight] = useState('calc(100vh - 12rem)');
