@@ -11,7 +11,9 @@ import {
   Building,
   ShieldAlert,
   Scale,
-  Gavel
+  Gavel,
+  Factory,
+  Landmark
 } from 'lucide-react';
 
 
@@ -116,13 +118,13 @@ const rnpaRoutes = {
       { text: 'Validação da Produção', icon: Shield, path: '/GerenciaRNPA/gestao-florestal/workflow' },
       { text: 'Emissão de Certificado digital', icon: Award, path: '/GerenciaRNPA/gestao-florestal/certificados' },
       { text: 'Certificação Florestal', icon: File, path: '/GerenciaRNPA/gestao-florestal/certificacaoFlorestal' },
-      { text: 'Sanções', icon: Gavel, path: '/GerenciaRNPA/sancoes' },
+      { text: 'Transgreções', icon: Gavel, path: '/GerenciaRNPA/sancoes' },
       //{ text: 'Certificação da Qualidade do Produto', icon: Search, path: '/GerenciaRNPA/gestao-agricultores/verificacao' },
       //{ text: 'Geolocalização', icon: MapPin, path: '/GerenciaRNPA/gestao-agricultores/geolocalizacao' },
     ],
     'Infraestrutura': [
-      { text: 'Irrigacao', icon: Building , path: '/GerenciaRNPA/gestao-infraestrutura/Irrigacao' },
-      { text: 'AmostrasDeSolo', icon: Building , path: '/GerenciaRNPA/gestao-infraestrutura/AmostrasDeSolo' },
+      { text: 'Irrigaçao', icon: Building , path: '/GerenciaRNPA/gestao-infraestrutura/Irrigacao' },
+      { text: 'Amostras de Solo', icon: Building , path: '/GerenciaRNPA/gestao-infraestrutura/AmostrasDeSolo' },
       { text: 'Apoio Agrícola', icon: Tractor , path: '/GerenciaRNPA/gestao-infraestrutura/apoio-agricola' },
      
     ],
@@ -135,7 +137,7 @@ const rnpaRoutes = {
     'Entidades Associativas': [
       { text: 'Cooperativas', icon: Building2, path: '/GerenciaRNPA/entidades-associativas/cooperativas' },
       { text: 'Associações Rurais', icon: TreePine, path: '/GerenciaRNPA/entidades-associativas/associacoes' },
-
+      { text: 'Empresas', icon: Landmark, path: '/GerenciaRNPA/entidades-associativas/empresas' },
       //{ text: 'Documentos Legais', icon: FileText, path: '/GerenciaRNPA/entidades-associativas/documentos' },
       //{ text: 'Membros', icon: Users, path: '/GerenciaRNPA/entidades-associativas/membros' },
       //{ text: 'Histórico de Projectos', icon: Calendar, path: '/GerenciaRNPA/entidades-associativas/projectos' }

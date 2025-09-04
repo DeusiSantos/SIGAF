@@ -365,7 +365,7 @@ const GestaoApoioAgricola = () => {
 
             {/* Indicadores do topo */}
             <div className="w-full flex justify-center bg-transparent pb-[30px] pt-2">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 w-full">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
                     <div className="bg-white rounded-xl shadow-md p-6">
                         <div className="flex items-center">
                             <div className="p-3 bg-blue-100 rounded-full">

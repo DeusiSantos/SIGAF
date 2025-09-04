@@ -43,11 +43,13 @@ import {
   ClipboardCheck,
   Eye,
   Download,
+  X,
 } from 'lucide-react';
 
 import CustomInput from '../../components/CustomInput';
 import provinciasData from '../../components/Provincias.json'
 import { useProdutoresAprovados } from '../../hooks/useRnpaData';
+import axios from 'axios';
 
 const CertificacaoProdutor = () => {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -58,6 +60,16 @@ const CertificacaoProdutor = () => {
   const [toastMessage, setToastMessage] = useState(null);
   const [produtorSelecionado, setProdutorSelecionado] = useState(null);
   const [modoBusca, setModoBusca] = useState(true);
+
+  // Estados para consulta de documentos
+  const [tipoDocumento, setTipoDocumento] = useState('');
+  const [numeroBI, setNumeroBI] = useState('');
+  const [numeroNIF, setNumeroNIF] = useState('');
+  const [consultingBI, setConsultingBI] = useState(false);
+  const [consultingNif, setConsultingNif] = useState(false);
+  const [biData, setBiData] = useState(null);
+  const [nifData, setNifData] = useState(null);
+  const [consultaTimeout, setConsultaTimeout] = useState(null);
 
   // Hook para buscar produtores aprovados
   const { produtor: produtoresAprovados, loading: loadingProdutores } = useProdutoresAprovados();
@@ -89,7 +101,11 @@ const CertificacaoProdutor = () => {
     validadeFim: '',
     observacoesTecnicas: '',
     tecnicoResponsavel: '',
-    numeroProcesso: Math.floor(100000 + Math.random() * 900000)
+    numeroProcesso: Math.floor(100000 + Math.random() * 900000),
+    proprietario_instituicao: '',
+    email: '',
+    contacto: '',
+    numeroNIF: ''
   };
 
   const [formData, setFormData] = useState(initialState);
@@ -139,12 +155,25 @@ const CertificacaoProdutor = () => {
             newErrors.produtorSelecionado = 'Selecione um produtor existente';
           }
         } else {
-          // Modo novo cadastro - campos básicos obrigatórios
-          if (!hasValidValue(formData.nomeCompleto)) {
-            newErrors.nomeCompleto = 'Campo obrigatório';
-          }
-          if (!hasValidValue(formData.bi)) {
-            newErrors.bi = 'Campo obrigatório';
+          // Modo novo cadastro - validar baseado no tipo de documento
+          if (tipoDocumento === 'BI' || tipoDocumento === 'NIF') {
+            // Se tem tipo de documento selecionado, deve ter dados consultados ou preenchidos manualmente
+            if (!biData && !nifData) {
+              if (!hasValidValue(formData.nomeCompleto)) {
+                newErrors.nomeCompleto = 'Campo obrigatório';
+              }
+              if (!hasValidValue(formData.bi)) {
+                newErrors.bi = 'Campo obrigatório';
+              }
+            }
+          } else {
+            // Se não selecionou tipo de documento, campos básicos são obrigatórios
+            if (!hasValidValue(formData.nomeCompleto)) {
+              newErrors.nomeCompleto = 'Campo obrigatório';
+            }
+            if (!hasValidValue(formData.bi)) {
+              newErrors.bi = 'Campo obrigatório';
+            }
           }
         }
         console.log('❌ Erros encontrados:', newErrors);
@@ -166,13 +195,13 @@ const CertificacaoProdutor = () => {
         // if (!hasValidValue(formData.municipio)) {
         //   newErrors.municipio = 'Campo obrigatório';
         // }
-        
+
         // // Validação específica para telefone (deve ter pelo menos 9 dígitos)
         // const telefoneValue = getDisplayValue(formData.telefone);
         // if (telefoneValue && telefoneValue.replace(/\D/g, '').length < 9) {
         //   newErrors.telefone = 'Telefone deve ter pelo menos 9 dígitos';
         // }
-        
+
         console.log('❌ Erros encontrados:', newErrors);
         break;
 
@@ -180,16 +209,16 @@ const CertificacaoProdutor = () => {
         if (!hasValidValue(formData.localizacaoGeografica)) {
           newErrors.localizacaoGeografica = 'Campo obrigatório';
         }
-        
+
         const areaValue = getDisplayValue(formData.areaTotalExplorada);
         if (!areaValue || parseFloat(areaValue) <= 0) {
           newErrors.areaTotalExplorada = 'Área deve ser maior que zero';
         }
-        
+
         if (!hasValidValue(formData.atividadePrincipal)) {
           newErrors.atividadePrincipal = 'Campo obrigatório';
         }
-        
+
         // Validação de coordenadas GPS (opcional, mas se preenchida deve ser válida)
         const coordenadas = getDisplayValue(formData.coordenadasGPS);
         if (coordenadas && coordenadas.trim() !== '') {
@@ -198,7 +227,7 @@ const CertificacaoProdutor = () => {
             newErrors.coordenadasGPS = 'Formato inválido. Use: latitude, longitude (ex: -8.838333, 13.234444)';
           }
         }
-        
+
         console.log('❌ Erros encontrados:', newErrors);
         break;
 
@@ -206,7 +235,7 @@ const CertificacaoProdutor = () => {
         // Validação condicional: se a atividade principal inclui agricultura, deve ter pelo menos uma produção
         const atividadeValue = getDisplayValue(formData.atividadePrincipal);
         const temAgricultura = atividadeValue === 'AGRICULTURA' || atividadeValue === 'MISTA';
-        
+
         if (temAgricultura && producaoAgricola.length === 0) {
           newErrors.producaoAgricola = 'Adicione pelo menos uma produção agrícola para atividades que incluem agricultura';
         }
@@ -231,7 +260,7 @@ const CertificacaoProdutor = () => {
         // Validação condicional: se a atividade principal inclui pecuária, deve ter pelo menos uma produção
         const atividadeValuePec = getDisplayValue(formData.atividadePrincipal);
         const temPecuaria = atividadeValuePec === 'PECUARIA' || atividadeValuePec === 'MISTA';
-        
+
         if (temPecuaria && producaoPecuaria.length === 0) {
           newErrors.producaoPecuaria = 'Adicione pelo menos uma produção pecuária para atividades que incluem pecuária';
         }
@@ -276,31 +305,31 @@ const CertificacaoProdutor = () => {
         if (!hasValidValue(formData.validadeFim)) {
           newErrors.validadeFim = 'Campo obrigatório';
         }
-        
+
         // Validar se data de fim é posterior à data de início
         const dataInicio = getDisplayValue(formData.validadeInicio);
         const dataFim = getDisplayValue(formData.validadeFim);
-        
+
         if (dataInicio && dataFim) {
           const inicio = new Date(dataInicio);
           const fim = new Date(dataFim);
-          
+
           if (fim <= inicio) {
             newErrors.validadeFim = 'Data de validade final deve ser posterior à data inicial';
           }
-          
+
           // Validar se a data de início não é anterior a hoje
           const hoje = new Date();
           hoje.setHours(0, 0, 0, 0);
-          
+
           if (inicio < hoje) {
             newErrors.validadeInicio = 'Data de início não pode ser anterior a hoje';
           }
-          
+
           // Validar se o período de validade não excede 2 anos
           const diffTime = fim.getTime() - inicio.getTime();
           const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-          
+
           if (diffDays > 730) { // 2 anos
             newErrors.validadeFim = 'Período de validade não pode exceder 2 anos';
           }
@@ -314,7 +343,7 @@ const CertificacaoProdutor = () => {
         // Validar se há pelo menos uma produção registrada (agrícola ou pecuária)
         const temProducaoAgricola = producaoAgricola && producaoAgricola.length > 0;
         const temProducaoPecuaria = producaoPecuaria && producaoPecuaria.length > 0;
-        
+
         if (!temProducaoAgricola && !temProducaoPecuaria) {
           newErrors.producaoGeral = 'É necessário ter pelo menos uma produção registrada (agrícola ou pecuária) para emitir o certificado';
         }
@@ -330,7 +359,7 @@ const CertificacaoProdutor = () => {
   const handleInputChange = (field, value) => {
     setTouched(prev => ({ ...prev, [field]: true }));
     setFormData(prev => ({ ...prev, [field]: value }));
-    
+
     // Limpar erro do campo quando ele é alterado
     if (errors[field]) {
       setErrors(prev => {
@@ -443,6 +472,272 @@ const CertificacaoProdutor = () => {
     };
   });
 
+  // Função para consultar NIF na API
+  const consultarNIF = async (nifValue) => {
+    if (!nifValue || nifValue.length < 9) return;
+
+    setConsultingNif(true);
+
+    try {
+      const username = 'minagrif';
+      const password = 'Nz#$20!23Mg';
+      const credentials = btoa(`${username}:${password}`);
+
+      const response = await axios.get(`https://api.gov.ao/nif/v1/consultarNIF`, {
+        params: {
+          tipoDocumento: 'NIF',
+          numeroDocumento: nifValue
+        },
+        headers: {
+          'Authorization': `Basic ${credentials}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = response.data;
+      if (response.status === 200 && data.code === 200 && data.data) {
+        const nifInfo = data.data;
+        setNifData(nifInfo);
+
+        setFormData(prev => ({
+          ...prev,
+          nomeCompleto: nifInfo.nome_contribuinte || '',
+          bi: nifValue,
+          telefone: nifInfo.numero_contacto || '',
+          provincia: nifInfo.provincia || '',
+          municipio: nifInfo.municipio || '',
+          proprietario_instituicao: nifInfo.nome_contribuinte || '',
+          email: nifInfo.email || '',
+          contacto: nifInfo.numero_contacto || '',
+          numeroNIF: nifValue,
+        }));
+
+        showToast('success', 'NIF Consultado', 'Dados da entidade responsável preenchidos automaticamente!');
+      } else {
+        setNifData(null);
+        if (data.code === 404) {
+          showToast('warn', 'NIF não encontrado', 'Não foi possível encontrar dados para este NIF. Preencha manualmente.');
+        } else {
+          showToast('warn', 'NIF inválido', 'Este NIF não retornou dados válidos. Verifique o número.');
+        }
+      }
+    } catch (error) {
+      setNifData(null);
+      if (error.response) {
+        showToast('error', 'Erro do servidor', `Erro ${error.response.status}: ${error.response.data?.message || 'Erro na consulta do NIF'}`);
+      } else if (error.request) {
+        showToast('error', 'Erro de conexão', 'Não foi possível conectar ao servidor. Verifique sua conexão.');
+      } else {
+        showToast('error', 'Erro na consulta', 'Erro ao consultar NIF. Tente novamente.');
+      }
+    } finally {
+      setConsultingNif(false);
+    }
+  };
+
+  // Função para consultar BI na API
+  const consultarBI = async (biValue) => {
+    if (!biValue || biValue.length < 9) return;
+
+    setConsultingBI(true);
+
+    try {
+      const username = 'minagrif';
+      const password = 'Nz#$20!23Mg';
+      const credentials = btoa(`${username}:${password}`);
+
+      const response = await axios.get(`https://api.gov.ao/bi/v1/getBI`, {
+        params: {
+          bi: biValue
+        },
+        headers: {
+          'Authorization': `Basic ${credentials}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = response.data;
+      if (response.status === 200 && data.code === 200 && data.data) {
+        const biInfo = data.data;
+        setBiData(biInfo);
+
+        const nomeCompleto = `${biInfo.first_name || ''} ${biInfo.last_name || ''}`.trim();
+        
+        // Mapear província de nascimento
+        let provinciaBI = '';
+        if (biInfo.birth_province_name) {
+          const provinciaEncontrada = provinciasData.find(p => 
+            p.nome.toLowerCase().includes(biInfo.birth_province_name.toLowerCase()) ||
+            biInfo.birth_province_name.toLowerCase().includes(p.nome.toLowerCase())
+          );
+          provinciaBI = provinciaEncontrada ? provinciaEncontrada.nome : biInfo.birth_province_name;
+        }
+        
+        // Mapear município de nascimento
+        let municipioBI = '';
+        if (biInfo.birth_municipality_name && provinciaBI) {
+          const provinciaSelected = provinciasData.find(p => p.nome === provinciaBI);
+          if (provinciaSelected) {
+            try {
+              const municipiosArray = JSON.parse(provinciaSelected.municipios);
+              const municipioEncontrado = municipiosArray.find(m => 
+                m.toLowerCase().includes(biInfo.birth_municipality_name.toLowerCase()) ||
+                biInfo.birth_municipality_name.toLowerCase().includes(m.toLowerCase())
+              );
+              municipioBI = municipioEncontrado || biInfo.birth_municipality_name;
+            } catch (error) {
+              municipioBI = biInfo.birth_municipality_name;
+            }
+          }
+        }
+        
+        setFormData(prev => ({
+          ...prev,
+          nomeCompleto: nomeCompleto,
+          bi: biValue,
+          telefone: '',
+          provincia: provinciaBI,
+          municipio: municipioBI,
+          comuna: '',
+          proprietario_instituicao: nomeCompleto,
+          contacto: '',
+          email: '',
+          numeroBI: biValue,
+        }));
+        
+        // Atualizar municípios se província foi encontrada
+        if (provinciaBI) {
+          const provinciaSelected = provinciasData.find(p => p.nome === provinciaBI);
+          if (provinciaSelected) {
+            try {
+              const municipiosArray = JSON.parse(provinciaSelected.municipios);
+              const municipios = municipiosArray.map(mun => ({
+                label: mun,
+                value: mun
+              }));
+              setMunicipiosOptions(municipios);
+            } catch (error) {
+              console.error("Erro ao processar municípios:", error);
+            }
+          }
+        }
+
+        showToast('success', 'BI Consultado', 'Dados da entidade responsável preenchidos automaticamente!');
+      } else {
+        setBiData(null);
+        if (data.code === 404) {
+          showToast('warn', 'BI não encontrado', 'Não foi possível encontrar dados para este BI. Preencha manualmente.');
+        } else {
+          showToast('warn', 'BI inválido', 'Este BI não retornou dados válidos. Verifique o número.');
+        }
+      }
+    } catch (error) {
+      setBiData(null);
+      if (error.response) {
+        showToast('error', 'Erro do servidor', `Erro ${error.response.status}: ${error.response.data?.message || 'Erro na consulta do BI'}`);
+      } else if (error.request) {
+        showToast('error', 'Erro de conexão', 'Não foi possível conectar ao servidor. Verifique sua conexão.');
+      } else {
+        showToast('error', 'Erro na consulta', 'Erro ao consultar BI. Tente novamente.');
+      }
+    } finally {
+      setConsultingBI(false);
+    }
+  };
+
+  // Função para lidar com mudança no tipo de documento
+  const handleTipoDocumentoChange = (tipo) => {
+    setTipoDocumento(tipo);
+    setNumeroBI('');
+    setNumeroNIF('');
+    setBiData(null);
+    setNifData(null);
+
+    // Limpar dados preenchidos automaticamente
+    setFormData(prev => ({
+      ...prev,
+      nomeCompleto: '',
+      bi: '',
+      telefone: '',
+      provincia: '',
+      municipio: '',
+      comuna: '',
+      proprietario_instituicao: '',
+      email: '',
+      contacto: '',
+      numeroBI: '',
+      numeroNIF: ''
+    }));
+    setMunicipiosOptions([]);
+  };
+
+  // Função para lidar com mudança no número do BI
+  const handleBIChange = (value) => {
+    setNumeroBI(value);
+
+    // Limpar timeout anterior
+    if (consultaTimeout) {
+      clearTimeout(consultaTimeout);
+    }
+
+    // Definir novo timeout para consulta automática
+    if (value && value.length >= 9) {
+      const timeout = setTimeout(() => {
+        consultarBI(value);
+      }, 1500);
+      setConsultaTimeout(timeout);
+    } else {
+      setBiData(null);
+    }
+  };
+
+  // Função para lidar com mudança no número do NIF
+  const handleNIFChange = (value) => {
+    setNumeroNIF(value);
+
+    // Limpar timeout anterior
+    if (consultaTimeout) {
+      clearTimeout(consultaTimeout);
+    }
+
+    // Definir novo timeout para consulta automática
+    if (value && value.length >= 9) {
+      const timeout = setTimeout(() => {
+        consultarNIF(value);
+      }, 1500);
+      setConsultaTimeout(timeout);
+    } else {
+      setNifData(null);
+    }
+  };
+
+  // Função para limpar dados consultados
+  const limparDadosConsultados = () => {
+    setBiData(null);
+    setNifData(null);
+    setNumeroBI('');
+    setNumeroNIF('');
+    setTipoDocumento('');
+
+    setFormData(prev => ({
+      ...prev,
+      nomeCompleto: '',
+      bi: '',
+      telefone: '',
+      provincia: '',
+      municipio: '',
+      comuna: '',
+      proprietario_instituicao: '',
+      email: '',
+      contacto: '',
+      numeroBI: '',
+      numeroNIF: ''
+    }));
+    setMunicipiosOptions([]);
+
+    showToast('info', 'Dados Limpos', 'Agora você pode preencher manualmente.');
+  };
+
   // Funções para gerenciar tabelas dinâmicas
   const adicionarProducaoAgricola = () => {
     const novaProducao = {
@@ -457,7 +752,7 @@ const CertificacaoProdutor = () => {
       observacoes: ''
     };
     setProducaoAgricola([...producaoAgricola, novaProducao]);
-    
+
     // Limpar erro geral se existir
     if (errors.producaoAgricola) {
       setErrors(prev => {
@@ -476,7 +771,7 @@ const CertificacaoProdutor = () => {
     setProducaoAgricola(producaoAgricola.map(item =>
       item.id === id ? { ...item, [campo]: valor } : item
     ));
-    
+
     // Limpar erros específicos da linha quando alterada
     const index = producaoAgricola.findIndex(item => item.id === id);
     if (index !== -1) {
@@ -502,7 +797,7 @@ const CertificacaoProdutor = () => {
       observacoes: ''
     };
     setProducaoPecuaria([...producaoPecuaria, novaProducao]);
-    
+
     // Limpar erro geral se existir
     if (errors.producaoPecuaria) {
       setErrors(prev => {
@@ -521,7 +816,7 @@ const CertificacaoProdutor = () => {
     setProducaoPecuaria(producaoPecuaria.map(item =>
       item.id === id ? { ...item, [campo]: valor } : item
     ));
-    
+
     // Limpar erros específicos da linha quando alterada
     const index = producaoPecuaria.findIndex(item => item.id === id);
     if (index !== -1) {
@@ -555,7 +850,7 @@ const CertificacaoProdutor = () => {
     setVistorias(vistorias.map(item =>
       item.id === id ? { ...item, [campo]: valor } : item
     ));
-    
+
     // Limpar erros específicos da vistoria quando alterada
     const index = vistorias.findIndex(item => item.id === id);
     if (index !== -1) {
@@ -629,7 +924,7 @@ const CertificacaoProdutor = () => {
                 </button>
                 <button
                   className={`px-6 py-3 rounded-xl font-medium transition-all ${!modoBusca
-                    ? 'bg-green-600 text-white shadow-lg'
+                    ? 'bg-blue-600 text-white shadow-lg'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   onClick={() => {
@@ -637,6 +932,11 @@ const CertificacaoProdutor = () => {
                     setProdutorSelecionado(null);
                     setFormData(initialState);
                     setErrors({});
+                    setTipoDocumento('');
+                    setNumeroBI('');
+                    setNumeroNIF('');
+                    setBiData(null);
+                    setNifData(null);
                   }}
                 >
                   <Plus size={18} className="mr-2 inline" />
@@ -684,16 +984,16 @@ const CertificacaoProdutor = () => {
                   )}
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <h4 className="text-lg font-semibold text-gray-800 mb-4">Novo Produtor</h4>
                   <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
                     <p className="text-blue-700 text-sm">
                       <Info size={18} className="inline mr-2" />
-                      Preencha os dados básicos do novo produtor. Os campos detalhados serão preenchidos nas próximas etapas.
+                      Selecione o tipo de documento e preencha o número para consulta automática dos dados.
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                     <CustomInput
                       type="text"
                       label="Nome Completo"
@@ -705,17 +1005,117 @@ const CertificacaoProdutor = () => {
                       iconStart={<User size={18} />}
                     />
 
+                    {/* Seleção de Tipo de Documento */}
                     <CustomInput
-                      type="text"
-                      label="Número do Bilhete de Identidade"
-                      value={formData.bi}
-                      onChange={(value) => handleInputChange('bi', value)}
-                      required
-                      errorMessage={errors.bi}
-                      placeholder="Digite o número do BI"
-                      iconStart={<CreditCard size={18} />}
+                      type="select"
+                      label="Tipo de Documento"
+                      value={tipoDocumento ? { label: tipoDocumento === 'BI' ? 'Bilhete de Identidade' : 'NIF', value: tipoDocumento } : null}
+                      options={[
+                        { label: 'Bilhete de Identidade', value: 'BI' },
+                        { label: 'NIF', value: 'NIF' }
+                      ]}
+                      onChange={(value) => handleTipoDocumentoChange(typeof value === 'object' ? value.value : value)}
+                      placeholder="Selecione o tipo de documento"
+                      iconStart={<FileText size={18} />}
                     />
+
+                    {/* Campos Condicionais */}
+                    {tipoDocumento === 'BI' && (
+                      <div className="space-y-4">
+                        <div className="relative">
+                          <CustomInput
+                            type="text"
+                            label="Número do Bilhete de Identidade"
+                            value={numeroBI}
+                            onChange={handleBIChange}
+                            placeholder="Digite o número do BI"
+                            iconStart={<CreditCard size={18} />}
+                            helperText="A consulta será feita automaticamente"
+                          />
+                          {consultingBI && (
+                            <div className="absolute right-3 top-9">
+                              <Loader className="animate-spin w-5 h-5 text-blue-600" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Dados do BI Consultado */}
+                        {biData && (
+                          <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center">
+                                <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
+                                <h6 className="font-semibold text-green-800">Dados do BI Consultado</h6>
+                              </div>
+                              <button
+                                onClick={limparDadosConsultados}
+                                className="text-red-600 hover:text-red-800 transition-colors"
+                                title="Limpar dados e preencher manualmente"
+                              >
+                                <X size={18} />
+                              </button>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                              <div><strong>Nome:</strong> {biData.first_name} {biData.last_name}</div>
+                              <div><strong>Data Nascimento:</strong> {biData.birth_date}</div>
+                              <div><strong>Sexo:</strong> {biData.gender_name}</div>
+                              <div><strong>Província Nascimento:</strong> {biData.birth_province_name}</div>
+                              <div><strong>Estado Civil:</strong> {biData.marital_status_name}</div>
+                              <div><strong>Contacto:</strong> Incluído nos dados</div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {tipoDocumento === 'NIF' && (
+                      <div className="space-y-4">
+                        <div className="relative">
+                          <CustomInput
+                            type="text"
+                            label="Número do NIF"
+                            value={numeroNIF}
+                            onChange={handleNIFChange}
+                            placeholder="Digite o número do NIF"
+                            iconStart={<FileText size={18} />}
+                            helperText="A consulta será feita automaticamente"
+                          />
+                          {consultingNif && (
+                            <div className="absolute right-3 top-9">
+                              <Loader className="animate-spin w-5 h-5 text-blue-600" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Dados do NIF Consultado */}
+                        {/*nifData && (
+                          <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center">
+                                <CheckCircle className="w-5 h-5 text-blue-600 mr-2" />
+                                <h6 className="font-semibold text-blue-800">Dados do NIF Consultado</h6>
+                              </div>
+                              <button
+                                onClick={limparDadosConsultados}
+                                className="text-red-600 hover:text-red-800 transition-colors"
+                                title="Limpar dados e preencher manualmente"
+                              >
+                                <X size={18} />
+                              </button>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                              <div><strong>Nome Contribuinte:</strong> {nifData.nome_contribuinte}</div>
+                              <div><strong>Email:</strong> {nifData.email || 'Não informado'}</div>
+                              <div><strong>Contacto:</strong> {nifData.numero_contacto || 'Não informado'}</div>
+                              <div><strong>Proprietário/Instituição:</strong> {nifData.nome_contribuinte}</div>
+                            </div>
+                          </div>
+                        )*/}
+                      </div>
+                    )}
                   </div>
+
+
                 </div>
               )}
             </div>
@@ -979,11 +1379,10 @@ const CertificacaoProdutor = () => {
                             <select
                               value={item.produto}
                               onChange={(e) => atualizarProducaoAgricola(item.id, 'produto', e.target.value)}
-                              className={`w-full p-2 border rounded text-sm ${
-                                errors[`producaoAgricola_${index}_produto`] 
-                                  ? 'border-red-500 bg-red-50' 
+                              className={`w-full p-2 border rounded text-sm ${errors[`producaoAgricola_${index}_produto`]
+                                  ? 'border-red-500 bg-red-50'
                                   : 'border-gray-200'
-                              }`}
+                                }`}
                             >
                               <option value="">Selecione...</option>
                               <option value="MILHO">Milho</option>
@@ -1017,11 +1416,10 @@ const CertificacaoProdutor = () => {
                               type="number"
                               value={item.areaCultivada}
                               onChange={(e) => atualizarProducaoAgricola(item.id, 'areaCultivada', e.target.value)}
-                              className={`w-full p-2 border rounded text-sm ${
-                                errors[`producaoAgricola_${index}_area`] 
-                                  ? 'border-red-500 bg-red-50' 
+                              className={`w-full p-2 border rounded text-sm ${errors[`producaoAgricola_${index}_area`]
+                                  ? 'border-red-500 bg-red-50'
                                   : 'border-gray-200'
-                              }`}
+                                }`}
                               step="0.1"
                               min="0"
                               placeholder="0.0"
@@ -1037,11 +1435,10 @@ const CertificacaoProdutor = () => {
                               type="number"
                               value={item.producao}
                               onChange={(e) => atualizarProducaoAgricola(item.id, 'producao', e.target.value)}
-                              className={`w-full p-2 border rounded text-sm ${
-                                errors[`producaoAgricola_${index}_producao`] 
-                                  ? 'border-red-500 bg-red-50' 
+                              className={`w-full p-2 border rounded text-sm ${errors[`producaoAgricola_${index}_producao`]
+                                  ? 'border-red-500 bg-red-50'
                                   : 'border-gray-200'
-                              }`}
+                                }`}
                               step="0.1"
                               min="0"
                               placeholder="0.0"
@@ -1205,11 +1602,10 @@ const CertificacaoProdutor = () => {
                             <select
                               value={item.especie}
                               onChange={(e) => atualizarProducaoPecuaria(item.id, 'especie', e.target.value)}
-                              className={`w-full p-2 border rounded text-sm ${
-                                errors[`producaoPecuaria_${index}_especie`] 
-                                  ? 'border-red-500 bg-red-50' 
+                              className={`w-full p-2 border rounded text-sm ${errors[`producaoPecuaria_${index}_especie`]
+                                  ? 'border-red-500 bg-red-50'
                                   : 'border-gray-200'
-                              }`}
+                                }`}
                             >
                               <option value="">Selecione...</option>
                               <option value="BOVINO">Bovino</option>
@@ -1241,11 +1637,10 @@ const CertificacaoProdutor = () => {
                               type="number"
                               value={item.numeroCabecas}
                               onChange={(e) => atualizarProducaoPecuaria(item.id, 'numeroCabecas', e.target.value)}
-                              className={`w-full p-2 border rounded text-sm ${
-                                errors[`producaoPecuaria_${index}_cabecas`] 
-                                  ? 'border-red-500 bg-red-50' 
+                              className={`w-full p-2 border rounded text-sm ${errors[`producaoPecuaria_${index}_cabecas`]
+                                  ? 'border-red-500 bg-red-50'
                                   : 'border-gray-200'
-                              }`}
+                                }`}
                               min="0"
                               placeholder="0"
                             />
@@ -1371,11 +1766,10 @@ const CertificacaoProdutor = () => {
                               type="date"
                               value={item.data}
                               onChange={(e) => atualizarVistoria(item.id, 'data', e.target.value)}
-                              className={`w-full p-2 border rounded text-sm ${
-                                errors[`vistoria_${index}_data`] 
-                                  ? 'border-red-500 bg-red-50' 
+                              className={`w-full p-2 border rounded text-sm ${errors[`vistoria_${index}_data`]
+                                  ? 'border-red-500 bg-red-50'
                                   : 'border-gray-200'
-                              }`}
+                                }`}
                             />
                             {errors[`vistoria_${index}_data`] && (
                               <p className="text-red-500 text-xs mt-1">
@@ -1388,11 +1782,10 @@ const CertificacaoProdutor = () => {
                               type="text"
                               value={item.tecnico}
                               onChange={(e) => atualizarVistoria(item.id, 'tecnico', e.target.value)}
-                              className={`w-full p-2 border rounded text-sm ${
-                                errors[`vistoria_${index}_tecnico`] 
-                                  ? 'border-red-500 bg-red-50' 
+                              className={`w-full p-2 border rounded text-sm ${errors[`vistoria_${index}_tecnico`]
+                                  ? 'border-red-500 bg-red-50'
                                   : 'border-gray-200'
-                              }`}
+                                }`}
                               placeholder="Nome do técnico..."
                             />
                             {errors[`vistoria_${index}_tecnico`] && (

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Image, Page, Text, View, Document, StyleSheet, pdf } from '@react-pdf/renderer';
+import QRCode from 'qrcode';
 import emblema from '../../assets/emblema.png';
 import logo from '../../assets/RNPA-removebg.png';
 import api from '../../services/api';
@@ -234,6 +235,59 @@ const styles = StyleSheet.create({
     marginTop: 15
   },
 
+  // Seção do QR Code
+  qrCodeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 15,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopStyle: 'solid',
+    borderTopColor: '#000'
+  },
+
+  qrCodeSection: {
+    alignItems: 'center',
+    width: '30%'
+  },
+
+  qrCodeImage: {
+    width: 80,
+    height: 80,
+    marginBottom: 5
+  },
+
+  qrCodeText: {
+    fontSize: 7,
+    textAlign: 'center',
+    fontWeight: 'bold'
+  },
+
+  verificacaoSection: {
+    width: '65%',
+    paddingLeft: 10
+  },
+
+  verificacaoTitulo: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    marginBottom: 3
+  },
+
+  verificacaoTexto: {
+    fontSize: 7,
+    lineHeight: 1.3,
+    marginBottom: 2
+  },
+
+  numeroCertificado: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginTop: 5
+  },
+
   // Texto de rodapé
   rodape: {
     fontSize: 7,
@@ -278,6 +332,58 @@ const gerarNumeroCertificado = () => {
   return `DNF/${numero}/${ano}`;
 };
 
+// Função para gerar QR Code com os dados do certificado
+const gerarQRCode = async (dados) => {
+  try {
+    const numeroCertificado = dados?.numeroLicencaExploracao || gerarNumeroCertificado();
+
+    // Dados que serão codificados no QR Code
+    const dadosQR = {
+      certificado: numeroCertificado,
+      empresa: dados?.nomeEmpresa || '',
+      licenca: dados?.numeroLicencaExploracao || '',
+      tipo: dados?.tipoLicenca || '',
+      validadeInicio: formatDate(dados?.validadeInicio) || '',
+      validadeFim: formatDate(dados?.validadeFim) || '',
+      tecnico: dados?.tecnicoResponsavel || '',
+      dataEmissao: formatDate(new Date()),
+      verificacao: `https://rnpa.gov.ao/verificar/${numeroCertificado}`,
+      // Adicionar resumo das áreas e espécies
+      totalAreas: dados?.areasFlorestais?.length || 0,
+      totalEspecies: dados?.especiesAutorizadas?.length || 0,
+      volumeTotal: dados?.especiesAutorizadas?.reduce((acc, esp) =>
+        acc + (parseFloat(esp.volumeAutorizado) || 0), 0).toFixed(1) || '0.0'
+    };
+
+    // Converter para JSON string
+    const dadosString = `Certificado: ${dadosQR.certificado}
+Empresa: ${dadosQR.empresa}
+Licença: ${dadosQR.licenca}
+Tipo: ${dadosQR.tipo}
+Válido de: ${dadosQR.validadeInicio}
+Válido até: ${dadosQR.validadeFim}
+Técnico: ${dadosQR.tecnico}
+Emitido em: ${dadosQR.dataEmissao}
+Verificar: ${dadosQR.verificacao}`;
+
+    // Gerar QR Code como base64
+    const qrCodeDataURL = await QRCode.toDataURL(dadosString, {
+      width: 200,
+      margin: 1,
+      color: {
+        dark: '#000000',
+        light: '#FFFFFF'
+      },
+      errorCorrectionLevel: 'M'
+    });
+
+    return qrCodeDataURL;
+  } catch (error) {
+    console.error('Erro ao gerar QR Code:', error);
+    return null;
+  }
+};
+
 // Componente do cabeçalho
 const HeaderSection = () => (
   <View style={styles.header}>
@@ -286,14 +392,13 @@ const HeaderSection = () => (
     <Text style={styles.ministerio}>MINISTÉRIO DA AGRICULTURA E FLORESTAS</Text>
     <Text style={styles.dnf}>DIRECÇÃO NACIONAL DE FLORESTAS (DNF)</Text>
     <Text style={styles.tituloDocumento}>CERTIFICADO DE LICENÇA FLORESTAL</Text>
-    
   </View>
 );
 
 // Componente da tabela principal de dados
 const TabelaDadosSection = ({ dados }) => {
   // Preparar dados das áreas florestais
-  const areasInfo = dados?.areasFlorestais?.length > 0 
+  const areasInfo = dados?.areasFlorestais?.length > 0
     ? dados.areasFlorestais.map(area => `${area.nomeArea} (${area.areaHectares}ha)`).join(', ')
     : '________________________________';
 
@@ -359,8 +464,8 @@ const CondicoesSection = ({ dados }) => (
     </View>
     <View style={styles.condicoesContent}>
       <Text style={styles.condicoesText}>
-        {dados?.condicoesEspeciais || dados?.observacoes || 
-         'A licença é válida para exploração das espécies indicadas, respeitando os volumes autorizados e prazos estabelecidos. O transporte de produtos florestais deve estar acompanhado deste certificado.'}
+        {dados?.condicoesEspeciais || dados?.observacoes ||
+          'A licença é válida para exploração das espécies indicadas, respeitando os volumes autorizados e prazos estabelecidos. O transporte de produtos florestais deve estar acompanhado deste certificado.'}
       </Text>
     </View>
   </View>
@@ -378,7 +483,7 @@ const EmissaoSection = ({ dados }) => (
         {formatDate(new Date())}
       </Text>
     </View>
-    
+
     <View style={styles.emissaoDireita}>
       <Text style={styles.emissaoTitulo}>Emitido por (DNF)</Text>
       <Text style={styles.emissaoInfo}>
@@ -397,15 +502,47 @@ const EmissaoSection = ({ dados }) => (
   </View>
 );
 
+// Componente da seção do QR Code
+const QRCodeSection = ({ qrCodeData, numeroCertificado }) => (
+  <View style={styles.qrCodeContainer}>
+    <View style={styles.qrCodeSection}>
+      {qrCodeData && (
+        <>
+          <Image src={qrCodeData} style={styles.qrCodeImage} />
+          <Text style={styles.qrCodeText}>Verificação Digital</Text>
+          <Text style={styles.numeroCertificado}>{numeroCertificado}</Text>
+        </>
+      )}
+    </View>
+
+    <View style={styles.verificacaoSection}>
+      <Text style={styles.verificacaoTitulo}>Verificação de Autenticidade:</Text>
+      <Text style={styles.verificacaoTexto}>
+        1. Escaneie o QR Code com seu dispositivo móvel
+      </Text>
+      <Text style={styles.verificacaoTexto}>
+        2. Ou acesse: https://rnpa.gov.ao/verificar/{numeroCertificado}
+      </Text>
+      <Text style={styles.verificacaoTexto}>
+        3. Confirme os dados apresentados com este certificado
+      </Text>
+      <Text style={styles.verificacaoTexto}>
+        <Text style={styles.rodapeDestaque}>Atenção:</Text> Certificados adulterados ou falsificados
+        não passarão na verificação digital.
+      </Text>
+    </View>
+  </View>
+);
+
 // Componente do rodapé
 const RodapeSection = () => (
   <View>
     <Text style={styles.rodape}>
-      <Text style={styles.rodapeDestaque}>A licença é pessoal e intransmissível.</Text> O transporte de produtos florestais deve estar acompanhado deste 
+      <Text style={styles.rodapeDestaque}>A licença é pessoal e intransmissível.</Text> O transporte de produtos florestais deve estar acompanhado deste
       certificado e do respectivo comprovativo de origem.
     </Text>
     <Text style={styles.rodape}>
-      <Text style={styles.rodapeDestaque}>Verificação pública:</Text> aceda ao portal RNPA e introduza o número/QR da licença para confirmar a autenticidade. 
+      <Text style={styles.rodapeDestaque}>Verificação pública:</Text> aceda ao portal RNPA e introduza o número/QR da licença para confirmar a autenticidade.
       Qualquer alteração de estado (suspensão, revogação, expiração) torna-se efectiva a partir do registo no sistema.
     </Text>
     <Text style={styles.documentoEletronico}>
@@ -415,7 +552,7 @@ const RodapeSection = () => (
 );
 
 // Componente principal do certificado florestal
-const CertificadoFlorestalDocument = ({ dados }) => {
+const CertificadoFlorestalDocument = ({ dados, qrCodeData }) => {
   const numeroCertificado = dados?.numeroLicencaExploracao || gerarNumeroCertificado();
 
   return (
@@ -428,9 +565,9 @@ const CertificadoFlorestalDocument = ({ dados }) => {
           <HeaderSection />
 
           <Text style={styles.textoPrincipal}>
-            Nos termos da legislação florestal em vigor, certifica-se que a licença acima identificada autoriza a 
-            empresa <Text style={styles.destaque}>{dados?.nomeEmpresa || '________________________________________'}</Text>, Portadora da Licença de Exploração 
-            Nº<Text style={styles.destaque}>{numeroCertificado}</Text> exercer a actividade de Produtor florestal especificada, limitada às 
+            Nos termos da legislação florestal em vigor, certifica-se que a licença acima identificada autoriza a
+            empresa <Text style={styles.destaque}>{dados?.nomeEmpresa || '________________________________________'}</Text>, Portadora da Licença de Exploração
+            Nº<Text style={styles.destaque}>{numeroCertificado}</Text> exercer a actividade de Produtor florestal especificada, limitada às
             espécies, volumes e prazos indicados.
           </Text>
 
@@ -439,6 +576,9 @@ const CertificadoFlorestalDocument = ({ dados }) => {
           <CondicoesSection dados={dados} />
 
           <EmissaoSection dados={dados} />
+
+          {/* Seção do QR Code */}
+          <QRCodeSection qrCodeData={qrCodeData} numeroCertificado={numeroCertificado} />
 
           <RodapeSection />
         </View>
@@ -472,163 +612,6 @@ export const gerarCertificadoFlorestal = async (dadosFormulario) => {
       throw new Error('É necessário ter pelo menos uma área florestal e uma espécie autorizada para gerar o certificado florestal.');
     }
 
-    // Preparar finalidades como array
-    let finalidades = dadosFormulario.dadosProdutor?.finalidadeLicenca || [];
-    if (typeof finalidades === 'string') {
-      finalidades = [finalidades];
-    } else if (Array.isArray(finalidades) && finalidades.length > 0 && typeof finalidades[0] === 'object') {
-      finalidades = finalidades.map(f => f.value || f);
-    }
-
-    // Mapear dados das áreas florestais para o formato da API
-    const areasFlorestaisAPI = (dadosFormulario.areasFlorestais || [])
-      .filter(item => item && Object.values(item).some(valor => valor && valor.toString().trim() !== ''))
-      .map(item => ({
-        nomeArea: (item.nomeArea || "").toString().trim() || "Área não especificada",
-        areaHectares: (item.areaHectares || "0").toString(),
-        localizacao: (item.localizacao || "").toString().trim() || "Localização não especificada",
-        coordenadasGPS: (item.coordenadasGPS || "").toString().trim(),
-        tipoFloresta: (item.tipoFloresta || "").toString().trim(),
-        observacoes: (item.observacoes || "").toString().trim()
-      }));
-
-    // Mapear dados das espécies autorizadas para o formato da API
-    const especiesAutorizadasAPI = (dadosFormulario.especiesAutorizadas || [])
-      .filter(item => item && Object.values(item).some(valor => valor && valor.toString().trim() !== ''))
-      .map(item => ({
-        especie: (item.especie || "").toString().trim() || "Espécie não especificada",
-        nomeComum: (item.nomeComum || "").toString().trim(),
-        nomeCientifico: (item.nomeCientifico || "").toString().trim(),
-        volumeAutorizado: (item.volumeAutorizado || "0").toString(),
-        unidade: (item.unidade || "m³").toString(),
-        observacoes: (item.observacoes || "").toString().trim()
-      }));
-
-    // Mapear histórico de exploração para o formato da API
-    const historicoExploracoesAPI = (dadosFormulario.historicoExploracoes || [])
-      .filter(item => item && Object.values(item).some(valor => valor && valor.toString().trim() !== ''))
-      .map(item => {
-        const ano = parseInt(item.ano);
-        return {
-          ano: isNaN(ano) ? new Date().getFullYear() : ano,
-          especie: (item.especie || "").toString().trim(),
-          volumeExplorado: (item.volumeExplorado || "0").toString(),
-          areaExplorada: (item.areaExplorada || "0").toString(),
-          observacoes: (item.observacoes || "").toString().trim()
-        };
-      });
-
-    // Validar e preparar produtorId
-    let produtorId = 0;
-    if (dadosFormulario.produtorOriginal?._id) {
-      produtorId = parseInt(dadosFormulario.produtorOriginal._id);
-    } else if (dadosFormulario.dadosProdutor?.produtorId) {
-      produtorId = parseInt(dadosFormulario.dadosProdutor.produtorId);
-    }
-
-    // Preparar datas de validade
-    const hoje = new Date();
-    const validoDeData = dadosFormulario.dadosProdutor?.validadeInicio ?
-      new Date(dadosFormulario.dadosProdutor.validadeInicio) : hoje;
-    const validoAteData = dadosFormulario.dadosProdutor?.validadeFim ?
-      new Date(dadosFormulario.dadosProdutor.validadeFim) :
-      new Date(hoje.getFullYear() + 2, hoje.getMonth(), hoje.getDate());
-
-    const validoDe = validoDeData.toISOString().split('T')[0];
-    const validoAte = validoAteData.toISOString().split('T')[0];
-
-    // Montar objeto de dados conforme a API espera
-    const dadosAPI = {
-      command: "CriarCertificadoFlorestal",
-      nomeEmpresa: (dadosFormulario.dadosProdutor?.nomeEmpresa || "").toString(),
-      numeroLicencaExploracao: (dadosFormulario.dadosProdutor?.numeroLicencaExploracao || "").toString(),
-      tipoLicenca: (dadosFormulario.dadosProdutor?.tipoLicenca || "").toString(),
-      areaFlorestaTotalHa: (dadosFormulario.dadosProdutor?.areaFlorestaTotalHa || "0").toString(),
-      coordenadasGPS: (dadosFormulario.dadosProdutor?.coordenadasGPS || "").toString(),
-      areasFlorestais: areasFlorestaisAPI,
-      especiesAutorizadas: especiesAutorizadasAPI,
-      historicoExploracoes: historicoExploracoesAPI,
-      finalidadeLicenca: finalidades,
-      validoDe: validoDe,
-      validoAte: validoAte,
-      condicoesEspeciais: (dadosFormulario.dadosProdutor?.condicoesEspeciais || "").toString(),
-      observacoes: (dadosFormulario.dadosProdutor?.observacoes || "").toString(),
-      tecnicoResponsavel: (dadosFormulario.dadosProdutor?.tecnicoResponsavel || "").toString(),
-      cargoTecnico: (dadosFormulario.dadosProdutor?.cargoTecnico || "").toString(),
-      numeroDoProcesso: (dadosFormulario.dadosProdutor?.numeroProcesso ||
-        dadosFormulario.produtorOriginal?._id ||
-        "PROC-FLORESTAL-" + Date.now()).toString(),
-      produtorId: produtorId
-    };
-
-    console.log('🚀 DADOS PREPARADOS PARA API FLORESTAL:', dadosAPI);
-
-    // Validar campos obrigatórios
-    if (!dadosAPI.nomeEmpresa || dadosAPI.nomeEmpresa.trim() === '') {
-      throw new Error('Nome da empresa é obrigatório para gerar o certificado florestal');
-    }
-
-    if (!dadosAPI.numeroLicencaExploracao || dadosAPI.numeroLicencaExploracao.trim() === '') {
-      throw new Error('Número da licença de exploração é obrigatório para gerar o certificado florestal');
-    }
-
-    if (dadosAPI.areasFlorestais.length === 0) {
-      throw new Error('É necessário ter pelo menos uma área florestal registrada');
-    }
-
-    if (dadosAPI.especiesAutorizadas.length === 0) {
-      throw new Error('É necessário ter pelo menos uma espécie autorizada registrada');
-    }
-
-    // TODO: Enviar para API - COMENTADO PARA VERSÃO DE TESTE
-    // Descomentar quando a rota estiver pronta
-    /*
-    try {
-      console.log('📡 Enviando para /certificadoFlorestal...');
-
-      const config = {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      };
-
-      const response = await api.post('/certificadoFlorestal', dadosAPI, config);
-
-      console.log('✅ Dados florestais salvos na API com sucesso:', response.data);
-    } catch (apiError) {
-      console.error('❌ Erro ao salvar na API florestal:', apiError);
-      console.error('Detalhes do erro:', {
-        status: apiError.response?.status,
-        data: apiError.response?.data,
-        message: apiError.message
-      });
-
-      if (apiError.response?.status === 400) {
-        console.error('Dados enviados que causaram erro 400:', dadosAPI);
-        const errorData = apiError.response?.data;
-        let errorMsg = 'Erro de validação (400): ';
-        
-        if (errorData?.errors) {
-          const errors = Object.entries(errorData.errors).map(([field, messages]) => {
-            return `${field}: ${Array.isArray(messages) ? messages.join(', ') : messages}`;
-          }).join('; ');
-          errorMsg += errors;
-        } else {
-          errorMsg += errorData?.message || errorData?.error || JSON.stringify(errorData);
-        }
-
-        throw new Error(`${errorMsg}. Verifique se todos os campos obrigatórios estão preenchidos corretamente.`);
-      }
-
-      throw new Error(`Erro na API florestal (${apiError.response?.status || 'Desconhecido'}): ${apiError.response?.data?.message || apiError.message}`);
-    }
-    */
-
-    // VERSÃO DE TESTE - apenas exibe os dados que seriam enviados
-    console.log('🧪 VERSÃO DE TESTE - Dados que seriam enviados para /certificadoFlorestal:');
-    console.log('📊 Payload completo:', JSON.stringify(dadosAPI, null, 2));
-    console.log('✅ Simulação: Dados florestais "salvos" com sucesso (teste)');
-
     // Dados preparados para o certificado
     const dadosCertificado = {
       ...dadosFormulario.dadosProdutor,
@@ -637,11 +620,19 @@ export const gerarCertificadoFlorestal = async (dadosFormulario) => {
       historicoExploracoes: dadosFormulario.historicoExploracoes
     };
 
+    // Gerar QR Code com os dados do certificado
+    console.log('Gerando QR Code com dados do certificado...');
+    const qrCodeData = await gerarQRCode(dadosCertificado);
+
+    if (!qrCodeData) {
+      console.warn('Não foi possível gerar o QR Code, continuando sem ele...');
+    }
+
     // Gerar certificado PDF
     console.log('Gerando PDF do certificado florestal...');
 
     const pdfBlob = await pdf(
-      <CertificadoFlorestalDocument dados={dadosCertificado} />
+      <CertificadoFlorestalDocument dados={dadosCertificado} qrCodeData={qrCodeData} />
     ).toBlob();
 
     // Download do PDF
@@ -723,6 +714,7 @@ const CertificadoFlorestalGenerator = ({ dados, onSuccess, onError }) => {
             <li><strong>Espécies Autorizadas:</strong> {dados.especiesAutorizadas?.length || 0} itens</li>
             <li><strong>Histórico:</strong> {dados.historicoExploracoes?.length || 0} itens</li>
             <li><strong>Técnico:</strong> {dados.dadosProdutor?.tecnicoResponsavel || 'N/A'}</li>
+            <li><strong>QR Code:</strong> ✅ Será gerado com dados do certificado</li>
           </ul>
         </div>
       )}
@@ -744,7 +736,7 @@ const CertificadoFlorestalGenerator = ({ dados, onSuccess, onError }) => {
         }}
       >
         {gerando ? (
-          <>⏳ Gerando Certificado Florestal...</>
+          <>⏳ Gerando Certificado com QR Code...</>
         ) : (
           '🌲 Gerar Certificado de Licença Florestal'
         )}
@@ -756,7 +748,7 @@ const CertificadoFlorestalGenerator = ({ dados, onSuccess, onError }) => {
           fontSize: '12px',
           color: '#666'
         }}>
-          📡 Enviando dados para API /certificadoFlorestal...
+          📱 Gerando QR Code com dados do certificado...
         </div>
       )}
     </div>

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import html2canvas from 'html2canvas';
+import QRCode from 'qrcode'; // 👈 IMPORTAÇÃO ADICIONADA
 import {
     ArrowLeft,
     Download,
@@ -120,6 +121,38 @@ const GerarCartaoRNPAAgricola = () => {
     const [fotoProdutor, setFotoProdutor] = useState(fotoC);
     const [loadingFoto, setLoadingFoto] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
+    const [qrCodeDataURL, setQrCodeDataURL] = useState(null); // 👈 ESTADO ADICIONADO
+
+    // Função para gerar QR Code com dados específicos
+    const gerarQRCode = async (dadosProdutor) => {
+        try {
+            if (!dadosProdutor) return null;
+
+            // Dados específicos solicitados para o QR Code
+            const dadosQR = `Produtor Nº: ${dadosProdutor.codigoRNPA}
+Nome: ${dadosProdutor.nome}
+Sexo: ${dadosProdutor.genero}
+Data de Validade: ${dadosProdutor.dataValidade}
+Província: ${dadosProdutor.provincia}
+Município: ${dadosProdutor.municipio}`;
+
+            // Gerar QR Code como base64
+            const qrCodeDataURL = await QRCode.toDataURL(dadosQR, {
+                width: 200,
+                margin: 1,
+                color: {
+                    dark: '#000000',
+                    light: '#FFFFFF'
+                },
+                errorCorrectionLevel: 'M'
+            });
+
+            return qrCodeDataURL;
+        } catch (error) {
+            console.error('Erro ao gerar QR Code:', error);
+            return null;
+        }
+    };
 
     // Função para carregar a foto do beneficiário
     const carregarFotoBeneficiario = async (produtorId) => {
@@ -177,6 +210,12 @@ const GerarCartaoRNPAAgricola = () => {
 
                 // Carregar foto do beneficiário usando o ID
                 await carregarFotoBeneficiario(id);
+
+                // 👈 GERAÇÃO DO QR CODE ADICIONADA
+                if (produtorMapeado) {
+                    const qrCode = await gerarQRCode(produtorMapeado);
+                    setQrCodeDataURL(qrCode);
+                }
 
             } catch (err) {
                 console.error('Erro ao buscar produtor:', err);
@@ -493,13 +532,6 @@ const GerarCartaoRNPAAgricola = () => {
                                     <RotateCcw className="w-4 h-4 mr-2" />
                                     {showFront ? 'Ver Verso' : 'Ver Frente'}
                                 </button>
-                                {/* <button
-                                    onClick={handlePrintCard}
-                                    className="flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                                >
-                                    <Printer className="w-4 h-4 mr-2" />
-                                    Imprimir
-                                </button> */}
                                 <button
                                     onClick={handleDownloadImage}
                                     disabled={isDownloading}
@@ -524,18 +556,6 @@ const GerarCartaoRNPAAgricola = () => {
                                     )}
                                     {isDownloading ? 'Gerando...' : 'Baixar  frente/verso'}
                                 </button>
-                                {/* <button
-                                    onClick={handleGenerateCard}
-                                    disabled={isGenerating}
-                                    className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
-                                >
-                                    {isGenerating ? (
-                                        <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                                    ) : (
-                                        <Save className="w-4 h-4 mr-2" />
-                                    )}
-                                    {isGenerating ? 'Gerando...' : 'Gerar Cartão'}
-                                </button> */}
                             </div>
                         </div>
                     </div>
@@ -578,7 +598,6 @@ const GerarCartaoRNPAAgricola = () => {
                                     alt="Marca d'água"
                                     className="w-48 h-48 opacity-25"
                                     style={{
-
                                         zIndex: 1
                                     }}
                                 />
@@ -676,9 +695,6 @@ const GerarCartaoRNPAAgricola = () => {
                             ) : (
                                 // VERSO DO CARTÃO
                                 <div className="relative z-20 px-6 py-2 h-full">
-                                    {/* Header verso */}
-                                   
-
                                     {/* Informações detalhadas */}
                                     <div className="grid grid-cols-2 gap-6">
                                         <div className="space-y-4">
@@ -724,34 +740,51 @@ const GerarCartaoRNPAAgricola = () => {
                                                 <p className="text-sm font-bold text-gray-900">{produtor.inquiridor}</p>
                                             </div>
 
-                                            {/* QR Code */}
+                                            {/* 👈 QR CODE SUBSTITUÍDO POR IMAGEM REAL */}
                                             <div className="absolute top-0 right-[20px] flex flex-col items-center mt-6">
                                                 <div className="w-20 h-20 bg-white border-2 border-gray-400 p-1 mb-2">
-                                                    <svg viewBox="0 0 100 100" className="w-full h-full">
-                                                        <rect width="100" height="100" fill="white" />
-                                                        <rect x="0" y="0" width="30" height="30" fill="black" />
-                                                        <rect x="70" y="0" width="30" height="30" fill="black" />
-                                                        <rect x="0" y="70" width="30" height="30" fill="black" />
-                                                        <rect x="5" y="5" width="20" height="20" fill="white" />
-                                                        <rect x="75" y="5" width="20" height="20" fill="white" />
-                                                        <rect x="5" y="75" width="20" height="20" fill="white" />
-                                                        <rect x="10" y="10" width="10" height="10" fill="black" />
-                                                        <rect x="80" y="10" width="10" height="10" fill="black" />
-                                                        <rect x="10" y="80" width="10" height="10" fill="black" />
-                                                        <rect x="45" y="45" width="10" height="10" fill="black" />
-                                                        <rect x="35" y="15" width="5" height="5" fill="black" />
-                                                        <rect x="45" y="25" width="5" height="5" fill="black" />
-                                                        <rect x="55" y="35" width="5" height="5" fill="black" />
-                                                        <rect x="25" y="45" width="5" height="5" fill="black" />
-                                                        <rect x="65" y="55" width="5" height="5" fill="black" />
-                                                        <rect x="35" y="65" width="5" height="5" fill="black" />
-                                                        <rect x="55" y="75" width="5" height="5" fill="black" />
-                                                    </svg>
+                                                    {qrCodeDataURL ? (
+                                                        <img 
+                                                            src={qrCodeDataURL} 
+                                                            alt="QR Code RNPA" 
+                                                            className="w-full h-full object-contain"
+                                                            onError={(e) => {
+                                                                console.log('Erro ao carregar QR Code, usando padrão');
+                                                                // Fallback para o SVG estático em caso de erro
+                                                                e.target.style.display = 'none';
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        // Fallback SVG caso o QR Code não carregue
+                                                        <svg viewBox="0 0 100 100" className="w-full h-full">
+                                                            <rect width="100" height="100" fill="white" />
+                                                            <rect x="0" y="0" width="30" height="30" fill="black" />
+                                                            <rect x="70" y="0" width="30" height="30" fill="black" />
+                                                            <rect x="0" y="70" width="30" height="30" fill="black" />
+                                                            <rect x="5" y="5" width="20" height="20" fill="white" />
+                                                            <rect x="75" y="5" width="20" height="20" fill="white" />
+                                                            <rect x="5" y="75" width="20" height="20" fill="white" />
+                                                            <rect x="10" y="10" width="10" height="10" fill="black" />
+                                                            <rect x="80" y="10" width="10" height="10" fill="black" />
+                                                            <rect x="10" y="80" width="10" height="10" fill="black" />
+                                                            <rect x="45" y="45" width="10" height="10" fill="black" />
+                                                            <rect x="35" y="15" width="5" height="5" fill="black" />
+                                                            <rect x="45" y="25" width="5" height="5" fill="black" />
+                                                            <rect x="55" y="35" width="5" height="5" fill="black" />
+                                                            <rect x="25" y="45" width="5" height="5" fill="black" />
+                                                            <rect x="65" y="55" width="5" height="5" fill="black" />
+                                                            <rect x="35" y="65" width="5" height="5" fill="black" />
+                                                            <rect x="55" y="75" width="5" height="5" fill="black" />
+                                                        </svg>
+                                                    )}
+                                                </div>
+                                                <div className="text-[8px] font-semibold text-gray-600 text-center">
+                                                    QR CODE
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                     <div className="flex items-start mt-7 justify-between">
+                                    <div className="flex items-start mt-7 justify-between">
                                         <div className="flex">
                                             <div className="w-14 h-14 mr-3">
                                                 <img src={IDA} alt="IDA" className="w-full h-full object-contain" />
@@ -772,7 +805,6 @@ const GerarCartaoRNPAAgricola = () => {
                                                 <img src={iiv} alt="ministrtio da agriciltura e florestas" className="w-full h-full object-contain" />
                                             </div>
                                         </div>
-                                       
                                     </div>
 
                                     {/* Footer */}
@@ -794,35 +826,6 @@ const GerarCartaoRNPAAgricola = () => {
                             )}
                         </div>
                     </div>
-
-                    {/* Informações de Download */}
-                    {/*<div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h3 className="text-sm font-semibold text-blue-800 mb-2">Opções de Download</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                                    <div>
-                                        <span className="font-medium text-gray-700">Download PNG:</span>
-                                        <p className="text-gray-900">Baixa o lado atual (frente ou verso)</p>
-                                    </div>
-                                    <div>
-                                        <span className="font-medium text-gray-700">Baixar Ambos:</span>
-                                        <p className="text-gray-900">Baixa frente e verso automaticamente</p>
-                                    </div>
-                                    <div>
-                                        <span className="font-medium text-gray-700">Qualidade:</span>
-                                        <p className="text-gray-900">Alta resolução (2x scale)</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <button
-                                onClick={toggleCard}
-                                className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                            >
-                                Ver {showFront ? 'Verso' : 'Frente'}
-                            </button>
-                        </div>
-                    </div> */}
 
                     {/* Resumo dos Dados do Produtor */}
                     <div className="mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
@@ -850,7 +853,7 @@ const GerarCartaoRNPAAgricola = () => {
                         </div>
                     </div>
 
-                    {/* Status da Foto e Download */}
+                    {/* Status da Foto, QR Code e Download */}
                     <div className="mt-4 bg-gray-50 border border-gray-200 rounded-lg p-3">
                         <div className="flex items-center justify-between text-sm mb-3">
                             <div className="flex items-center">
@@ -864,8 +867,11 @@ const GerarCartaoRNPAAgricola = () => {
                                             fotoProdutor.startsWith('blob:') ? 'Foto da API (carregada)' : 'Foto da API'}
                                 </span>
                             </div>
-                            <div className="text-gray-600">
-                                ID do Produtor: {id}
+                            <div className="flex items-center">
+                                <span className="font-medium text-gray-700 mr-2">QR Code:</span>
+                                <span className={`px-2 py-1 rounded-full text-xs ${qrCodeDataURL ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                    {qrCodeDataURL ? 'Gerado' : 'Erro'}
+                                </span>
                             </div>
                         </div>
                         {fotoProdutor !== fotoC && (
@@ -876,13 +882,12 @@ const GerarCartaoRNPAAgricola = () => {
                         <div className="flex items-center justify-between text-sm pt-3 border-t border-gray-300">
                             <div className="flex items-center">
                                 <span className="font-medium text-gray-700">Estado Download:</span>
-                                <span className={`ml-2 px-2 py-1 rounded-full text-xs ${isDownloading ? 'bg-orange-100 text-orange-800' : 'bg-gray-100 text-gray-800'
-                                    }`}>
+                                <span className={`ml-2 px-2 py-1 rounded-full text-xs ${isDownloading ? 'bg-orange-100 text-orange-800' : 'bg-gray-100 text-gray-800'}`}>
                                     {isDownloading ? 'Processando...' : 'Pronto'}
                                 </span>
                             </div>
                             <div className="text-gray-600">
-                                Formato: PNG (Alta Qualidade)
+                                ID: {id} | Formato: PNG (Alta Qualidade)
                             </div>
                         </div>
                     </div>

@@ -13,7 +13,7 @@ const AddHistoricoProducao = () => {
     const [loading, setLoading] = useState(false);
     const [toastMessage, setToastMessage] = useState(null);
     const [formData, setFormData] = useState({
-        periodoInicio: '', periodoFim: '', safra: '', nomePropriedade: '', areaTotalUtilizada: '', coordenadasGPS: '', atividadePrincipal: '', culturasAgricolas: [], criacaoAnimais: [], vendaMercadoLocal: '', vendaMercadoRegional: '', autoconsumo: '', perdas: '', recebiuAssistencia: '', tipoAssistencia: [], tecnicoResponsavel: '', observacoesTecnicas: '', desafiosEnfrentados: '', melhorias: ''
+        vendaNoMercadoLocal: '' , periodoInicio: '', periodoFim: '', safra: '', nomePropriedade: '', areaTotalUtilizada: '', coordenadasGPS: '', atividadePrincipal: '', culturasAgricolas: [], criacaoAnimais: [], vendaMercadoLocal: '', vendaMercadoRegional: '', autoconsumo: '', perdas: '', recebiuAssistencia: '', tipoAssistencia: [], tecnicoResponsavel: '', observacoesTecnicas: '', desafiosEnfrentados: '', melhorias: ''
     });
     const [culturasAgricolas, setCulturasAgricolas] = useState([]);
     const [criacaoAnimais, setCriacaoAnimais] = useState([]);

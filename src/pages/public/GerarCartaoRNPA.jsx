@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Image, Page, Text, View, Document, StyleSheet, pdf } from '@react-pdf/renderer';
 import axios from 'axios';
+import QRCode from 'qrcode'; // 👈 IMPORTAÇÃO ADICIONADA
 import emblema from '../../assets/emblema.png';
 import fotoC from '../../assets/RNPA-removebg.png';
 import logo from '../../assets/RNPA-removebg.png';
@@ -168,6 +169,31 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
 
+  // 👈 ESTILOS PARA QR CODE ADICIONADOS
+  qrCodeContainer: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    alignItems: 'center',
+    padding: 10,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: '#ddd',
+    borderRadius: 5
+  },
+  qrCodeImage: {
+    width: 80,
+    height: 80,
+    marginBottom: 5
+  },
+  qrCodeLabel: {
+    fontSize: 7,
+    color: '#666',
+    textAlign: 'center',
+    fontWeight: 'bold'
+  },
+
   // Texto - ALINHAMENTOS APERFEIÇOADOS
   label: {
     fontWeight: 'bold',
@@ -217,6 +243,44 @@ const styles = StyleSheet.create({
   }
 });
 
+// 👈 FUNÇÃO PARA GERAR QR CODE ADICIONADA
+const gerarQRCodePDF = async (dados) => {
+  try {
+    if (!dados) return null;
+
+    // Gerar data de validade (5 anos a partir da data atual)
+    const dataValidade = new Date();
+    dataValidade.setFullYear(dataValidade.getFullYear() + 5);
+    const dataValidadeFormatada = dataValidade.toLocaleDateString('pt-BR');
+
+    // Dados específicos para o QR Code
+    const dadosQR = `Produtor Nº: ${dados.numeroRegistro}
+Nome: ${dados.nome}
+Sexo: ${dados.genero === 'Masculino' ? 'M' : 'F'}
+Data de Validade: ${dataValidadeFormatada}
+Província: ${dados.provincia}
+Município: ${dados.municipio}`;
+
+    console.log('Gerando QR Code para PDF com dados:', dadosQR);
+
+    // Gerar QR Code como base64
+    const qrCodeDataURL = await QRCode.toDataURL(dadosQR, {
+      width: 200,
+      margin: 1,
+      color: {
+        dark: '#000000',
+        light: '#FFFFFF'
+      },
+      errorCorrectionLevel: 'M'
+    });
+
+    return qrCodeDataURL;
+  } catch (error) {
+    console.error('Erro ao gerar QR Code para PDF:', error);
+    return null;
+  }
+};
+
 // Funções utilitárias aperfeiçoadas
 const formatDate = (dateString) => {
   if (!dateString) return '';
@@ -265,7 +329,7 @@ const carregarFotoAPI = async (produtorId) => {
 };
 
 // Função para mapear dados da API para o formato esperado
-const mapearDadosAPI = (dadosAPI, fotoAPI = null) => {
+const mapearDadosAPI = (dadosAPI, fotoAPI = null, qrCodeDataURL = null) => {
   const getFotoURL = (attachments, xpath) => {
     const attachment = attachments?.find(att => att.question_xpath === xpath);
     return attachment?.download_url || null;
@@ -354,11 +418,14 @@ const mapearDadosAPI = (dadosAPI, fotoAPI = null) => {
     tipoApoio: dadosAPI?.tipo_apoio,
 
     // URLs das fotos - PRIORIZA FOTO DA API
-    fotoAPI: fotoAPI, // Nova propriedade para foto da API
+    fotoAPI: fotoAPI,
     fotoBiometrica: getFotoURL(dadosAPI?._attachments, 'beneficiary_biometrics'),
     fotoNormal: getFotoURL(dadosAPI?._attachments, 'beneficiary_photo'),
     fotoDocumento: getFotoURL(dadosAPI?._attachments, 'foto_documento'),
     fotoAnimais: getFotoURL(dadosAPI?._attachments, 'fotos_animais'),
+
+    // 👈 QR CODE ADICIONADO
+    qrCode: qrCodeDataURL,
 
     // Dados fictícios para completar
     nomePai: `${dadosAPI?.nome_produtor || 'N/A'} (Pai)`,
@@ -398,8 +465,14 @@ const useProdutorData = (id) => {
         
         console.log('Foto carregada:', fotoAPI ? 'Sucesso' : 'Não encontrada');
         
-        // Mapear dados incluindo a foto da API
-        const dadosMapeados = mapearDadosAPI(response.data, fotoAPI);
+        // 👈 GERAR QR CODE ADICIONADO
+        console.log('Gerando QR Code...');
+        const dadosPreliminar = mapearDadosAPI(response.data, fotoAPI);
+        const qrCodeDataURL = await gerarQRCodePDF(dadosPreliminar);
+        console.log('QR Code gerado:', qrCodeDataURL ? 'Sucesso' : 'Erro');
+        
+        // Mapear dados incluindo a foto e QR code
+        const dadosMapeados = mapearDadosAPI(response.data, fotoAPI, qrCodeDataURL);
         setDados(dadosMapeados);
         
       } catch (err) {
@@ -417,11 +490,29 @@ const useProdutorData = (id) => {
   return { dados, loading, error, loadingFoto };
 };
 
+// 👈 COMPONENTE DO QR CODE ADICIONADO
+const QRCodeSection = ({ dados }) => {
+  if (!dados?.qrCode) return null;
+
+  return (
+    <View style={styles.qrCodeContainer}>
+      <Image src={dados.qrCode} style={styles.qrCodeImage} />
+      <Text style={styles.qrCodeLabel}>QR CODE RNPA</Text>
+      <Text style={[styles.qrCodeLabel, { fontSize: 6 }]}>
+        {dados.numeroRegistro}
+      </Text>
+    </View>
+  );
+};
+
 // Componente wrapper para páginas com marca d'água
 const PageWithWatermark = ({ children, showHeader = false, dados = null }) => (
   <Page size="A4" style={styles.page}>
     {/* Marca d'água em cada página */}
     <Image src={logo} style={styles.logoFundo} />
+    
+    {/* QR Code - apenas na primeira página */}
+    {showHeader && <QRCodeSection dados={dados} />}
     
     {/* Conteúdo da página */}
     <View style={styles.content}>
@@ -504,7 +595,7 @@ const IdentificacaoSection = ({ dados }) => {
                 Foto do Produtor
                 {dados?.fotoAPI && (
                   <Text style={{ fontSize: 6, color: '#007bff' }}>
-                    
+                    (API)
                   </Text>
                 )}
               </Text>
@@ -770,14 +861,14 @@ const FooterSection = () => (
 // Componente principal do PDF com marca d'água em todas as páginas
 const ProdutorRNPADocument = ({ dados }) => (
   <Document>
-    {/* Primeira página */}
+    {/* Primeira página - COM QR CODE */}
     <PageWithWatermark showHeader={true} dados={dados}>
       <TopInfoSection dados={dados} />
       <IdentificacaoSection dados={dados} />
       <LocalizacaoSection dados={dados} />
     </PageWithWatermark>
     
-    {/* Segunda página */}
+    {/* Segunda página - SEM QR CODE */}
     <PageWithWatermark>
       <AgregadoFamiliarSection dados={dados} />
       <OrganizacaoSection dados={dados} />
@@ -800,16 +891,22 @@ export const gerarFichaProdutorPDF = async (produtorId) => {
     console.log('Buscando foto da API...');
     const fotoAPI = await carregarFotoAPI(produtorId);
     
-    // Mapear dados incluindo a foto
-    const dadosMapeados = mapearDadosAPI(response.data, fotoAPI);
+    // Gerar QR code
+    console.log('Gerando QR Code...');
+    const dadosPreliminar = mapearDadosAPI(response.data, fotoAPI);
+    const qrCodeDataURL = await gerarQRCodePDF(dadosPreliminar);
+    
+    // Mapear dados incluindo a foto e QR code
+    const dadosMapeados = mapearDadosAPI(response.data, fotoAPI, qrCodeDataURL);
 
     console.log('Dados do produtor carregados:', dadosMapeados);
     console.log('Foto da API:', fotoAPI ? 'Carregada' : 'Não encontrada');
+    console.log('QR Code:', qrCodeDataURL ? 'Gerado' : 'Erro');
 
     // Gerar o PDF
     const pdfBlob = await pdf(<ProdutorRNPADocument dados={dadosMapeados} />).toBlob();
 
-    console.log('PDF gerado com sucesso - 2 páginas com marca d\'água');
+    console.log('PDF gerado com sucesso - 2 páginas com marca d\'água e QR Code');
 
     // Criar URL do blob
     const url = URL.createObjectURL(pdfBlob);
@@ -862,7 +959,7 @@ const ProdutorRNPAPDF = ({ produtorId, onSuccess, onError }) => {
 
       URL.revokeObjectURL(url);
 
-      console.log(`PDF gerado com ${pageCount} páginas, cada uma com marca d'água`);
+      console.log(`PDF gerado com ${pageCount} páginas, cada uma com marca d'água e QR Code na primeira página`);
       onSuccess?.('Ficha gerada com sucesso!');
     } catch (err) {
       console.error('Erro ao gerar PDF:', err);
@@ -940,7 +1037,7 @@ const ProdutorRNPAPDF = ({ produtorId, onSuccess, onError }) => {
           marginBottom: '20px'
         }}>
           <h3 style={{ margin: '0 0 16px 0', color: '#2c5aa0' }}>
-            Dados para a Ficha ({pageCount} páginas com marca d'água)
+            Dados para a Ficha ({pageCount} páginas com marca d'água e QR Code)
           </h3>
           <div style={{
             display: 'grid',
@@ -982,6 +1079,26 @@ const ProdutorRNPAPDF = ({ produtorId, onSuccess, onError }) => {
             </span>
           </div>
 
+          {/* Status do QR Code */}
+          <div style={{ marginTop: '12px', padding: '12px', backgroundColor: '#e8f5e8', borderRadius: '4px' }}>
+            <strong>QR Code:</strong> 
+            <span style={{ 
+              marginLeft: '8px',
+              padding: '2px 8px',
+              borderRadius: '12px',
+              fontSize: '12px',
+              backgroundColor: dados.qrCode ? '#4caf50' : '#f44336',
+              color: 'white'
+            }}>
+              {dados.qrCode ? 'Gerado com dados específicos' : 'Erro na geração'}
+            </span>
+            {dados.qrCode && (
+              <div style={{ marginTop: '8px', fontSize: '11px', color: '#666' }}>
+                Dados no QR: Produtor Nº, Nome, Sexo, Data Validade, Província, Município
+              </div>
+            )}
+          </div>
+
           {/* Info sobre marca d'água */}
           <div style={{ marginTop: '12px', padding: '12px', backgroundColor: '#f0f8ff', borderRadius: '4px', border: '1px solid #b3d9ff' }}>
             <strong>Marca d'Água:</strong> 
@@ -1013,12 +1130,12 @@ const ProdutorRNPAPDF = ({ produtorId, onSuccess, onError }) => {
           {gerando ? (
             <>
               <span style={{ marginRight: '8px' }}>⏳</span>
-              Gerando PDF...
+              Gerando PDF com QR Code...
             </>
           ) : (
             <>
               <span style={{ marginRight: '8px' }}>📄</span>
-              Gerar Ficha do Produtor ({pageCount} páginas)
+              Gerar Ficha do Produtor ({pageCount} páginas + QR Code)
             </>
           )}
         </button>

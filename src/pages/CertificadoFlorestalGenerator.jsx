@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Image, Page, Text, View, Document, StyleSheet, pdf } from '@react-pdf/renderer';
+import QRCode from 'react-qr-code';
+import html2canvas from 'html2canvas';
 import emblema from '../../assets/emblema.png';
 import logo from '../../assets/RNPA-removebg.png';
 import api from '../../services/api';
@@ -28,10 +30,39 @@ const styles = StyleSheet.create({
     zIndex: 0
   },
 
+  // QR Code positioning
+  qrCodeContainer: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    width: 80,
+    height: 80,
+    zIndex: 2,
+    backgroundColor: '#fff',
+    padding: 5,
+    border: '1px solid #000'
+  },
+
+  qrCodeImage: {
+    width: '100%',
+    height: '100%'
+  },
+
+  qrCodeInfo: {
+    position: 'absolute',
+    top: 110,
+    right: 20,
+    width: 90,
+    fontSize: 6,
+    textAlign: 'center',
+    color: '#666'
+  },
+
   // Container principal
   content: {
     position: 'relative',
-    zIndex: 1
+    zIndex: 1,
+    marginTop: 20
   },
 
   // Cabeçalho oficial
@@ -278,6 +309,95 @@ const gerarNumeroCertificado = () => {
   return `DNF/${numero}/${ano}`;
 };
 
+// Função para preparar dados para QR Code
+const prepararDadosQRCode = (dados) => {
+  const numeroCertificado = dados?.numeroLicencaExploracao || gerarNumeroCertificado();
+  
+  const qrData = {
+    // Identificação do certificado
+    numeroCertificado: numeroCertificado,
+    tipoDocumento: 'CERTIFICADO_LICENCA_FLORESTAL',
+    dataEmissao: new Date().toISOString().split('T')[0],
+    
+    // Dados da empresa/produtor
+    nomeEmpresa: dados?.nomeEmpresa || '',
+    tipoLicenca: dados?.tipoLicenca || '',
+    areaFlorestaTotalHa: dados?.areaFlorestaTotalHa || '0',
+    
+    // Áreas florestais
+    areasFlorestais: (dados?.areasFlorestais || []).map(area => ({
+      nome: area.nomeArea || '',
+      hectares: area.areaHectares || '0',
+      localizacao: area.localizacao || '',
+      tipo: area.tipoFloresta || ''
+    })),
+    
+    // Espécies autorizadas
+    especiesAutorizadas: (dados?.especiesAutorizadas || []).map(esp => ({
+      especie: esp.especie || '',
+      nomeComum: esp.nomeComum || '',
+      volume: esp.volumeAutorizado || '0',
+      unidade: esp.unidade || 'm³'
+    })),
+    
+    // Validade
+    validadeInicio: dados?.validadeInicio || '',
+    validadeFim: dados?.validadeFim || '',
+    
+    // Técnico responsável
+    tecnicoResponsavel: dados?.tecnicoResponsavel || '',
+    cargoTecnico: dados?.cargoTecnico || '',
+    
+    // URL para verificação
+    urlVerificacao: `https://rnpa.gov.ao/verificar-certificado/${numeroCertificado}`,
+    
+    // Hash para validação (simulado)
+    hashValidacao: btoa(numeroCertificado + new Date().getTime()).substring(0, 16)
+  };
+  
+  return JSON.stringify(qrData);
+};
+
+// Componente para gerar QR Code como imagem
+const QRCodeGenerator = ({ dados, onQRCodeGenerated }) => {
+  const qrRef = useRef();
+  const qrData = prepararDadosQRCode(dados);
+  
+  React.useEffect(() => {
+    const generateQRImage = async () => {
+      if (qrRef.current) {
+        try {
+          const canvas = await html2canvas(qrRef.current, {
+            width: 200,
+            height: 200,
+            scale: 2
+          });
+          const qrImageData = canvas.toDataURL('image/png');
+          onQRCodeGenerated(qrImageData);
+        } catch (error) {
+          console.error('Erro ao gerar QR Code:', error);
+        }
+      }
+    };
+    
+    // Pequeno delay para garantir que o QR Code foi renderizado
+    setTimeout(generateQRImage, 100);
+  }, [dados, onQRCodeGenerated]);
+  
+  return (
+    <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
+      <div ref={qrRef} style={{ width: '200px', height: '200px', backgroundColor: 'white', padding: '10px' }}>
+        <QRCode
+          value={qrData}
+          size={180}
+          level="H"
+          includeMargin={false}
+        />
+      </div>
+    </div>
+  );
+};
+
 // Componente do cabeçalho
 const HeaderSection = () => (
   <View style={styles.header}>
@@ -286,7 +406,6 @@ const HeaderSection = () => (
     <Text style={styles.ministerio}>MINISTÉRIO DA AGRICULTURA E FLORESTAS</Text>
     <Text style={styles.dnf}>DIRECÇÃO NACIONAL DE FLORESTAS (DNF)</Text>
     <Text style={styles.tituloDocumento}>CERTIFICADO DE LICENÇA FLORESTAL</Text>
-    
   </View>
 );
 
@@ -398,24 +517,24 @@ const EmissaoSection = ({ dados }) => (
 );
 
 // Componente do rodapé
-const RodapeSection = () => (
+const RodapeSection = ({ numeroCertificado }) => (
   <View>
     <Text style={styles.rodape}>
       <Text style={styles.rodapeDestaque}>A licença é pessoal e intransmissível.</Text> O transporte de produtos florestais deve estar acompanhado deste 
       certificado e do respectivo comprovativo de origem.
     </Text>
     <Text style={styles.rodape}>
-      <Text style={styles.rodapeDestaque}>Verificação pública:</Text> aceda ao portal RNPA e introduza o número/QR da licença para confirmar a autenticidade. 
-      Qualquer alteração de estado (suspensão, revogação, expiração) torna-se efectiva a partir do registo no sistema.
+      <Text style={styles.rodapeDestaque}>Verificação pública:</Text> Aceda ao portal RNPA (https://rnpa.gov.ao/verificar-certificado/{numeroCertificado}) 
+      ou escaneie o QR Code para confirmar a autenticidade. Qualquer alteração de estado (suspensão, revogação, expiração) torna-se efectiva a partir do registo no sistema.
     </Text>
     <Text style={styles.documentoEletronico}>
-      Documento gerado eletronicamente pelo RNPA/DNF. Assinatura digital e QR/NFC para verificação.
+      Documento gerado eletronicamente pelo RNPA/DNF com QR Code para verificação digital.
     </Text>
   </View>
 );
 
 // Componente principal do certificado florestal
-const CertificadoFlorestalDocument = ({ dados }) => {
+const CertificadoFlorestalDocument = ({ dados, qrCodeImage }) => {
   const numeroCertificado = dados?.numeroLicencaExploracao || gerarNumeroCertificado();
 
   return (
@@ -423,6 +542,18 @@ const CertificadoFlorestalDocument = ({ dados }) => {
       <Page size="A4" style={styles.page}>
         {/* Logo de fundo */}
         <Image src={logo} style={styles.logoFundo} />
+
+        {/* QR Code */}
+        {qrCodeImage && (
+          <>
+            <View style={styles.qrCodeContainer}>
+              <Image src={qrCodeImage} style={styles.qrCodeImage} />
+            </View>
+            <Text style={styles.qrCodeInfo}>
+              Escaneie para verificar autenticidade
+            </Text>
+          </>
+        )}
 
         <View style={styles.content}>
           <HeaderSection />
@@ -440,7 +571,7 @@ const CertificadoFlorestalDocument = ({ dados }) => {
 
           <EmissaoSection dados={dados} />
 
-          <RodapeSection />
+          <RodapeSection numeroCertificado={numeroCertificado} />
         </View>
       </Page>
     </Document>
@@ -558,10 +689,18 @@ export const gerarCertificadoFlorestal = async (dadosFormulario) => {
       numeroDoProcesso: (dadosFormulario.dadosProdutor?.numeroProcesso ||
         dadosFormulario.produtorOriginal?._id ||
         "PROC-FLORESTAL-" + Date.now()).toString(),
-      produtorId: produtorId
+      produtorId: produtorId,
+      
+      // Dados do QR Code
+      qrCodeData: prepararDadosQRCode({
+        ...dadosFormulario.dadosProdutor,
+        areasFlorestais: dadosFormulario.areasFlorestais,
+        especiesAutorizadas: dadosFormulario.especiesAutorizadas,
+        historicoExploracoes: dadosFormulario.historicoExploracoes
+      })
     };
 
-    console.log('🚀 DADOS PREPARADOS PARA API FLORESTAL:', dadosAPI);
+    console.log('🚀 DADOS PREPARADOS PARA API FLORESTAL (com QR Code):', dadosAPI);
 
     // Validar campos obrigatórios
     if (!dadosAPI.nomeEmpresa || dadosAPI.nomeEmpresa.trim() === '') {
@@ -594,7 +733,7 @@ export const gerarCertificadoFlorestal = async (dadosFormulario) => {
 
       const response = await api.post('/certificadoFlorestal', dadosAPI, config);
 
-      console.log('✅ Dados florestais salvos na API com sucesso:', response.data);
+      console.log('✅ Dados florestais (com QR Code) salvos na API com sucesso:', response.data);
     } catch (apiError) {
       console.error('❌ Erro ao salvar na API florestal:', apiError);
       console.error('Detalhes do erro:', {
@@ -626,7 +765,7 @@ export const gerarCertificadoFlorestal = async (dadosFormulario) => {
 
     // VERSÃO DE TESTE - apenas exibe os dados que seriam enviados
     console.log('🧪 VERSÃO DE TESTE - Dados que seriam enviados para /certificadoFlorestal:');
-    console.log('📊 Payload completo:', JSON.stringify(dadosAPI, null, 2));
+    console.log('📊 Payload completo (com QR Code):', JSON.stringify(dadosAPI, null, 2));
     console.log('✅ Simulação: Dados florestais "salvos" com sucesso (teste)');
 
     // Dados preparados para o certificado
@@ -637,18 +776,71 @@ export const gerarCertificadoFlorestal = async (dadosFormulario) => {
       historicoExploracoes: dadosFormulario.historicoExploracoes
     };
 
-    // Gerar certificado PDF
+    // **NOVA FUNCIONALIDADE: Gerar QR Code e PDF diretamente**
+    console.log('Gerando QR Code para o certificado...');
+    
+    // Gerar QR Code como imagem
+    const qrData = prepararDadosQRCode(dadosCertificado);
+    
+    // Criar um elemento temporário para gerar o QR Code
+    const tempContainer = document.createElement('div');
+    tempContainer.style.position = 'absolute';
+    tempContainer.style.left = '-9999px';
+    tempContainer.style.top = '-9999px';
+    tempContainer.style.width = '200px';
+    tempContainer.style.height = '200px';
+    tempContainer.style.backgroundColor = 'white';
+    tempContainer.style.padding = '10px';
+    document.body.appendChild(tempContainer);
+
+    // Renderizar QR Code temporariamente usando React
+    const { createRoot } = await import('react-dom/client');
+    const root = createRoot(tempContainer);
+    
+    await new Promise((resolve) => {
+      root.render(React.createElement(QRCode, {
+        value: qrData,
+        size: 180,
+        level: "H",
+        includeMargin: false
+      }));
+      
+      setTimeout(resolve, 500); // Aguardar renderização
+    });
+
+    // Converter para imagem usando html2canvas
+    let qrCodeImage = null;
+    try {
+      const { default: html2canvas } = await import('html2canvas');
+      const canvas = await html2canvas(tempContainer, {
+        width: 200,
+        height: 200,
+        scale: 2
+      });
+      qrCodeImage = canvas.toDataURL('image/png');
+    } catch (error) {
+      console.warn('Erro ao gerar QR Code, continuando sem QR Code:', error);
+    }
+
+    // Limpar elemento temporário
+    document.body.removeChild(tempContainer);
+    root.unmount();
+
     console.log('Gerando PDF do certificado florestal...');
 
+    // Gerar PDF com QR Code
     const pdfBlob = await pdf(
-      <CertificadoFlorestalDocument dados={dadosCertificado} />
+      React.createElement(CertificadoFlorestalDocument, {
+        dados: dadosCertificado,
+        qrCodeImage: qrCodeImage
+      })
     ).toBlob();
 
     // Download do PDF
     const url = URL.createObjectURL(pdfBlob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `certificado_florestal_${dadosFormulario.dadosProdutor.numeroProcesso || 'produtor'}_${new Date().toISOString().split('T')[0]}.pdf`;
+    link.download = `certificado_florestal_${dadosCertificado.numeroProcesso || 'produtor'}_${new Date().toISOString().split('T')[0]}.pdf`;
 
     document.body.appendChild(link);
     link.click();
@@ -668,12 +860,40 @@ export const gerarCertificadoFlorestal = async (dadosFormulario) => {
 // Componente React para interface
 const CertificadoFlorestalGenerator = ({ dados, onSuccess, onError }) => {
   const [gerando, setGerando] = useState(false);
+  const [qrCodeImage, setQrCodeImage] = useState(null);
 
   const handleGerar = async () => {
     setGerando(true);
     try {
-      await gerarCertificadoFlorestal(dados);
-      onSuccess?.('Certificado Florestal gerado com sucesso!');
+      // Primeiro, preparar os dados
+      const resultado = await gerarCertificadoFlorestal(dados);
+      
+      // Gerar o PDF com QR Code após ter a imagem do QR Code
+      if (qrCodeImage) {
+        console.log('Gerando PDF do certificado florestal com QR Code...');
+
+        const pdfBlob = await pdf(
+          <CertificadoFlorestalDocument 
+            dados={resultado.dadosCertificado} 
+            qrCodeImage={qrCodeImage}
+          />
+        ).toBlob();
+
+        // Download do PDF
+        const url = URL.createObjectURL(pdfBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `certificado_florestal_${resultado.dadosCertificado.numeroProcesso || 'produtor'}_${new Date().toISOString().split('T')[0]}.pdf`;
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        console.log('Download do certificado florestal com QR Code iniciado');
+      }
+
+      onSuccess?.('Certificado Florestal com QR Code gerado com sucesso!');
     } catch (error) {
       onError?.(error.message);
     } finally {
@@ -684,10 +904,23 @@ const CertificadoFlorestalGenerator = ({ dados, onSuccess, onError }) => {
   // Verificar se pode gerar certificado
   const temAreas = dados?.areasFlorestais && dados.areasFlorestais.length > 0;
   const temEspecies = dados?.especiesAutorizadas && dados.especiesAutorizadas.length > 0;
-  const podeGerar = dados && temAreas && temEspecies;
+  const podeGerar = dados && temAreas && temEspecies && qrCodeImage;
 
   return (
     <div style={{ padding: '20px', textAlign: 'center' }}>
+      {/* Gerador de QR Code invisível */}
+      {dados && (
+        <QRCodeGenerator 
+          dados={{
+            ...dados.dadosProdutor,
+            areasFlorestais: dados.areasFlorestais,
+            especiesAutorizadas: dados.especiesAutorizadas,
+            historicoExploracoes: dados.historicoExploracoes
+          }}
+          onQRCodeGenerated={setQrCodeImage}
+        />
+      )}
+
       {!podeGerar && dados && (
         <div style={{
           backgroundColor: '#fff3cd',
@@ -698,7 +931,36 @@ const CertificadoFlorestalGenerator = ({ dados, onSuccess, onError }) => {
           fontSize: '14px',
           color: '#856404'
         }}>
-          ⚠️ Adicione pelo menos uma área florestal e uma espécie autorizada para gerar o certificado
+          ⚠️ {!temAreas || !temEspecies 
+            ? 'Adicione pelo menos uma área florestal e uma espécie autorizada para gerar o certificado'
+            : !qrCodeImage 
+            ? 'Preparando QR Code...'
+            : 'Verificando dados...'
+          }
+        </div>
+      )}
+
+      {/* Preview do QR Code */}
+      {qrCodeImage && (
+        <div style={{
+          backgroundColor: '#f8f9fa',
+          border: '1px solid #dee2e6',
+          borderRadius: '6px',
+          padding: '15px',
+          marginBottom: '15px',
+          display: 'inline-block'
+        }}>
+          <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', color: '#495057' }}>
+            🔍 Preview do QR Code do Certificado
+          </h4>
+          <img 
+            src={qrCodeImage} 
+            alt="QR Code do Certificado Florestal" 
+            style={{ width: '120px', height: '120px', border: '1px solid #ccc' }}
+          />
+          <div style={{ fontSize: '11px', color: '#6c757d', marginTop: '5px' }}>
+            Escaneie para verificar autenticidade
+          </div>
         </div>
       )}
 
@@ -714,7 +976,7 @@ const CertificadoFlorestalGenerator = ({ dados, onSuccess, onError }) => {
           color: '#0066cc',
           textAlign: 'left'
         }}>
-          <strong>🌲 Dados para API (/certificadoFlorestal):</strong>
+          <strong>🌲 Dados para API (/certificadoFlorestal) com QR Code:</strong>
           <ul style={{ margin: '8px 0', paddingLeft: '20px' }}>
             <li><strong>Empresa:</strong> {dados.dadosProdutor?.nomeEmpresa || 'N/A'}</li>
             <li><strong>Licença Nº:</strong> {dados.dadosProdutor?.numeroLicencaExploracao || 'N/A'}</li>
@@ -723,6 +985,7 @@ const CertificadoFlorestalGenerator = ({ dados, onSuccess, onError }) => {
             <li><strong>Espécies Autorizadas:</strong> {dados.especiesAutorizadas?.length || 0} itens</li>
             <li><strong>Histórico:</strong> {dados.historicoExploracoes?.length || 0} itens</li>
             <li><strong>Técnico:</strong> {dados.dadosProdutor?.tecnicoResponsavel || 'N/A'}</li>
+            <li><strong>QR Code:</strong> ✅ Gerado com dados completos</li>
           </ul>
         </div>
       )}
@@ -744,9 +1007,9 @@ const CertificadoFlorestalGenerator = ({ dados, onSuccess, onError }) => {
         }}
       >
         {gerando ? (
-          <>⏳ Gerando Certificado Florestal...</>
+          <>⏳ Gerando Certificado Florestal com QR Code...</>
         ) : (
-          '🌲 Gerar Certificado de Licença Florestal'
+          '🌲📱 Gerar Certificado de Licença Florestal com QR Code'
         )}
       </button>
 
@@ -756,7 +1019,7 @@ const CertificadoFlorestalGenerator = ({ dados, onSuccess, onError }) => {
           fontSize: '12px',
           color: '#666'
         }}>
-          📡 Enviando dados para API /certificadoFlorestal...
+          📡 Enviando dados para API /certificadoFlorestal com QR Code...
         </div>
       )}
     </div>

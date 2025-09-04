@@ -45,6 +45,7 @@ import IrrigacaoMenu from './Layout/other/IrrigacaoMenu';
 import TesteAmostrasSolo from './pages/InfraEstrutura/TesteAmostrasSolo';
 import AmostrasDeSoloMenu from './Layout/other/AmostrasDeSoloMenu';
 import SancoesMenu from './Layout/other/SancoesMenu';
+import EmpresasMenu from './pages/SociedadeAgricola/EmpresasMenu';
 //import VisualizarProdutorFlorestal from './pages/VisualizarProdutorFlorestal';
 
 
@@ -131,6 +132,7 @@ function App() {
             <Route path="cooperativas" element={<GestaoEntidadesAssociativasMenu />} />
             <Route path="cadastro-producao-cooperativa/:cooperativaId" element={<CadastroProducaoCooperativa />} />
             <Route path="associacoes" element={<GestaoAssociacoesRuraisMenu />} />
+            <Route path="empresas" element={<EmpresasMenu />} />
             <Route path="cadastro-producao-associacoes/:cooperativaId" element={<CadastroProducaoAssociacao />} />
             <Route path="visualizar-associacao/:id" element={<VisualizarAssociacaoRural />} />
             <Route path="documentos" element={<h1 className="text-2xl font-semibold">Upload de Documentos Legais</h1>} />
