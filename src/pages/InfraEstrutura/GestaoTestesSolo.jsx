@@ -982,7 +982,7 @@ const GestaoTestesSolo = () => {
                           <User className="w-3.5 h-3.5 mr-1" />
                           {record.tecnicoResponsavel.nome}
                         </div>
-                        <div className="text-xs text-start text-gray-600">
+                        <div className="text-xs text-start text-gray-600">    
                           {formatCurrency(record.custoAnalise)}
                         </div>
                       </div>
