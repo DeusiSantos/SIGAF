@@ -25,7 +25,11 @@ import {
     Scale,
     Camera,
     UserCheck,
+    Download,
 } from 'lucide-react';
+
+// IMPORTAR A FUNÇÃO DE GERAÇÃO DO PDF
+import { gerarAutoInfracao } from '../public/CertificadoMultaGenerator';
 
 const CustomInput = ({ type, label, value, onChange, options, required, errorMessage, disabled, placeholder, iconStart, helperText, rows, ...props }) => {
     const baseInputClasses = `w-full p-3 border rounded-xl transition-all ${errorMessage ? 'border-red-500 bg-red-50' : 'border-gray-200 focus:border-green-500'
@@ -128,6 +132,10 @@ const HistoricoMultasApreensoes = () => {
     // Estados para as propriedades/florestas do produtor
     const [propriedades, setPropriedades] = useState([]);
     const [propriedadeSelecionada, setPropriedadeSelecionada] = useState(null);
+
+    // NOVO: Estado para controlar se o PDF foi gerado
+    const [pdfGerado, setPdfGerado] = useState(false);
+    const [dadosRegistroCompleto, setDadosRegistroCompleto] = useState(null);
 
     // Estado inicial do formulário
     const initialState = {
@@ -300,6 +308,39 @@ const HistoricoMultasApreensoes = () => {
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
+    };
+
+    // NOVA FUNÇÃO: Gerar PDF após registro bem-sucedido
+    const gerarPDFAuto = async (dadosCompletos) => {
+        try {
+            console.log('Gerando Auto de Infração em PDF...', dadosCompletos);
+            
+            // Chamar a função de geração do PDF
+            const resultado = await gerarAutoInfracao(dadosCompletos.formData, dadosCompletos.propriedadeSelecionada);
+            
+            if (resultado.success) {
+                setPdfGerado(true);
+                showToast('success', 'PDF Gerado', 'Auto de Infração foi baixado automaticamente!');
+            }
+        } catch (error) {
+            console.error('Erro ao gerar PDF:', error);
+            showToast('error', 'Erro no PDF', 'Erro ao gerar o Auto de Infração em PDF.');
+        }
+    };
+
+    // NOVA FUNÇÃO: Baixar PDF novamente
+    const baixarPDFNovamente = async () => {
+        if (dadosRegistroCompleto) {
+            setLoading(true);
+            try {
+                await gerarAutoInfracao(dadosRegistroCompleto.formData, dadosRegistroCompleto.propriedadeSelecionada);
+                showToast('success', 'PDF Baixado', 'Auto de Infração baixado novamente!');
+            } catch (error) {
+                showToast('error', 'Erro', 'Erro ao baixar o PDF novamente.');
+            } finally {
+                setLoading(false);
+            }
+        }
     };
 
     const renderStepContent = (index) => {
@@ -659,16 +700,6 @@ const HistoricoMultasApreensoes = () => {
                                 />
                             </div>
 
-                            {/* Motivo da Sanção */}
-
-
-                            {/* Data e Local da Ocorrência */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-
-
-                            </div>
-
                             {/* Descrição Detalhada */}
                             <CustomInput
                                 type="textarea"
@@ -791,6 +822,30 @@ const HistoricoMultasApreensoes = () => {
                                     <div><strong>Nº do Processo:</strong> {formData.numeroProcesso}</div>
                                 </div>
                             </div>
+
+                            {/* NOVO: Seção de confirmação para geração do PDF */}
+                            <div className="bg-red-50 rounded-xl p-6 border border-red-200">
+                                <div className="flex items-center mb-3">
+                                    <FileText className="w-5 h-5 text-red-600 mr-2" />
+                                    <h5 className="font-semibold text-red-800">Geração Automática do Auto de Infração</h5>
+                                </div>
+                                <p className="text-red-700 text-sm mb-3">
+                                    Após finalizar o registro, será gerado automaticamente um PDF oficial do Auto de Infração e Multa 
+                                    com QR Code para verificação digital.
+                                </p>
+                                <div className="flex items-center text-sm text-red-600">
+                                    <CheckCircle className="w-4 h-4 mr-2" />
+                                    <span>Documento oficial com validade legal</span>
+                                </div>
+                                <div className="flex items-center text-sm text-red-600">
+                                    <CheckCircle className="w-4 h-4 mr-2" />
+                                    <span>QR Code para verificação online</span>
+                                </div>
+                                <div className="flex items-center text-sm text-red-600">
+                                    <CheckCircle className="w-4 h-4 mr-2" />
+                                    <span>Download automático após registro</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 );
@@ -822,8 +877,22 @@ const HistoricoMultasApreensoes = () => {
                 }
             });
 
+            // NOVO: Preparar dados para PDF e gerar automaticamente
+            const dadosCompletos = {
+                formData,
+                propriedadeSelecionada,
+                produtorSelecionado
+            };
+
+            setDadosRegistroCompleto(dadosCompletos);
+            
             setLoading(false);
             showToast('success', 'Sucesso', 'Registro de multa/apreensão concluído com sucesso!');
+
+            // NOVO: Gerar PDF automaticamente após 1 segundo
+            setTimeout(async () => {
+                await gerarPDFAuto(dadosCompletos);
+            }, 1000);
 
         } catch (error) {
             setLoading(false);
@@ -853,6 +922,31 @@ const HistoricoMultasApreensoes = () => {
                             <p className="text-sm">{toastMessage.detail}</p>
                         </div>
                     </div>
+                </div>
+            )}
+
+            {/* NOVO: Banner de sucesso e PDF gerado */}
+            {pdfGerado && dadosRegistroCompleto && (
+                <div className="fixed top-20 right-4 p-6 bg-white rounded-lg shadow-xl z-50 border-l-4 border-green-500 max-w-md">
+                    <div className="flex items-center mb-3">
+                        <CheckCircle className="w-6 h-6 text-green-600 mr-3" />
+                        <h4 className="font-bold text-green-800">Auto de Infração Gerado!</h4>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-4">
+                        O Auto de Infração foi baixado automaticamente. Se não baixou, clique no botão abaixo.
+                    </p>
+                    <button
+                        onClick={baixarPDFNovamente}
+                        disabled={loading}
+                        className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center"
+                    >
+                        {loading ? (
+                            <Loader size={16} className="animate-spin mr-2" />
+                        ) : (
+                            <Download size={16} className="mr-2" />
+                        )}
+                        Baixar PDF Novamente
+                    </button>
                 </div>
             )}
 
@@ -958,7 +1052,7 @@ const HistoricoMultasApreensoes = () => {
                             ) : isLastStep ? (
                                 <>
                                     <FileText size={20} className="mr-2" />
-                                    Finalizar Registro
+                                    Finalizar e Gerar PDF
                                 </>
                             ) : (
                                 <>

@@ -50,6 +50,7 @@ import CustomInput from '../../components/CustomInput';
 import { gerarFichaProdutorPDF } from '../../pages/public/GerarCartaoRNPA';
 import axios from 'axios';
 import api from '../../services/api';
+import ProdutorCompletoRNPAPDF, { gerarFichaCompletaPDF } from './ProdutorCompletoRNPAPDF';
 
 // Corrigir ícones do Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -64,6 +65,7 @@ const useProdutorById = (id) => {
     const [produtor, setProdutor] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    
 
     useEffect(() => {
         const fetchProdutor = async () => {
@@ -519,6 +521,7 @@ const VisualizarProdutor = () => {
 
     const [showStatusModal, setShowStatusModal] = useState(false);
     const [pendingStatusValue, setPendingStatusValue] = useState(null);
+     const [gerandoPDF, setGerandoPDF] = useState(false);
 
 
     // Steps do formulário
@@ -1213,6 +1216,19 @@ const VisualizarProdutor = () => {
         }
     };
 
+   const handleGerarPDFCompleto = async () => {
+           setGerandoPDF(true);
+           try {
+               await gerarFichaCompletaPDF(id);
+               showToast('success', 'Ficha completa com histórico de produção gerada com sucesso!');
+           } catch (error) {
+               console.error('Erro ao gerar PDF completo:', error);
+               showToast('error', `Erro ao gerar PDF: ${error.message}`);
+           } finally {
+               setGerandoPDF(false);
+           }
+       };
+
     const handleGenerateCard = () => {
         navigate(`/GerenciaRNPA/gestao-escolar/produtores/gerar-cartao/${id}`);
     };
@@ -1238,6 +1254,24 @@ const VisualizarProdutor = () => {
                             <>
                                 <Download className="w-4 h-4 mr-2" />
                                 Ficha
+                            </>
+                        )}
+                    </button>
+
+                     <button
+                        onClick={handleGerarPDFCompleto}
+                        disabled={gerando}
+                        className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-300"
+                    >
+                        {gerando ? (
+                            <>
+                                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                                Gerando...
+                            </>
+                        ) : (
+                            <>
+                                <Download className="w-4 h-4 mr-2" />
+                                Produção
                             </>
                         )}
                     </button>

@@ -47,8 +47,7 @@ import AmostrasDeSoloMenu from './Layout/other/AmostrasDeSoloMenu';
 import SancoesMenu from './Layout/other/SancoesMenu';
 import EmpresasMenu from './pages/SociedadeAgricola/EmpresasMenu';
 import VisualizarProdutorFlorestal from './pages/VisualizarProdutorFlorestal';
-//import VisualizarProdutorFlorestal from './pages/VisualizarProdutorFlorestal';
-
+import EntidadesAssociativasGestao from './pages/SociedadeAgricola/EntidadesAssociativasGestao';
 
 function App() {
   return (
@@ -56,93 +55,197 @@ function App() {
       <Routes>
         <Route index path="/" element={<LoginPage />}></Route>
         <Route path="/GerenciaRNPA" element={<Layout />}>
-          {/* Rota inicial */}
+          {/* Rota inicial - Dashboard */}
           <Route index element={<Dashboard />} />
+          <Route path="dashboard" element={<Dashboard />} />
 
+          {/* =================================== */}
+          {/* ROTAS GERAIS DO SISTEMA (mantidas) */}
+          {/* =================================== */}
+          
           {/* Rotas dos produtores (já existentes) */}
           <Route path="produtores/visualizar/:id" element={<VisualizarProdutor />} />
           <Route path="produtores/editar/:id" element={<h1>Editar Produtor</h1>} />
           <Route path="produtores/historico-producao/:id" element={<HistoricoProducao />} />
           <Route path="produtores/historico-beneficios/:id" element={<HistoricoBeneficios />} />
           <Route path="produtores/historico-producao/:id/novo" element={<AddHistoricoProducao />} />
-          <Route path="gestao-escolar/produtores" element={<h1 className="text-2xl font-semibold">Lista de Produtores</h1>} />
-          <Route path="gestao-escolar/produtores/visualizar/:id" element={<VisualizarProdutor />} />
-          <Route path="gestao-escolar/produtores/editar/:id" element={<h1>Editar Produtor</h1>} />
-          <Route path="gestao-cooperativa/cooperativa/visualizar/:id" element={<VisualizarCooperativa />} />
-          <Route path="gestao-escolar/produtores/historico-producao/:id" element={<HistoricoProducao />} />
-          <Route path="gestao-escolar/produtores/historico-beneficios/:id" element={<HistoricoBeneficios />} />
-          <Route path="gestao-escolar/produtores/gerar-cartao/:id" element={<GerarCartaoRNPAAgricola />} />
           <Route path="produtores/gerar-cartao/:id" element={<GerarCartaoRNPA />} />
           <Route path="certificados/visualizar/:produtorId" element={<VisualizarCertificados />} />
           <Route path="incentivos/visualizar/:id" element={<VisualizarIncentivo />} />
 
-          {/* Rotas dos produtores Florestais */}
-          {/* Dashboard */}
-          <Route path="/GerenciaRNPA/dashboard">
-            <Route index element={<Dashboard />} />
-          </Route>
+          {/* Rotas de gestão escolar (mantidas) */}
+          <Route path="gestao-escolar/produtores" element={<h1 className="text-2xl font-semibold">Lista de Produtores</h1>} />
+          <Route path="gestao-escolar/produtores/visualizar/:id" element={<VisualizarProdutor />} />
+          <Route path="gestao-escolar/produtores/editar/:id" element={<h1>Editar Produtor</h1>} />
+          <Route path="gestao-escolar/produtores/historico-producao/:id" element={<HistoricoProducao />} />
+          <Route path="gestao-escolar/produtores/historico-beneficios/:id" element={<HistoricoBeneficios />} />
+          <Route path="gestao-escolar/produtores/gerar-cartao/:id" element={<GerarCartaoRNPAAgricola />} />
 
-          {/* 1. Gestão de Agricultores */}
+          {/* Rotas de gestão cooperativa (mantidas) */}
+          <Route path="gestao-cooperativa/cooperativa/visualizar/:id" element={<VisualizarCooperativa />} />
+
+          {/* ======================================= */}
+          {/* 1. PRODUTORES AGRÍCOLAS */}
+          {/* ======================================= */}
           <Route path="gestao-agricultores">
             <Route index element={<GestaoAlunosMenu />} />
+            {/* Produtores (com dropdown para Pessoal, Empresa, Cooperativa, Associação) */}
             <Route path="produtores" element={<GestaoAlunosMenu />} />
+            <Route path="produtores/pessoal" element={<GestaoAlunosMenu />} />
+            <Route path="produtores/empresa" element={<EmpresasMenu />} />
+            <Route path="produtores/cooperativa" element={<GestaoEntidadesAssociativasMenu />} />
+            <Route path="produtores/associacao" element={<GestaoAssociacoesRuraisMenu />} />
+            <Route path="programas" element={<GestaoProgramasBeneficiosMenu />} />
+            <Route path="incentivos" element={<IncentivoMenu />} />
+            
+            {/* Validação e Certificado */}
+            <Route path="workflow" element={<ValidarCerficacao />} />
+            
+            {/* Passe (Certificados) */}
+            <Route path="certificados" element={<CertificadosGestao />} />
+            
+            {/* Outras rotas existentes */}
             <Route path="registo-individual" element={<h1 className="text-2xl font-semibold">Registo Individual de Produtor</h1>} />
             <Route path="registo-familiar" element={<h1 className="text-2xl font-semibold">Registo de Agregado Familiar</h1>} />
-            <Route path="workflow" element={<ValidarCerficacao />} />
-            <Route path="certificados" element={<CertificadosGestao />} />
             <Route path="verificacao" element={<h1 className="text-2xl font-semibold">Certificação da Qualidade do Produto</h1>} />
             <Route path="geolocalizacao" element={<Geolocalizacao />} />
             <Route path="categorizacao" element={<h1 className="text-2xl font-semibold">Categorização Automática (UFPAs, Empreendimentos, Associações)</h1>} />
           </Route>
 
-          {/* 1. Gestão Florestal */}
+          {/* ======================================= */}
+          {/* 2. FLORESTAIS */}
+          {/* ======================================= */}
           <Route path="gestao-florestal">
             <Route index element={<GestaoProdutoresFlorestais />} />
-            <Route path="produtoresflorestais" element={<GestaoProdutoresFlorestais />} />
+            
+            {/* Produtores (com dropdown para Pessoal, Empresa, Cooperativa, Associação) */}
+            <Route path="produtores" element={<GestaoAlunosMenu />} />
+            <Route path="produtores/pessoal" element={<GestaoAlunosMenu />} />
+            <Route path="produtores/empresa" element={<EmpresasMenu />} />
+            <Route path="produtores/cooperativa" element={<GestaoEntidadesAssociativasMenu />} />
+            <Route path="produtores/associacao" element={<GestaoAssociacoesRuraisMenu />} />
+            <Route path="programas" element={<GestaoProgramasBeneficiosMenu />} />
+            <Route path="incentivos" element={<IncentivoMenu />} />
+            
+            {/* Validação e Certificado */}
+            <Route path="workflow" element={<ValidarCerficacao />} />
+            
+            {/* Passe (Certificados) */}
+            <Route path="certificados" element={<CertificadosGestao />} />
+            
+            {/* Certificação Florestal */}
+            <Route path="certificacaoFlorestal" element={<CertificacaoProdutorFlorestal />} />
+            
+            {/* Visualizar Produtor Florestal */}
+            <Route path="visualizarprodutorflorestal/:id" element={<VisualizarProdutorFlorestal />} />
+            
+            {/* Outras rotas existentes */}
             <Route path="licencas" element={<LicencaMenu />} />
             <Route path="fiscalizacao" element={<GestaoFiscalizacao />} />
-            <Route path='visualizarprodutorflorestal/:id' element={<VisualizarProdutorFlorestal />} />   
-            <Route path="certificacaoFlorestal" element={< CertificacaoProdutorFlorestal />} />
             <Route path="registo-individual" element={<h1 className="text-2xl font-semibold">Registo Individual de Produtor</h1>} />
             <Route path="registo-familiar" element={<h1 className="text-2xl font-semibold">Registo de Agregado Familiar</h1>} />
-            <Route path="workflow" element={<ValidarCerficacao />} />
-            <Route path="certificados" element={<CertificadosGestao />} />
             <Route path="verificacao" element={<h1 className="text-2xl font-semibold">Certificação da Qualidade do Produto</h1>} />
             <Route path="geolocalizacao" element={<Geolocalizacao />} />
             <Route path="categorizacao" element={<h1 className="text-2xl font-semibold">Categorização Automática (UFPAs, Empreendimentos, Associações)</h1>} />
           </Route>
 
+          {/* Transgreções/Sanções */}
           <Route path="sancoes">
             <Route index element={<SancoesMenu />} />
-          
+            <Route path="inserir" element={<GestaoMultasApreensoes />} />
+            <Route path="historico" element={<HistoricoMultasApreensoes />} />
           </Route>
 
-
-           {/* 3. Infraestrutura Agrícola */}
+          {/* ======================================= */}
+          {/* 3. INFRAESTRUTURA */}
+          {/* ======================================= */}
           <Route path="gestao-infraestrutura">
             <Route index element={<MenuApoioAgricola />} />
-            <Route path='Irrigacao' element={<IrrigacaoMenu />} />
-            <Route path='apoio-agricola' element={<MenuApoioAgricola />} />
-            <Route path='AmostrasDeSolo' element={<AmostrasDeSoloMenu />} />
+            
+            {/* Irrigação */}
+            <Route path="Irrigacao" element={<IrrigacaoMenu />} />
+            
+            {/* Ciclos e Centro de Armazenamento + Entrepostas e Mercado */}
+            <Route path="AmostrasDeSolo" element={<AmostrasDeSoloMenu />} />
+            
+            {/* Empresas de Apoio Agrícola */}
+            <Route path="apoio-agricola" element={<MenuApoioAgricola />} />
+            
+            {/* Rotas adicionais */}
+            <Route path="gestao-apoio" element={<GestaoApoioAgricola />} />
+            <Route path="teste-amostras" element={<TesteAmostrasSolo />} />
           </Route>
 
+          {/* ======================================= */}
+          {/* 4. PAINEL E MONITORAMENTO */}
+          {/* ======================================= */}
+          <Route path="painel-monitoramento">
+            <Route index element={<ControlePragasMenu />} />
+            
+            {/* Controle de Pragas, Meteorologia, Hidrografia */}
+            <Route path="indicadores" element={<ControlePragasMenu />} />
+            <Route path="controle-pragas" element={<ControlePragasMenu />} />
+            <Route path="meteorologia" element={<ControlePragasMenu />} />
+            <Route path="hidrografia" element={<ControlePragasMenu />} />
+            
+            {/* Outras rotas existentes */}
+            <Route path="mapa" element={<h1 className="text-2xl font-semibold">Mapa Interactivo com Cobertura Territorial</h1>} />
+            <Route path="relatorios" element={<h1 className="text-2xl font-semibold">Exportação de Relatórios Excel/PDF</h1>} />
+            <Route path="provincias" element={<h1 className="text-2xl font-semibold">Análise por Província</h1>} />
+            
+            {/* Cadastro de Pragas */}
+            <Route path="cadastro-pragas" element={<CadastroPragas />} />
+          </Route>
 
-          {/* 2. Gestão de Entidades Associativas */}
-          <Route path="entidades-associativas">
+          {/* ======================================= */}
+          {/* 5. ENTIDADES ASSOCIATIVAS */}
+          {/* ======================================= */}
+          {/* <Route path="entidades-associativas">
             <Route index element={<GestaoEntidadesAssociativasMenu />} />
+            
+            {/* Cooperativas 
             <Route path="cooperativas" element={<GestaoEntidadesAssociativasMenu />} />
+            <Route path="visualizar-cooperativa/:id" element={<VisualizarCooperativa />} />
             <Route path="cadastro-producao-cooperativa/:cooperativaId" element={<CadastroProducaoCooperativa />} />
+            
+            {/* Associações Rurais 
             <Route path="associacoes" element={<GestaoAssociacoesRuraisMenu />} />
-            <Route path="empresas" element={<EmpresasMenu />} />
-            <Route path="cadastro-producao-associacoes/:cooperativaId" element={<CadastroProducaoAssociacao />} />
             <Route path="visualizar-associacao/:id" element={<VisualizarAssociacaoRural />} />
+            <Route path="cadastro-producao-associacoes/:cooperativaId" element={<CadastroProducaoAssociacao />} />
+            
+            {/* Empresas 
+            <Route path="empresas" element={<EmpresasMenu />} />
+            
+            {/* Outras rotas existentes 
             <Route path="documentos" element={<h1 className="text-2xl font-semibold">Upload de Documentos Legais</h1>} />
             <Route path="membros" element={<h1 className="text-2xl font-semibold">Histórico de Membros</h1>} />
             <Route path="projectos" element={<h1 className="text-2xl font-semibold">Histórico de Projectos</h1>} />
-            <Route path="visualizar-cooperativa/:id" element={<VisualizarCooperativa />} />
-          </Route>
+          </Route> */}
 
-          {/* 3. Gestão de Agentes de Campo */}
+          {/* ======================================= */}
+          {/* 6. PROGRAMAS E BENEFÍCIOS */}
+          {/* ======================================= */}
+          {/* <Route path="programas-beneficios">
+            <Route index element={<GestaoProgramasBeneficiosMenu />} />
+            
+            {/* Histórico/Cadastro de Programas 
+            <Route path="historico" element={<GestaoProgramasBeneficiosMenu />} />
+            <Route path="cadastrar" element={<CadastroProjetos />} />
+            <Route path="visualizar/:id" element={<VisualizarProjeto />} />
+            
+            {/* Incentivos *
+            <Route path="incentivos" element={<IncentivoMenu />} />
+            
+            {/* Outras rotas existentes *
+            <Route path="insumos" element={<h1 className="text-2xl font-semibold">Integração com Módulos de Distribuição de Insumos</h1>} />
+            <Route path="acompanhamento" element={<h1 className="text-2xl font-semibold">Acompanhamento de Beneficiários</h1>} />
+          </Route> */}
+
+          {/* ======================================= */}
+          {/* ROTAS ADICIONAIS (mantidas) */}
+          {/* ======================================= */}
+
+          {/* Gestão de Agentes de Campo */}
           <Route path="agentes-campo">
             <Route index element={<GestaoInqueridorMenu />} />
             <Route path="perfis" element={<GestaoInqueridorMenu />} />
@@ -152,7 +255,7 @@ function App() {
             <Route path="cobertura" element={<h1 className="text-2xl font-semibold">Monitoramento da Cobertura Geográfica</h1>} />
           </Route>
 
-          {/* 4. Validação e Certificação */}
+          {/* Validação e Certificação */}
           <Route path="validacao-certificacao">
             <Route index element={<ValidacoesCerificadosMenu />} />
             <Route path="workflow" element={<ValidacoesCerificadosMenu />} />
@@ -161,29 +264,7 @@ function App() {
             <Route path="aprovacoes" element={<h1 className="text-2xl font-semibold">Gestão de Aprovações</h1>} />
           </Route>
 
-          {/* 5. Painel de Monitoramento */}
-          <Route path="painel-monitoramento">
-            <Route index element={<ControlePragasMenu />} />
-            <Route path="indicadores" element={<ControlePragasMenu />} />
-            <Route path="mapa" element={<h1 className="text-2xl font-semibold">Mapa Interactivo com Cobertura Territorial</h1>} />
-            <Route path="relatorios" element={<h1 className="text-2xl font-semibold">Exportação de Relatórios Excel/PDF</h1>} />
-            <Route path="provincias" element={<h1 className="text-2xl font-semibold">Análise por Província</h1>} />
-          </Route>
-
-          {/* 6. Gestão de Programas e Benefícios */}
-
-          <Route path="programas-beneficios">
-            <Route index element={<GestaoProgramasBeneficiosMenu />} />
-            <Route path="historico" element={<GestaoProgramasBeneficiosMenu />} />
-            <Route path="incentivos" element={<IncentivoMenu />} />
-            <Route path="insumos" element={<h1 className="text-2xl font-semibold">Integração com Módulos de Distribuição de Insumos</h1>} />
-            <Route path="acompanhamento" element={<h1 className="text-2xl font-semibold">Acompanhamento de Beneficiários</h1>} />
-          </Route>
-          <Route path="programas-beneficios" element={<GestaoProgramasBeneficiosMenu />} />
-          <Route path="programas-beneficios/cadastrar" element={<CadastroProjetos />} />
-          <Route path="programas-beneficios/visualizar/:id" element={<VisualizarProjeto />} />
-
-          {/* 7. Gestão de Usuários e Perfis */}
+          {/* Gestão de Usuários e Perfis */}
           <Route path="usuarios-perfis">
             <Route index element={<h1 className="text-2xl font-semibold">Gestão de Usuários e Perfis</h1>} />
             <Route path="niveis-acesso" element={<h1 className="text-2xl font-semibold">Diferenciação por Níveis de Acesso (Nacional, Provincial, Municipal, Comunal)</h1>} />
@@ -192,7 +273,7 @@ function App() {
             <Route path="gestao" element={<h1 className="text-2xl font-semibold">Gestão de Utilizadores</h1>} />
           </Route>
 
-          {/* 8. Documentação e Arquivo Digital */}
+          {/* Documentação e Arquivo Digital */}
           <Route path="arquivo-digital">
             <Route path="upload" element={<h1 className="text-2xl font-semibold">Upload e Organização de Documentos</h1>} />
             <Route path="organizacao" element={<h1 className="text-2xl font-semibold">Organização de Documentos</h1>} />
@@ -200,7 +281,7 @@ function App() {
             <Route path="gestao" element={<h1 className="text-2xl font-semibold">Gestão de Arquivos</h1>} />
           </Route>
 
-          {/* 9. Helpdesk e Formação */}
+          {/* Helpdesk e Formação */}
           <Route path="helpdesk-formacao">
             <Route index element={<h1 className="text-2xl font-semibold">Helpdesk e Formação</h1>} />
             <Route path="tickets" element={<h1 className="text-2xl font-semibold">Sistema de Tickets para Suporte</h1>} />

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Image, Page, Text, View, Document, StyleSheet, pdf } from '@react-pdf/renderer';
+import QRCode from 'qrcode'; // QR CODE IMPORT ADICIONADO
 
 import emblema from '../../assets/emblema.png';
 import fotoC from '../../assets/RNPA-removebg.png';
@@ -296,6 +297,57 @@ const formatDate = (dateString) => {
   if (!dateString) return '';
   const date = new Date(dateString);
   return date.toLocaleDateString('pt-BR');
+};
+
+// NOVA FUNÇÃO PARA GERAR QR CODE DO PRODUTOR
+const gerarQRCodeProdutor = async (dados) => {
+  try {
+    const numeroRegistro = dados?.numeroRegistro || 'RNPA000000';
+
+    // Dados que serão codificados no QR Code
+    const dadosQR = {
+      registro: numeroRegistro,
+      nome: dados?.nome || '',
+      bi: dados?.bi || '',
+      telefone: dados?.telefone || '',
+      provincia: dados?.provincia || '',
+      municipio: dados?.municipio || '',
+      dataRegistro: formatDate(dados?.dataRegistro) || formatDate(new Date()),
+      verificacao: `https://rnpa.gov.ao/verificar/${numeroRegistro}`,
+      // Informações adicionais do agregado
+      totalAgregados: dados?.numeroAgregados || 0,
+      atividades: dados?.atividades || '',
+      chefeAgregado: dados?.chefeAgregado ? 'Sim' : 'Não'
+    };
+
+    // Converter para string formatada
+    const dadosString = `Registro RNPA: ${dadosQR.registro}
+Nome: ${dadosQR.nome}
+BI: ${dadosQR.bi}
+Telefone: ${dadosQR.telefone}
+Província: ${dadosQR.provincia}
+Município: ${dadosQR.municipio}
+Registrado em: ${dadosQR.dataRegistro}
+Total Agregados: ${dadosQR.totalAgregados}
+Atividades: ${dadosQR.atividades}
+Verificar: ${dadosQR.verificacao}`;
+
+    // Gerar QR Code como base64
+    const qrCodeDataURL = await QRCode.toDataURL(dadosString, {
+      width: 200,
+      margin: 1,
+      color: {
+        dark: '#000000',
+        light: '#FFFFFF'
+      },
+      errorCorrectionLevel: 'M'
+    });
+
+    return qrCodeDataURL;
+  } catch (error) {
+    console.error('Erro ao gerar QR Code do produtor:', error);
+    return null;
+  }
 };
 
 // Função para formatar unidade de medida
@@ -888,6 +940,91 @@ const AtividadesSection = ({ dados }) => (
   </View>
 );
 
+// NOVO: Componente da seção do QR Code
+const QRCodeSection = ({ qrCodeData, numeroRegistro }) => (
+  <View style={styles.section}>
+    <Text style={styles.sectionTitle}>Verificação Digital</Text>
+    <View style={styles.sectionContent}>
+      <View style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}>
+        <View style={{
+          alignItems: 'center',
+          width: '30%'
+        }}>
+          {qrCodeData && (
+            <>
+              <Image src={qrCodeData} style={{
+                width: 80,
+                height: 80,
+                marginBottom: 5
+              }} />
+              <Text style={{
+                fontSize: 7,
+                textAlign: 'center',
+                fontWeight: 'bold'
+              }}>
+                Código de Verificação
+              </Text>
+              <Text style={{
+                fontSize: 8,
+                fontWeight: 'bold',
+                textAlign: 'center',
+                marginTop: 5
+              }}>
+                {numeroRegistro}
+              </Text>
+            </>
+          )}
+        </View>
+
+        <View style={{
+          width: '65%',
+          paddingLeft: 10
+        }}>
+          <Text style={{
+            fontSize: 8,
+            fontWeight: 'bold',
+            marginBottom: 3
+          }}>
+            Verificação de Autenticidade:
+          </Text>
+          <Text style={{
+            fontSize: 7,
+            lineHeight: 1.3,
+            marginBottom: 2
+          }}>
+            1. Escaneie o QR Code com seu dispositivo móvel
+          </Text>
+          <Text style={{
+            fontSize: 7,
+            lineHeight: 1.3,
+            marginBottom: 2
+          }}>
+            2. Ou acesse: https://rnpa.gov.ao/verificar/{numeroRegistro}
+          </Text>
+          <Text style={{
+            fontSize: 7,
+            lineHeight: 1.3,
+            marginBottom: 2
+          }}>
+            3. Confirme os dados apresentados com este documento
+          </Text>
+          <Text style={{
+            fontSize: 7,
+            lineHeight: 1.3
+          }}>
+            <Text style={{ fontWeight: 'bold' }}>Atenção:</Text> Documentos adulterados ou falsificados
+            não passarão na verificação digital.
+          </Text>
+        </View>
+      </View>
+    </View>
+  </View>
+);
+
 // NOVO: Componente do Histórico de Produção
 const HistoricoProducaoSection = ({ historico }) => {
   if (!historico || historico.length === 0) {
@@ -1085,10 +1222,8 @@ const FooterSection = () => (
   </View>
 );
 
-// Componente principal do PDF completo com histórico
-const ProdutorCompletoDocument = ({ dados, historico }) => {
- 
-  
+// MODIFICADO: Componente principal do PDF completo com histórico E QR CODE
+const ProdutorCompletoDocument = ({ dados, historico, qrCodeData }) => {
   return (
     <Document>
       {/* Primeira página - Identificação e Localização */}
@@ -1111,15 +1246,16 @@ const ProdutorCompletoDocument = ({ dados, historico }) => {
         <HistoricoProducaoSection historico={historico} />
       </PageWithWatermark>
 
-      {/* Página final com rodapé */}
+      {/* Página final com QR Code e rodapé */}
       <PageWithWatermark>
+        <QRCodeSection qrCodeData={qrCodeData} numeroRegistro={dados?.numeroRegistro} />
         <FooterSection />
       </PageWithWatermark>
     </Document>
   );
 };
 
-// Função principal para gerar PDF completo com histórico
+// MODIFICADA: Função principal para gerar PDF completo com histórico E QR CODE
 export const gerarFichaCompletaPDF = async (produtorId) => {
   try {
     console.log('Iniciando geração do PDF completo para produtor ID:', produtorId);
@@ -1137,13 +1273,22 @@ export const gerarFichaCompletaPDF = async (produtorId) => {
     // Mapear dados incluindo a foto
     const dadosMapeados = mapearDadosAPI(response.data, fotoAPI);
 
+    // NOVO: Gerar QR Code com os dados do produtor
+    console.log('Gerando QR Code com dados do produtor...');
+    const qrCodeData = await gerarQRCodeProdutor(dadosMapeados);
+
+    if (!qrCodeData) {
+      console.warn('Não foi possível gerar o QR Code, continuando sem ele...');
+    }
+
     console.log('Dados do produtor carregados:', dadosMapeados);
     console.log('Histórico de produção carregado:', historicoData.length, 'registros');
     console.log('Foto da API:', fotoAPI ? 'Carregada' : 'Não encontrada');
+    console.log('QR Code:', qrCodeData ? 'Gerado com sucesso' : 'Não gerado');
 
-    // Gerar o PDF
+    // MODIFICADO: Gerar o PDF incluindo QR Code
     const pdfBlob = await pdf(
-      <ProdutorCompletoDocument dados={dadosMapeados} historico={historicoData} />
+      <ProdutorCompletoDocument dados={dadosMapeados} historico={historicoData} qrCodeData={qrCodeData} />
     ).toBlob();
 
     console.log('PDF completo gerado com sucesso');
@@ -1172,7 +1317,7 @@ export const gerarFichaCompletaPDF = async (produtorId) => {
   }
 };
 
-// Componente que pode ser usado diretamente na interface
+// MODIFICADO: Componente que pode ser usado diretamente na interface
 const ProdutorCompletoRNPAPDF = ({ produtorId, onSuccess, onError }) => {
   const { dados, historico, loading, error } = useProdutorComHistorico(produtorId);
   const [gerando, setGerando] = useState(false);
@@ -1185,8 +1330,11 @@ const ProdutorCompletoRNPAPDF = ({ produtorId, onSuccess, onError }) => {
 
     setGerando(true);
     try {
+      // NOVO: Gerar QR Code com os dados do produtor
+      const qrCodeData = await gerarQRCodeProdutor(dados);
+
       const pdfBlob = await pdf(
-        <ProdutorCompletoDocument dados={dados} historico={historico} />
+        <ProdutorCompletoDocument dados={dados} historico={historico} qrCodeData={qrCodeData} />
       ).toBlob();
       
       const url = URL.createObjectURL(pdfBlob);
@@ -1201,7 +1349,7 @@ const ProdutorCompletoRNPAPDF = ({ produtorId, onSuccess, onError }) => {
 
       URL.revokeObjectURL(url);
 
-      console.log(`PDF completo gerado com ${historico.length} registros de produção`);
+      console.log(`PDF completo gerado com ${historico.length} registros de produção e QR Code`);
       onSuccess?.('Ficha completa gerada com sucesso!');
     } catch (err) {
       console.error('Erro ao gerar PDF completo:', err);
@@ -1337,11 +1485,11 @@ const ProdutorCompletoRNPAPDF = ({ produtorId, onSuccess, onError }) => {
             </div>
           </div>
 
-          {/* Info sobre conteúdo do PDF */}
+          {/* Info sobre conteúdo do PDF COM QR CODE */}
           <div style={{ marginTop: '12px', padding: '12px', backgroundColor: '#f0f8ff', borderRadius: '4px', border: '1px solid #b3d9ff' }}>
             <strong>Conteúdo do PDF:</strong> 
             <span style={{ marginLeft: '8px', fontSize: '12px', color: '#0066cc' }}>
-              ✅ Dados pessoais ✅ Localização ✅ Agregado familiar ✅ Histórico completo de produção ✅ Marca d'água oficial
+              ✅ Dados pessoais ✅ Localização ✅ Agregado familiar ✅ Histórico completo de produção ✅ QR Code de verificação ✅ Marca d'água oficial
             </span>
           </div>
         </div>
@@ -1368,12 +1516,12 @@ const ProdutorCompletoRNPAPDF = ({ produtorId, onSuccess, onError }) => {
           {gerando ? (
             <>
               <span style={{ marginRight: '8px' }}>⏳</span>
-              Gerando PDF Completo...
+              Gerando PDF Completo com QR Code...
             </>
           ) : (
             <>
               <span style={{ marginRight: '8px' }}>📄</span>
-              Gerar Ficha Completa com Histórico
+              Gerar Ficha Completa com Histórico e QR Code
             </>
           )}
         </button>

@@ -1203,12 +1203,14 @@ const HistoricoProducao = () => {
                                         style={{ minWidth: 0 }}
                                         aria-label="Adicionar Registro"
                                     >
-                                        <Plus className="w-4 h-4" />
+                                        <Plus className="w-4 h-4 mr-2" />
                                         <span className="sr-only">Adicionar Registro</span>
+                                        Adicionar Registro
                                     </button>
                                     <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-1 bg-green-100 text-green-700 text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap">
                                         Adicionar Registro
                                     </span>
+                                    
                                 </div>
 
                                 {/* Imprimir Ficha Completa */}
@@ -1220,29 +1222,16 @@ const HistoricoProducao = () => {
                                         style={{ minWidth: 0 }}
                                         aria-label={gerandoPDF ? 'A gerar PDF...' : 'Imprimir Ficha Completa'}
                                     >
-                                        <Printer className="w-4 h-4" />
+                                        <Download className="w-4 h-4 mr-2" />
                                         <span className="sr-only">{gerandoPDF ? 'A gerar PDF...' : 'Imprimir Ficha Completa'}</span>
+                                        Imprimir Ficha Completa
                                     </button>
                                     <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-1 bg-white text-gray-700 text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap">
                                       {gerandoPDF ? 'A gerar PDF...' : 'Imprimir Ficha Completa'}
                                     </span>
                                 </div>
 
-                                {/* Exportar Relatório */}
-                                <div className="relative group">
-                                    <button
-                                        onClick={() => showToast('info', 'Exportando relatório...')}
-                                        className="flex items-center text-sm px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                                        style={{ minWidth: 0 }}
-                                        aria-label="Exportar Relatório"
-                                    >
-                                        <Download className="w-4 h-4" />
-                                        <span className="sr-only">Exportar Relatório</span>
-                                    </button>
-                                    <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-1 bg-blue-100 text-blue-700 border text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap">
-                                      Exportar Relatório
-                                    </span>
-                                </div>
+                              
                             </div>
                         </div>
                     </div>
@@ -1520,13 +1509,6 @@ const HistoricoProducao = () => {
                                         : "Não há registos que correspondam aos filtros aplicados."
                                     }
                                 </p>
-                                <button
-                                    onClick={() => setShowAddForm(true)}
-                                    className="mt-4 flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors mx-auto"
-                                >
-                                    <Plus className="w-4 h-4 mr-2" />
-                                    Adicionar Primeiro Registo
-                                </button>
                             </div>
                         ) : (
                             <div className='overflow-x-auto'>

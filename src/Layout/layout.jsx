@@ -6,7 +6,7 @@ import {
   Calendar, Settings, Globe, TrendingUp, FileBarChart,
   EyeOff, Sprout, TreePine, Tractor, PanelLeftClose, PanelLeftOpen,
   Plus, Clock, AlertTriangle, CheckCircle,
-  BuildingIcon,Wheat, 
+  BuildingIcon, Wheat, 
   File,
   Building,
   ShieldAlert,
@@ -16,7 +16,6 @@ import {
   Landmark
 } from 'lucide-react';
 
-
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import DashboardStats from '../components/DashboardStats';
 
@@ -25,7 +24,7 @@ import imagebottom from '../assets/imageB1.png';
 import { useProdutores } from '../hooks/useRnpaData';
 import DashboardAngola from '../components/DashboardAngola';
 
-// Configuração das rotas para o sistema RNPA
+// Configuração dos menus reorganizada mantendo todas as rotas existentes
 const rnpaRoutes = {
   mainMenuItems: [
     {
@@ -35,157 +34,164 @@ const rnpaRoutes = {
       submenu: false
     },
     {
-      text: 'Gestão de Agricultores',
-      icon: Users,
+      text: 'Produtores Agrícolas',
+      icon: Wheat,
       path: '/GerenciaRNPA/gestao-agricultores',
       submenu: true
     },
-    
     {
-      text: 'Gestão Florestal',
+      text: 'Florestais',
       icon: TreePine,
       path: '/GerenciaRNPA/gestao-florestal',
       submenu: true
     },
-     {
+    {
       text: 'Infraestrutura',
-      icon: Sprout,
+      icon: Building,
       path: '/GerenciaRNPA/gestao-infraestrutura',
       submenu: true
     },
-    
     {
-      text: 'Entidades Associativas',
-      icon: Building2,
-      path: '/GerenciaRNPA/entidades-associativas',
-      submenu: true
-    },
-    //{
-    // text: 'Agentes de Campo',
-    // icon: UserCheck,
-    //path: '/GerenciaRNPA/agentes-campo',
-    //submenu: true
-    //},
-    // {
-    //   text: 'Validação e Certificação',
-    //   icon: Shield,
-    //   path: '/GerenciaRNPA/validacao-certificacao',
-    //   submenu: true
-    // },
-    {
-      text: 'Painel de Monitoramento',
+      text: 'Painel e Monitoramento',
       icon: TrendingUp,
       path: '/GerenciaRNPA/painel-monitoramento',
       submenu: true
     },
-    {
-      text: 'Programas e Benefícios',
-      icon: Award,
-      path: '/GerenciaRNPA/programas-beneficios',
-      submenu: true
-    },
-    //{
-    //  text: 'Usuários e Perfis',
-    //  icon: Settings,
-    //  path: '/GerenciaRNPA/usuarios-perfis',
-    //  submenu: true
-    //},
-    //{
-    //  text: 'Arquivo Digital',
-    //  icon: Archive,
-    //  path: '/GerenciaRNPA/arquivo-digital',
-    //  submenu: true
-    //},
-    //{
-    //  text: 'Helpdesk e Formação',
-    //  icon: HelpCircle,
-    //  path: '/GerenciaRNPA/helpdesk-formacao',
-    //  submenu: true
-    //}
+    // {
+    //   text: 'Entidades Associativas',
+    //   icon: Building2,
+    //   path: '/GerenciaRNPA/entidades-associativas',
+    //   submenu: true
+    // },
+    // {
+    //   text: 'Programas e Benefícios',
+    //   icon: Award,
+    //   path: '/GerenciaRNPA/programas-beneficios',
+    //   submenu: true
+    // }
   ],
+  
   subMenus: {
-    'Gestão de Agricultores': [
-      { text: 'Produtores', icon: Users, path: '/GerenciaRNPA/gestao-agricultores/produtores' },
-      { text: 'Validação da Produção', icon: Shield, path: '/GerenciaRNPA/gestao-agricultores/workflow' },
-      { text: 'Emissão de Certificado digital', icon: Award, path: '/GerenciaRNPA/gestao-agricultores/certificados' },
-      //{ text: 'Certificação da Qualidade do Produto', icon: Search, path: '/GerenciaRNPA/gestao-agricultores/verificacao' },
-      //{ text: 'Geolocalização', icon: MapPin, path: '/GerenciaRNPA/gestao-agricultores/geolocalizacao' },
+    'Produtores Agrícolas': [
+      { 
+        text: 'Produtores', 
+        icon: Users, 
+        path: '/GerenciaRNPA/gestao-agricultores/produtores',
+        hasDropdown: true,
+        dropdownItems: [
+          { text: 'Pessoal', path: '/GerenciaRNPA/gestao-agricultores/produtores/pessoal' },
+          { text: 'Empresa', path: '/GerenciaRNPA/gestao-agricultores/produtores/empresa' },
+          { text: 'Cooperativa', path: '/GerenciaRNPA/gestao-agricultores/produtores/cooperativa' },
+          { text: 'Associação', path: '/GerenciaRNPA/gestao-agricultores/produtores/associacao' }
+        ]
+      },
+      { text: 'Validação e Certificado', icon: Shield, path: '/GerenciaRNPA/gestao-agricultores/workflow' },
+      { text: 'Programas e Benefícios', icon: Award, path: '/GerenciaRNPA/gestao-agricultores/programas' },
+      { text: 'Incentivos', icon: TrendingUp, path: '/GerenciaRNPA/gestao-agricultores/incentivos' }
     ],
-    'Gestão Florestal': [
-      { text: 'Produtor', icon: Users, path: '/GerenciaRNPA/gestao-florestal/produtoresFlorestais' },
-      //{ text: 'Licenças', icon: FileText, path: '/GerenciaRNPA/gestao-florestal/licencas' },
-      //{ text: 'Fiscalização', icon: Shield, path: '/GerenciaRNPA/gestao-florestal/fiscalizacao' },
-      { text: 'Validação da Produção', icon: Shield, path: '/GerenciaRNPA/gestao-florestal/workflow' },
-      { text: 'Emissão de Certificado digital', icon: Award, path: '/GerenciaRNPA/gestao-florestal/certificados' },
+    
+    'Florestais': [
+      { 
+        text: 'Produtores', 
+        icon: Users, 
+        path: '/GerenciaRNPA/gestao-florestal/produtoresFlorestais',
+        hasDropdown: true,
+        dropdownItems: [
+          { text: 'Pessoal', path: '/GerenciaRNPA/gestao-florestal/produtores/pessoal' },
+          { text: 'Empresa', path: '/GerenciaRNPA/gestao-florestal/produtores/empresa' },
+          { text: 'Cooperativa', path: '/GerenciaRNPA/gestao-florestal/produtores/cooperativa' },
+          { text: 'Associação', path: '/GerenciaRNPA/gestao-florestal/produtores/associacao' }
+        ]
+      },
+      { text: 'Validação e Certificado', icon: Shield, path: '/GerenciaRNPA/gestao-florestal/workflow' },
+      { text: 'Programas e Benefícios', icon: Award, path: '/GerenciaRNPA/gestao-florestal/programas' },
+      { text: 'Incentivos', icon: TrendingUp, path: '/GerenciaRNPA/gestao-florestal/incentivos' },
       { text: 'Certificação Florestal', icon: File, path: '/GerenciaRNPA/gestao-florestal/certificacaoFlorestal' },
-      { text: 'Transgreções', icon: Gavel, path: '/GerenciaRNPA/sancoes' },
-      //{ text: 'Certificação da Qualidade do Produto', icon: Search, path: '/GerenciaRNPA/gestao-agricultores/verificacao' },
-      //{ text: 'Geolocalização', icon: MapPin, path: '/GerenciaRNPA/gestao-agricultores/geolocalizacao' },
+      { text: 'Transgreções', icon: Gavel, path: '/GerenciaRNPA/sancoes' }
     ],
+    
     'Infraestrutura': [
-      { text: 'Irrigaçao', icon: Building , path: '/GerenciaRNPA/gestao-infraestrutura/Irrigacao' },
-      { text: 'Amostras de Solo', icon: Building , path: '/GerenciaRNPA/gestao-infraestrutura/AmostrasDeSolo' },
-      { text: 'Apoio Agrícola', icon: Tractor , path: '/GerenciaRNPA/gestao-infraestrutura/apoio-agricola' },
-     
+      { text: 'Irrigação', icon: Sprout, path: '/GerenciaRNPA/gestao-infraestrutura/Irrigacao' },
+      { text: 'Ciclos e Centro de Armazenamento', icon: Archive, path: '/GerenciaRNPA/gestao-infraestrutura/AmostrasDeSolo' },
+      { text: 'Entrepostas e Mercado', icon: Building2, path: '/GerenciaRNPA/gestao-infraestrutura/AmostrasDeSolo' },
+      { text: 'Empresas de Apoio Agrícola', icon: Tractor, path: '/GerenciaRNPA/gestao-infraestrutura/apoio-agricola' }
     ],
-    'Sanções': [
-      { text: 'Registrar Infração', icon: Plus, path: '/GerenciaRNPA/sancoes/inserir' },
-      { text: 'Histórico de Penalidades', icon: Award, path: '/GerenciaRNPA/sancoes/historico' },
-      //{ text: 'Distribuição Insumos', icon: Tractor, path: '/GerenciaRNPA/programas-beneficios/insumos' },
-      //{ text: 'Acompanhamento', icon: TrendingUp, path: '/GerenciaRNPA/programas-beneficios/acompanhamento' }
+    
+    'Painel e Monitoramento': [
+      { text: 'Controle de Pragas', icon: ShieldAlert, path: '/GerenciaRNPA/painel-monitoramento/indicadores' },
+      { text: 'Meteorologia', icon: Globe, path: '/GerenciaRNPA/painel-monitoramento/meteorologia' },
+      { text: 'Hidrografia', icon: MapPin, path: '/GerenciaRNPA/painel-monitoramento/hidrografia' }
     ],
+
     'Entidades Associativas': [
       { text: 'Cooperativas', icon: Building2, path: '/GerenciaRNPA/entidades-associativas/cooperativas' },
       { text: 'Associações Rurais', icon: TreePine, path: '/GerenciaRNPA/entidades-associativas/associacoes' },
-      { text: 'Empresas', icon: Landmark, path: '/GerenciaRNPA/entidades-associativas/empresas' },
-      //{ text: 'Documentos Legais', icon: FileText, path: '/GerenciaRNPA/entidades-associativas/documentos' },
-      //{ text: 'Membros', icon: Users, path: '/GerenciaRNPA/entidades-associativas/membros' },
-      //{ text: 'Histórico de Projectos', icon: Calendar, path: '/GerenciaRNPA/entidades-associativas/projectos' }
+      { text: 'Empresas', icon: Landmark, path: '/GerenciaRNPA/entidades-associativas/empresas' }
     ],
-    //'Agentes de Campo': [
-    //  { text: 'Perfil dos Agentes', icon: UserCheck, path: '/GerenciaRNPA/agentes-campo/perfis' },
-    //   { text: 'Territórios', icon: MapPin, path: '/GerenciaRNPA/agentes-campo/territorios' },
-    //  { text: 'Interface Móvel', icon: Globe, path: '/GerenciaRNPA/agentes-campo/interface-movel' },
-    //  { text: 'Recolha de Dados', icon: FileText, path: '/GerenciaRNPA/agentes-campo/recolha-dados' },
-    //  { text: 'Cobertura Geográfica', icon: BarChart3, path: '/GerenciaRNPA/agentes-campo/cobertura' }
-    //],
-    // 'Validação e Certificação': [
-    //   { text: 'Validação da Produção', icon: Shield, path: '/GerenciaRNPA/validacao-certificacao/workflow' },
-    //   { text: 'Emissão de Certificado digital', icon: Award, path: '/GerenciaRNPA/validacao-certificacao/certificados' },
-    //   { text: 'Certificação da Qualidade do Produto', icon: Search, path: '/GerenciaRNPA/validacao-certificacao/verificacao' },
-    //   // { text: 'Aprovações', icon: UserCheck, path: '/GerenciaRNPA/validacao-certificacao/aprovacoes' }
-    // ],
-    'Painel de Monitoramento': [
-      { text: 'Controle de Pregas', icon: BarChart3, path: '/GerenciaRNPA/painel-monitoramento/indicadores' },
-      //{ text: 'Mapa Interactivo', icon: MapPin, path: '/GerenciaRNPA/painel-monitoramento/mapa' },
-      //{ text: 'Relatórios Excel/PDF', icon: FileBarChart, path: '/GerenciaRNPA/painel-monitoramento/relatorios' },
-      //{ text: 'Análise por Província', icon: Globe, path: '/GerenciaRNPA/painel-monitoramento/provincias' }
-    ],
+
     'Programas e Benefícios': [
       { text: 'Cadastro de Programas', icon: Plus, path: '/GerenciaRNPA/programas-beneficios/historico' },
-      { text: 'Incentivos', icon: Award, path: '/GerenciaRNPA/programas-beneficios/incentivos' },
-      //{ text: 'Distribuição Insumos', icon: Tractor, path: '/GerenciaRNPA/programas-beneficios/insumos' },
-      //{ text: 'Acompanhamento', icon: TrendingUp, path: '/GerenciaRNPA/programas-beneficios/acompanhamento' }
-    ],
-    //'Usuários e Perfis': [
-    //  { text: 'Níveis de Acesso', icon: Shield, path: '/GerenciaRNPA/usuarios-perfis/niveis-acesso' },
-    //  { text: 'Permissões', icon: Settings, path: '/GerenciaRNPA/usuarios-perfis/permissoes' },
-    //  { text: 'Auditoria', icon: FileText, path: '/GerenciaRNPA/usuarios-perfis/auditoria' },
-    //  { text: 'Gestão de Utilizadores', icon: Users, path: '/GerenciaRNPA/usuarios-perfis/gestao' }
-    //],
-    //'Arquivo Digital': [
-    //  { text: 'Upload de Documentos', icon: Archive, path: '/GerenciaRNPA/arquivo-digital/upload' },
-    //  { text: 'Organização', icon: FileText, path: '/GerenciaRNPA/arquivo-digital/organizacao' },
-    //  { text: 'Pesquisa Avançada', icon: Search, path: '/GerenciaRNPA/arquivo-digital/pesquisa' },
-    //  { text: 'Gestão de Arquivos', icon: Settings, path: '/GerenciaRNPA/arquivo-digital/gestao' }
-    //],
-    // 'Helpdesk e Formação': [
-    //  { text: 'Sistema de Tickets', icon: HelpCircle, path: '/GerenciaRNPA/helpdesk-formacao/tickets' },
-    //  { text: 'Base de Conhecimento', icon: FileText, path: '/GerenciaRNPA/helpdesk-formacao/conhecimento' },
-    //  { text: 'Materiais de Formação', icon: Award, path: '/GerenciaRNPA/helpdesk-formacao/materiais' },
-    //  { text: 'Suporte aos Agentes', icon: UserCheck, path: '/GerenciaRNPA/helpdesk-formacao/suporte' }
-    //]
+      { text: 'Incentivos', icon: Award, path: '/GerenciaRNPA/programas-beneficios/incentivos' }
+    ]
   }
+};
+
+const DropdownMenuItem = ({ item, isActive, onItemClick, onDropdownClick }) => {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  
+  const handleMainClick = () => {
+    onItemClick(item.text);
+    if (item.hasDropdown) {
+      setIsDropdownOpen(!isDropdownOpen);
+    }
+  };
+
+  const handleDropdownItemClick = (dropdownItem) => {
+    onDropdownClick(dropdownItem.path);
+    setIsDropdownOpen(false);
+  };
+  
+  return (
+    <div className="relative">
+      <button
+        onClick={handleMainClick}
+        className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 ${
+          isActive
+            ? 'text-blue-600 bg-blue-50 font-semibold shadow-sm'
+            : 'text-gray-600 hover:bg-blue-50 hover:text-blue-600'
+        }`}
+      >
+        <div className="flex items-center min-w-0">
+          <item.icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-blue-600' : ''}`} />
+          <span className="ml-3 text-sm truncate">{item.text}</span>
+        </div>
+        {item.hasDropdown && (
+          <ChevronRight className={`w-4 h-4 flex-shrink-0 transition-transform ${
+            isDropdownOpen ? 'rotate-90' : ''
+          }`} />
+        )}
+        {isActive && !item.hasDropdown && (
+          <div className="ml-auto">
+            <div className="w-2 h-2 rounded-full bg-blue-600"></div>
+          </div>
+        )}
+      </button>
+      
+      {item.hasDropdown && isDropdownOpen && (
+        <div className="ml-8 mt-2 space-y-1 animate-fade-in">
+          {item.dropdownItems.map((dropdownItem, index) => (
+            <button
+              key={index}
+              onClick={() => handleDropdownItemClick(dropdownItem)}
+              className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors border-l-2 border-gray-200 hover:border-blue-300"
+            >
+              <span className="block truncate">{dropdownItem.text}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 };
 
 const Layout = () => {
@@ -199,8 +205,6 @@ const Layout = () => {
   const [activeSubmenuItem, setActiveSubmenuItem] = useState(null);
   const [menuTransition, setMenuTransition] = useState('none');
   const [showDashboardStats, setShowDashboardStats] = useState(false);
-
-
 
   // Determinar o menu e submenu ativo com base na URL atual
   useEffect(() => {
@@ -217,7 +221,8 @@ const Layout = () => {
         setIsInSubmenu(true);
 
         const submenuItem = rnpaRoutes.subMenus[mainMenuItem.text]?.find(item =>
-          currentPath === item.path
+          currentPath === item.path || 
+          (item.hasDropdown && item.dropdownItems?.some(dropItem => currentPath === dropItem.path))
         );
 
         if (submenuItem) {
@@ -283,19 +288,25 @@ const Layout = () => {
   const handleSubmenuItemClick = (itemText) => {
     const submenuItem = rnpaRoutes.subMenus[activeMenu]?.find(item => item.text === itemText);
 
-    if (submenuItem) {
+    if (submenuItem && !submenuItem.hasDropdown) {
       setActiveSubmenuItem(itemText);
       navigate(submenuItem.path);
+    } else if (submenuItem && submenuItem.hasDropdown) {
+      setActiveSubmenuItem(itemText);
     }
+  };
+
+  const handleDropdownNavigation = (path) => {
+    navigate(path);
   };
 
   const renderSidebarHeader = () => (
     <div className="flex flex-col items-center p-4 border-b bg-gradient-to-b from-blue-50 to-white">
       {!isSidebarCollapsed && (
         <>
-          <img src={imagetop} className='w-[100px] h-[100px]' alt="" srcset="" />
+          <img src={imagetop} className='w-[100px] h-[100px]' alt="" srcSet="" />
           <div className="text-center">
-            <h3 className="text-xs font-semibold text-gray-800 leading-tight">
+            <h3 className="text-xs font-semibold text-gray-800 mt-3 leading-tight">
               MINISTÉRIO DA AGRICULTURA
             </h3>
             <h4 className="text-xs font-semibold text-gray-800">E FLORESTAS</h4>
@@ -304,11 +315,9 @@ const Layout = () => {
         </>
       )}
 
-      {/* Botão para colapsar sidebar - sempre visível */}
       <button
         onClick={toggleSidebarCollapse}
-        className={`mt-3 p-2 rounded-lg text-gray-600 hover:bg-blue-100 hover:text-blue-600 transition-all duration-200 ${isSidebarCollapsed ? 'mx-auto' : ''
-          }`}
+        className={`mt-3 p-2 rounded-lg text-gray-600 hover:bg-blue-100 hover:text-blue-600 transition-all duration-200 ${isSidebarCollapsed ? 'mx-auto' : ''}`}
         title={isSidebarCollapsed ? 'Expandir sidebar' : 'Recolher sidebar'}
       >
         {isSidebarCollapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
@@ -316,14 +325,10 @@ const Layout = () => {
     </div>
   );
 
-
-
   const renderMainMenu = () => (
     <div className="flex flex-col h-full">
-      {/* Header da Sidebar */}
       {renderSidebarHeader()}
 
-      {/* Content - Menu Principal */}
       <div className="flex-1 overflow-y-auto">
         <nav className="py-2">
           <ul className="space-y-1">
@@ -338,15 +343,13 @@ const Layout = () => {
                   title={isSidebarCollapsed ? item.text : ''}
                 >
                   <div className="flex items-center min-w-0">
-                    <item.icon className={`w-5 h-5 flex-shrink-0 ${activeMenu === item.text && !isInSubmenu ? 'text-blue-600' : ''
-                      }`} />
+                    <item.icon className={`w-5 h-5 flex-shrink-0 ${activeMenu === item.text && !isInSubmenu ? 'text-blue-600' : ''}`} />
                     {!isSidebarCollapsed && (
                       <span className="ml-3 font-medium text-sm truncate">{item.text}</span>
                     )}
                   </div>
                   {!isSidebarCollapsed && item.submenu && (
-                    <ChevronRight className={`w-4 h-4 flex-shrink-0 transition-transform ${activeMenu === item.text ? 'rotate-90' : ''
-                      }`} />
+                    <ChevronRight className={`w-4 h-4 flex-shrink-0 transition-transform ${activeMenu === item.text ? 'rotate-90' : ''}`} />
                   )}
                 </button>
               </li>
@@ -355,21 +358,16 @@ const Layout = () => {
         </nav>
       </div>
 
-      {/* Footer da Sidebar */}
       <div className="border-t bg-white p-4">
         {!isSidebarCollapsed ? (
-          <>
-            <div className="mb-3 p-3 rounded-lg">
-              <img src={imagebottom} alt="" srcset="" />
-            </div>
-
-          </>
+          <div className="mb-3 p-3 rounded-lg">
+            <img src={imagebottom} alt="" srcSet="" />
+          </div>
         ) : (
           <button
             className="w-full p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
             title="Perfil do Usuário"
           >
-
           </button>
         )}
       </div>
@@ -382,7 +380,6 @@ const Layout = () => {
 
     return (
       <div className="flex flex-col h-full">
-        {/* Header do Submenu */}
         <div className="flex items-center justify-between p-4 border-b bg-gradient-to-b from-blue-50 to-white">
           <button
             onClick={goBackToMainMenu}
@@ -413,33 +410,40 @@ const Layout = () => {
           </div>
         )}
 
-        {/* Content - Submenu */}
         <div className="flex-1 overflow-y-auto">
           <nav className="py-2">
             <ul className="space-y-1">
               {subMenuItems.map((item, index) => (
                 <li key={index} className="px-2">
-                  <button
-                    onClick={() => handleSubmenuItemClick(item.text)}
-                    className={`w-full flex items-center px-4 py-3 rounded-lg transition-all duration-200 ${activeSubmenuItem === item.text
-                      ? 'text-blue-600 bg-blue-50 font-semibold shadow-sm'
-                      : 'text-gray-600 hover:bg-blue-50 hover:text-blue-600'
-                      }`}
-                    title={isSidebarCollapsed ? item.text : ''}
-                  >
-                    <item.icon className={`w-5 h-5 flex-shrink-0 ${activeSubmenuItem === item.text ? 'text-blue-600' : ''
-                      }`} />
-                    {!isSidebarCollapsed && (
-                      <>
-                        <span className="ml-3 text-sm truncate">{item.text}</span>
-                        {activeSubmenuItem === item.text && (
-                          <div className="ml-auto">
-                            <div className="w-2 h-2 rounded-full bg-blue-600"></div>
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </button>
+                  {item.hasDropdown ? (
+                    <DropdownMenuItem
+                      item={item}
+                      isActive={activeSubmenuItem === item.text}
+                      onItemClick={handleSubmenuItemClick}
+                      onDropdownClick={handleDropdownNavigation}
+                    />
+                  ) : (
+                    <button
+                      onClick={() => handleSubmenuItemClick(item.text)}
+                      className={`w-full flex items-center px-4 py-3 rounded-lg transition-all duration-200 ${activeSubmenuItem === item.text
+                        ? 'text-blue-600 bg-blue-50 font-semibold shadow-sm'
+                        : 'text-gray-600 hover:bg-blue-50 hover:text-blue-600'
+                        }`}
+                      title={isSidebarCollapsed ? item.text : ''}
+                    >
+                      <item.icon className={`w-5 h-5 flex-shrink-0 ${activeSubmenuItem === item.text ? 'text-blue-600' : ''}`} />
+                      {!isSidebarCollapsed && (
+                        <>
+                          <span className="ml-3 text-sm truncate">{item.text}</span>
+                          {activeSubmenuItem === item.text && (
+                            <div className="ml-auto">
+                              <div className="w-2 h-2 rounded-full bg-blue-600"></div>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>
@@ -453,21 +457,15 @@ const Layout = () => {
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
       <div
-        className={`fixed xl:static inset-y-0 left-0 z-50 bg-white shadow-lg transform transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-16' : 'w-64'
-          } ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full xl:translate-x-0'
-          }`}
+        className={`fixed xl:static inset-y-0 left-0 z-50 bg-white shadow-lg transform transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-16' : 'w-64'} ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full xl:translate-x-0'}`}
       >
-        <div className={`h-full overflow-hidden ${menuTransition === 'entering' ? 'animate-fade-in' :
-          menuTransition === 'exiting' ? 'animate-fade-out' : ''
-          }`}>
+        <div className={`h-full overflow-hidden ${menuTransition === 'entering' ? 'animate-fade-in' : menuTransition === 'exiting' ? 'animate-fade-out' : ''}`}>
           {isInSubmenu ? renderSubMenu() : renderMainMenu()}
         </div>
       </div>
 
       {/* Conteúdo principal */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-        {/* Indicadores globais - agora dentro do conteúdo principal, antes do header */}
-        {/* REMOVIDO: Indicadores globais duplicados */}
         {/* Header */}
         <header className="flex items-center justify-between h-16 px-4 md:px-6 bg-white shadow-sm border-b-2 border-blue-600">
           <div className="flex items-center min-w-0">
@@ -509,7 +507,6 @@ const Layout = () => {
           </div>
 
           <div className="flex items-center space-x-2 md:space-x-4">
-            {/* Botão para toggle do DashboardStats */}
             <button
               onClick={() => setShowDashboardStats(!showDashboardStats)}
               className="flex items-center px-2 md:px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition-all duration-200"
@@ -551,20 +548,17 @@ const Layout = () => {
 
         {/* DashboardStats com animação */}
         <div
-          className={`transition-all z-[10] duration-500 ease-in-out overflow-hidden ${showDashboardStats
-            ? 'max-h-96 opacity-100'
-            : 'max-h-0 opacity-0'
-            }`}
+          className={`transition-all z-[10] duration-500 ease-in-out overflow-hidden ${showDashboardStats ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
         >
           <DashboardStats
             produtor={produtor}
             loading={loadingProdutor}
           />
         </div>
+
         {/* Main Content */}
         <main className="flex-1 overflow-auto p-4 md:p-6">
-          <div className="bg-white border-r-2 border-l-2 rounded-lg shadow-md p-4 md:p-6 ">
-
+          <div className="bg-white border-r-2 border-l-2 rounded-lg shadow-md p-4 md:p-6">
             <Outlet />
           </div>
         </main>
