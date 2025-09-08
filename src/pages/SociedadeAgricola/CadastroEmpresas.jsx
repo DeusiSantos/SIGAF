@@ -1509,4 +1509,4 @@ const CadastroEmpresas = () => {
   );
 };
 
-export default CadastroEmpresas;
+export default CadastroEmpresas;   
