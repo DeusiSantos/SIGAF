@@ -4,2938 +4,1358 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import axios from 'axios';
 import {
-    Server,
-    UserCog,
-    MapPin,
-    Home,
-    Factory,
-    User,
-    Users,
-    Tractor,
-    FileText,
-    Check,
-    ChevronRight,
-    ChevronLeft,
-    Calendar,
-    Map,
-    Building,
-    Camera,
-    AlertCircle,
-    CheckCircle,
-    Info,
-    Loader,
-    CreditCard,
-    Phone,
-    Trees,
-    Wheat,
-    Fish,
-    IdCard,
-    DollarSign,
-    Baby,
-    UserCheck,
-    Car,
-    Bike,
-    Radio,
-    Tv,
-    Smartphone,
-    Sun,
-    Zap,
-    Beef,
-    Egg,
-    Milk,
-    Calendar1
+  User,
+  Home,
+  Users,
+  Tractor,
+  FileText,
+  Check,
+  ChevronRight,
+  ChevronLeft,
+  Calendar,
+  MapPin,
+  Map,
+  Building,
+  Camera,
+  AlertCircle,
+  CheckCircle,
+  Info,
+  Loader,
+  CreditCard,
+  Phone,
+  Trees,
+  Wheat,
+  Fish,
+  DollarSign,
+  Mail,
+  Activity,
+  UserCheck,
+  Car,
+  Briefcase,
+  Settings,
+  Globe,
+  Factory
 } from 'lucide-react';
 
 import CustomInput from '../../components/CustomInput';
-import provinciasData from '../../components/Provincias.json'; // Supondo que você tenha um arquivo JSON com os dados das províncias
-import ScrollToTop from '../../components/ScrollToTop';
-import { GiCow } from 'react-icons/gi';
-//import api from '../services/api';
-
-// Dados simulados
-const inquiridoresData = [
-    { codigo: 'INQ001', nomeCompleto: 'João Manuel Santos', nomeDoMeio: 'Manuel', sobrenome: 'Santos' },
-    { codigo: 'INQ002', nomeCompleto: 'Maria Teresa Silva', nomeDoMeio: 'Teresa', sobrenome: 'Silva' },
-    { codigo: 'INQ003', nomeCompleto: 'António Carlos Ferreira', nomeDoMeio: 'Carlos', sobrenome: 'Ferreira' }
-];
+import provinciasData from '../../components/Provincias.json';
+import api from '../../services/api';
 
 // Configuração do ícone do Leaflet
 const defaultIcon = L.icon({
-    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
 });
 
 // Componente para capturar cliques no mapa
 const MapClickHandler = ({ onLocationSelect }) => {
-    useMapEvents({
-        click: (e) => {
-            const { lat, lng } = e.latlng;
-            onLocationSelect(lat.toFixed(6), lng.toFixed(6));
-        }
-    });
-    return null;
+  useMapEvents({
+    click: (e) => {
+      const { lat, lng } = e.latlng;
+      onLocationSelect(lat.toFixed(6), lng.toFixed(6));
+    }
+  });
+  return null;
 };
-
-
 
 // Componente de Mapa
 const MapaGPS = ({ latitude, longitude, onLocationSelect }) => {
-    const hasCoordinates = latitude && longitude && !isNaN(latitude) && !isNaN(longitude);
-    const center = hasCoordinates ? [parseFloat(latitude), parseFloat(longitude)] : [-8.838333, 13.234444];
+  const hasCoordinates = latitude && longitude && !isNaN(latitude) && !isNaN(longitude);
+  const center = hasCoordinates ? [parseFloat(latitude), parseFloat(longitude)] : [-8.838333, 13.234444];
 
-    useEffect(() => {
-        delete L.Icon.Default.prototype._getIconUrl;
-        L.Icon.Default.mergeOptions({
-            iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-            iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-        });
-    }, []);
+  useEffect(() => {
+    delete L.Icon.Default.prototype._getIconUrl;
+    L.Icon.Default.mergeOptions({
+      iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+      iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+    });
+  }, []);
 
-    return (
-        <div className="w-full h-80 border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-            <MapContainer
-                center={center}
-                zoom={hasCoordinates ? 16 : 6}
-                className="w-full h-full"
-                key={`${latitude}-${longitude}`}
-            >
-                <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                />
-                <MapClickHandler onLocationSelect={onLocationSelect} />
-                {hasCoordinates && (
-                    <Marker position={center} icon={defaultIcon}>
-                        <Popup>
-                            <div className="text-center">
-                                <strong>Localização do Produtor</strong><br />
-                                Latitude: {latitude}°<br />
-                                Longitude: {longitude}°
-                            </div>
-                        </Popup>
-                    </Marker>
-                )}
-            </MapContainer>
-        </div>
-    );
-};
-
-const calculateAge = (dateOfBirth) => {
-    if (!dateOfBirth) return 0;
-    const today = new Date();
-    const birthDate = new Date(dateOfBirth);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-    }
-    return age;
+  return (
+    <div className="w-full h-80 border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+      <MapContainer
+        center={center}
+        zoom={hasCoordinates ? 16 : 6}
+        className="w-full h-full"
+        key={`${latitude}-${longitude}`}
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        />
+        <MapClickHandler onLocationSelect={onLocationSelect} />
+        {hasCoordinates && (
+          <Marker position={center} icon={defaultIcon}>
+            <Popup>
+              <div className="text-center">
+                <strong>Localização da Empresa</strong><br />
+                Latitude: {latitude}°<br />
+                Longitude: {longitude}°
+              </div>
+            </Popup>
+          </Marker>
+        )}
+      </MapContainer>
+    </div>
+  );
 };
 
 const RegistroApoioAgricola = () => {
-    const [activeIndex, setActiveIndex] = useState(0);
-    const [loading, setLoading] = useState(false);
-    const [municipiosOptions, setMunicipiosOptions] = useState([]);
-    const [errors, setErrors] = useState({});
-    const [uploadedFiles, setUploadedFiles] = useState({});
-    const [toastMessage, setToastMessage] = useState(null);
-    const [consultingBI, setConsultingBI] = useState(false);
-    const [biData, setBiData] = useState(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [municipiosOptions, setMunicipiosOptions] = useState([]);
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+  const [uploadedFiles, setUploadedFiles] = useState({});
+  const [toastMessage, setToastMessage] = useState(null);
+  const [consultingNif, setConsultingNif] = useState(false);
+  const [nifData, setNifData] = useState(null);
+  const [consultingBI, setConsultingBI] = useState(false);
+  const [consultingBIGerente, setConsultingBIGerente] = useState(false);
+  const [biData, setBiData] = useState(null);
+  const [biGerenteData, setBiGerenteData] = useState(null);
 
-    // Estado inicial simplificado
-    const initialState = {
-        // Seção A: Identificação do Inquiridor
-        codigoInquiridor: '',
-        nomeInquiridor: '',
-        nomeDoMeioInquiridor: '',
-        sobrenomeInquiridor: '',
-        dataRegisto: new Date().toISOString().split('T')[0],
+  // Estado inicial do formulário
+  const initialState = {
+    // Identificação da Empresa
+    nomeEmpresa: '',
+    tipoEntidade: '',
+    outroTipoEntidade: '',
+    nif: '',
+    anoFundacao: '',
 
-        // Seção B: Identificação Geográfica
-        provincia: '',
-        municipio: '',
-        comuna: '',
-        bairroAldeia: '',
-        nomeSecao: '',
-        localResidencia: '',
-        latitudeGPS: '',
-        longitudeGPS: '',
-        altitudeGPS: '',
-        precisaoGPS: '',
+    // Localização
+    enderecoSede: '',
+    municipio: '',
+    provincia: '',
+    latitude: '',
+    longitude: '',
 
-        // Seção C: Identificação da Infraestrutura
-        nomeInfraestrutura: '',
-        tipoInfraestrutura: '',
-        bi_nif: '',
+    // Contatos
+    pessoaContacto: '',
+    cargo: '',
+    telefone: '',
+    email: '',
+    website: '',
 
-        // Entidade Responsável
-        proprietario_instituicao: '',
-        contacto: '',
-        email: '',
+    // Áreas de Atuação
+    servicosPrestados: [],
+    outrosServicos: '',
 
-        // Características Técnicas
-        dimensao: '',
-        capacidade: '',
-        estado_conservacao: '',
-        
-        // Utilização
-        beneficiarios_directos: '',
-        principais_culturas_actividades: [],
-        frequencia_utilizacao: '',
-        observacoes_gerais: '',
+    // Público-Alvo
+    principaisBeneficiarios: '',
+    outrosBeneficiarios: '',
 
-        // Seção D: Identificação do Produtor
-        nomeProdutor: '',
-        nomeDoMeioProdutor: '',
-        sobrenomeProdutor: '',
-        nomeECA: '',
-        posicaoECA: '',
-        tipoOrganizacao: '',
-        tipoECA: '',
-        outroTipoOrganizacao: '',
-        sexoProdutor: '',
-        tipoDocumento: '',
-        nomeOutroDocumento: '', // Novo campo para especificar nome do documento
-        outroTipoDocumento: '',
-        numeroDocumento: '',
-        confirmarNumeroDocumento: '',
-        telefoneProdutor: '',
-        confirmarTelefoneProdutor: '',
-        telefonePropriedade: true,
-        proprietarioTelefone: '',
-        dataNascimento: '',
-        lugarNascimento: '',
-        estadoCivil: '',
-        nivelEscolaridade: '',
-        outroNivelEscolaridade: '',
-        gravidez: false,
-        deficiencia: false,
-        tipoDeficiencia: '',
-        outraDeficiencia: '',
+    // Capacidade e Operação
+    numeroFuncionarios: 0,
+    areaCobertura: '',
+    volumeClientes: 0,
 
-        // Seção D: Composição do Agregado Familiar
-        chefeAgregado: true,
-        nomeChefeAgregado: '',
-        nomeDoMeioChefe: '',
-        sobrenomeChefe: '',
-        sexoChefe: '',
-        relacaoChefe: '',
-        totalMembros: 1,
-        femininoIdade0a6: 0,
-        masculinoIdade0a6: 0,
-        femininoIdade7a18: 0,
-        masculinoIdade7a18: 0,
-        femininoIdade19a60: 0,
-        masculinoIdade19a60: 0,
-        femininoIdade61mais: 0,
-        masculinoIdade61mais: 0,
+    // Situação Legal
+    licencaOperacao: '',
+    registoComercial: '',
+    certificacoesEspecificas: '',
 
-        // Seção E: Ativos e Atividades
-        tiposAtividades: [
-            { label: 'Agricultura', value: 'AGRICULTURA' },
-        ],
-        outroTipoAtividade: '',
-        acessoTerras: false,
-        proprietarioTerra: false,
-        tituloConcessao: false,
-        tipoTitulo: '',
-        areaTotalCampos: 0,
-        areaExplorada: 0,
-        areaAgricola: 0,
-        areaPecuaria: 0,
-        areaFlorestal: 0,
-        tecnologiaAgricola: '',
-        culturasPrincipais: [
-        ],
-        outraCultura: '',
-        producaoSacos50kg: 0,
-        tipoSementeira: '',
-        usoFertilizantes: false,
-        preparacaoTerra: '',
-        acessoIrrigacao: false,
-        sistemaIrrigacao: '',
-        outroSistemaIrrigacao: '',
-        distanciaFonteAgua: 0,
-        amanhosCulturais: false,
-        tipoAmanhos: [
+    // Observações Gerais
+    observacoes: ''
+  };
 
-        ],
-        outroTipoAmanho: '',
-        acessoInstrumentos: false,
-        fonteInstrumentos: [
+  const [formData, setFormData] = useState(initialState);
 
-        ],
-        outraFonteInstrumento: '',
+  const steps = [
+    { label: 'Identificação', icon: Building },
+    { label: 'Localização', icon: MapPin },
+    { label: 'Contactos', icon: Phone },
+    { label: 'Áreas de Actuação', icon: Activity },
+    { label: 'Público-Alvo', icon: Users },
+    { label: 'Capacidade', icon: Settings },
+    { label: 'Situação Legal', icon: FileText },
+    { label: 'Observações', icon: Info }
+  ];
 
-        // Seção F: Pecuária
-        tiposCriacao: [],
-        outroTipoCriacao: '',
-        sistemaAvicultura: '',
-        objetivoAvicultura: '',
-        outroObjetivoAvicultura: '',
-        numeroAves: 0,
-        sistemaBovinocultura: '',
-        tipoBovinocultura: '',
-        numeroVacas: 0,
-        numeroCabras: 0,
-        numeroOvelhas: 0,
-        objetivoBovinos: '',
-        outroObjetivoBovinos: '',
-        numeroPorcos: 0,
-        objetivoSuinos: '',
-        outroObjetivoSuinos: '',
-        tipoPiscicultura: '',
-        objetivoPiscicultura: '',
-        outroObjetivoPiscicultura: '',
-        numeroPeixes: 0,
-        numeroCoelhos: 0,
-        objetivoCoelhos: '',
-        outroObjetivoCoelhos: '',
-        acessoRacao: false,
-        conhecimentoDoencas: false,
+  const showToast = (severity, summary, detail, duration = 3000) => {
+    setToastMessage({ severity, summary, detail, visible: true });
+    setTimeout(() => setToastMessage(null), duration);
+  };
 
-        // Seção G: Crédito & Bens
-        beneficiadoCredito: false,
-        fontesCredito: [
+  // Função para consultar NIF na API
+  const consultarNIF = async (nifValue) => {
+    if (!nifValue || nifValue.length < 9) return;
 
-        ],
-        outraFonteCredito: '',
-        bensPatrimonio: [
+    setConsultingNif(true);
 
-        ],
-        outroBemPatrimonio: '',
+    try {
+      const username = 'minagrif';
+      const password = 'Nz#$20!23Mg';
 
-        // Seção H: Pacotes de Assistência
-        tipoApoio: '',
-        observacoesGerais: '',
-        tipoPacote: '',
-        outroTipoPacote: '',
+      // Codificar credenciais em base64 para Basic Auth
+      const credentials = btoa(`${username}:${password}`);
 
-        //Pecuaria
-        sistemaOvinocultura: '',
-        tipoOvinocultura: '',
-        objetivoOvinos: '',
-        outroObjetivoOvinos: '',
+      const response = await axios.get(`https://api.gov.ao/nif/v1/consultarNIF`, {
+        params: {
+          tipoDocumento: 'NIF',
+          numeroDocumento: nifValue
+        },
+        headers: {
+          'Authorization': `Basic ${credentials}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
-        sistemaCaprinocultura: '',
-        tipoCaprinocultura: '',
-        objetivoCaprinos: '',
-        outroObjetivoCaprinos: '',
+      console.log('📊 Resposta completa da API:', response);
+      console.log('📋 Dados retornados da API:', response.data);
+      console.log('🔍 Status da resposta:', response.status);
+      console.log('📄 Headers da resposta:', response.headers);
 
-        idiomasFalados: [
-            { label: 'Português', value: 'PORTUGUES' },
-        ],
-    };
+      const data = response.data;
 
-    const [formData, setFormData] = useState(initialState);
+      if (response.status === 200 && data.code === 200 && data.data) {
+        const nifInfo = data.data;
 
-    const steps = [
-        { label: 'Inquiridor', icon: User },        // pessoa que pergunta / solicitante
-        { label: 'Infrastrutura', icon: Server },   // parte técnica / infraestrutura
-        { label: 'Responsável', icon: UserCog },    // pessoa responsável
-        { label: 'Localização', icon: MapPin },     // localização geográfica
-        { label: 'Características', icon: Home },   // detalhes do bem / imóvel
-        { label: 'Utilização', icon: Factory },     // uso final, atividades produtivas
-    ];
+        console.log('✅ Dados do NIF processados:', nifInfo);
 
-    const showToast = (severity, summary, detail, duration = 3000) => {
-        setToastMessage({ severity, summary, detail, visible: true });
-        setTimeout(() => setToastMessage(null), duration);
-    };
-    // Função auxiliar para obter o label do estado civil
-    const getEstadoCivilLabel = (value) => {
-        const estadosCivis = {
-            'SOLTEIRO': 'Solteiro(a)',
-            'UNIAO_FACTO': 'União de facto',
-            'CASADO': 'Casado(a)',
-            'DIVORCIADO': 'Divorciado(a)',
-            'SEPARADO': 'Separado(a)',
-            'VIUVO': 'Viúvo(a)'
-        };
-        return estadosCivis[value] || value;
-    };
+        // Salvar dados do NIF para exibição
+        setNifData(nifInfo);
 
-    // Função para consultar BI na API
-    const consultarBI = async (biValue) => {
-        if (!biValue || biValue.length < 9) return;
+        // Preencher automaticamente os campos do formulário
+        setFormData(prev => ({
+          ...prev,
+          nomeEmpresa: nifInfo.nome_contribuinte || '',
+          email: nifInfo.email || '',
+          telefone: nifInfo.numero_contacto || '',
+          dataFundacao: nifInfo.data_constituicao ? new Date(nifInfo.data_constituicao).toISOString().split('T')[0] : '',
+          provincia: nifInfo.provincia_morada ? {
+            label: nifInfo.provincia_morada,
+            value: nifInfo.provincia_morada.toUpperCase()
+          } : '',
+          municipio: nifInfo.municipio_morada ? {
+            label: nifInfo.municipio_morada,
+            value: nifInfo.municipio_morada
+          } : '',
+          comuna: nifInfo.comuna_morada || '',
+        }));
 
-        setConsultingBI(true);
-
-        try {
-            const username = 'minagrif';
-            const password = 'Nz#$20!23Mg';
-
-            // Codificar credenciais em base64 para Basic Auth
-            const credentials = btoa(`${username}:${password}`);
-
-            const response = await axios.get(`https://api.gov.ao/bi/v1/getBI`, {
-                params: {
-                    bi: biValue
-                },
-                headers: {
-                    'Authorization': `Basic ${credentials}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            console.log('📊 Resposta completa da API BI:', response);
-            console.log('📋 Dados retornados da API BI:', response.data);
-            console.log('🔍 Status da resposta:', response.status);
-
-            const data = response.data;
-
-            // Função consultarBI - correção do mapeamento
-            // Função consultarBI - correção do mapeamento
-            // Função consultarBI - correção do mapeamento incluindo lugar de nascimento
-            if (response.status === 200 && data.code === 200 && data.data) {
-                const biInfo = data.data;
-
-                console.log('✅ Dados do BI processados:', biInfo);
-                setBiData(biInfo);
-
-                // Mapear sexo para os valores do formulário
-                let sexoMapeado = '';
-                if (biInfo.gender_name) {
-                    const sexo = biInfo.gender_name.toLowerCase();
-                    if (sexo.includes('masculino') || sexo.includes('male') || sexo.includes('m')) {
-                        sexoMapeado = 'MASCULINO';
-                    } else if (sexo.includes('feminino') || sexo.includes('female') || sexo.includes('f')) {
-                        sexoMapeado = 'FEMININO';
-                    }
-                }
-
-                // Mapear estado civil para os valores do formulário
-                let estadoCivilMapeado = '';
-                if (biInfo.marital_status_name) {
-                    const estadoCivil = biInfo.marital_status_name.toLowerCase();
-                    if (estadoCivil.includes('solteiro')) {
-                        estadoCivilMapeado = 'SOLTEIRO';
-                    } else if (estadoCivil.includes('casado')) {
-                        estadoCivilMapeado = 'CASADO';
-                    } else if (estadoCivil.includes('divorciado')) {
-                        estadoCivilMapeado = 'DIVORCIADO';
-                    } else if (estadoCivil.includes('viúvo')) {
-                        estadoCivilMapeado = 'VIUVO';
-                    } else if (estadoCivil.includes('união')) {
-                        estadoCivilMapeado = 'UNIAO_FACTO';
-                    } else if (estadoCivil.includes('separado')) {
-                        estadoCivilMapeado = 'SEPARADO';
-                    }
-                }
-
-                // Mapear lugar de nascimento (província) para o formato correto
-                let lugarNascimentoMapeado = '';
-                if (biInfo.birth_province_name) {
-                    // Buscar a província correspondente no JSON de províncias
-                    const provinciaEncontrada = provinciasData.find(provincia => {
-                        const nomeProvinciaAPI = biInfo.birth_province_name.toLowerCase().trim();
-                        const nomeProvinciaJSON = provincia.nome.toLowerCase().trim();
-
-                        // Verificar correspondência exata ou parcial
-                        return nomeProvinciaJSON.includes(nomeProvinciaAPI) ||
-                            nomeProvinciaAPI.includes(nomeProvinciaJSON) ||
-                            nomeProvinciaJSON === nomeProvinciaAPI;
-                    });
-
-                    if (provinciaEncontrada) {
-                        lugarNascimentoMapeado = {
-                            label: provinciaEncontrada.nome,
-                            value: provinciaEncontrada.nome
-                        };
-                    } else {
-                        // Se não encontrou correspondência exata, usar o valor da API mesmo assim
-                        lugarNascimentoMapeado = {
-                            label: biInfo.birth_province_name,
-                            value: biInfo.birth_province_name
-                        };
-                    }
-                }
-
-                // Preencher automaticamente os campos do formulário
-                setFormData(prev => ({
-                    ...prev,
-                    nomeProdutor: biInfo.first_name || '',
-                    nomeDoMeioProdutor: '',
-                    sobrenomeProdutor: biInfo.last_name || '',
-                    dataNascimento: biInfo.birth_date ? new Date(biInfo.birth_date).toISOString().split('T')[0] : '',
-                    lugarNascimento: lugarNascimentoMapeado,
-                    estadoCivil: estadoCivilMapeado ? {
-                        label: getEstadoCivilLabel(estadoCivilMapeado),
-                        value: estadoCivilMapeado
-                    } : '',
-                    sexoProdutor: sexoMapeado ? {
-                        label: sexoMapeado === 'MASCULINO' ? 'MASCULINO' : 'FEMENINO',
-                        value: sexoMapeado
-                    } : '',
-                }));
-
-                showToast('success', 'BI Consultado', 'Dados do produtor preenchidos automaticamente!');
-            }
-            else {
-                console.log('⚠️ BI não encontrado ou resposta inválida:', data);
-                setBiData(null);
-                if (data.code === 404) {
-                    showToast('warn', 'BI não encontrado', 'Não foi possível encontrar dados para este BI. Preencha manualmente.');
-                } else {
-                    showToast('warn', 'BI inválido', 'Este BI não retornou dados válidos. Verifique o número.');
-                }
-            }
-        } catch (error) {
-            console.error('❌ Erro ao consultar BI:', error);
-            console.error('📄 Detalhes do erro:', {
-                message: error.message,
-                status: error.response?.status,
-                data: error.response?.data,
-                headers: error.response?.headers
-            });
-
-            setBiData(null);
-
-            if (error.response) {
-                console.error('🚫 Erro de resposta do servidor:', error.response.status, error.response.data);
-                showToast('error', 'Erro do servidor', `Erro ${error.response.status}: ${error.response.data?.message || 'Erro na consulta do BI'}`);
-            } else if (error.request) {
-                console.error('🌐 Erro de rede - sem resposta:', error.request);
-                showToast('error', 'Erro de conexão', 'Não foi possível conectar ao servidor. Verifique sua conexão.');
-            } else {
-                console.error('⚙️ Erro na configuração:', error.message);
-                showToast('error', 'Erro na consulta', 'Erro ao consultar BI. Tente novamente.');
-            }
-        } finally {
-            setConsultingBI(false);
-        }
-    };
-
-    // Debounce para consulta do BI
-    const debounceTimer = React.useRef(null);
-    const handleBIChange = (value) => {
-        setFormData(prev => ({ ...prev, numeroDocumento: value }));
-
-        // Limpar timer anterior
-        if (debounceTimer.current) {
-            clearTimeout(debounceTimer.current);
+        // Atualizar municípios se província foi preenchida
+        if (nifInfo.provincia_morada) {
+          handleProvinciaChange({
+            label: nifInfo.provincia_morada,
+            value: nifInfo.provincia_morada.toUpperCase()
+          });
         }
 
-        // Só consultar se o tipo de documento for BI
-        if (formData.tipoDocumento?.value === 'BI' && value && value.length >= 9) {
-            debounceTimer.current = setTimeout(() => {
-                consultarBI(value);
-            }, 1500);
+        showToast('success', 'NIF Consultado', 'Dados da empresa preenchidos automaticamente!');
+
+      } else {
+        console.log('⚠️ NIF não encontrado ou resposta inválida:', data);
+        setNifData(null);
+        if (data.code === 404) {
+          showToast('warn', 'NIF não encontrado', 'Não foi possível encontrar dados para este NIF. Preencha manualmente.');
+        } else {
+          showToast('warn', 'NIF inválido', 'Este NIF não retornou dados válidos. Verifique o número.');
         }
-    };
+      }
+    } catch (error) {
+      console.error('❌ Erro ao consultar NIF:', error);
+      console.error('📄 Detalhes do erro:', {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+        headers: error.response?.headers
+      });
 
-    // Verificar se deve mostrar o campo número do documento
-    const shouldShowDocumentNumber = () => {
-        const tipoDoc = formData.tipoDocumento?.value || formData.tipoDocumento;
-        return tipoDoc && tipoDoc !== 'NAO_POSSUI';
-    };
+      setNifData(null);
 
-    // Verificar se deve mostrar o campo nome do documento
-    const shouldShowDocumentName = () => {
-        const tipoDoc = formData.tipoDocumento?.value || formData.tipoDocumento;
-        return tipoDoc === 'OUTRO';
-    };
+      if (error.response) {
+        // O servidor respondeu com um status de erro
+        console.error('🚫 Erro de resposta do servidor:', error.response.status, error.response.data);
+        showToast('error', 'Erro do servidor', `Erro ${error.response.status}: ${error.response.data?.message || 'Erro na consulta do NIF'}`);
+      } else if (error.request) {
+        // A requisição foi feita mas não houve resposta
+        console.error('🌐 Erro de rede - sem resposta:', error.request);
+        showToast('error', 'Erro de conexão', 'Não foi possível conectar ao servidor. Verifique sua conexão.');
+      } else {
+        // Algo aconteceu na configuração da requisição
+        console.error('⚙️ Erro na configuração:', error.message);
+        showToast('error', 'Erro na consulta', 'Erro ao consultar NIF. Tente novamente.');
+      }
+    } finally {
+      setConsultingNif(false);
+    }
+  };
 
-    // Calcular total de membros distribuídos
-    const getTotalMembrosDistribuidos = () => {
-        return (formData.femininoIdade0a6 || 0) +
-            (formData.masculinoIdade0a6 || 0) +
-            (formData.femininoIdade7a18 || 0) +
-            (formData.masculinoIdade7a18 || 0) +
-            (formData.femininoIdade19a60 || 0) +
-            (formData.masculinoIdade19a60 || 0) +
-            (formData.femininoIdade61mais || 0) +
-            (formData.masculinoIdade61mais || 0);
-    };
+  // Função para consultar BI na API
+  const consultarBI = async (biValue) => {
+    if (!biValue || biValue.length < 9) return;
 
-    const handleInputChange = (field, value) => {
-        // Lógica especial para código do inquiridor
-        if (field === 'codigoInquiridor') {
-            const inquiridor = inquiridoresData.find(inq => inq.codigo === (value?.value || value));
-            if (inquiridor) {
-                setFormData(prev => ({
-                    ...prev,
-                    codigoInquiridor: value,
-                    nomeInquiridor: inquiridor.nomeCompleto,
-                    nomeDoMeioInquiridor: inquiridor.nomeDoMeio,
-                    sobrenomeInquiridor: inquiridor.sobrenome
-                }));
-            }
-            return;
+    setConsultingBI(true);
+
+    try {
+      const username = 'minagrif';
+      const password = 'Nz#$20!23Mg';
+      const credentials = btoa(`${username}:${password}`);
+
+      const response = await axios.get(`https://api.gov.ao/bi/v1/getBI`, {
+        params: { bi: biValue },
+        headers: {
+          'Authorization': `Basic ${credentials}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = response.data;
+      if (response.status === 200 && data.code === 200 && data.data) {
+        const biInfo = data.data;
+        setBiData(biInfo);
+
+        // Preencher campos automaticamente
+        setFormData(prev => ({
+          ...prev,
+          nomeDiretor: `${biInfo.first_name || ''} ${biInfo.last_name || ''}`.trim(),
+          telefoneDiretor: biInfo.phone || biInfo.telefone || biInfo.contacto || '',
+          emailDiretor: biInfo.email || biInfo.email_address || ''
+        }));
+
+        showToast('success', 'BI Consultado', 'Dados preenchidos automaticamente!');
+      } else {
+        setBiData(null);
+        showToast('warn', 'BI não encontrado', 'Não foi possível encontrar dados para este BI.');
+      }
+    } catch (error) {
+      console.error('Erro ao consultar BI:', error);
+      setBiData(null);
+      showToast('error', 'Erro na consulta', 'Erro ao consultar BI. Tente novamente.');
+    } finally {
+      setConsultingBI(false);
+    }
+  };
+
+  // Função para consultar BI do Gerente na API
+  const consultarBIGerente = async (biValue) => {
+    if (!biValue || biValue.length < 9) return;
+
+    setConsultingBIGerente(true);
+
+    try {
+      const username = 'minagrif';
+      const password = 'Nz#$20!23Mg';
+      const credentials = btoa(`${username}:${password}`);
+
+      const response = await axios.get(`https://api.gov.ao/bi/v1/getBI`, {
+        params: { bi: biValue },
+        headers: {
+          'Authorization': `Basic ${credentials}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = response.data;
+      if (response.status === 200 && data.code === 200 && data.data) {
+        const biInfo = data.data;
+        setBiGerenteData(biInfo);
+
+        // Preencher campos automaticamente
+        setFormData(prev => ({
+          ...prev,
+          nomeGerente: `${biInfo.first_name || ''} ${biInfo.last_name || ''}`.trim(),
+          telefoneGerente: biInfo.phone || biInfo.telefone || biInfo.contacto || '',
+          emailGerente: biInfo.email || biInfo.email_address || ''
+        }));
+
+        showToast('success', 'BI Consultado', 'Dados do gerente preenchidos automaticamente!');
+      } else {
+        setBiGerenteData(null);
+        showToast('warn', 'BI não encontrado', 'Não foi possível encontrar dados para este BI.');
+      }
+    } catch (error) {
+      console.error('Erro ao consultar BI:', error);
+      setBiGerenteData(null);
+      showToast('error', 'Erro na consulta', 'Erro ao consultar BI. Tente novamente.');
+    } finally {
+      setConsultingBIGerente(false);
+    }
+  };
+
+  // Debounce para consulta do NIF
+  const debounceTimer = React.useRef(null);
+  const biDebounceTimer = React.useRef(null);
+  const biGerenteDebounceTimer = React.useRef(null);
+  const handleNifChange = (value) => {
+    setFormData(prev => ({ ...prev, nif: value }));
+    setTouched(prev => ({ ...prev, nif: true }));
+
+    // Limpar timer anterior
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+
+    // Configurar novo timer para consulta após 1.5 segundos
+    debounceTimer.current = setTimeout(() => {
+      if (value && value.length >= 9) {
+        consultarNIF(value);
+      }
+    }, 1500);
+  };
+
+  const handleInputChange = (field, value) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+
+    // Lógica para província
+    if (field === 'provincia') {
+      handleProvinciaChange(value);
+      return;
+    }
+
+    // Atualização normal
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleProvinciaChange = (value) => {
+    setFormData(prev => ({ ...prev, provincia: value, municipio: '' }));
+
+    const provinciaValue = value?.value || value;
+    const provinciaSelected = provinciasData.find(
+      p => p.nome.toUpperCase() === provinciaValue?.toUpperCase()
+    );
+
+    if (provinciaSelected) {
+      try {
+        const municipiosArray = JSON.parse(provinciaSelected.municipios);
+        const municipios = municipiosArray.map(mun => ({
+          label: mun,
+          value: mun
+        }));
+        setMunicipiosOptions(municipios);
+      } catch (error) {
+        console.error("Erro ao processar municípios:", error);
+        setMunicipiosOptions([]);
+      }
+    } else {
+      setMunicipiosOptions([]);
+    }
+  };
+
+  const handleFileUpload = (fieldName, file) => {
+    setUploadedFiles(prev => ({ ...prev, [fieldName]: file }));
+    setFormData(prev => ({ ...prev, [fieldName]: file }));
+  };
+
+  const validateCurrentStep = () => {
+    const newErrors = {};
+
+    switch (activeIndex) {
+      case 0: // Identificação
+        if (!formData.nomeEmpresa) newErrors.nomeEmpresa = 'Campo obrigatório';
+        if (!formData.tipoEntidade) newErrors.tipoEntidade = 'Campo obrigatório';
+        if (!formData.nif) newErrors.nif = 'Campo obrigatório';
+        if (!formData.anoFundacao) newErrors.anoFundacao = 'Campo obrigatório';
+        break;
+      case 1: // Localização
+        if (!formData.enderecoSede) newErrors.enderecoSede = 'Campo obrigatório';
+        if (!formData.municipio) newErrors.municipio = 'Campo obrigatório';
+        if (!formData.provincia) newErrors.provincia = 'Campo obrigatório';
+        break;
+      case 2: // Contatos
+        if (!formData.pessoaContacto) newErrors.pessoaContacto = 'Campo obrigatório';
+        if (!formData.cargo) newErrors.cargo = 'Campo obrigatório';
+        if (!formData.telefone) newErrors.telefone = 'Campo obrigatório';
+        if (!formData.email) newErrors.email = 'Campo obrigatório';
+        break;
+      case 3: // Áreas de Atuação
+        if (!formData.servicosPrestados || formData.servicosPrestados.length === 0) {
+          newErrors.servicosPrestados = 'Selecione pelo menos um serviço';
         }
-
-        // Lógica para província
-        if (field === 'provincia') {
-            handleProvinciaChange(value);
-            return;
+        break;
+      case 4: // Público-Alvo
+        if (!formData.principaisBeneficiarios) newErrors.principaisBeneficiarios = 'Campo obrigatório';
+        break;
+      case 5: // Capacidade
+        if (!formData.numeroFuncionarios || formData.numeroFuncionarios < 1) {
+          newErrors.numeroFuncionarios = 'Deve ter pelo menos 1 funcionário';
         }
+        if (!formData.areaCobertura) newErrors.areaCobertura = 'Campo obrigatório';
+        break;
+      case 6: // Situação Legal
+        if (!formData.licencaOperacao) newErrors.licencaOperacao = 'Campo obrigatório';
+        if (!formData.registoComercial) newErrors.registoComercial = 'Campo obrigatório';
+        break;
+    }
 
-        // Lógica para tipo de documento
-        if (field === 'tipoDocumento') {
-            setFormData(prev => ({
-                ...prev,
-                [field]: value,
-                numeroDocumento: '',
-                confirmarNumeroDocumento: '',
-                nomeOutroDocumento: '',
-                outroTipoDocumento: ''
-            }));
-            setBiData(null); // Limpar dados do BI quando mudar tipo de documento
-            return;
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const isAllRequiredFilesUploaded = () => {
+    const requiredFiles = ['estatutoSocial', 'rgCpfDiretor', 'rgCpfGerente', 'comprovanteEndereco', 'documentoNif'];
+    return requiredFiles.every(file => uploadedFiles[file]);
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setLoading(true);
+
+    try {
+      // Função para extrair valores string de arrays
+      const extractStringValues = (array) => {
+        if (!array || array.length === 0) return null;
+        return array.map(item => typeof item === 'object' ? item.value : item);
+      };
+
+      const dataToSend = {
+        command: "CREATE",
+        id: null,
+        nomeEmpresa: formData.nomeEmpresa,
+        sigla: formData.sigla,
+        nif: formData.nif,
+        dataFundacao: formData.dataFundacao
+          ? new Date(formData.dataFundacao).toISOString()
+          : null,
+        provincia: typeof formData.provincia === 'object' ? formData.provincia.value : formData.provincia,
+        municipio: typeof formData.municipio === 'object' ? formData.municipio.value : formData.municipio,
+        comuna: formData.comuna,
+        telefone: formData.telefone,
+        email: formData.email,
+        servicosPrestados: formData.servicosPrestados ? formData.servicosPrestados.map(a => typeof a === 'string' ? a : a.value) : [],
+        outrosServicos: formData.outrosServicos || null,
+        nomeDiretor: formData.nomeDiretor,
+        biDiretor: formData.biDiretor,
+        numeroProdutor: String(formData.numeroProdutor),
+        telefoneDiretor: formData.telefoneDiretor,
+        emailDiretor: formData.emailDiretor,
+        nomeGerente: formData.nomeGerente,
+        nifGerente: formData.nifGerente,
+        telefoneGerente: formData.telefoneGerente,
+        emailGerente: formData.emailGerente,
+        numeroEmpregados: String(formData.numeroEmpregados),
+
+        perfilEmpregados: Array.isArray(formData.perfilEmpregados)
+          ? formData.perfilEmpregados.map(p => typeof p === 'string' ? p : p.value).join(', ')
+          : (typeof formData.perfilEmpregados === 'object' ? formData.perfilEmpregados.value : formData.perfilEmpregados),
+
+        numeroFuncionarios: String(formData.numeroFuncionarios),
+        possuiEquipamentos: formData.possuiEquipamentos ? "true" : "false",
+
+        equipamentosAgricolas: formData.equipamentosAgricolas.map(a => typeof a === 'string' ? a : a.value),
+        equipamentosInfraestrutura: formData.equipamentosInfraestrutura.map(a => typeof a === 'string' ? a : a.value),
+        materiaisProducao: formData.materiaisProducao.map(a => typeof a === 'string' ? a : a.value),
+        ferramentasManuais: formData.ferramentasManuais.map(a => typeof a === 'string' ? a : a.value),
+        equipamentosMedicao: formData.equipamentosMedicao.map(a => typeof a === 'string' ? a : a.value),
+        materiaisHigiene: formData.materiaisHigiene.map(a => typeof a === 'string' ? a : a.value),
+        materiaisEscritorio: formData.materiaisEscritorio.map(a => typeof a === 'string' ? a : a.value),
+        equipamentosTransporte: formData.equipamentosTransporte.map(a => typeof a === 'string' ? a : a.value),
+        equipamentosPecuarios: formData.equipamentosPecuarios.map(a => typeof a === 'string' ? a : a.value)
+      };
+
+      console.log("📤 Dados preparados para envio (EmpresaDto):", dataToSend);
+      console.log("🔍 Formato da data:", dataToSend.dataFundacao);
+      console.log("📋 Atividades processadas:", dataToSend.atividades);
+      console.log("🛠️ Equipamentos processados:", {
+        agricolas: dataToSend.equipamentosAgricolas,
+        infraestrutura: dataToSend.equipamentosInfraestrutura
+      });
+
+      // Mostrar toast de que o envio está sendo processado
+      showToast('info', 'Enviando', 'Processando dados da empresa...');
+
+      // Fazer requisição POST para a API
+      const response = await api.post(
+        '/empresa',
+        dataToSend,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          timeout: 30000 // 30 segundos timeout
         }
+      );
 
-        // Lógica para número do documento (com consulta BI)
-        if (field === 'numeroDocumento') {
-            handleBIChange(value);
-            return;
+      console.log("✅ Resposta da API:", response.data);
+      console.log("✅ Status da resposta:", response.status);
+
+      setLoading(false);
+      showToast('success', 'Sucesso', 'Empresa registrada com sucesso!');
+
+      // Reset do formulário
+      setFormData(initialState);
+      setActiveIndex(0);
+      setErrors({});
+      setTouched({});
+      setUploadedFiles({});
+      setNifData(null);
+
+    } catch (error) {
+      setLoading(false);
+      console.error('❌ Erro ao registrar empresa:', error);
+
+      let errorMessage = 'Erro ao registrar empresa. Tente novamente.';
+
+      if (error.response) {
+        // Erro de resposta do servidor
+        console.error('📄 Status do erro:', error.response.status);
+        console.error('📄 Dados do erro:', error.response.data);
+        console.error('📄 Headers do erro:', error.response.headers);
+
+        if (error.response.status === 400) {
+          const errorDetails = error.response.data;
+          if (errorDetails.errors) {
+            const errorMessages = Object.entries(errorDetails.errors)
+              .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
+              .join('\n');
+            errorMessage = `Erros de validação:\n${errorMessages}`;
+          } else {
+            errorMessage = `Erro de validação (400): ${JSON.stringify(errorDetails)}`;
+          }
+        } else {
+          errorMessage = `Erro ${error.response.status}: ${error.response.data?.message || error.response.statusText}`;
         }
+      } else if (error.request) {
+        // Erro de rede
+        console.error('🌐 Erro de rede:', error.request);
+        errorMessage = 'Erro de conexão. Verifique sua internet e tente novamente.';
+      } else if (error.code === 'ECONNABORTED') {
+        // Timeout
+        errorMessage = 'Tempo limite excedido. Tente novamente.';
+      } else {
+        console.error('⚙️ Erro na configuração:', error.message);
+        errorMessage = `Erro: ${error.message}`;
+      }
 
-        // Lógica para campos condicionais
-        if (field === 'tipoOrganizacao') {
-            if (value?.value !== 'OUTRO') {
-                setFormData(prev => ({ ...prev, [field]: value, outroTipoOrganizacao: '' }));
-            }
-            if (value?.value !== 'ECA') {
-                setFormData(prev => ({ ...prev, [field]: value, tipoECA: '', nomeECA: '', posicaoECA: '' }));
-            }
-            return;
-        }
+      showToast('error', 'Erro', errorMessage);
+    }
+  };
 
-        // Validação para distribuição de membros da família
-        if (field.includes('Idade') && (field.includes('feminino') || field.includes('masculino'))) {
-            const newValue = parseInt(value) || 0;
-            const currentTotal = getTotalMembrosDistribuidos();
-            const fieldCurrentValue = formData[field] || 0;
-            const newTotal = currentTotal - fieldCurrentValue + newValue;
+  const renderStepContent = (index) => {
+    switch (index) {
+      case 0: // Identificação
+        return (
+          <div className="max-w-full mx-auto">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 text-center rounded-2xl p-6 mb-8 border border-blue-100">
+              <div className="flex justify-center items-center text-center space-x-3 mb-3">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <Building className="w-6 h-6 text-blue-600" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-800">Identificação da Empresa</h3>
+              </div>
+              <p className="text-gray-600">
+                Informe os dados de identificação da empresa de apoio à agricultura.
+              </p>
+            </div>
 
-            if (newTotal > (formData.totalMembros || 1)) {
-                showToast('warn', 'Limite excedido', `O total de membros distribuídos não pode exceder ${formData.totalMembros} pessoas.`);
-                return;
-            }
-        }
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <CustomInput
+                type="text"
+                label="Nome da Empresa"
+                value={formData.nomeEmpresa}
+                onChange={(value) => handleInputChange('nomeEmpresa', value)}
+                required
+                errorMessage={errors.nomeEmpresa}
+                placeholder="Digite o nome completo da empresa"
+                iconStart={<Building size={18} />}
+              />
 
-        // Lógica para limpar campos dependentes quando "Não" é selecionado
-        if (field === 'chefeAgregado' && !value) {
-            setFormData(prev => ({
-                ...prev,
-                [field]: value,
-                nomeChefeAgregado: '',
-                nomeDoMeioChefe: '',
-                sobrenomeChefe: '',
-                sexoChefe: '',
-                relacaoChefe: ''
-            }));
-            return;
-        }
+              <CustomInput
+                type="select"
+                label="Tipo de Entidade"
+                value={formData.tipoEntidade}
+                options={[
+                  { label: 'Empresa Privada', value: 'EMPRESA_PRIVADA' },
+                  { label: 'Cooperativa', value: 'COOPERATIVA' },
+                  { label: 'ONG', value: 'ONG' },
+                  { label: 'Associação', value: 'ASSOCIACAO' },
+                  { label: 'Outro', value: 'OUTRO' }
+                ]}
+                onChange={(value) => handleInputChange('tipoEntidade', value)}
+                required
+                errorMessage={errors.tipoEntidade}
+                placeholder="Selecione o tipo de entidade"
+                iconStart={<Building size={18} />}
+              />
 
-        if (field === 'acessoTerras' && !value) {
-            setFormData(prev => ({
-                ...prev,
-                [field]: value,
-                proprietarioTerra: false,
-                tituloConcessao: false,
-                tipoTitulo: ''
-            }));
-            return;
-        }
+              {formData.tipoEntidade === 'OUTRO' && (
+                <CustomInput
+                  type="text"
+                  label="Especificar Outro Tipo"
+                  value={formData.outroTipoEntidade}
+                  onChange={(value) => handleInputChange('outroTipoEntidade', value)}
+                  placeholder="Especifique o tipo de entidade"
+                  iconStart={<FileText size={18} />}
+                />
+              )}
 
-        if (field === 'proprietarioTerra' && !value) {
-            setFormData(prev => ({
-                ...prev,
-                [field]: value,
-                tituloConcessao: false,
-                tipoTitulo: ''
-            }));
-            return;
-        }
+              <div className="relative">
+                <CustomInput
+                  type="text"
+                  label="NIF/ID Fiscal"
+                  value={formData.nif}
+                  onChange={handleNifChange}
+                  required
+                  errorMessage={errors.nif}
+                  placeholder="Número de Identificação Fiscal"
+                  iconStart={<CreditCard size={18} />}
+                  helperText="Digite o NIF para consulta automática dos dados"
+                />
+                {consultingNif && (
+                  <div className="absolute right-3 top-9 flex items-center">
+                    <Loader size={16} className="animate-spin text-blue-600" />
+                    <span className="ml-2 text-sm text-blue-600">Consultando...</span>
+                  </div>
+                )}
+              </div>
 
-        if (field === 'tituloConcessao' && !value) {
-            setFormData(prev => ({
-                ...prev,
-                [field]: value,
-                tipoTitulo: ''
-            }));
-            return;
-        }
+              <CustomInput
+                type="number"
+                label="Ano de Fundação"
+                value={formData.anoFundacao}
+                onChange={(value) => handleInputChange('anoFundacao', value)}
+                required
+                errorMessage={errors.anoFundacao}
+                placeholder="Ex: 2020"
+                iconStart={<Calendar size={18} />}
+              />
+            </div>
 
-        if (field === 'acessoIrrigacao' && !value) {
-            setFormData(prev => ({
-                ...prev,
-                [field]: value,
-                sistemaIrrigacao: '',
-                outroSistemaIrrigacao: '',
-                distanciaFonteAgua: 0
-            }));
-            return;
-        }
-
-        if (field === 'amanhosCulturais' && !value) {
-            setFormData(prev => ({
-                ...prev,
-                [field]: value,
-                tipoAmanhos: [],
-                outroTipoAmanho: ''
-            }));
-            return;
-        }
-
-        if (field === 'acessoInstrumentos' && !value) {
-            setFormData(prev => ({
-                ...prev,
-                [field]: value,
-                fonteInstrumentos: [],
-                outraFonteInstrumento: ''
-            }));
-            return;
-        }
-
-        if (field === 'beneficiadoCredito' && (value === false || value?.value === false)) {
-            setFormData(prev => ({
-                ...prev,
-                [field]: value,
-                fontesCredito: [],
-                outraFonteCredito: ''
-            }));
-            return;
-        }
-
-        if (field === 'deficiencia' && (value === false || value?.value === false)) {
-            setFormData(prev => ({
-                ...prev,
-                [field]: value,
-                tipoDeficiencia: '',
-                outraDeficiencia: ''
-            }));
-            return;
-        }
-
-        // Atualização normal
-        setFormData(prev => ({ ...prev, [field]: value }));
-    };
-
-    const handleProvinciaChange = (value) => {
-        setFormData(prev => ({ ...prev, provincia: value, municipio: '' }));
-
-        const provinciaValue = value?.value || value;
-        const provinciaSelected = provinciasData.find(
-            p => p.nome.toUpperCase() === provinciaValue?.toUpperCase()
+            {/* Informações do NIF consultado */}
+            {nifData && (
+              <div className="mt-8 bg-blue-50 rounded-2xl p-6 border border-blue-200">
+                <h4 className="text-lg font-semibold text-blue-800 mb-4 flex items-center">
+                  <Info className="w-5 h-5 mr-2" />
+                  Informações do NIF Consultado
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <span className="font-medium text-gray-600">Tipo de Contribuinte:</span>
+                    <p className="text-gray-800">{nifData.tipo_contribuinte || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-600">Estado:</span>
+                    <p className="text-gray-800">
+                      {nifData.estado_contribuinte === 'A' ? 'Ativo' :
+                        nifData.estado_contribuinte === 'C' ? 'Cessado' :
+                          nifData.estado_contribuinte === 'D' ? 'Falecido' :
+                            nifData.estado_contribuinte === 'E' ? 'Herança' :
+                              nifData.estado_contribuinte === 'F' ? 'Anulado' :
+                                nifData.estado_contribuinte === 'G' ? 'Suspenso' :
+                                  'N/A'}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-600">Capital Social:</span>
+                    <p className="text-gray-800">
+                      {nifData.valor_capital_social ?
+                        new Intl.NumberFormat('pt-AO', {
+                          style: 'currency',
+                          currency: 'AOA'
+                        }).format(nifData.valor_capital_social) : 'N/A'}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-600">Data Constituição:</span>
+                    <p className="text-gray-800">
+                      {nifData.data_constituicao ?
+                        new Date(nifData.data_constituicao).toLocaleDateString('pt-BR') : 'N/A'}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-600">Morada Completa:</span>
+                    <p className="text-gray-800">{nifData.morada || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-600">Atividades:</span>
+                    <p className="text-gray-800">
+                      {nifData.lista_cae && nifData.lista_cae.length > 0 ?
+                        `${nifData.lista_cae.length} atividade(s) registrada(s)` : 'N/A'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         );
 
-        if (provinciaSelected) {
-            try {
-                const municipiosArray = JSON.parse(provinciaSelected.municipios);
-                const municipios = municipiosArray.map(mun => ({
-                    label: mun,
-                    value: mun
-                }));
-                setMunicipiosOptions(municipios);
-            } catch (error) {
-                console.error("Erro ao processar municípios:", error);
-                setMunicipiosOptions([]);
-            }
-        } else {
-            setMunicipiosOptions([]);
-        }
-    };
-
-    const handleFileUpload = (fieldName, file) => {
-        setUploadedFiles(prev => ({ ...prev, [fieldName]: file }));
-        setFormData(prev => ({ ...prev, [fieldName]: file }));
-    };
-
-
-
-    // Função validateCurrentStep - comentar validações
-    const validateCurrentStep = () => {
-        const newErrors = {};
-
-        console.log('🔍 Validando step:', activeIndex);
-        console.log('📋 FormData atual:', formData);
-
-        switch (activeIndex) {
-            case 0: // Inquiridor
-                if (!formData.codigoInquiridor) newErrors.codigoInquiridor = 'Campo obrigatório';
-
-                console.log('❌ Erros encontrados:', newErrors);
-                break;
-
-            case 1: // Infrastrutura
-                if (!formData.nomeInfraestrutura) newErrors.nomeInfraestrutura = 'Campo obrigatório';
-                if (!formData.tipoInfraestrutura) newErrors.tipoInfraestrutura = 'Campo obrigatório';
-                console.log('❌ Erros encontrados:', newErrors);
-                break;
-
-            case 2: // Responsável
-                // Add validation for responsible entity fields if needed
-                console.log('❌ Erros encontrados:', newErrors);
-                break;
-
-            case 3: // Localização
-                if (!formData.provincia) newErrors.provincia = 'Campo obrigatório';
-                if (!formData.municipio) newErrors.municipio = 'Campo obrigatório';
-                if (!formData.bairroAldeia) newErrors.bairroAldeia = 'Campo obrigatório';
-                if (!formData.localResidencia) newErrors.localResidencia = 'Campo obrigatório';
-                console.log('❌ Erros encontrados:', newErrors);
-                break;
-
-            case 4: // Características
-                // Validation for technical characteristics - optional fields
-                console.log('❌ Erros encontrados:', newErrors);
-                break;
-
-            case 5: // Utilização
-                // Validation for utilization - optional fields
-                console.log('❌ Erros encontrados:', newErrors);
-                break;
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
-    // Verificar se deve mostrar seções de agricultura ou pecuária
-    const shouldShowAgriculture = () => {
-        if (!formData.tiposAtividades || formData.tiposAtividades.length === 0) return false;
-        return formData.tiposAtividades.some(atividade => {
-            const value = typeof atividade === 'object' ? atividade.value : atividade;
-            return value === 'AGRICULTURA' || value === 'AGROPECUARIA';
-        });
-    };
-
-    const shouldShowLivestock = () => {
-        if (!formData.tiposAtividades || formData.tiposAtividades.length === 0) return false;
-        return formData.tiposAtividades.some(atividade => {
-            const value = typeof atividade === 'object' ? atividade.value : atividade;
-            return value === 'PECUARIA' || value === 'AGROPECUARIA';
-        });
-    };
-
-    const renderStepContent = (index) => {
-        switch (index) {
-            case 0: // Inquiridor
-                return (
-                    <div className="max-w-full mx-auto">
-                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 mb-8 border border-blue-100">
-                            <div className="flex items-center space-x-3 mb-3">
-                                <div className="p-2 bg-blue-100 rounded-lg">
-                                    <User className="w-6 h-6 text-blue-600" />
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-800">Identificação do Inquiridor</h3>
-                            </div>
-                            <p className="text-gray-600">
-                                Selecione o código do inquiridor responsável por este cadastro. As informações serão preenchidas automaticamente.
-                            </p>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <CustomInput
-                                type="select"
-                                label="Código do Inquiridor"
-                                value={formData.codigoInquiridor}
-                                options={inquiridoresData.map(inq => ({
-                                    label: `${inq.codigo} - ${inq.nomeCompleto}`,
-                                    value: inq.codigo
-                                }))}
-                                onChange={(value) => handleInputChange('codigoInquiridor', value)}
-                                required
-                                errorMessage={errors.codigoInquiridor}
-                                placeholder="Selecione o inquiridor"
-                                iconStart={<CreditCard size={18} />}
-                            />
-
-                            <CustomInput
-                                type="text"
-                                label="Nome do Inquiridor"
-                                value={formData.nomeInquiridor}
-                                disabled={true}
-                                placeholder="Preenchido automaticamente"
-                                iconStart={<User size={18} />}
-                            />
-
-                            <CustomInput
-                                type="text"
-                                label="Sobrenome"
-                                value={formData.sobrenomeInquiridor}
-                                disabled={true}
-                                placeholder="Preenchido automaticamente"
-                                iconStart={<User size={18} />}
-                            />
-
-                            <CustomInput
-                                type="date"
-                                label="Data de Registro"
-                                value={formData.dataRegisto}
-                                onChange={(value) => handleInputChange('dataRegisto', value)}
-                                iconStart={<Calendar size={18} />}
-                            />
-                        </div>
-                    </div>
-                );
-
-            case 1: // Infraestrutura
-                return (
-                    <div className="max-w-full mx-auto">
-                        <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 mb-8 border border-purple-100">
-                            <div className="flex items-center space-x-3 mb-3">
-                                <div className="p-2 bg-purple-100 rounded-lg">
-                                    <User className="w-6 h-6 text-purple-600" />
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-800"> Identificação da Infraestrutura</h3>
-                            </div>
-
-                        </div>
-
-                        {formData.numeroDocumento && formData.nomeProdutor && biData && (
-                            <div className="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center">
-                                        <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
-                                        <p className="text-green-700 text-sm font-medium">
-                                            Dados preenchidos automaticamente através da consulta do BI. Verifique e ajuste se necessário.
-                                        </p>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setFormData(prev => ({
-                                                ...prev,
-                                                nomeProdutor: '',
-                                                nomeDoMeioProdutor: '',
-                                                sobrenomeProdutor: '',
-                                                dataNascimento: '',
-                                                lugarNascimento: '',
-                                                estadoCivil: '',
-                                                sexoProdutor: '',
-                                            }));
-                                            setBiData(null);
-                                            showToast('info', 'Dados limpos', 'Campos limpos. Preencha manualmente.');
-                                        }}
-                                        className="text-sm text-green-600 hover:text-green-800 underline"
-                                    >
-                                        Limpar e preencher manualmente
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-
-
-
-                        <div className="grid grid-cols-1 text-start md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-                            <CustomInput
-                                type="text"
-                                label="Nome da Infraestrutura"
-                                value={formData.nomeInfraestrutura}
-                                onChange={(value) => handleInputChange('nomeInfraestrutura', value)}
-                                placeholder="Ex: Sistema de Irrigação"
-                            />
-
-                            <CustomInput
-                                type="select"
-                                label="Tipo de Infraestrutura"
-                                value={formData.tipoInfraestrutura}
-                                options={[
-                                    { label: 'Canal de Irrigação', value: 'Canal de Irrigação' },
-                                    { label: 'Represa/Barragem', value: 'Represa/Barragem' },
-                                    { label: 'Furo de Água / Poço Artesiano', value: 'Furo de Água / Poço Artesiano' },
-                                    { label: 'Sistema de Rega (aspersão/gota-a-gota)', value: 'Sistema de Rega (aspersão/gota-a-gota)' },
-                                    { label: 'Armazém de Conservação', value: 'Armazém de Conservação' },
-                                    { label: 'Silos de Grãos', value: 'Silos de Grãos' },
-                                    { label: 'Estufa Agrícola', value: 'Estufa Agrícola' },
-                                    { label: 'Estação Meteorológica', value: 'Estação Meteorológica' },
-                                    { label: 'Estrada de Acesso Rural', value: 'Estrada de Acesso Rural' },
-                                    { label: 'Mercado de Produtos Agrícolas', value: 'Mercado de Produtos Agrícolas' },
-                                    { label: 'Centro de Formação Agrária', value: 'Centro de Formação Agrária' },
-                                    { label: 'Centro de Extensão Rural', value: 'Centro de Extensão Rural' },
-                                    { label: 'Posto de Assistência Veterinária', value: 'Posto de Assistência Veterinária' },
-                                    { label: 'Matadouro Municipal / Abatedouro', value: 'Matadouro Municipal / Abatedouro' },
-                                    { label: 'Cais de Pesca / Infraestrutura Aquícola', value: 'Cais de Pesca / Infraestrutura Aquícola' },
-                                    { label: 'Centros de Processamento Agroalimentar', value: 'Centros de Processamento Agroalimentar' },
-                                    { label: 'Tratores/Equipamentos Agrícolas Comunitários', value: 'Tratores/Equipamentos Agrícolas Comunitários' },
-                                    { label: 'Outro', value: 'Outro' }
-                                ]}
-                                onChange={(value) => handleInputChange('tipoInfraestrutura', value)}
-                                required
-                                errorMessage={errors.tipoInfraestrutura}
-                                placeholder="Selecione o tipo"
-                                iconStart={<Tractor size={18} />}
-                            />
-
-
-
-                            <CustomInput
-                                type="select"
-                                label="Tipo de Documento"
-                                value={formData.tipoDocumento}
-                                options={[
-                                    { label: 'Bilhete de Identidade', value: 'BI' },
-                                    { label: 'NIF', value: 'NIF' },
-                                ]}
-                                onChange={(value) => handleInputChange('tipoDocumento', value)}
-                                required
-                                errorMessage={errors.tipoDocumento}
-                                placeholder="Selecione o tipo"
-                                iconStart={<CreditCard size={18} />}
-                            />
-
-                            {shouldShowDocumentName() && (
-                                <CustomInput
-                                    type="text"
-                                    label="Nome do Documento"
-                                    value={formData.nomeOutroDocumento}
-                                    onChange={(value) => handleInputChange('nomeOutroDocumento', value)}
-                                    required
-                                    errorMessage={errors.nomeOutroDocumento}
-                                    placeholder="Digite o nome do documento"
-                                    iconStart={<FileText size={18} />}
-                                />
-                            )}
-
-                            {shouldShowDocumentNumber() && (
-                                <>
-                                    <div className="relative">
-                                        <CustomInput
-                                            type="text"
-                                            label="Número do Documento"
-                                            value={formData.numeroDocumento}
-                                            onChange={(value) => handleInputChange('numeroDocumento', value)}
-                                            required
-                                            errorMessage={errors.numeroDocumento}
-                                            placeholder="Digite o número"
-                                            iconStart={<CreditCard size={18} />}
-                                            helperText={formData.tipoDocumento?.value === 'BI' ? 'Digite o BI para consulta automática dos dados' : ''}
-                                        />
-                                        {consultingBI && (
-                                            <div className="absolute right-3 top-9 flex items-center">
-                                                <Loader size={16} className="animate-spin text-blue-600" />
-                                                <span className="ml-2 text-sm text-blue-600">Consultando...</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                </>
-                            )}
-
-
-
-
-
-
-
-
-
-
-
-
-                        </div>
-
-                        {/* Informações do BI consultado */}
-                        {biData && (
-                            <div className="mt-8 bg-blue-50 rounded-2xl p-6 border border-blue-200">
-                                <h4 className="text-lg font-semibold text-blue-800 mb-4 flex items-center">
-                                    <Info className="w-5 h-5 mr-2" />
-                                    Informações do BI Consultado
-                                </h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
-                                    <div>
-                                        <span className="font-medium text-gray-600">Nome Completo:</span>
-                                        <p className="text-gray-800">{`${biData.first_name || ''} ${biData.last_name || ''}`.trim() || 'N/A'}</p>
-                                    </div>
-                                    <div>
-                                        <span className="font-medium text-gray-600">Sexo:</span>
-                                        <p className="text-gray-800">{biData.gender_name || 'N/A'}</p>
-                                    </div>
-                                    <div>
-                                        <span className="font-medium text-gray-600">Data de Nascimento:</span>
-                                        <p className="text-gray-800">
-                                            {biData.birth_date ?
-                                                new Date(biData.birth_date).toLocaleDateString('pt-BR') : 'N/A'}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span className="font-medium text-gray-600">Idade:</span>
-                                        <p className="text-gray-800">
-                                            {biData.birth_date ? `${calculateAge(biData.birth_date)} anos` : 'N/A'}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span className="font-medium text-gray-600">Estado Civil:</span>
-                                        <p className="text-gray-800">{biData.marital_status_name || 'N/A'}</p>
-                                    </div>
-                                    <div>
-                                        <span className="font-medium text-gray-600">Lugar de Nascimento:</span>
-                                        <p className="text-gray-800">{biData.birth_province_name || 'N/A'}</p>
-                                    </div>
-                                    <div>
-                                        <span className="font-medium text-gray-600">Data de Emissão:</span>
-                                        <p className="text-gray-800">
-                                            {biData.issue_date ?
-                                                new Date(biData.issue_date).toLocaleDateString('pt-BR') : 'N/A'}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span className="font-medium text-gray-600">Data de Validade:</span>
-                                        <p className="text-gray-800">
-                                            {biData.expiry_date ?
-                                                new Date(biData.expiry_date).toLocaleDateString('pt-BR') : 'N/A'}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span className="font-medium text-gray-600">Local de Emissão:</span>
-                                        <p className="text-gray-800">{biData.issue_place || 'N/A'}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                );
-
-            case 2: // Responsável
-                return (
-                    <div className="max-w-full mx-auto">
-                        <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-6 mb-8 border border-orange-100">
-                            <div className="flex items-center space-x-3 mb-3">
-                                <div className="p-2 bg-orange-100 rounded-lg">
-                                    <User className="w-6 h-6 text-orange-600" />
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-800">Entidade Responsável</h3>
-                            </div>
-                            <p className="text-gray-600">
-                                Informações sobre a entidade responsável pela infraestrutura.
-                            </p>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <CustomInput
-                                type="text"
-                                label="Proprietário/Instituição Gestora"
-                                value={formData.proprietario_instituicao}
-                                onChange={(value) => handleInputChange('proprietario_instituicao', value)}
-                                placeholder="Nome da entidade responsável"
-                                iconStart={<Building size={18} />}
-                            />
-
-                            <CustomInput
-                                type="text"
-                                label="Contacto"
-                                value={formData.contacto}
-                                onChange={(value) => handleInputChange('contacto', value)}
-                                placeholder="Número de telefone"
-                                iconStart={<Phone size={18} />}
-                            />
-
-                            <CustomInput
-                                type="email"
-                                label="Email"
-                                value={formData.email}
-                                onChange={(value) => handleInputChange('email', value)}
-                                placeholder="endereco@email.com"
-                                iconStart={<User size={18} />}
-                            />
-                        </div>
-                    </div>
-                );
-
-            case 3: // Localização
-                return (
-                    <div className="max-w-full mx-auto">
-                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 mb-8 border border-green-100">
-                            <div className="flex items-center space-x-3 mb-3">
-                                <div className="p-2 bg-green-100 rounded-lg">
-                                    <MapPin className="w-6 h-6 text-green-600" />
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-800">Identificação Geográfica</h3>
-                            </div>
-                            <p className="text-gray-600">
-                                Informe a localização geográfica do produtor e use o mapa para confirmar as coordenadas.
-                            </p>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                            <CustomInput
-                                type="select"
-                                label="Província"
-                                value={formData.provincia}
-                                options={provinciasData.map(provincia => ({
-                                    label: provincia.nome,
-                                    value: provincia.nome.toUpperCase()
-                                }))}
-                                onChange={(value) => handleInputChange('provincia', value)}
-                                required
-                                errorMessage={errors.provincia}
-                                placeholder="Selecione a província"
-                                iconStart={<MapPin size={18} />}
-                            />
-
-                            <CustomInput
-                                type="select"
-                                label="Município"
-                                value={formData.municipio}
-                                options={municipiosOptions}
-                                onChange={(value) => handleInputChange('municipio', value)}
-                                required
-                                errorMessage={errors.municipio}
-                                placeholder="Selecione o município"
-                                iconStart={<Map size={18} />}
-                                disabled={!formData.provincia}
-                            />
-
-                            <CustomInput
-                                type="text"
-                                label="Comuna/Distrito"
-                                value={formData.comuna}
-                                onChange={(value) => handleInputChange('comuna', value)}
-                                placeholder="Nome da comuna ou distrito"
-                                iconStart={<Building size={18} />}
-                            />
-
-                            <CustomInput
-                                type="text"
-                                label="Bairro/Aldeia"
-                                value={formData.bairroAldeia}
-                                onChange={(value) => handleInputChange('bairroAldeia', value)}
-                                required
-                                errorMessage={errors.bairroAldeia}
-                                placeholder="Digite o nome do bairro ou aldeia"
-                                iconStart={<Home size={18} />}
-                            />
-
-                           
-                        </div>
-
-                        <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                            <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                                <MapPin className="w-5 h-5 mr-2 text-blue-600" />
-                                Coordenadas GPS
-                            </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                                <CustomInput
-                                    type="number"
-                                    label="Latitude (°)"
-                                    value={formData.latitudeGPS}
-                                    onChange={(value) => handleInputChange('latitudeGPS', value)}
-                                    placeholder="Ex: -8.838333"
-                                    step="any"
-                                />
-
-                                <CustomInput
-                                    type="number"
-                                    label="Longitude (°)"
-                                    value={formData.longitudeGPS}
-                                    onChange={(value) => handleInputChange('longitudeGPS', value)}
-                                    placeholder="Ex: 13.234444"
-                                    step="any"
-                                />
-
-                                <CustomInput
-                                    type="number"
-                                    label="Altitude (m)"
-                                    value={formData.altitudeGPS}
-                                    onChange={(value) => handleInputChange('altitudeGPS', value)}
-                                    placeholder="Ex: 73"
-                                />
-
-                                <CustomInput
-                                    type="number"
-                                    label="Precisão (m)"
-                                    value={formData.precisaoGPS}
-                                    onChange={(value) => handleInputChange('precisaoGPS', value)}
-                                    placeholder="Ex: 5"
-                                />
-                            </div>
-
-                            <MapaGPS
-                                latitude={formData.latitudeGPS}
-                                longitude={formData.longitudeGPS}
-                                onLocationSelect={(lat, lng) => {
-                                    handleInputChange('latitudeGPS', lat);
-                                    handleInputChange('longitudeGPS', lng);
-                                }}
-                            />
-
-                            <div className="mt-3 p-3 bg-blue-50 rounded-lg">
-                                <p className="text-sm text-blue-600 flex items-center">
-                                    <Info size={16} className="mr-2" />
-                                    Clique no mapa para selecionar uma localização automaticamente
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                );
-
-            case 4: // Características
-                return (
-                    <div className="max-w-full mx-auto">
-                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 mb-8 border border-blue-100">
-                            <div className="flex items-center space-x-3 mb-3">
-                                <div className="p-2 bg-blue-100 rounded-lg">
-                                    <Building className="w-6 h-6 text-blue-600" />
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-800">Características Técnicas</h3>
-                            </div>
-                            <p className="text-gray-600">
-                                Informe as características técnicas da infraestrutura, incluindo dimensões, capacidade e estado de conservação.
-                            </p>
-                        </div>
-
-
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <CustomInput
-                                type="text"
-                                label="Dimensão"
-                                value={formData.dimensao}
-                                onChange={(value) => handleInputChange('dimensao', value)}
-                                placeholder="Ex: 50m x 30m, 100 ha, 5 km"
-                                iconStart={<Building size={18} />}
-                                helperText="Especifique a unidade (m², ha, km, etc.)"
-                            />
-
-                            <CustomInput
-                                type="text"
-                                label="Capacidade"
-                                value={formData.capacidade}
-                                onChange={(value) => handleInputChange('capacidade', value)}
-                                placeholder="Ex: 1000 litros, 500 toneladas, 200 utilizadores"
-                                iconStart={<Building size={18} />}
-                                helperText="Inclua a unidade de medida"
-                            />
-
-                            <CustomInput
-                                type="select"
-                                label="Estado de Conservação"
-                                value={formData.estado_conservacao}
-                                options={[
-                                    { label: 'Bom', value: 'Bom' },
-                                    { label: 'Razoável', value: 'Razoavel' },
-                                    { label: 'Mau', value: 'Mau' }
-                                ]}
-                                onChange={(value) => handleInputChange('estado_conservacao', value)}
-                                placeholder="Selecione o estado"
-                                iconStart={<CheckCircle size={18} />}
-                            />
-                        </div>
-
-                        {/* Informações do BI consultado */}
-                        {biData && (
-                            <div className="mt-8 bg-blue-50 rounded-2xl p-6 border border-blue-200">
-                                <h4 className="text-lg font-semibold text-blue-800 mb-4 flex items-center">
-                                    <Info className="w-5 h-5 mr-2" />
-                                    Informações do BI Consultado
-                                </h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
-                                    <div>
-                                        <span className="font-medium text-gray-600">Nome Completo:</span>
-                                        <p className="text-gray-800">{`${biData.first_name || ''} ${biData.last_name || ''}`.trim() || 'N/A'}</p>
-                                    </div>
-                                    <div>
-                                        <span className="font-medium text-gray-600">Sexo:</span>
-                                        <p className="text-gray-800">{biData.gender_name || 'N/A'}</p>
-                                    </div>
-                                    <div>
-                                        <span className="font-medium text-gray-600">Data de Nascimento:</span>
-                                        <p className="text-gray-800">
-                                            {biData.birth_date ?
-                                                new Date(biData.birth_date).toLocaleDateString('pt-BR') : 'N/A'}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span className="font-medium text-gray-600">Idade:</span>
-                                        <p className="text-gray-800">
-                                            {biData.birth_date ? `${calculateAge(biData.birth_date)} anos` : 'N/A'}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span className="font-medium text-gray-600">Estado Civil:</span>
-                                        <p className="text-gray-800">{biData.marital_status_name || 'N/A'}</p>
-                                    </div>
-                                    <div>
-                                        <span className="font-medium text-gray-600">Lugar de Nascimento:</span>
-                                        <p className="text-gray-800">{biData.birth_province_name || 'N/A'}</p>
-                                    </div>
-                                    <div>
-                                        <span className="font-medium text-gray-600">Data de Emissão:</span>
-                                        <p className="text-gray-800">
-                                            {biData.issue_date ?
-                                                new Date(biData.issue_date).toLocaleDateString('pt-BR') : 'N/A'}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span className="font-medium text-gray-600">Data de Validade:</span>
-                                        <p className="text-gray-800">
-                                            {biData.expiry_date ?
-                                                new Date(biData.expiry_date).toLocaleDateString('pt-BR') : 'N/A'}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span className="font-medium text-gray-600">Local de Emissão:</span>
-                                        <p className="text-gray-800">{biData.issue_place || 'N/A'}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                );
-
-            case 5: // Utilização
-                return (
-                    <div className="max-w-full mx-auto">
-                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 mb-8 border border-green-100">
-                            <div className="flex items-center space-x-3 mb-3">
-                                <div className="p-2 bg-green-100 rounded-lg">
-                                    <Factory className="w-6 h-6 text-green-600" />
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-800">Utilização da Infraestrutura</h3>
-                            </div>
-                            <p className="text-gray-600">
-                                Informações sobre como a infraestrutura é utilizada, beneficiários e atividades apoiadas.
-                            </p>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <CustomInput
-                                type="number"
-                                label="Beneficiários Directos"
-                                value={formData.beneficiarios_directos}
-                                onChange={(value) => handleInputChange('beneficiarios_directos', value)}
-                                placeholder="Número de beneficiários"
-                                iconStart={<Users size={18} />}
-                                helperText="Número de pessoas que utilizam diretamente a infraestrutura"
-                            />
-                            
-                            <CustomInput
-                                type="select"
-                                label="Frequência de Utilização"
-                                value={formData.frequencia_utilizacao}
-                                options={[
-                                    { label: 'Diária', value: 'Diaria' },
-                                    { label: 'Semanal', value: 'Semanal' },
-                                    { label: 'Sazonal', value: 'Sazonal' }
-                                ]}
-                                onChange={(value) => handleInputChange('frequencia_utilizacao', value)}
-                                placeholder="Selecione a frequência"
-                                iconStart={<Calendar size={18} />}
-                            />
-                        </div>
-                        
-                        <div className="mt-6">
-                            <CustomInput
-                                type="multiselect"
-                                label="Principais Culturas/Actividades Apoiadas"
-                                value={formData.principais_culturas_actividades}
-                                options={[
-                                    { label: 'Milho', value: 'MILHO' },
-                                    { label: 'Mandioca', value: 'MANDIOCA' },
-                                    { label: 'Amendoim/ginguba', value: 'AMENDOIM' },
-                                    { label: 'Feijões', value: 'FEIJOES' },
-                                    { label: 'Batata-doce', value: 'BATATA_DOCE' },
-                                    { label: 'Banana', value: 'BANANA' },
-                                    { label: 'Massambala', value: 'MASSAMBALA' },
-                                    { label: 'Massango', value: 'MASSANGO' },
-                                    { label: 'Café', value: 'CAFE' },
-                                    { label: 'Cebola', value: 'CEBOLA' },
-                                    { label: 'Tomate', value: 'TOMATE' },
-                                    { label: 'Couve', value: 'COUVE' },
-                                    { label: 'Batata rena', value: 'BATATA_RENA' },
-                                    { label: 'Trigo', value: 'TRIGO' },
-                                    { label: 'Arroz', value: 'ARROZ' },
-                                    { label: 'Soja', value: 'SOJA' },
-                                    { label: 'Pecuária', value: 'PECUARIA' },
-                                    { label: 'Aquicultura', value: 'AQUICULTURA' },
-                                    { label: 'Produtos Florestais', value: 'FLORESTAIS' },
-                                    { label: 'Outro', value: 'OUTRO' }
-                                ]}
-                                onChange={(value) => handleInputChange('principais_culturas_actividades', value)}
-                                placeholder="Selecione as culturas/atividades"
-                            />
-                        </div>
-                        
-                        <div className="mt-6">
-                            <CustomInput
-                                type="textarea"
-                                label="Observações Gerais"
-                                value={formData.observacoes_gerais}
-                                onChange={(value) => handleInputChange('observacoes_gerais', value)}
-                                placeholder="Informações adicionais sobre a utilização da infraestrutura..."
-                                rows={4}
-                                maxLength={500}
-                            />
-                        </div>
-                    </div>
-                );
-
-
-                return (
-                    <div className="max-w-full mx-auto">
-                        <div className="bg-gradient-to-r from-green-50 to-teal-50 rounded-2xl p-6 mb-8 border border-green-100">
-                            <div className="flex items-center space-x-3 mb-3">
-                                <div className="p-2 bg-green-100 rounded-lg">
-                                    <Tractor className="w-6 h-6 text-green-600" />
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-800">Actividades e Activos Agrícolas</h3>
-                            </div>
-                            <p className="text-gray-600">
-                                Informações sobre as actividades praticadas, terras cultiváveis e recursos agrícolas.
-                            </p>
-                        </div>
-
-                        <div className="space-y-8">
-                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
-                                    <Wheat className="w-5 h-5 mr-2 text-green-600" />
-                                    Tipos de Actividades Praticadas
-                                </h4>
-                                <CustomInput
-                                    type="multiselect"
-                                    value={formData.tiposAtividades}
-                                    options={[
-                                        { label: 'Agricultura', value: 'AGRICULTURA' },
-                                        { label: 'Pecuária', value: 'PECUARIA' },
-                                        { label: 'Agropecuária', value: 'AGROPECUARIA' },
-                                        { label: 'Aquicultura', value: 'AQUICULTURA' },
-                                        { label: 'Produtos Florestais', value: 'FLORESTAIS' },
-                                        { label: 'Outro', value: 'OUTRO' }
-                                    ]}
-                                    onChange={(value) => handleInputChange('tiposAtividades', value)}
-                                    errorMessage={errors.tiposAtividades}
-                                />
-
-                                {formData.tiposAtividades && formData.tiposAtividades.includes('OUTRO') && (
-                                    <div className="mt-4">
-                                        <CustomInput
-                                            type="text"
-                                            label="Especificar Outro Tipo de Actividade"
-                                            value={formData.outroTipoAtividade}
-                                            onChange={(value) => handleInputChange('outroTipoAtividade', value)}
-                                            placeholder="Digite o tipo de catividade"
-                                            iconStart={<FileText size={18} />}
-                                        />
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
-                                    <Map className="w-5 h-5 mr-2 text-green-600" />
-                                    Informações sobre Terras
-                                </h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    <CustomInput
-                                        type="select"
-                                        label="Tem acesso a terras cultiváveis?"
-                                        value={formData.acessoTerras}
-                                        options={[
-                                            { label: 'Sim', value: true },
-                                            { label: 'Não', value: false }
-                                        ]}
-                                        onChange={(value) => handleInputChange('acessoTerras', value)}
-                                        placeholder="Selecione uma opção"
-                                    />
-
-                                    {(formData.acessoTerras === true || formData.acessoTerras?.value === true) && (
-                                        <>
-                                            <CustomInput
-                                                type="select"
-                                                label="É proprietário da terra?"
-                                                value={formData.proprietarioTerra}
-                                                options={[
-                                                    { label: 'Sim', value: true },
-                                                    { label: 'Não', value: false }
-                                                ]}
-                                                onChange={(value) => handleInputChange('proprietarioTerra', value)}
-                                                placeholder="Selecione uma opção"
-                                            />
-
-                                            {(formData.proprietarioTerra === true || formData.proprietarioTerra?.value === true) && (
-                                                <>
-                                                    <CustomInput
-                                                        type="select"
-                                                        label="Possui título de concessão?"
-                                                        value={formData.tituloConcessao}
-                                                        options={[
-                                                            { label: 'Sim', value: true },
-                                                            { label: 'Não', value: false }
-                                                        ]}
-                                                        onChange={(value) => handleInputChange('tituloConcessao', value)}
-                                                        placeholder="Selecione uma opção"
-                                                    />
-
-                                                    {(formData.tituloConcessao === true || formData.tituloConcessao?.value === true) && (
-                                                        <CustomInput
-                                                            type="select"
-                                                            label="Tipo de Documento"
-                                                            value={formData.tipoTitulo}
-                                                            options={[
-                                                                { label: 'Direito consuetudinário', value: 'CONSUETUDINARIO' },
-                                                                { label: 'Formalizado', value: 'FORMALIZADO' }
-                                                            ]}
-                                                            onChange={(value) => handleInputChange('tipoTitulo', value)}
-                                                            placeholder="Selecione o tipo"
-                                                        />
-                                                    )}
-                                                </>
-                                            )}
-                                        </>
-                                    )}
-
-                                    <CustomInput
-                                        type="number"
-                                        label="Área Total dos Campos (ha)"
-                                        value={formData.areaTotalCampos}
-                                        onChange={(value) => handleInputChange('areaTotalCampos', parseFloat(value) || 0)}
-                                        placeholder="0.0"
-                                        step="0.1"
-                                        min="0"
-                                    />
-
-                                    <CustomInput
-                                        type="number"
-                                        label="Área Explorada (ha)"
-                                        value={formData.areaExplorada}
-                                        onChange={(value) => handleInputChange('areaExplorada', parseFloat(value) || 0)}
-                                        placeholder="0.0"
-                                        step="0.1"
-                                        min="0"
-                                    />
-
-                                    <CustomInput
-                                        type="number"
-                                        label="Área Agrícola (ha)"
-                                        value={formData.areaAgricola}
-                                        onChange={(value) => handleInputChange('areaAgricola', parseFloat(value) || 0)}
-                                        placeholder="0.0"
-                                        step="0.1"
-                                        min="0"
-                                    />
-
-                                    <CustomInput
-                                        type="number"
-                                        label="Área Pecuária (ha)"
-                                        value={formData.areaPecuaria}
-                                        onChange={(value) => handleInputChange('areaPecuaria', parseFloat(value) || 0)}
-                                        placeholder="0.0"
-                                        step="0.1"
-                                        min="0"
-                                    />
-
-                                    <CustomInput
-                                        type="number"
-                                        label="Área Florestal (ha)"
-                                        value={formData.areaFlorestal}
-                                        onChange={(value) => handleInputChange('areaFlorestal', parseFloat(value) || 0)}
-                                        placeholder="0.0"
-                                        step="0.1"
-                                        min="0"
-                                    />
-
-                                    <CustomInput
-                                        type="select"
-                                        label="Tecnologia Agrícola"
-                                        value={formData.tecnologiaAgricola}
-                                        options={[
-                                            { label: 'Subsistência', value: 'SUBSISTENCIA' },
-                                            { label: 'Comercial', value: 'COMERCIAL' },
-                                            { label: 'Misto', value: 'MISTO' }
-                                        ]}
-                                        onChange={(value) => handleInputChange('tecnologiaAgricola', value)}
-                                        placeholder="Selecione o tipo"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Seção de Agricultura - só aparece se tiver agricultura */}
-                            {shouldShowAgriculture() && (
-                                <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                    <h4 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
-                                        <Wheat className="w-5 h-5 mr-2 text-green-600" />
-                                        Culturas e Produção Agrícola
-                                    </h4>
-                                    <div className="mb-6">
-                                        <CustomInput
-                                            type="multiselect"
-                                            label="Culturas Principais"
-                                            value={formData.culturasPrincipais}
-                                            options={[
-                                                { label: 'Milho', value: 'MILHO' },
-                                                { label: 'Mandioca', value: 'MANDIOCA' },
-                                                { label: 'Amendoim/ginguba', value: 'AMENDOIM' },
-                                                { label: 'Feijões', value: 'FEIJOES' },
-                                                { label: 'Batata-doce', value: 'BATATA_DOCE' },
-                                                { label: 'Banana', value: 'BANANA' },
-                                                { label: 'Massambala', value: 'MASSAMBALA' },
-                                                { label: 'Massango', value: 'MASSANGO' },
-                                                { label: 'Café', value: 'CAFE' },
-                                                { label: 'Cebola', value: 'CEBOLA' },
-                                                { label: 'Tomate', value: 'TOMATE' },
-                                                { label: 'Couve', value: 'COUVE' },
-                                                { label: 'Batata rena', value: 'BATATA_RENA' },
-                                                { label: 'Trigo', value: 'TRIGO' },
-                                                { label: 'Arroz', value: 'ARROZ' },
-                                                { label: 'Soja', value: 'SOJA' },
-                                                { label: 'Outro', value: 'OUTRO' }
-                                            ]}
-                                            onChange={(value) => handleInputChange('culturasPrincipais', value)}
-                                        />
-
-                                        {formData.culturasPrincipais && formData.culturasPrincipais.includes('OUTRO') && (
-                                            <div className="mt-4">
-                                                <CustomInput
-                                                    type="text"
-                                                    label="Especificar Outra Cultura"
-                                                    value={formData.outraCultura}
-                                                    onChange={(value) => handleInputChange('outraCultura', value)}
-                                                    placeholder="Digite o nome da cultura"
-                                                    iconStart={<Wheat size={18} />}
-                                                />
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                        <CustomInput
-                                            type="number"
-                                            label="Produção (sacos 50kg)"
-                                            value={formData.producaoSacos50kg}
-                                            onChange={(value) => handleInputChange('producaoSacos50kg', parseInt(value) || 0)}
-                                            placeholder="0"
-                                            min="0"
-                                        />
-
-                                        <CustomInput
-                                            type="select"
-                                            label="Tipo de Sementeira"
-                                            value={formData.tipoSementeira}
-                                            options={[
-                                                { label: 'Mecanizada', value: 'MECANIZADA' },
-                                                { label: 'Manual', value: 'MANUAL' },
-                                                { label: 'Tração animal', value: 'TRACAO_ANIMAL' },
-                                                { label: 'Nenhuma', value: 'NENHUMA' }
-                                            ]}
-                                            onChange={(value) => handleInputChange('tipoSementeira', value)}
-                                            placeholder="Selecione o tipo"
-                                        />
-
-                                        <CustomInput
-                                            type="select"
-                                            label="Uso de Fertilizantes"
-                                            value={formData.usoFertilizantes}
-                                            options={[
-                                                { label: 'Sim', value: true },
-                                                { label: 'Não', value: false }
-                                            ]}
-                                            onChange={(value) => handleInputChange('usoFertilizantes', value)}
-                                            placeholder="Selecione uma opção"
-                                        />
-
-                                        <CustomInput
-                                            type="select"
-                                            label="Preparação da Terra"
-                                            value={formData.preparacaoTerra}
-                                            options={[
-                                                { label: 'Animal', value: 'ANIMAL' },
-                                                { label: 'Manual', value: 'MANUAL' },
-                                                { label: 'Mecanizada', value: 'MECANIZADA' },
-                                                { label: 'Nenhuma', value: 'NENHUMA' }
-                                            ]}
-                                            onChange={(value) => handleInputChange('preparacaoTerra', value)}
-                                            placeholder="Selecione o tipo"
-                                        />
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Seção de Irrigação - só aparece se tiver agricultura */}
-                            {shouldShowAgriculture() && (
-                                <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                    <h4 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
-                                        <Trees className="w-5 h-5 mr-2 text-blue-600" />
-                                        Sistema de Irrigação
-                                    </h4>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                        <CustomInput
-                                            type="select"
-                                            label="Acesso à Irrigação"
-                                            value={formData.acessoIrrigacao}
-                                            options={[
-                                                { label: 'Sim', value: true },
-                                                { label: 'Não', value: false }
-                                            ]}
-                                            onChange={(value) => handleInputChange('acessoIrrigacao', value)}
-                                            placeholder="Selecione uma opção"
-                                        />
-
-                                        {(formData.acessoIrrigacao === true || formData.acessoIrrigacao?.value === true) && (
-                                            <>
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Sistema de Irrigação"
-                                                    value={formData.sistemaIrrigacao}
-                                                    options={[
-                                                        { label: 'Tipo 1', value: 'TIPO1' },
-                                                        { label: 'Tipo 2', value: 'TIPO2' },
-                                                        { label: 'Outro', value: 'OUTRO' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('sistemaIrrigacao', value)}
-                                                    placeholder="Selecione o sistema"
-                                                />
-
-                                                {formData.sistemaIrrigacao?.value === 'OUTRO' && (
-                                                    <CustomInput
-                                                        type="text"
-                                                        label="Especificar Outro Sistema"
-                                                        value={formData.outroSistemaIrrigacao}
-                                                        onChange={(value) => handleInputChange('outroSistemaIrrigacao', value)}
-                                                        placeholder="Digite o tipo de sistema"
-                                                        iconStart={<FileText size={18} />}
-                                                    />
-                                                )}
-
-                                                <CustomInput
-                                                    type="number"
-                                                    label="Distância da Fonte de Água (m)"
-                                                    value={formData.distanciaFonteAgua}
-                                                    onChange={(value) => handleInputChange('distanciaFonteAgua', parseInt(value) || 0)}
-                                                    placeholder="0"
-                                                    min="0"
-                                                />
-                                            </>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Amanhos Culturais - só aparece se tiver agricultura */}
-                            {shouldShowAgriculture() && (
-                                <div className="bg-orange-50 rounded-2xl p-6 border border-orange-200">
-                                    <h5 className="text-lg font-semibold text-orange-800 mb-6 flex items-center">
-                                        <Wheat className="w-5 h-5 mr-2" />
-                                        Amanhos Culturais
-                                    </h5>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <CustomInput
-                                            type="select"
-                                            label="Realiza amanhos culturais?"
-                                            value={formData.amanhosCulturais}
-                                            options={[
-                                                { label: 'Sim', value: true },
-                                                { label: 'Não', value: false }
-                                            ]}
-                                            onChange={(value) => handleInputChange('amanhosCulturais', value)}
-                                            placeholder="Selecione uma opção"
-                                        />
-
-                                        {(formData.amanhosCulturais === true || formData.amanhosCulturais?.value === true) && (
-                                            <div className="space-y-4">
-                                                <CustomInput
-                                                    type="multiselect"
-                                                    label="Tipos de Amanhos Culturais"
-                                                    value={formData.tipoAmanhos}
-                                                    options={[
-                                                        { label: 'Adubação', value: 'ADUBACAO' },
-                                                        { label: 'Amontoa', value: 'AMONTOA' },
-                                                        { label: 'Sacha', value: 'SACHA' },
-                                                        { label: 'Outros', value: 'OUTROS' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('tipoAmanhos', value)}
-                                                />
-
-                                                {formData.tipoAmanhos && formData.tipoAmanhos.includes('OUTROS') && (
-                                                    <CustomInput
-                                                        type="text"
-                                                        label="Especificar Outros Amanhos"
-                                                        value={formData.outroTipoAmanho}
-                                                        onChange={(value) => handleInputChange('outroTipoAmanho', value)}
-                                                        placeholder="Digite outros tipos de amanhos"
-                                                        iconStart={<FileText size={18} />}
-                                                    />
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Instrumentos e Insumos Agrícolas - só aparece se tiver agricultura */}
-                            {shouldShowAgriculture() && (
-                                <div className="bg-green-50 rounded-2xl p-6 border border-green-200">
-                                    <h5 className="text-lg font-semibold text-green-800 mb-6 flex items-center">
-                                        <Tractor className="w-5 h-5 mr-2" />
-                                        Instrumentos e Insumos Agrícolas
-                                    </h5>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <CustomInput
-                                            type="select"
-                                            label="Acesso a instrumentos e insumos agrícolas"
-                                            value={formData.acessoInstrumentos}
-                                            options={[
-                                                { label: 'Sim', value: true },
-                                                { label: 'Não', value: false }
-                                            ]}
-                                            onChange={(value) => handleInputChange('acessoInstrumentos', value)}
-                                            placeholder="Selecione uma opção"
-                                        />
-
-                                        {(formData.acessoInstrumentos === true || formData.acessoInstrumentos?.value === true) && (
-                                            <div className="space-y-4">
-                                                <CustomInput
-                                                    type="multiselect"
-                                                    label="Fontes de Instrumentos e Insumos"
-                                                    value={formData.fonteInstrumentos}
-                                                    options={[
-                                                        { label: 'Administração Pública', value: 'ADMINISTRACAO_PUBLICA' },
-                                                        { label: 'Caixas comunitárias', value: 'CAIXAS_COMUNITARIAS' },
-                                                        { label: 'Crédito agrícola', value: 'CREDITO_AGRICOLA' },
-                                                        { label: 'Fundo próprio', value: 'FUNDO_PROPRIO' },
-                                                        { label: 'Mercado aberto', value: 'MERCADO_ABERTO' },
-                                                        { label: 'Outra', value: 'OUTRA' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('fonteInstrumentos', value)}
-                                                />
-
-                                                {formData.fonteInstrumentos && formData.fonteInstrumentos.includes('OUTRA') && (
-                                                    <CustomInput
-                                                        type="text"
-                                                        label="Especificar Outra Fonte"
-                                                        value={formData.outraFonteInstrumento}
-                                                        onChange={(value) => handleInputChange('outraFonteInstrumento', value)}
-                                                        placeholder="Digite a fonte de instrumentos"
-                                                        iconStart={<FileText size={18} />}
-                                                    />
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                );
-
-
-                if (!shouldShowLivestock()) {
-                    return (
-                        <div className="max-w-full mx-auto">
-                            <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl p-6 mb-8 border border-gray-200">
-                                <div className="flex items-center space-x-3 mb-3">
-                                    <div className="p-2 bg-gray-200 rounded-lg">
-                                        <Fish className="w-6 h-6 text-gray-500" />
-                                    </div>
-                                    <h3 className="text-xl font-bold text-gray-600">Actividades Pecuárias</h3>
-                                </div>
-                                <p className="text-gray-500">
-                                    Esta seção só é exibida se você selecionou Pecuária ou Agropecuária nas atividades.
-                                </p>
-                            </div>
-                        </div>
-                    );
-                }
-
-                return (
-                    <div className="max-w-full mx-auto">
-                        <div className="bg-gradient-to-r from-emerald-50 to-cyan-50 rounded-2xl p-6 mb-8 border border-emerald-100">
-                            <div className="flex items-center space-x-3 mb-3">
-                                <div className="p-2 bg-emerald-100 rounded-lg">
-                                    <Fish className="w-6 h-6 text-emerald-600" />
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-800">Actividades Pecuárias</h3>
-                            </div>
-                            <p className="text-gray-600">
-                                Informações sobre criação de animais e actividades de pecuária do produtor.
-                            </p>
-                        </div>
-
-                        <div className="space-y-8">
-                            {/* Seleção de Tipos de Criação */}
-                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
-                                    <Fish className="w-5 h-5 mr-2 text-emerald-600" />
-                                    Tipos de Criação Praticados
-                                </h4>
-
-                                <CustomInput
-                                    type="multiselect"
-                                    value={formData.tiposCriacao}
-                                    options={[
-                                        { label: 'Avicultura', value: 'AVICULTURA' },
-                                        { label: 'Ovinocultura', value: 'OVINOCULTURA' },
-                                        { label: 'Piscicultura', value: 'PISCICULTURA' },
-                                        { label: 'Aquicultura', value: 'AQUICULTURA' },
-                                        { label: 'Caprinocultura', value: 'CAPRINOCULTURA' },
-                                        { label: 'Suinocultura', value: 'SUINOCULTURA' },
-                                        { label: 'Bovinocultura', value: 'BOVINOCULTURA' },
-                                        { label: 'Cunicultura', value: 'CUNICULTURA' },
-                                        { label: 'Outro', value: 'OUTRO' }
-                                    ]}
-                                    onChange={(value) => handleInputChange('tiposCriacao', value)}
-                                />
-
-                                {formData.tiposCriacao && formData.tiposCriacao.some(tipo =>
-                                    (typeof tipo === 'object' ? tipo.value : tipo) === 'OUTRO'
-                                ) && (
-                                        <div className="mt-4">
-                                            <CustomInput
-                                                type="text"
-                                                label="Especificar Outro Tipo de Criação"
-                                                value={formData.outroTipoCriacao}
-                                                onChange={(value) => handleInputChange('outroTipoCriacao', value)}
-                                                placeholder="Digite o tipo de criação"
-                                                iconStart={<FileText size={18} />}
-                                            />
-                                        </div>
-                                    )}
-                            </div>
-
-                            {/* Formulários Dinâmicos baseados na seleção */}
-                            {formData.tiposCriacao && formData.tiposCriacao.map((tipo, index) => {
-                                const tipoValue = typeof tipo === 'object' ? tipo.value : tipo;
-
-                                if (tipoValue === 'AVICULTURA') {
-                                    return (
-                                        <div key={`avicultura-${index}`} className="bg-yellow-50 rounded-2xl p-6 border border-yellow-200">
-                                            <h5 className="text-lg font-semibold text-yellow-800 mb-6 flex items-center">
-                                                <Egg className="w-5 h-5 mr-2" />
-                                                Criação de Aves (Avicultura)
-                                            </h5>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                <CustomInput
-                                                    type="number"
-                                                    label="Número de Aves"
-                                                    value={formData.numeroAves}
-                                                    onChange={(value) => handleInputChange('numeroAves', parseInt(value) || 0)}
-                                                    placeholder="0"
-                                                    min="0"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Sistema de Avicultura"
-                                                    value={formData.sistemaAvicultura}
-                                                    options={[
-                                                        { label: 'Em baterias', value: 'BATERIAS' },
-                                                        { label: 'Em cama', value: 'CAMA' },
-                                                        { label: 'Tradicional', value: 'TRADICIONAL' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('sistemaAvicultura', value)}
-                                                    placeholder="Selecione o sistema"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Objetivo da Produção"
-                                                    value={formData.objetivoAvicultura}
-                                                    options={[
-                                                        { label: 'Carne', value: 'CARNE' },
-                                                        { label: 'Ovos', value: 'OVOS' },
-                                                        { label: 'Outro', value: 'OUTRO' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('objetivoAvicultura', value)}
-                                                    placeholder="Selecione o objetivo"
-                                                />
-                                                {formData.objetivoAvicultura?.value === 'OUTRO' && (
-                                                    <CustomInput
-                                                        type="text"
-                                                        label="Especificar Outro Objetivo"
-                                                        value={formData.outroObjetivoAvicultura}
-                                                        onChange={(value) => handleInputChange('outroObjetivoAvicultura', value)}
-                                                        placeholder="Digite o objetivo"
-                                                        iconStart={<FileText size={18} />}
-                                                    />
-                                                )}
-                                            </div>
-                                        </div>
-                                    );
-                                }
-
-                                if (tipoValue === 'BOVINOCULTURA') {
-                                    return (
-                                        <div key={`bovinocultura-${index}`} className="bg-green-50 rounded-2xl p-6 border border-green-200">
-                                            <h5 className="text-lg font-semibold text-green-800 mb-6 flex items-center">
-                                                <Beef className="w-5 h-5 mr-2" />
-                                                Criação de Bovinos (Bovinocultura)
-                                            </h5>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                <CustomInput
-                                                    type="number"
-                                                    label="Número de animais"
-                                                    value={formData.numeroVacas}
-                                                    onChange={(value) => handleInputChange('numeroVacas', parseInt(value) || 0)}
-                                                    placeholder="0"
-                                                    min="0"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Sistema de Criação"
-                                                    value={formData.sistemaBovinocultura}
-                                                    options={[
-                                                        { label: 'Estabulados', value: 'ESTABULADOS' },
-                                                        { label: 'Em pastagem', value: 'PASTAGEM' },
-                                                        { label: 'Em livre acesso', value: 'LIVRE_ACESSO' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('sistemaBovinocultura', value)}
-                                                    placeholder="Selecione o sistema"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Tipo de Criação"
-                                                    value={formData.tipoBovinocultura}
-                                                    options={[
-                                                        { label: 'Intensivo', value: 'INTENSIVO' },
-                                                        { label: 'Semi-intensivo', value: 'SEMI_INTENSIVO' },
-                                                        { label: 'Extensivo', value: 'EXTENSIVO' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('tipoBovinocultura', value)}
-                                                    placeholder="Selecione o tipo"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Objetivo da Produção"
-                                                    value={formData.objetivoBovinos}
-                                                    options={[
-                                                        { label: 'Carne', value: 'CARNE' },
-                                                        { label: 'Leite', value: 'LEITE' },
-                                                        { label: 'Outro', value: 'OUTRO' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('objetivoBovinos', value)}
-                                                    placeholder="Selecione o objetivo"
-                                                />
-                                                {formData.objetivoBovinos?.value === 'OUTRO' && (
-                                                    <CustomInput
-                                                        type="text"
-                                                        label="Especificar Outro Objetivo"
-                                                        value={formData.outroObjetivoBovinos}
-                                                        onChange={(value) => handleInputChange('outroObjetivoBovinos', value)}
-                                                        placeholder="Digite o objetivo"
-                                                        iconStart={<FileText size={18} />}
-                                                    />
-                                                )}
-                                            </div>
-                                        </div>
-                                    );
-                                }
-
-                                if (tipoValue === 'OVINOCULTURA') {
-                                    return (
-                                        <div key={`ovinocultura-${index}`} className="bg-blue-50 rounded-2xl p-6 border border-blue-200">
-                                            <h5 className="text-lg font-semibold text-blue-800 mb-6 flex items-center">
-                                                <Beef className="w-5 h-5 mr-2" />
-                                                Criação de Ovelhas (Ovinocultura)
-                                            </h5>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                <CustomInput
-                                                    type="number"
-                                                    label="Número de Animais"
-                                                    value={formData.numeroOvelhas}
-                                                    onChange={(value) => handleInputChange('numeroOvelhas', parseInt(value) || 0)}
-                                                    placeholder="0"
-                                                    min="0"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Sistema de Criação"
-                                                    value={formData.sistemaOvinocultura}
-                                                    options={[
-                                                        { label: 'Estabulados', value: 'ESTABULADOS' },
-                                                        { label: 'Em pastagem', value: 'PASTAGEM' },
-                                                        { label: 'Em livre acesso', value: 'LIVRE_ACESSO' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('sistemaOvinocultura', value)}
-                                                    placeholder="Selecione o sistema"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Tipo de Criação"
-                                                    value={formData.tipoOvinocultura}
-                                                    options={[
-                                                        { label: 'Intensivo', value: 'INTENSIVO' },
-                                                        { label: 'Semi-intensivo', value: 'SEMI_INTENSIVO' },
-                                                        { label: 'Extensivo', value: 'EXTENSIVO' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('tipoOvinocultura', value)}
-                                                    placeholder="Selecione o tipo"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Objetivo da Produção"
-                                                    value={formData.objetivoOvinos}
-                                                    options={[
-                                                        { label: 'Carne', value: 'CARNE' },
-                                                        { label: 'Leite', value: 'LEITE' },
-                                                        { label: 'Outro', value: 'OUTRO' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('objetivoOvinos', value)}
-                                                    placeholder="Selecione o objetivo"
-                                                />
-                                                {formData.objetivoOvinos?.value === 'OUTRO' && (
-                                                    <CustomInput
-                                                        type="text"
-                                                        label="Especificar Outro Objetivo"
-                                                        value={formData.outroObjetivoOvinos}
-                                                        onChange={(value) => handleInputChange('outroObjetivoOvinos', value)}
-                                                        placeholder="Digite o objetivo"
-                                                        iconStart={<FileText size={18} />}
-                                                    />
-                                                )}
-                                            </div>
-                                        </div>
-                                    );
-                                }
-
-                                if (tipoValue === 'CAPRINOCULTURA') {
-                                    return (
-                                        <div key={`caprinocultura-${index}`} className="bg-orange-50 rounded-2xl p-6 border border-orange-200">
-                                            <h5 className="text-lg font-semibold text-orange-800 mb-6 flex items-center">
-                                                <Beef className="w-5 h-5 mr-2" />
-                                                Criação de Animais (Caprinocultura)
-                                            </h5>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                <CustomInput
-                                                    type="number"
-                                                    label="Número de Cabras"
-                                                    value={formData.numeroCabras}
-                                                    onChange={(value) => handleInputChange('numeroCabras', parseInt(value) || 0)}
-                                                    placeholder="0"
-                                                    min="0"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Sistema de Criação"
-                                                    value={formData.sistemaCaprinocultura}
-                                                    options={[
-                                                        { label: 'Estabulados', value: 'ESTABULADOS' },
-                                                        { label: 'Em pastagem', value: 'PASTAGEM' },
-                                                        { label: 'Em livre acesso', value: 'LIVRE_ACESSO' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('sistemaCaprinocultura', value)}
-                                                    placeholder="Selecione o sistema"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Tipo de Criação"
-                                                    value={formData.tipoCaprinocultura}
-                                                    options={[
-                                                        { label: 'Intensivo', value: 'INTENSIVO' },
-                                                        { label: 'Semi-intensivo', value: 'SEMI_INTENSIVO' },
-                                                        { label: 'Extensivo', value: 'EXTENSIVO' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('tipoCaprinocultura', value)}
-                                                    placeholder="Selecione o tipo"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Objetivo da Produção"
-                                                    value={formData.objetivoCaprinos}
-                                                    options={[
-                                                        { label: 'Carne', value: 'CARNE' },
-                                                        { label: 'Leite', value: 'LEITE' },
-                                                        { label: 'Outro', value: 'OUTRO' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('objetivoCaprinos', value)}
-                                                    placeholder="Selecione o objetivo"
-                                                />
-                                                {formData.objetivoCaprinos?.value === 'OUTRO' && (
-                                                    <CustomInput
-                                                        type="text"
-                                                        label="Especificar Outro Objetivo"
-                                                        value={formData.outroObjetivoCaprinos}
-                                                        onChange={(value) => handleInputChange('outroObjetivoCaprinos', value)}
-                                                        placeholder="Digite o objetivo"
-                                                        iconStart={<FileText size={18} />}
-                                                    />
-                                                )}
-                                            </div>
-                                        </div>
-                                    );
-                                }
-
-                                if (tipoValue === 'SUINOCULTURA') {
-                                    return (
-                                        <div key={`suinocultura-${index}`} className="bg-pink-50 rounded-2xl p-6 border border-pink-200">
-                                            <h5 className="text-lg font-semibold text-pink-800 mb-6 flex items-center">
-                                                <Beef className="w-5 h-5 mr-2" />
-                                                Criação de Animais (Suinocultura)
-                                            </h5>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                <CustomInput
-                                                    type="number"
-                                                    label="Número de Animais"
-                                                    value={formData.numeroPorcos}
-                                                    onChange={(value) => handleInputChange('numeroPorcos', parseInt(value) || 0)}
-                                                    placeholder="0"
-                                                    min="0"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Objetivo da Produção"
-                                                    value={formData.objetivoSuinos}
-                                                    options={[
-                                                        { label: 'Carne', value: 'CARNE' },
-                                                        { label: 'Outro', value: 'OUTRO' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('objetivoSuinos', value)}
-                                                    placeholder="Selecione o objetivo"
-                                                />
-                                                {formData.objetivoSuinos?.value === 'OUTRO' && (
-                                                    <CustomInput
-                                                        type="text"
-                                                        label="Especificar Outro Objetivo"
-                                                        value={formData.outroObjetivoSuinos}
-                                                        onChange={(value) => handleInputChange('outroObjetivoSuinos', value)}
-                                                        placeholder="Digite o objetivo"
-                                                        iconStart={<FileText size={18} />}
-                                                    />
-                                                )}
-                                            </div>
-                                        </div>
-                                    );
-                                }
-
-                                if (tipoValue === 'PISCICULTURA' || tipoValue === 'AQUICULTURA') {
-                                    const jaRenderizado = formData.tiposCriacao.some((t, i) =>
-                                        i < index && (
-                                            (typeof t === 'object' ? t.value : t) === 'PISCICULTURA' ||
-                                            (typeof t === 'object' ? t.value : t) === 'AQUICULTURA'
-                                        )
-                                    );
-
-                                    if (jaRenderizado) return null;
-                                    return (
-                                        <div key={`piscicultura-${index}`} className="bg-cyan-50 rounded-2xl p-6 border border-cyan-200">
-                                            <h5 className="text-lg font-semibold text-cyan-800 mb-6 flex items-center">
-                                                <Fish className="w-5 h-5 mr-2" />
-                                                Criação de Peixes (Piscicultura/Aquicultura)
-                                            </h5>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
-                                                <CustomInput
-                                                    type="number"
-                                                    label="Número de Peixes"
-                                                    value={formData.numeroPeixes}
-                                                    onChange={(value) => handleInputChange('numeroPeixes', parseInt(value) || 0)}
-                                                    placeholder="0"
-                                                    min="0"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Tipo de Produção"
-                                                    value={formData.tipoPiscicultura}
-                                                    options={[
-                                                        { label: 'Piscicultura industrial', value: 'INDUSTRIAL' },
-                                                        { label: 'Pequena piscicultura informal integrada à agricultura familiar', value: 'INFORMAL_FAMILIAR' },
-                                                        { label: 'Piscicultura de subsistência', value: 'SUBSISTENCIA' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('tipoPiscicultura', value)}
-                                                    placeholder="Selecione o tipo"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Objectivo da Produção"
-                                                    value={formData.objetivoPiscicultura}
-                                                    options={[
-                                                        { label: 'Carne', value: 'CARNE' },
-                                                        { label: 'Outro', value: 'OUTRO' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('objetivoPiscicultura', value)}
-                                                    placeholder="Selecione o objetivo"
-                                                />
-                                                {formData.objetivoPiscicultura?.value === 'OUTRO' && (
-                                                    <CustomInput
-                                                        type="text"
-                                                        label="Especificar Outro Objetivo"
-                                                        value={formData.outroObjetivoPiscicultura}
-                                                        onChange={(value) => handleInputChange('outroObjetivoPiscicultura', value)}
-                                                        placeholder="Digite o objetivo"
-                                                        iconStart={<FileText size={18} />}
-                                                    />
-                                                )}
-                                            </div>
-                                        </div>
-                                    );
-                                }
-
-                                if (tipoValue === 'CUNICULTURA') {
-                                    return (
-                                        <div key={`cunicultura-${index}`} className="bg-gray-50 rounded-2xl p-6 border border-gray-200">
-                                            <h5 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
-                                                <User className="w-5 h-5 mr-2" />
-                                                Criação de Animais (Cunicultura)
-                                            </h5>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                <CustomInput
-                                                    type="number"
-                                                    label="Número de Coelhos"
-                                                    value={formData.numeroCoelhos}
-                                                    onChange={(value) => handleInputChange('numeroCoelhos', parseInt(value) || 0)}
-                                                    placeholder="0"
-                                                    min="0"
-                                                />
-                                                <CustomInput
-                                                    type="select"
-                                                    label="Objetivo da Produção"
-                                                    value={formData.objetivoCoelhos}
-                                                    options={[
-                                                        { label: 'Carne', value: 'CARNE' },
-                                                        { label: 'Outro', value: 'OUTRO' }
-                                                    ]}
-                                                    onChange={(value) => handleInputChange('objetivoCoelhos', value)}
-                                                    placeholder="Selecione o objetivo"
-                                                />
-                                                {formData.objetivoCoelhos?.value === 'OUTRO' && (
-                                                    <CustomInput
-                                                        type="text"
-                                                        label="Especificar Outro Objetivo"
-                                                        value={formData.outroObjetivoCoelhos}
-                                                        onChange={(value) => handleInputChange('outroObjetivoCoelhos', value)}
-                                                        placeholder="Digite o objetivo"
-                                                        iconStart={<FileText size={18} />}
-                                                    />
-                                                )}
-                                            </div>
-                                        </div>
-                                    );
-                                }
-
-                                return null; // Para tipos não reconhecidos
-                            })}
-
-                            {/* Aspectos Gerais da Pecuária */}
-                            <div className="bg-green-50 rounded-2xl p-6 border border-green-200">
-                                <h5 className="text-lg font-semibold text-green-800 mb-6 flex items-center">
-                                    <Trees className="w-5 h-5 mr-2" />
-                                    Aspectos Gerais da Pecuária
-                                </h5>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <CustomInput
-                                        type="select"
-                                        label="Acesso à Ração Animal"
-                                        value={formData.acessoRacao}
-                                        options={[
-                                            { label: 'Sim', value: true },
-                                            { label: 'Não', value: false }
-                                        ]}
-                                        onChange={(value) => handleInputChange('acessoRacao', value)}
-                                        placeholder="Selecione uma opção"
-                                    />
-
-                                    <CustomInput
-                                        type="select"
-                                        label="Conhecimento sobre Doenças Animais"
-                                        value={formData.conhecimentoDoencas}
-                                        options={[
-                                            { label: 'Sim', value: true },
-                                            { label: 'Não', value: false }
-                                        ]}
-                                        onChange={(value) => handleInputChange('conhecimentoDoencas', value)}
-                                        placeholder="Selecione uma opção"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                );
-
-            default:
-                return <div className="text-center text-gray-500">Etapa não encontrada</div>;
-        }
-    };
-
-    const isLastStep = activeIndex === steps.length - 1;
-    const isAllRequiredFilesUploaded = () => {
-        return uploadedFiles.fotoBiometrica && uploadedFiles.documentoFrente && uploadedFiles.documentoVerso;
-    };
-
-    // Função auxiliar para formatar datas corretamente
-    const formatDateForAPI = (dateValue) => {
-        if (!dateValue) return '';
-
-        // Se já é uma string no formato correto (YYYY-MM-DD), retorna como está
-        if (typeof dateValue === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
-            return dateValue;
-        }
-
-        // Se é um objeto Date
-        if (dateValue instanceof Date) {
-            return dateValue.toISOString().split('T')[0]; // Converte para YYYY-MM-DD
-        }
-
-        // Se é uma string de data, tenta converter
-        try {
-            const date = new Date(dateValue);
-            if (!isNaN(date.getTime())) {
-                return date.toISOString().split('T')[0];
-            }
-        } catch (error) {
-            console.warn('Erro ao converter data:', dateValue, error);
-        }
-
-        return '';
-    };
-
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        setLoading(true);
-
-        try {
-            // Validar campos obrigatórios antes de enviar
-            if (!formData.nomeProdutor) {
-                showToast('error', 'Erro', 'Nome do produtor é obrigatório');
-                setLoading(false);
-                return;
-            }
-
-            // Criar o objeto de dados mapeado CORRETAMENTE para a API
-            const apiData = {
-                // Seção A: Identificação do Inquiridor
-                CodigoInquiridor: formData.codigoInquiridor?.value || formData.codigoInquiridor || '',
-                NomeInquiridor: formData.nomeInquiridor || '',
-                NomeMeio: formData.nomeDoMeioInquiridor || '',
-                SobrenomeInquiridor: formData.sobrenomeInquiridor || '',
-                RegistrationDate: formatDateForAPI(formData.dataRegisto), // ✅ Data formatada
-
-                // Seção B: Identificação Geográfica
-                Provincia: formData.provincia?.value || formData.provincia || '',
-                Municipio: formData.municipio?.value || formData.municipio || '',
-                Comuna: formData.comuna || '',
-                GeoLevel4: formData.comuna || '',
-                GeoLevel5: formData.bairroAldeia || '',
-                GeoLevel6: formData.nomeSecao || '',
-                GPSCoordinates: `${formData.latitudeGPS || ''},${formData.longitudeGPS || ''}`,
-
-                // Seção C: Consentimento
-                Permissao: 'Sim',
-
-                // Seção D: Membro já registrado
-                MembroRegistrado: 'Não',
-                CodigoFamiliar: '',
-
-                // Seção E: Identificação do Produtor
-                NomeProdutor: formData.nomeProdutor || '',
-                NomeMeioProdutor: formData.nomeDoMeioProdutor || '',
-                SobrenomeProdutor: formData.sobrenomeProdutor || '',
-                BeneficiaryName: `${formData.nomeProdutor || ''} ${formData.sobrenomeProdutor || ''}`.trim(),
-
-                // ECA/Organização
-                E4FazesParteDeUmaCooper: formData.tipoOrganizacao?.value === 'COOPERATIVA' ? 'Sim' : 'Não',
-                TipoOrganizacao: formData.tipoOrganizacao?.value || formData.tipoOrganizacao || '',
-                EspecificarOrganizacao: formData.outroTipoOrganizacao || '',
-
-                // Dados pessoais
-                BeneficiaryGender: formData.sexoProdutor?.value || formData.sexoProdutor || '',
-                TipoDocumento: formData.tipoDocumento?.value || formData.tipoDocumento || '',
-                ConfirmarDocumento: formData.numeroDocumento || '',
-                BeneficiaryPhoneNumber: formData.telefoneProdutor || '',
-                ConfirmarTelefone: formData.confirmarTelefoneProdutor || formData.telefoneProdutor || '',
-                TelefoneProprio: formData.telefonePropriedade ? 'Sim' : 'Não',
-                DonoNumero: formData.proprietarioTelefone || '',
-                BeneficiaryDateOfBirth: formatDateForAPI(formData.dataNascimento), // ✅ Data formatada corretamente
-                LugarNascimento: formData.lugarNascimento?.value || formData.lugarNascimento || '',
-                EstadoCivil: formData.estadoCivil?.value || formData.estadoCivil || '',
-                NivelEscolaridade: formData.nivelEscolaridade?.value || formData.nivelEscolaridade || '',
-                Outro: formData.outroNivelEscolaridade || '',
-                Gravida: formData.gravidez ? 'Sim' : 'Não',
-                PossuiDeficiencia: formData.deficiencia ? 'Sim' : 'Não',
-                TipoDeficiencia: formData.tipoDeficiencia?.value || formData.tipoDeficiencia || '',
-
-                // Seção F: Composição do Agregado Familiar
-                ChefeFamiliar: formData.chefeAgregado ? 'Sim' : 'Não',
-                NomeChefe: formData.nomeChefeAgregado || '',
-                NomeMeioChefe: formData.nomeDoMeioChefe || '',
-                SobreNomeChefe: formData.sobrenomeChefe || '',
-                SexoChefe: formData.sexoChefe?.value || formData.sexoChefe || '',
-                TipoDocChefe: '',
-                NumDocChefe: '',
-                ConfirmarDocChefe: '',
-                NumTelChefe: '',
-                ConfirmarTelChefe: '',
-                RelacaoChefe: formData.relacaoChefe?.value || formData.relacaoChefe || '',
-                TotalAgregado: formData.totalMembros?.toString() || '1',
-                Feminino_0_6: formData.femininoIdade0a6?.toString() || '0',
-                Masculino_0_6: formData.masculinoIdade0a6?.toString() || '0',
-                Feminino_7_18: formData.femininoIdade7a18?.toString() || '0',
-                Masculino_7_18: formData.masculinoIdade7a18?.toString() || '0',
-                Feminino_19_60: formData.femininoIdade19a60?.toString() || '0',
-                Masculino_19_60: formData.masculinoIdade19a60?.toString() || '0',
-                Feminino_61_mais: formData.femininoIdade61mais?.toString() || '0',
-                Masculino_61_mais: formData.masculinoIdade61mais?.toString() || '0',
-
-                // Seção G: Ativos e Atividades
-                AtividadesProdutor: Array.isArray(formData.tiposAtividades)
-                    ? formData.tiposAtividades.map(item => item.value || item).join(',')
-                    : formData.tiposAtividades || '',
-                OutraAtividade: formData.outroTipoAtividade || '',
-
-                // Informações sobre terras
-                AcessoTerra: formData.acessoTerras ? 'Sim' : 'Não',
-                EProprietario: formData.proprietarioTerra ? 'Sim' : 'Não',
-                TituloTerra: formData.tituloConcessao ? 'Sim' : 'Não',
-                TipoDocTerra: formData.tipoTitulo?.value || formData.tipoTitulo || '',
-                AreaTotal: formData.areaTotalCampos?.toString() || '0',
-                AreaExplorada: formData.areaExplorada?.toString() || '0',
-                AreaAgricola: formData.areaAgricola?.toString() || '0',
-                AreaPecuaria: formData.areaPecuaria?.toString() || '0',
-                AreaFlorestal: formData.areaFlorestal?.toString() || '0',
-                TecnologiaAgricola: formData.tecnologiaAgricola?.value || formData.tecnologiaAgricola || '',
-
-                // Culturas
-                CulturasImportantes: Array.isArray(formData.culturasPrincipais)
-                    ? formData.culturasPrincipais.map(item => item.value || item).join(',')
-                    : formData.culturasPrincipais || '',
-                OutraCultura: formData.outraCultura || '',
-                ProducaoSacos: formData.producaoSacos50kg?.toString() || '0',
-                TipoSemanteira: formData.tipoSementeira?.value || formData.tipoSementeira || '',
-                UsoFertilizante: formData.usoFertilizantes ? 'Sim' : 'Não',
-                PreparacaoTerra: formData.preparacaoTerra?.value || formData.preparacaoTerra || '',
-
-                // Irrigação
-                AcessoIrrigacao: formData.acessoIrrigacao ? 'Sim' : 'Não',
-                SistemaIrrigacao: formData.sistemaIrrigacao?.value || formData.sistemaIrrigacao || '',
-                EspecificarIrrigacao: formData.outroSistemaIrrigacao || '',
-                DistanciaAgua: formData.distanciaFonteAgua?.toString() || '0',
-
-                // Amanhos culturais
-                AmanhosCulturais: formData.amanhosCulturais ? 'Sim' : 'Não',
-                TiposAmanhos: Array.isArray(formData.tipoAmanhos)
-                    ? formData.tipoAmanhos.map(item => item.value || item).join(',')
-                    : formData.tipoAmanhos || '',
-                EspecificarAmanhos: formData.outroTipoAmanho || '',
-
-                // Instrumentos agrícolas
-                AcessoInsumoaAgricolas: formData.acessoInstrumentos ? 'Sim' : 'Não',
-                FonteInsumos: Array.isArray(formData.fonteInstrumentos)
-                    ? formData.fonteInstrumentos.map(item => item.value || item).join(',')
-                    : formData.fonteInstrumentos || '',
-                EspecificarFonte: formData.outraFonteInstrumento || '',
-
-                // Seção H: Pecuária
-                TiposCriacao: Array.isArray(formData.tiposCriacao)
-                    ? formData.tiposCriacao.map(item => item.value || item).join(',')
-                    : formData.tiposCriacao || '',
-                OutraCriacao: formData.outroTipoCriacao || '',
-
-                // Avicultura
-                SistemaAvicultura: formData.sistemaAvicultura?.value || formData.sistemaAvicultura || '',
-                ObjetivoAvicultura: formData.objetivoAvicultura?.value || formData.objetivoAvicultura || '',
-                OutroObjAvicultura: formData.outroObjetivoAvicultura || '',
-                NumeroAves: formData.numeroAves?.toString() || '0',
-
-                // Pecuária geral
-                TipoPecuaria: formData.sistemaBovinocultura?.value || formData.sistemaBovinocultura || '',
-                ManejoPecuaria: formData.tipoBovinocultura?.value || formData.tipoBovinocultura || '',
-                NumeroCabras: formData.numeroCabras?.toString() || '0',
-                NumeroVacas: formData.numeroVacas?.toString() || '0',
-                NumeroOvelhas: formData.numeroOvelhas?.toString() || '0',
-                ObjetivoProducao: formData.objetivoBovinos?.value || formData.objetivoBovinos || '',
-                EspecificarObjetivoProducao: formData.outroObjetivoBovinos || '',
-
-                // Suinocultura
-                NumeroPorcos: formData.numeroPorcos?.toString() || '0',
-                ObjetivoSuinocultura: formData.objetivoSuinos?.value || formData.objetivoSuinos || '',
-                EspecificarObjetivoSuino: formData.outroObjetivoSuinos || '',
-
-                // Aquicultura
-                TipoAquicultura: formData.tipoPiscicultura?.value || formData.tipoPiscicultura || '',
-                ObjetivoAquicultura: formData.objetivoPiscicultura?.value || formData.objetivoPiscicultura || '',
-                EspecificarObjetivoAquic: formData.outroObjetivoPiscicultura || '',
-                NumeroPeixes: formData.numeroPeixes?.toString() || '0',
-
-                // Cunicultura
-                NumeroCoelhos: formData.numeroCoelhos?.toString() || '0',
-                ObjetivoCoelho: formData.objetivoCoelhos?.value || formData.objetivoCoelhos || '',
-                EspecificarObjetivoCoelhos: formData.outroObjetivoCoelhos || '',
-
-                // Aspectos gerais pecuária
-                AcessoRacao: formData.acessoRacao ? 'Sim' : 'Não',
-                ConhecimentoDoencas: formData.conhecimentoDoencas ? 'Sim' : 'Não',
-
-                // Seção I: Crédito & Bens
-                CreditoBeneficio: formData.beneficiadoCredito ? 'Sim' : 'Não',
-                FonteCredito: Array.isArray(formData.fontesCredito)
-                    ? formData.fontesCredito.map(item => item.value || item).join(',')
-                    : formData.fontesCredito || '',
-                EspecificarCredito: formData.outraFonteCredito || '',
-
-                BensFamiliares: Array.isArray(formData.bensPatrimonio)
-                    ? formData.bensPatrimonio.map(item => item.value || item).join(',')
-                    : formData.bensPatrimonio || '',
-                EspecificarBem: formData.outroBemPatrimonio || '',
-
-                // Seção J: Pacotes de Assistência
-                TipoApoio: formData.tipoApoio || '',
-                ObservacoesGerais: formData.observacoesGerais || '',
-                TipoPatec: formData.tipoPacote?.value || formData.tipoPacote || '',
-                EspecificarPatec: formData.outroTipoPacote || '',
-
-                // Campos adicionais da especificação
-                H3OProdutorJBeneficiouD: 'Não',
-                H31TiposDeCrditos: '',
-                EspecificaOutroTipItoQueOBeneficiou: '',
-                Estado: '1'
-            };
-
-            console.log('📋 Dados mapeados para enviar:', apiData);
-            console.log('📅 Datas formatadas:', {
-                RegistrationDate: apiData.RegistrationDate,
-                BeneficiaryDateOfBirth: apiData.BeneficiaryDateOfBirth
-            });
-
-            // Criar FormData para enviar arquivos
-            const formDataToSend = new FormData();
-
-            // Adicionar todos os campos de texto
-            Object.keys(apiData).forEach(key => {
-                if (apiData[key] !== null && apiData[key] !== undefined) {
-                    formDataToSend.append(key, apiData[key]);
-                }
-            });
-
-            // Adicionar arquivos se existirem
-            if (uploadedFiles.fotoBiometrica) {
-                formDataToSend.append('BeneficiaryBiometrics', uploadedFiles.fotoBiometrica);
-            }
-
-            if (uploadedFiles.fotoNaoBiometrica) {
-                formDataToSend.append('BeneficiaryPhoto', uploadedFiles.fotoNaoBiometrica);
-            }
-
-            if (uploadedFiles.documentoFrente) {
-                formDataToSend.append('FotoDocumento', uploadedFiles.documentoFrente);
-            }
-
-            if (uploadedFiles.documentoVerso) {
-                formDataToSend.append('DocumentoVerso', uploadedFiles.documentoVerso);
-            }
-
-            if (uploadedFiles.superficieCultivada) {
-                formDataToSend.append('FotoSuperficie', uploadedFiles.superficieCultivada);
-            }
-
-            if (uploadedFiles.fotosAnimais) {
-                formDataToSend.append('FotosAnimais', uploadedFiles.fotosAnimais);
-            }
-
-            if (uploadedFiles.fotoObservacao) {
-                formDataToSend.append('FotoObservacao', uploadedFiles.fotoObservacao);
-            }
-
-            // Log para debug dos dados enviados
-            console.log('📤 FormData sendo enviado:');
-            for (let [key, value] of formDataToSend.entries()) {
-                if (value instanceof File) {
-                    console.log(`${key}: [File] ${value.name} (${value.size} bytes)`);
-                } else {
-                    console.log(`${key}: ${value}`);
-                }
-            }
-
-            // Fazer a requisição para a API
-            const response = await api.post('/formulario', formDataToSend, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-                timeout: 60000,
-            });
-
-            console.log('✅ Produtor cadastrado com sucesso:', response.data);
-
-            setLoading(false);
-            showToast('success', 'Sucesso', 'Produtor cadastrado no RNPA com sucesso!');
-
-            // Reset do formulário
-            setFormData(initialState);
-            setActiveIndex(0);
-            setErrors({});
-            setUploadedFiles({});
-            setBiData(null);
-
-        } catch (error) {
-            setLoading(false);
-            console.error('❌ Erro ao cadastrar produtor:', error);
-
-            // Log detalhado do erro para debug
-            if (error.response) {
-                console.error('📄 Detalhes do erro de resposta:', {
-                    status: error.response.status,
-                    statusText: error.response.statusText,
-                    data: error.response.data,
-                    headers: error.response.headers
-                });
-
-                // Exibir detalhes específicos do erro 400
-                if (error.response.status === 400) {
-                    const errorData = error.response.data;
-                    console.error('🔍 Detalhes do erro 400:', errorData);
-
-                    if (errorData && errorData.errors) {
-                        // Se houver detalhes dos campos com erro
-                        const errorMessages = Object.keys(errorData.errors).map(field =>
-                            `${field}: ${errorData.errors[field].join(', ')}`
-                        ).join('\n');
-                        showToast('error', 'Erro de Validação', `Campos com erro:\n${errorMessages}`);
-                    } else {
-                        const errorMessage = errorData?.message || errorData?.title || 'Dados inválidos enviados para o servidor';
-                        showToast('error', 'Erro de Validação', errorMessage);
-                    }
-                } else {
-                    const errorMessage = error.response.data?.message || 'Erro do servidor';
-                    showToast('error', 'Erro do Servidor', `${error.response.status}: ${errorMessage}`);
-                }
-            } else if (error.request) {
-                console.error('🌐 Erro de rede - sem resposta:', error.request);
-                showToast('error', 'Erro de Conexão', 'Não foi possível conectar ao servidor. Verifique sua conexão.');
-            } else {
-                console.error('⚙️ Erro na configuração:', error.message);
-                showToast('error', 'Erro', 'Erro inesperado ao cadastrar produtor. Tente novamente.');
-            }
-        }
-    };
-
-
-
-    return (
-        <div className="bg-gray-50 min-h-screen">
-            <ScrollToTop activeIndex={activeIndex} />
-            {/* Toast Message */}
-            {toastMessage && (
-                <div className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all ${toastMessage.severity === 'success' ? 'bg-green-100 border-l-4 border-green-500 text-green-700' :
-                    toastMessage.severity === 'error' ? 'bg-red-100 border-l-4 border-red-500 text-red-700' :
-                        toastMessage.severity === 'warn' ? 'bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700' :
-                            'bg-blue-100 border-l-4 border-blue-500 text-blue-700'
-                    }`}>
-                    <div className="flex items-center">
-                        <div className="mr-3">
-                            {toastMessage.severity === 'success' && <CheckCircle size={20} />}
-                            {toastMessage.severity === 'error' && <AlertCircle size={20} />}
-                            {toastMessage.severity === 'warn' && <AlertCircle size={20} />}
-                            {toastMessage.severity === 'info' && <Info size={20} />}
-                        </div>
-                        <div>
-                            <p className="font-bold">{toastMessage.summary}</p>
-                            <p className="text-sm">{toastMessage.detail}</p>
-                        </div>
-                    </div>
+      case 1: // Localização
+        return (
+          <div className="max-w-full mx-auto">
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 mb-8 border border-green-100">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <MapPin className="w-6 h-6 text-green-600" />
                 </div>
-            )}
-
-
-
-            <div className="py-8">
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200">
-                    {/* Header */}
-                    <div className="text-center mb-6 p-8 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
-                        <h1 className="text-4xl font-bold mb-3 text-gray-800">Registro de Apoio à Agricultura </h1>
-                    </div>
-
-                    {/* Step Navigation */}
-                    <div className="flex justify-between items-center px-8 mb-8 overflow-x-auto">
-                        {steps.map((step, index) => {
-                            const StepIcon = step.icon;
-                            return (
-                                <div
-                                    key={index}
-                                    className={`flex flex-col items-center cursor-pointer transition-all min-w-0 flex-shrink-0 mx-1 ${index > activeIndex ? 'opacity-50' : ''
-                                        }`}
-                                    onClick={() => index <= activeIndex && setActiveIndex(index)}
-                                >
-                                    <div className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${index < activeIndex ? 'bg-blue-500 text-white' :
-                                        index === activeIndex ? 'bg-blue-600 text-white' :
-                                            'bg-gray-200 text-gray-500'
-                                        }`}>
-                                        {index < activeIndex ? (
-                                            <Check size={24} />
-                                        ) : (
-                                            <StepIcon size={24} />
-                                        )}
-                                    </div>
-                                    <span className={`text-sm text-center font-medium ${index === activeIndex ? 'text-blue-700' : 'text-gray-500'
-                                        }`}>
-                                        {step.label}
-                                    </span>
-                                </div>
-                            );
-                        })}
-                    </div>
-
-                    {/* Progress Bar */}
-                    <div className="w-full bg-gray-200 h-2 mb-8 mx-8" style={{ width: 'calc(100% - 4rem)' }}>
-                        <div
-                            className="bg-blue-600 h-2 transition-all duration-300 rounded-full"
-                            style={{ width: `${((activeIndex + 1) / steps.length) * 100}%` }}
-                        ></div>
-                    </div>
-
-                    {/* Step Content */}
-                    <div className="step-content p-8 bg-white min-h-[600px]">
-                        {renderStepContent(activeIndex)}
-                    </div>
-
-                    {/* Navigation Buttons */}
-                    <div className="flex justify-between items-center p-8 pt-6 border-t border-gray-100 bg-gray-50">
-                        <button
-                            className={`px-8 py-3 rounded-xl border border-gray-300 flex items-center transition-all font-medium ${activeIndex === 0 ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'bg-white hover:bg-gray-50 text-gray-700 hover:border-gray-400'
-                                }`}
-                            onClick={() => setActiveIndex((prev) => Math.max(prev - 1, 0))}
-                            disabled={activeIndex === 0}
-                        >
-                            <ChevronLeft size={20} className="mr-2" />
-                            Anterior
-                        </button>
-
-                        <div className="text-sm text-gray-500 font-medium">
-                            Etapa {activeIndex + 1} de {steps.length}
-                        </div>
-
-                        <button
-                            className={`px-8 py-3 rounded-xl flex items-center transition-all font-medium ${isLastStep
-                                ? isAllRequiredFilesUploaded()
-                                    ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg'
-                                    : 'bg-gray-300 cursor-not-allowed text-gray-600'
-                                : 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg'
-                                }`}
-                            disabled={(isLastStep && !isAllRequiredFilesUploaded()) || loading}
-                            onClick={(e) => {
-                                e.preventDefault();
-                                if (!isLastStep) {
-                                    if (validateCurrentStep()) {
-                                        setTimeout(() => {
-                                            document.body.scrollTop = 0;
-                                            document.documentElement.scrollTop = 0;
-                                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                                        }, 100);
-                                        setActiveIndex(prev => prev + 1);
-                                    }
-                                } else {
-                                    if (isAllRequiredFilesUploaded() && validateCurrentStep()) {
-                                        handleSubmit(e);
-                                    } else {
-                                        showToast('error', 'Erro', 'Por favor, complete todos os campos e anexe os documentos necessários.');
-                                    }
-                                }
-                            }}
-                        >
-                            {loading ? (
-                                <>
-                                    <Loader size={20} className="animate-spin mr-2" />
-                                    Processando...
-                                </>
-                            ) : isLastStep ? (
-                                <>
-                                    <Check size={20} className="mr-2" />
-                                    Registar no RNPA
-                                </>
-                            ) : (
-                                <>
-                                    <span className="mr-2">Próximo</span>
-                                    <ChevronRight size={20} />
-                                </>
-                            )}
-                        </button>
-                    </div>
-                </div>
-
-
+                <h3 className="text-xl font-bold text-gray-800">Localização</h3>
+              </div>
+              <p className="text-gray-600">
+                Informe a localização da sede da empresa.
+              </p>
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="md:col-span-2">
+                <CustomInput
+                  type="text"
+                  label="Endereço Sede"
+                  value={formData.enderecoSede}
+                  onChange={(value) => handleInputChange('enderecoSede', value)}
+                  required
+                  errorMessage={errors.enderecoSede}
+                  placeholder="Endereço completo da sede"
+                  iconStart={<Home size={18} />}
+                />
+              </div>
+
+              <CustomInput
+                type="select"
+                label="Província"
+                value={formData.provincia}
+                options={provinciasData.map(provincia => ({
+                  label: provincia.nome,
+                  value: provincia.nome.toUpperCase()
+                }))}
+                onChange={(value) => handleInputChange('provincia', value)}
+                required
+                errorMessage={errors.provincia}
+                placeholder="Selecione a província"
+                iconStart={<Globe size={18} />}
+              />
+
+
+              <CustomInput
+                type="select"
+                label="Município"
+                value={formData.municipio}
+                options={municipiosOptions}
+                onChange={(value) => handleInputChange('municipio', value)}
+                required
+                errorMessage={errors.municipio}
+                placeholder="Selecione o município"
+                iconStart={<MapPin size={18} />}
+                disabled={!formData.provincia}
+              />
+
+              
+              <CustomInput
+                type="text"
+                label="Latitude"
+                value={formData.latitude}
+                onChange={(value) => handleInputChange('latitude', value)}
+                placeholder="Ex: -8.838333"
+                iconStart={<MapPin size={18} />}
+              />
+
+              <CustomInput
+                type="text"
+                label="Longitude"
+                value={formData.longitude}
+                onChange={(value) => handleInputChange('longitude', value)}
+                placeholder="Ex: 13.234444"
+                iconStart={<MapPin size={18} />}
+              />
+            </div>
+
+            <div className="mt-6">
+              
+              <MapaGPS
+                latitude={formData.latitude}
+                longitude={formData.longitude}
+                onLocationSelect={(lat, lng) => {
+                  setFormData(prev => ({
+                    ...prev,
+                    latitude: lat,
+                    longitude: lng
+                  }));
+                }}
+              />
+              <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+                <p className="text-sm text-blue-600 flex items-center">
+                  <Info size={16} className="mr-2" />
+                  Clique no mapa para selecionar uma localização automaticamente
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 2: // Contatos
+        return (
+          <div className="max-w-full mx-auto">
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 mb-8 border border-purple-100">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <Phone className="w-6 h-6 text-purple-600" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-800">Contatos</h3>
+              </div>
+              <p className="text-gray-600">
+                Informações de contato da empresa.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <CustomInput
+                type="text"
+                label="Pessoa de Contacto"
+                value={formData.pessoaContacto}
+                onChange={(value) => handleInputChange('pessoaContacto', value)}
+                required
+                errorMessage={errors.pessoaContacto}
+                placeholder="Nome da pessoa de contacto"
+                iconStart={<User size={18} />}
+              />
+
+              <CustomInput
+                type="text"
+                label="Cargo"
+                value={formData.cargo}
+                onChange={(value) => handleInputChange('cargo', value)}
+                required
+                errorMessage={errors.cargo}
+                placeholder="Cargo na empresa"
+                iconStart={<Briefcase size={18} />}
+              />
+
+              <CustomInput
+                type="tel"
+                label="Telefone"
+                value={formData.telefone}
+                onChange={(value) => handleInputChange('telefone', value)}
+                required
+                errorMessage={errors.telefone}
+                placeholder="Ex: 923456789"
+                iconStart={<Phone size={18} />}
+              />
+
+              <CustomInput
+                type="email"
+                label="E-mail"
+                value={formData.email}
+                onChange={(value) => handleInputChange('email', value)}
+                required
+                errorMessage={errors.email}
+                placeholder="empresa@exemplo.com"
+                iconStart={<Mail size={18} />}
+              />
+
+              <div className="md:col-span-2">
+                <CustomInput
+                  type="text"
+                  label="Website"
+                  value={formData.website}
+                  onChange={(value) => handleInputChange('website', value)}
+                  placeholder="https://www.empresa.com"
+                  iconStart={<Globe size={18} />}
+                />
+              </div>
+            </div>
+          </div>
+        );
+
+      case 3: // Representantes
+        return (
+          <div className="max-w-full mx-auto">
+            <div className="bg-gradient-to-r from-blue-50 to-emerald-50 rounded-2xl p-6 mb-8 border border-blue-100">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <Activity className="w-6 h-6 text-blue-600" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-800">Áreas de Atuação</h3>
+              </div>
+              <p className="text-gray-600">
+                Selecione os serviços prestados pela empresa.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+              <h4 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
+                <Settings className="w-5 h-5 mr-2 text-blue-600" />
+                Serviços Prestados
+              </h4>
+
+              <CustomInput
+                type="multiselect"
+                value={formData.servicosPrestados}
+                options={[
+                  { label: 'Fornecimento de Insumos Agrícolas', value: 'INSUMOS_AGRICOLAS' },
+                  { label: 'Mecanização Agrícola', value: 'MECANIZACAO_AGRICOLA' },
+                  { label: 'Assistência Técnica/Extensão Rural', value: 'ASSISTENCIA_TECNICA' },
+                  { label: 'Formação e Capacitação', value: 'FORMACAO_CAPACITACAO' },
+                  { label: 'Crédito Rural/Microfinanças', value: 'CREDITO_RURAL' },
+                  { label: 'Comercialização e Logística', value: 'COMERCIALIZACAO_LOGISTICA' },
+                  { label: 'Transformação/Agroindústria', value: 'TRANSFORMACAO_AGROINDUSTRIA' },
+                  { label: 'Pesquisa e Inovação', value: 'PESQUISA_INOVACAO' },
+                  { label: 'Outro', value: 'OUTRO' }
+                ]}
+                onChange={(value) => handleInputChange('servicosPrestados', value)}
+                errorMessage={errors.servicosPrestados}
+              />
+
+              {formData.servicosPrestados && formData.servicosPrestados.some(s => (typeof s === 'string' ? s : s.value) === 'OUTRO') && (
+                <div className="mt-6">
+                  <CustomInput
+                    type="textarea"
+                    label="Especificar Outros Serviços"
+                    value={formData.outrosServicos}
+                    onChange={(value) => handleInputChange('outrosServicos', value)}
+                    placeholder="Descreva outros serviços prestados..."
+                    rows={3}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        );
+
+      case 4: // Público-Alvo
+        return (
+          <div className="max-w-full mx-auto">
+            <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-6 mb-8 border border-orange-100">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="p-2 bg-orange-100 rounded-lg">
+                  <Users className="w-6 h-6 text-orange-600" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-800">Público-Alvo</h3>
+              </div>
+              <p className="text-gray-600">
+                Identifique os principais beneficiários dos serviços.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6">
+              <CustomInput
+                type="select"
+                label="Principais Beneficiários"
+                value={formData.principaisBeneficiarios}
+                options={[
+                  { label: 'Pequenos Produtores', value: 'PEQUENOS_PRODUTORES' },
+                  { label: 'Médios Produtores', value: 'MEDIOS_PRODUTORES' },
+                  { label: 'Grandes Produtores', value: 'GRANDES_PRODUTORES' },
+                  { label: 'Associações/Cooperativas', value: 'ASSOCIACOES_COOPERATIVAS' },
+                  { label: 'Projetos Governamentais', value: 'PROJETOS_GOVERNAMENTAIS' },
+                  { label: 'Outros', value: 'OUTROS' }
+                ]}
+                onChange={(value) => handleInputChange('principaisBeneficiarios', value)}
+                required
+                errorMessage={errors.principaisBeneficiarios}
+                placeholder="Selecione o público-alvo principal"
+                iconStart={<Users size={18} />}
+              />
+
+              {formData.principaisBeneficiarios === 'OUTROS' && (
+                <CustomInput
+                  type="text"
+                  label="Especificar Outros Beneficiários"
+                  value={formData.outrosBeneficiarios}
+                  onChange={(value) => handleInputChange('outrosBeneficiarios', value)}
+                  placeholder="Especifique outros beneficiários"
+                  iconStart={<Users size={18} />}
+                />
+              )}
+            </div>
+          </div>
+        );
+
+      case 5: // Capacidade
+        return (
+          <div className="max-w-full mx-auto">
+            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-6 mb-8 border border-indigo-100">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="p-2 bg-indigo-100 rounded-lg">
+                  <Settings className="w-6 h-6 text-indigo-600" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-800">Capacidade e Operação</h3>
+              </div>
+              <p className="text-gray-600">
+                Informações sobre a capacidade operacional da empresa.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <CustomInput
+                type="number"
+                label="Número de Funcionários"
+                value={formData.numeroFuncionarios}
+                onChange={(value) => handleInputChange('numeroFuncionarios', parseInt(value) || 0)}
+                required
+                errorMessage={errors.numeroFuncionarios}
+                placeholder="Número total de funcionários"
+                iconStart={<Users size={18} />}
+              />
+
+              <CustomInput
+                type="select"
+                label="Área de Cobertura"
+                value={formData.areaCobertura}
+                options={[
+                  { label: 'Local/Distrital', value: 'LOCAL_DISTRITAL' },
+                  { label: 'Provincial', value: 'PROVINCIAL' },
+                  { label: 'Nacional', value: 'NACIONAL' },
+                  { label: 'Regional/Internacional', value: 'REGIONAL_INTERNACIONAL' }
+                ]}
+                onChange={(value) => handleInputChange('areaCobertura', value)}
+                required
+                errorMessage={errors.areaCobertura}
+                placeholder="Selecione a área de cobertura"
+                iconStart={<Globe size={18} />}
+              />
+
+              <div className="md:col-span-2">
+                <CustomInput
+                  type="number"
+                  label="Volume Médio de Clientes/Beneficiários por ano"
+                  value={formData.volumeClientes}
+                  onChange={(value) => handleInputChange('volumeClientes', parseInt(value) || 0)}
+                  placeholder="Número estimado de clientes atendidos por ano"
+                  iconStart={<Activity size={18} />}
+                />
+              </div>
+            </div>
+          </div>
+        );
+
+      case 6: // Situação Legal
+        return (
+          <div className="max-w-full mx-auto">
+            <div className="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-2xl p-6 mb-8 border border-teal-100">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="p-2 bg-teal-100 rounded-lg">
+                  <FileText className="w-6 h-6 text-teal-600" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-800">Situação Legal</h3>
+              </div>
+              <p className="text-gray-600">
+                Informações sobre licenças e certificações.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <CustomInput
+                type="select"
+                label="Licença de Operação"
+                value={formData.licencaOperacao}
+                options={[
+                  { label: 'Sim', value: 'SIM' },
+                  { label: 'Não', value: 'NAO' }
+                ]}
+                onChange={(value) => handleInputChange('licencaOperacao', value)}
+                required
+                errorMessage={errors.licencaOperacao}
+                placeholder="Possui licença de operação?"
+                iconStart={<FileText size={18} />}
+              />
+
+              <CustomInput
+                type="select"
+                label="Registo Comercial"
+                value={formData.registoComercial}
+                options={[
+                  { label: 'Sim', value: 'SIM' },
+                  { label: 'Não', value: 'NAO' }
+                ]}
+                onChange={(value) => handleInputChange('registoComercial', value)}
+                required
+                errorMessage={errors.registoComercial}
+                placeholder="Possui registo comercial?"
+                iconStart={<FileText size={18} />}
+              />
+
+              <div className="md:col-span-2">
+                <CustomInput
+                  type="text"
+                  label="Certificações Específicas"
+                  value={formData.certificacoesEspecificas}
+                  onChange={(value) => handleInputChange('certificacoesEspecificas', value)}
+                  placeholder="ISO, HACCP, outras certificações..."
+                  iconStart={<CheckCircle size={18} />}
+                />
+              </div>
+            </div>
+          </div>
+        );
+
+      case 7: // Observações
+        return (
+          <div className="max-w-full mx-auto">
+            <div className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-2xl p-6 mb-8 border border-gray-100">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="p-2 bg-gray-100 rounded-lg">
+                  <Info className="w-6 h-6 text-gray-600" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-800">Observações Gerais</h3>
+              </div>
+              <p className="text-gray-600">
+                Informações adicionais sobre a empresa.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6">
+              <CustomInput
+                type="textarea"
+                label="Observações"
+                value={formData.observacoes}
+                onChange={(value) => handleInputChange('observacoes', value)}
+                placeholder="Informações adicionais, comentários ou observações relevantes sobre a empresa..."
+                rows={6}
+                iconStart={<Info size={18} />}
+              />
+            </div>
+          </div>
+        );
+
+      
+      default:
+        return null;
+    }
+  };
+
+  const nextStep = () => {
+    if (validateCurrentStep()) {
+      setActiveIndex(prev => Math.min(prev + 1, steps.length - 1));
+    }
+  };
+
+  const prevStep = () => {
+    setActiveIndex(prev => Math.max(prev - 1, 0));
+  };
+
+  return (
+    <div className="bg-gray-50 min-h-screen">
+      {/* Toast Message */}
+      {toastMessage && (
+        <div className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all ${
+          toastMessage.severity === 'success' ? 'bg-blue-100 border-l-4 border-blue-500 text-blue-700' :
+          toastMessage.severity === 'error' ? 'bg-red-100 border-l-4 border-red-500 text-red-700' :
+          toastMessage.severity === 'warn' ? 'bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700' :
+          'bg-blue-100 border-l-4 border-blue-500 text-blue-700'
+        }`}>
+          <div className="flex items-center">
+            <div className="mr-3">
+              {toastMessage.severity === 'success' && <CheckCircle size={20} />}
+              {toastMessage.severity === 'error' && <AlertCircle size={20} />}
+              {toastMessage.severity === 'warn' && <AlertCircle size={20} />}
+              {toastMessage.severity === 'info' && <Info size={20} />}
+            </div>
+            <div>
+              <p className="font-bold">{toastMessage.summary}</p>
+              <p className="text-sm">{toastMessage.detail}</p>
+            </div>
+          </div>
         </div>
-    );
+      )}
+
+      <div className="mx-auto px-4 py-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200">
+          {/* Header */}
+          <div className="text-center mb-8 p-8 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-emerald-50">
+            <h1 className="text-4xl font-bold mb-3 text-gray-800">Cadastro de Empresas de Apoio à Agricultura
+</h1>
+          </div>
+
+          {/* Stepper */}
+          <div className="flex justify-between items-center px-8 mb-8 overflow-x-auto">
+            {steps.map((step, index) => {
+              const Icon = step.icon;
+              const isActive = index === activeIndex;
+              const isCompleted = index < activeIndex;
+
+              return (
+                <div 
+                  key={index} 
+                  className={`flex flex-col items-center cursor-pointer transition-all min-w-0 flex-shrink-0 mx-1 ${
+                    !isActive && !isCompleted ? 'opacity-50' : ''
+                  }`}
+                  onClick={() => setActiveIndex(index)}
+                >
+                  <div className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${
+                    isActive 
+                      ? 'bg-blue-600 text-white' 
+                      : isCompleted 
+                        ? 'bg-green-500 text-white'
+                        : 'bg-gray-200 text-gray-500'
+                  }`}>
+                    {isCompleted ? (
+                      <Check size={24} />
+                    ) : (
+                      <Icon size={24} />
+                    )}
+                  </div>
+                  <span className={`text-sm text-center font-medium ${
+                    isActive ? 'text-blue-700' : isCompleted ? 'text-green-600' : 'text-gray-500'
+                  }`}>
+                    {step.label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Progress Bar */}
+          <div className="w-full bg-gray-200 h-2 mb-8 mx-8" style={{width: 'calc(100% - 4rem)'}}>
+            <div 
+              className="bg-blue-600 h-2 transition-all duration-300 rounded-full" 
+              style={{width: `${((activeIndex + 1) / steps.length) * 100}%`}}
+            ></div>
+          </div>
+
+          {/* Content */}
+          <div className="px-8 pb-8">
+            {renderStepContent(activeIndex)}
+
+            {/* Navigation Buttons */}
+            <div className="flex justify-between mt-8">
+              <button
+                type="button"
+                onClick={prevStep}
+                disabled={activeIndex === 0}
+                className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all ${
+                  activeIndex === 0
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                <ChevronLeft size={20} className="mr-2" />
+                Anterior
+              </button>
+
+              {activeIndex === steps.length - 1 ? (
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={loading}
+                  className={`flex items-center px-8 py-3 rounded-lg font-medium transition-all ${
+                    loading
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                  }`}
+                >
+                  {loading ? (
+                    <>
+                      <Loader size={20} className="animate-spin mr-2" />
+                      Registrando...
+                    </>
+                  ) : (
+                    <>
+                      <Check size={20} className="mr-2" />
+                      Finalizar Cadastro
+                    </>
+                  )}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={nextStep}
+                  className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all"
+                >
+                  Próximo
+                  <ChevronRight size={20} className="ml-2" />
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default RegistroApoioAgricola;

@@ -246,6 +246,7 @@ const Dashboard = () => {
   // Estados de loading separados
   const [loadingGenero, setLoadingGenero] = useState(true);
   const [loadingAtividades, setLoadingAtividades] = useState(true);
+  const [consultingBI, setConsultingBI] = useState(false);
   //const [error, setError] = useState(null);
 
   // Estados para filtros adicionais
@@ -654,21 +655,28 @@ const Dashboard = () => {
   ]);
   // Criar dados dinâmicos para o gráfico de gênero
   const produtoresPorGenero = useMemo(() => [
-    { name: 'Masculino', value: dadosFiltrados.masculino, color: '#3B82F6' },
-    { name: 'Feminino', value: dadosFiltrados.feminino, color: '#EC4899' },
-  ], [dadosFiltrados.masculino, dadosFiltrados.feminino]);
+    {
+      name: 'Masculino',
+      value: masculino,
+      color: '#3B82F6'
+    },
+    {
+      name: 'Feminino',
+      value: feminino,
+      color: '#EC4899'
+    }
+  ], [masculino, feminino]);
 
   // Criar dados dinâmicos para o gráfico de atividades
   const registrosPorAtividade = useMemo(() => {
-    const dados = [
-      { name: 'Agricultura', value: dadosFiltrados.totalAgricultura, color: '#10B981' },
-      { name: 'Pecuária', value: dadosFiltrados.totalPecuaria, color: '#F59E0B' },
-      { name: 'Produtor Florestal', value: dadosFiltrados.totalProdutorFlorestal, color: '#34D399' },
-      { name: 'Aquicultura', value: dadosFiltrados.totalAquicultura, color: '#06B6D4' }
+    const atividades = [
+      { name: 'Agricultura', value: totalAgricultura, color: '#10B981' },
+      { name: 'Pecuária', value: totalPecuaria, color: '#F59E0B' },
+      { name: 'Produtor Florestal', value: totalProdutorFlorestal, color: '#34D399' },
+      { name: 'Aquicultura', value: totalAquicultura, color: '#06B6D4' }
     ];
-
-    return dados.filter(item => item.value > 0);
-  }, [dadosFiltrados]);
+    return atividades.filter(a => a.value > 0);
+  }, [totalAgricultura, totalPecuaria, totalProdutorFlorestal, totalAquicultura]);
 
   // Controlar loading geral
   useEffect(() => {
@@ -1604,7 +1612,7 @@ const Dashboard = () => {
               <h2 className="text-xl font-semibold text-gray-800">Principais Pragas</h2>
               <div className="p-2 bg-orange-50 rounded-lg">
                 <AlertTriangle className="h-6 w-6 text-orange-500" />
-              </div>
+                           </div>
             </div>
 
             <div className="space-y-4">

@@ -112,8 +112,8 @@ const rnpaRoutes = {
     
     'Infraestrutura': [
       { text: 'Irrigação', icon: Sprout, path: '/GerenciaRNPA/gestao-infraestrutura/Irrigacao' },
-      { text: 'Ciclos e Centro de Armazenamento', icon: Archive, path: '/GerenciaRNPA/gestao-infraestrutura/AmostrasDeSolo' },
-      { text: 'Entrepostas e Mercado', icon: Building2, path: '/GerenciaRNPA/gestao-infraestrutura/AmostrasDeSolo' },
+      { text: 'Silos e Centro de Armazenamento', icon: Archive, path: '/GerenciaRNPA/gestao-infraestrutura/silos-armazenamento' },
+      { text: 'Entrepostas e Mercado', icon: Building2, path: '/GerenciaRNPA/gestao-infraestrutura/entrepostasMercado' },
       { text: 'Empresas de Apoio Agrícola', icon: Tractor, path: '/GerenciaRNPA/gestao-infraestrutura/apoio-agricola' }
     ],
     

@@ -48,6 +48,8 @@ import SancoesMenu from './Layout/other/SancoesMenu';
 import EmpresasMenu from './pages/SociedadeAgricola/EmpresasMenu';
 import VisualizarProdutorFlorestal from './pages/VisualizarProdutorFlorestal';
 import EntidadesAssociativasGestao from './pages/SociedadeAgricola/EntidadesAssociativasGestao';
+import MenuEntrepostosMercado from './pages/EntrepostasMercado/MenuEntrepostasMercado';
+import MenuSilos from './pages/SilosEArmazenamento/MenuSilos';
 
 function App() {
   return (
@@ -164,10 +166,14 @@ function App() {
             
             {/* Irrigação */}
             <Route path="Irrigacao" element={<IrrigacaoMenu />} />
+             {/* Silos e Centro de Armazenamento */}
+            <Route path="silos-armazenamento" element={<MenuSilos />} />
             
             {/* Ciclos e Centro de Armazenamento + Entrepostas e Mercado */}
             <Route path="AmostrasDeSolo" element={<AmostrasDeSoloMenu />} />
-            
+
+            {/* Entrepostas e Mercado */ }
+            <Route path="entrepostasMercado" element={<MenuEntrepostosMercado />} />
             {/* Empresas de Apoio Agrícola */}
             <Route path="apoio-agricola" element={<MenuApoioAgricola />} />
             

@@ -1,6 +1,8 @@
-import React, { useState, } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Search,
+    Plus,
     Pencil,
     Trash2,
     ChevronLeft,
@@ -8,181 +10,217 @@ import {
     Filter,
     Download,
     MoreVertical,
+    Phone,
+    Mail,
     Eye,
     AlertCircle,
     CheckCircle,
     X,
+    Share2,
+    FileText,
+    Globe,
     MapPin,
     Calendar,
+    Info,
+    School,
     Building,
-    Wrench,
     Users,
+    GraduationCap,
+    User,
+    Award,
     Activity,
-    Clock,
-    Warehouse,
-    Truck,
-    Settings,
-    Phone,
-    Map
+    PlusCircle,
+    FileCheck,
+    Briefcase
 } from 'lucide-react';
 
-//import { useNavigate } from 'react-router-dom';
 import CustomInput from '../../components/CustomInput';
+//import { useCooperativas } from '../../hooks/useCooperativas';
 
-const GestaoApoioAgricola = () => {
-    //const navigate = useNavigate();
+// Dados estáticos das empresas
+const empresasAdaptadas = [
+    {
+        id: 1,
+        nomeEmpresa: "AgroTech Angola Lda",
+        tipoEntidade: "EMPRESA_PRIVADA",
+        nif: "5417890123",
+        anoFundacao: "2015",
+        enderecoSede: "Rua da Missão, 123, Ingombota",
+        provincia: "LUANDA",
+        municipio: "Luanda",
+        pessoaContacto: "Maria Santos Costa",
+        cargo: "Diretora Geral",
+        telefone: "222567890",
+        email: "info@agrotech.ao",
+        website: "www.agrotech.ao",
+        servicosPrestados: ["Fornecimento de Insumos Agrícolas", "Assistência Técnica"],
+        principaisBeneficiarios: "PEQUENOS_PRODUTORES",
+        numeroFuncionarios: 85,
+        areaCobertura: "PROVINCIAL",
+        volumeClientes: 250,
+        licencaOperacao: "SIM",
+        registoComercial: "SIM",
+        certificacoesEspecificas: "ISO 9001",
+        status: "ATIVO"
+    },
+    {
+        id: 2,
+        nomeEmpresa: "Pecuária do Sul SA",
+        tipoEntidade: "EMPRESA_PRIVADA",
+        nif: "5418901234",
+        anoFundacao: "2012",
+        enderecoSede: "Av. Norton de Matos, 456, Arimba",
+        provincia: "HUÍLA",
+        municipio: "Lubango",
+        pessoaContacto: "António Ferreira",
+        cargo: "Presidente",
+        telefone: "261234567",
+        email: "geral@pecuariasul.ao",
+        website: "www.pecuariasul.ao",
+        servicosPrestados: ["Mecanização Agrícola", "Comercialização e Logística"],
+        principaisBeneficiarios: "MEDIOS_PRODUTORES",
+        numeroFuncionarios: 120,
+        areaCobertura: "NACIONAL",
+        volumeClientes: 500,
+        licencaOperacao: "SIM",
+        registoComercial: "SIM",
+        certificacoesEspecificas: "HACCP",
+        status: "ATIVO"
+    },
+    {
+        id: 3,
+        nomeEmpresa: "Benguela Agro Empresa",
+        tipoEntidade: "COOPERATIVA",
+        nif: "5419012345",
+        anoFundacao: "2018",
+        enderecoSede: "Rua 4 de Fevereiro, 789, Centro",
+        provincia: "BENGUELA",
+        municipio: "Benguela",
+        pessoaContacto: "Carlos Mendes",
+        cargo: "Coordenador",
+        telefone: "272345678",
+        email: "comercial@benguelaagro.ao",
+        website: "www.benguelaagro.ao",
+        servicosPrestados: ["Transformação/Agroindústria", "Formação e Capacitação"],
+        principaisBeneficiarios: "ASSOCIACOES_COOPERATIVAS",
+        numeroFuncionarios: 65,
+        areaCobertura: "LOCAL_DISTRITAL",
+        volumeClientes: 180,
+        licencaOperacao: "SIM",
+        registoComercial: "SIM",
+        certificacoesEspecificas: "ISO 14001",
+        status: "ATIVO"
+    },
+    {
+        id: 4,
+        nomeEmpresa: "Florestal Cabinda Lda",
+        tipoEntidade: "ONG",
+        nif: "5420123456",
+        anoFundacao: "2020",
+        enderecoSede: "Bairro Tchiowa, Lote 15",
+        provincia: "CABINDA",
+        municipio: "Cabinda",
+        pessoaContacto: "Isabel Rodrigues",
+        cargo: "Diretora Executiva",
+        telefone: "231456789",
+        email: "florestal@cabinda.ao",
+        website: "www.florestalcabinda.org",
+        servicosPrestados: ["Pesquisa e Inovação", "Assistência Técnica"],
+        principaisBeneficiarios: "PROJETOS_GOVERNAMENTAIS",
+        numeroFuncionarios: 40,
+        areaCobertura: "PROVINCIAL",
+        volumeClientes: 300,
+        licencaOperacao: "SIM",
+        registoComercial: "SIM",
+        certificacoesEspecificas: "FSC",
+        status: "ATIVO"
+    },
+    {
+        id: 5,
+        nomeEmpresa: "Huambo Agropecuária SA",
+        tipoEntidade: "ASSOCIACAO",
+        nif: "5421234567",
+        anoFundacao: "2016",
+        enderecoSede: "Rua Deolinda Rodrigues, 321",
+        provincia: "HUAMBO",
+        municipio: "Huambo",
+        pessoaContacto: "Pedro Nunes",
+        cargo: "Secretário Geral",
+        telefone: "241567890",
+        email: "huambo@agropecuaria.ao",
+        website: "www.huamboagro.ao",
+        servicosPrestados: ["Crédito Rural/Microfinanças", "Comercialização e Logística"],
+        principaisBeneficiarios: "GRANDES_PRODUTORES",
+        numeroFuncionarios: 95,
+        areaCobertura: "REGIONAL_INTERNACIONAL",
+        volumeClientes: 220,
+        licencaOperacao: "NAO",
+        registoComercial: "SIM",
+        certificacoesEspecificas: "ISO 22000",
+        status: "INATIVO"
+    }
+];
+
+// Dados estáticos das administrações regionais
+const administracoesEstaticas = [
+    { id: 1, nome: "Administração Regional de Luanda" },
+    { id: 2, nome: "Administração Regional de Benguela" },
+    { id: 3, nome: "Administração Regional de Huambo" },
+    { id: 4, nome: "Administração Regional de Huíla" },
+    { id: 5, nome: "Administração Regional de Cabinda" }
+];
+
+const GestaoApoiAgricola = () => {
+    const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedRegion, setSelectedRegion] = useState('');
     const [selectedTipo, setSelectedTipo] = useState('');
-    const [selectedEstado, setSelectedEstado] = useState('');
+    const [selectedStatus, setSelectedStatus] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [toastMessage, setToastMessage] = useState(null);
     const [toastTimeout, setToastTimeout] = useState(null);
-    const itemsPerPage = 20;
+    const [contentHeight, setContentHeight] = useState('calc(100vh - 12rem)');
+    const containerRef = useRef(null);
+    const itemsPerPage = 6;
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [empresasToDelete, setempresasToDelete] = useState(null);
 
-    // Dados fictícios para demonstração
-    const infraestruturas = [
-        {
-            id: '1',
-            nome_infrastrutura: 'Floresta Modelo de Dundo',
-            tipo_infrastrutura: 'Canal de Irrigação',
-            bi_nif: '500675321V',
-            localizacao: {
-                provincia: 'Luanda',
-                municipio: 'Cacuaco',
-                comuna: 'Funda',
-                aldeia_zona: 'Zona Industrial',
-                coordenadas: {
-                    latitude: '-8.956',
-                    longitude: '13.234',
-                    altitude: '45m',
-                    precisao_m: '5m'
-                }
-            },
-            caracteristicas_tecnicas: {
-                dimensao: '50m x 30m x 8m',
-                capacidade: '1200 toneladas',
-                estado_conservacao: 'Bom'
-            },
-            entidade_responsavel: {
-                proprietario_instituicao: 'Cooperativa Agrícola Luanda',
-                contacto: '+244 923 456 789',
-                email: 'cooperativa@luanda.ao'
-            },
-            utilizacao: {
-                beneficiarios_directos: '150 produtores',
-                principais_culturas_atividades: 'Milho, Feijão, Mandioca',
-                frequencia_utilizacao: 'Diária'
-            },
-            estado: 'Bom'
-        },
-        {
-            id: '2',
-            nome_infrastrutura: 'Represa de Cazenga',
-            tipo_infrastrutura: 'Represa/Barragem',
-            bi_nif: '500675321V',
-            localizacao: {
-                provincia: 'Luanda',
-                municipio: 'Cazenga',
-                comuna: 'Sambizanga',
-                aldeia_zona: 'Zona Norte',
-                coordenadas: {
-                    latitude: '-8.830',
-                    longitude: '13.250',
-                    altitude: '60m',
-                    precisao_m: '10m'
-                }
-            },
-            caracteristicas_tecnicas: {
-                dimensao: '100m x 50m x 12m',
-                capacidade: '5000 m³',
-                estado_conservacao: 'Razoável'
-            },
-            entidade_responsavel: {
-                proprietario_instituicao: 'Administração Municipal de Cazenga',
-                contacto: '+244 923 456 789',
-                email: 'adm@cazenga.ao'
-            },
-            utilizacao: {
-                beneficiarios_directos: '300 produtores',
-                principais_culturas_atividades: 'Hortaliças e Milho',
-                frequencia_utilizacao: 'Semanal'
-            },
-            estado: 'Razoável'
-        },
-        {
-            id: '3',
-            nome_infrastrutura: 'Poço Artesiano de Viana',
-            tipo_infrastrutura: 'Furo de Água/Poço Artesiano',
-            bi_nif: '500675321V',
-            localizacao: {
-                provincia: 'Luanda',
-                municipio: 'Viana',
-                comuna: 'Zango',
-                aldeia_zona: 'Bairro Central',
-                coordenadas: {
-                    latitude: '-8.800',
-                    longitude: '13.250',
-                    altitude: '30m',
-                    precisao_m: '5m'
-                }
-            },
-            caracteristicas_tecnicas: {
-                dimensao: 'Profundidade 50m',
-                capacidade: '50 m³/dia',
-                estado_conservacao: 'Mau'
-            },
-            entidade_responsavel: {
-                proprietario_instituicao: 'Cooperativa Água Rural Viana',
-                contacto: '+244 923 456 789',
-                email: 'agua@viana.ao'
-            },
-            utilizacao: {
-                beneficiarios_directos: '80 produtores',
-                principais_culturas_atividades: 'Hortaliças',
-                frequencia_utilizacao: 'Diária'
-            },
-            estado: 'Mau'
-        },
-        {
-            id: '4',
-            nome_infrastrutura: 'Silo de Grãos de Belas',
-            tipo_infrastrutura: 'Silo de Grãos',
-            bi_nif: '500675321V',
-            localizacao: {
-                provincia: 'Luanda',
-                municipio: 'Belas',
-                comuna: 'Quicabo',
-                aldeia_zona: 'Zona Industrial',
-                coordenadas: {
-                    latitude: '-8.900',
-                    longitude: '13.200',
-                    altitude: '50m',
-                    precisao_m: '8m'
-                }
-            },
-            caracteristicas_tecnicas: {
-                dimensao: '30m x 20m x 10m',
-                capacidade: '2000 toneladas',
-                estado_conservacao: 'Bom'
-            },
-            entidade_responsavel: {
-                proprietario_instituicao: 'Empresa de Armazenagem Belas',
-                contacto: '+244 923 456 789',
-                email: 'silo@belas.ao'
-            },
-            utilizacao: {
-                beneficiarios_directos: '200 produtores',
-                principais_culturas_atividades: 'Milho, Feijão, Soja',
-                frequencia_utilizacao: 'Mensal'
-            },
-            estado: 'Bom'
-        }
-    ];
+    // Usar dados estáticos para empresas
+    const empresass = empresasAdaptadas;
+   
 
+    // Ajustar altura do conteúdo
+    useEffect(() => {
+        const updateHeight = () => {
+            if (containerRef.current) {
+                const headerHeight = 240;
+                const windowHeight = window.innerHeight;
+                const availableHeight = windowHeight - headerHeight;
+                setContentHeight(`${availableHeight}px`);
+            }
+        };
 
-    const [localInfraestruturas, setLocalInfraestruturas] = useState(infraestruturas);
+        updateHeight();
+        window.addEventListener('resize', updateHeight);
+        return () => window.removeEventListener('resize', updateHeight);
+    }, []);
 
-    // Mostrar toast
+    // Limpar timeout
+    useEffect(() => {
+        return () => {
+            if (toastTimeout) {
+                clearTimeout(toastTimeout);
+            }
+        };
+    }, [toastTimeout]);
+
+    // Função para obter o nome da administração regional
+    const getAdminRegionalName = (adminRegionalId) => {
+        const admin = administracoesEstaticas.find(a => a.id === adminRegionalId);
+        return admin ? admin.nome : `Região ${adminRegionalId}`;
+    };
+
+    // Função para mostrar toast
     const showToast = (type, title, message, duration = 5000) => {
         if (toastTimeout) {
             clearTimeout(toastTimeout);
@@ -197,99 +235,96 @@ const GestaoApoioAgricola = () => {
         setToastTimeout(timeout);
     };
 
-    // Navegação
-    const handleViewInfraestrutura = (id) => {
-        showToast('info', 'Visualizar', `Visualizando infraestrutura ${id}`);
-    };
+    
 
-    const handleEditInfraestrutura = (id) => {
-        showToast('info', 'Editar', `Editando infraestrutura ${id}`);
-    };
+    // Filtragem das empresas
+    const filteredEscolas = empresass.filter(empresa => {
+        const matchesSearch = empresa.nomeEmpresa?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            empresa.pessoaContacto?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            empresa.email?.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesRegion = !selectedRegion || empresa.provincia === selectedRegion;
+        const matchesTipo = !selectedTipo || (empresa.servicosPrestados && empresa.servicosPrestados.some(s => s.includes(selectedTipo)));
+        const matchesStatus = !selectedStatus || empresa.status === selectedStatus;
 
-    // Modal de exclusão
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [infraestruturaToDelete, setInfraestruturaToDelete] = useState(null);
-
-    const openDeleteModal = (id) => {
-        setInfraestruturaToDelete(id);
-        setShowDeleteModal(true);
-    };
-
-    const closeDeleteModal = () => {
-        setShowDeleteModal(false);
-        setInfraestruturaToDelete(null);
-    };
-
-    const handleConfirmDelete = () => {
-        if (!infraestruturaToDelete) return;
-
-        setLocalInfraestruturas(prev =>
-            prev.filter(infra => infra.id !== infraestruturaToDelete)
-        );
-        showToast('success', 'Sucesso', 'Infraestrutura removida com sucesso');
-        closeDeleteModal();
-    };
-
-    // Filtragem
-    const filteredInfraestruturas = localInfraestruturas.filter(infra => {
-        const matchesSearch =
-            infra.nome_infrastrutura.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            infra.localizacao.provincia.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            infra.entidade_responsavel.proprietario_instituicao.toLowerCase().includes(searchTerm.toLowerCase());
-
-        const matchesTipo = !selectedTipo || infra.tipo_infrastrutura === selectedTipo;
-        const matchesEstado = !selectedEstado || infra.caracteristicas_tecnicas.estado_conservacao === selectedEstado;
-
-        return matchesSearch && matchesTipo && matchesEstado;
+        return matchesSearch && matchesRegion && matchesTipo && matchesStatus;
     });
 
     // Paginação
-    const totalPages = Math.ceil(filteredInfraestruturas.length / itemsPerPage);
+    const totalPages = Math.ceil(filteredEscolas.length / itemsPerPage);
     const getCurrentItems = () => {
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
-        return filteredInfraestruturas.slice(startIndex, endIndex);
+        return filteredEscolas.slice(startIndex, endIndex);
     };
 
-    // Cores para estado de conservação
-    const getEstadoColor = (estado) => {
-        const colors = {
-            'Bom': 'bg-blue-100 text-blue-800 border-blue-300',
-            'Razoável': 'bg-yellow-100 text-yellow-800 border-yellow-300',
-            'Mau': 'bg-red-100 text-red-800 border-red-300'
+    // Navegação (simulada)
+    const handleViewEscola = (empresasId) => {
+        navigate(`/GerenciaRNPA/gestao-empresas/empresas/visualizar/${empresasId}`);
+    };
+
+
+    const handleTransferencia = (empresasId) => {
+        // Navegar para a rota de cadastro de produção passando o ID
+        navigate(`/GerenciaRNPA/entidades-associativas/cadastro-producao-empresas/${empresasId}`);
+    };
+
+   
+    // Função para abrir modal de confirmação
+    const openDeleteModal = (empresasId) => {
+        setempresasToDelete(empresasId);
+        setShowDeleteModal(true);
+    };
+
+    // Função para fechar modal
+    const closeDeleteModal = () => {
+        setShowDeleteModal(false);
+        setempresasToDelete(null);
+    };
+
+    // Função para deletar empresas após confirmação
+    const handleConfirmDelete = async () => {
+        if (!empresasToDelete) return;
+        try {
+            // TODO: Implementar delete da empresa
+            showToast('success', 'Excluído', 'Empresa excluída com sucesso!');
+        } catch (erro) {
+            showToast('error', 'Erro', 'Erro ao excluir empresa.');
+            console.error(erro);
+        } finally {
+            closeDeleteModal();
+        }
+    };
+
+    // Ações do menu dropdown
+    const actionItems = [
+        { label: 'Cadastro de Produção', icon: <PlusCircle size={16} />, action: handleTransferencia },
+        { label: 'Relatóriosn', icon: <FileText size={16} />, action: "" },
+        {/* label: 'Infraestrutura', icon: <Building size={16} />, action: handleInfraestrutura */},
+        {/* label: 'Gestão de Pessoal', icon: <User size={16} />, action: handlePessoal */}
+    ];
+
+   
+
+    // Obter label do tipo de ensino
+   { /* const getTipoEnsinoLabel = (tipo) => {
+        const tipos = {
+            'GERAL': 'Ensino Geral',
+            'TECNICO_PROFISSIONAL': 'Técnico-Profissional',
+            'MISTO': 'Misto'
         };
-        return colors[estado] || 'bg-gray-100 text-gray-800 border-gray-300';
-    };
-
-    // Ícones por tipo
-    const getTipoIcon = (tipo) => {
-        const icons = {
-            'Canal de Irrigação': <Activity className="w-5 h-5 text-blue-600" />,
-            'Represa/Barragem': <Warehouse className="w-5 h-5 text-cyan-600" />,
-            'Furo de Água/Poço Artesiano': <Activity className="w-5 h-5 text-teal-600" />,
-            'Silo de Grãos': <Warehouse className="w-5 h-5 text-amber-600" />,
-            'Armazém': <Warehouse className="w-5 h-5 text-orange-600" />,
-            'Mercado': <Building className="w-5 h-5 text-purple-600" />
-        };
-        return icons[tipo] || <Building className="w-5 h-5 text-gray-600" />;
-    };
-
-    // Estatísticas
-    const totalInfraestruturas = localInfraestruturas.length;
-    const totalBom = localInfraestruturas.filter(i => i.caracteristicas_tecnicas.estado_conservacao === 'Bom').length;
-    const totalRazoavel = localInfraestruturas.filter(i => i.caracteristicas_tecnicas.estado_conservacao === 'Razoável').length;
-    const totalMau = localInfraestruturas.filter(i => i.caracteristicas_tecnicas.estado_conservacao === 'Mau').length;
+        return tipos[tipo] || tipo;
+    };*/}
 
     // Componente Toast
     const Toast = () => {
         if (!toastMessage) return null;
 
         const { type, title, message } = toastMessage;
-        let bgColor, icon;
 
+        let bgColor, icon;
         switch (type) {
             case 'success':
-                bgColor = 'bg-blue-50 border-l-4 border-blue-500 text-blue-700';
+                bgColor = 'bg-green-50 border-l-4 border-green-500 text-green-700';
                 icon = <CheckCircle className="w-5 h-5" />;
                 break;
             case 'error':
@@ -324,11 +359,52 @@ const GestaoApoioAgricola = () => {
         );
     };
 
-    // Modal de confirmação de exclusão
+    // Menu dropdown de ações
+    const ActionMenu = ({ escola }) => {
+        const [isOpen, setIsOpen] = useState(false);
+
+        return (
+            <div className="relative">
+                <button
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                    title="Mais ações"
+                >
+                    <MoreVertical className="w-5 h-5 text-gray-600" />
+                </button>
+
+                {isOpen && (
+                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg z-[999] ring-1 ring-black ring-opacity-5">
+                        <div className="py-1">
+                            {actionItems.map((item, index) => (
+                                <button
+                                    key={index}
+                                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                                    onClick={() => {
+                                        item.action(escola.id);
+                                        setIsOpen(false);
+                                    }}
+                                >
+                                    <span className="mr-2 text-blue-500">{item.icon}</span>
+                                    {item.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
+  
+
+    // Extrair regiões únicas para o filtro
+    const uniqueRegions = [...new Set(empresass.map(escola => escola.provincia))].filter(Boolean);
+
+    // Modal de confirmação visual
     const DeleteConfirmModal = () => {
         if (!showDeleteModal) return null;
-        const infra = localInfraestruturas.find(i => i.id === infraestruturaToDelete);
-
+        const empresas = empresass.find(c => c.id === empresasToDelete);
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
                 <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm flex flex-col items-center">
@@ -337,19 +413,19 @@ const GestaoApoioAgricola = () => {
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Confirmar Exclusão</h3>
                     <p className="text-gray-600 text-center text-sm mb-4">
-                        Tem certeza que deseja excluir a infraestrutura <span className="font-semibold text-red-600">{infra?.nome_infrastrutura || 'Selecionada'}</span>?<br />
-                        Esta ação não pode ser desfeita.
+                        Tem certeza que deseja excluir a empresa <span className="font-semibold text-red-600">{empresas?.nomeEmpresa || 'Selecionada'}</span>?<br/>
+                        Esta ação não pode ser desfeita. Todos os dados da empresa serão removidos permanentemente.
                     </p>
                     <div className="flex gap-3 mt-2 w-full">
                         <button
                             onClick={handleConfirmDelete}
-                            className="flex-1 p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                            className="flex-1 p-2 bg-red-600 hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 text-white rounded-lg transition-all duration-200 transform hover:-translate-y-0.5"
                         >
                             Sim, excluir
                         </button>
                         <button
                             onClick={closeDeleteModal}
-                            className="flex-1 p-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
+                            className="flex-1 p-2 bg-gray-100 hover:bg-gray-200 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 text-gray-700 rounded-lg transition-all duration-200 transform hover:-translate-y-0.5"
                         >
                             Cancelar
                         </button>
@@ -360,70 +436,78 @@ const GestaoApoioAgricola = () => {
     };
 
     return (
-        <div>
+        <div className="min-h-screen" ref={containerRef}>
             <Toast />
+            <DeleteConfirmModal />
+               {/* Estatísticas das empresass */}
+            <div className="mt-6 mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-white rounded-xl shadow-md p-6">
+                    <div className="flex items-center">
+                        <div className="p-3 bg-blue-100 rounded-full">
+                            <Users className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <div className="ml-4">
+                            <p className="text-sm font-medium text-gray-500">Total</p>
+                            <p className="text-2xl font-bold text-gray-900">{empresass.length}</p>
+                        </div>
+                    </div>
+                </div>
 
-            {/* Indicadores do topo */}
-            <div className="w-full flex justify-center bg-transparent pb-[30px] pt-2">
-                <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-4 w-full">
-                    <div className="bg-white rounded-xl shadow-md p-6">
-                        <div className="flex items-center">
-                            <div className="p-3 bg-blue-100 rounded-full">
-                                <Building className="w-6 h-6 text-blue-600" />
-                            </div>
-                            <div className="flex flex-col items-center ml-4">
-                                <p className="text-sm font-medium text-gray-500">Total</p>
-                                <p className="text-2xl font-bold text-gray-900">{totalInfraestruturas}</p>
-                            </div>
+                <div className="bg-white rounded-xl shadow-md p-6">
+                    <div className="flex items-center">
+                        <div className="p-3 bg-green-100 rounded-full">
+                            <CheckCircle className="w-6 h-6 text-green-600" />
+                        </div>
+                        <div className="ml-4">
+                            <p className="text-sm font-medium text-gray-500">Activos</p>
+                            <p className="text-2xl font-bold text-gray-900">
+                                {empresass.filter(c => c.status === 'ATIVO').length}
+                            </p>
                         </div>
                     </div>
+                </div>
 
-                    <div className="bg-white rounded-xl shadow-md p-6">
-                        <div className="flex items-center">
-                            <div className="p-3 bg-blue-100 rounded-full">
-                                <CheckCircle className="w-6 h-6 text-blue-600" />
-                            </div>
-                            <div className="flex flex-col items-center ml-4">
-                                <p className="text-sm font-medium text-gray-500">Bom</p>
-                                <p className="text-2xl font-bold text-gray-900">{totalBom}</p>
-                            </div>
+                <div className="bg-white rounded-xl shadow-md p-6">
+                    <div className="flex items-center">
+                        <div className="p-3 bg-purple-100 rounded-full">
+                            <GraduationCap className="w-6 h-6 text-purple-600" />
+                        </div>
+                        <div className="ml-4">
+                            <p className="text-sm font-medium text-gray-500">Funcionários</p>
+                            <p className="text-2xl font-bold text-gray-900">
+                                0
+                            </p>
                         </div>
                     </div>
-                    <div className="bg-white rounded-xl shadow-md p-6">
-                        <div className="flex items-center">
-                            <div className="p-3 bg-yellow-100 rounded-full">
-                                <Clock className="w-6 h-6 text-yellow-600" />
-                            </div>
-                            <div className="flex flex-col items-center ml-4">
-                                <p className="text-sm font-medium text-gray-500">Razoável</p>
-                                <p className="text-2xl font-bold text-gray-900">{totalRazoavel}</p>
-                            </div>
+                </div>
+
+                <div className="bg-white rounded-xl shadow-md p-6">
+                    <div className="flex items-center">
+                        <div className="p-3 bg-yellow-100 rounded-full">
+                            <Building className="w-6 h-6 text-yellow-600" />
                         </div>
-                    </div>
-                    <div className="bg-white rounded-xl shadow-md p-6">
-                        <div className="flex items-center">
-                            <div className="p-3 bg-red-100 rounded-full">
-                                <AlertCircle className="w-6 h-6 text-red-600" />
-                            </div>
-                            <div className="flex flex-col items-center ml-4">
-                                <p className="text-sm font-medium text-gray-500">Mau</p>
-                                <p className="text-2xl font-bold text-gray-900">{totalMau}</p>
-                            </div>
+                        <div className="ml-4">
+                            <p className="text-sm font-medium text-gray-500">Área (ha)</p>
+                            <p className="text-2xl font-bold text-gray-900">
+                               0
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="w-full bg-white rounded-xl overflow-hidden">
+            <div className="w-full bg-white rounded-xl shadow-md overflow-visible z-10">
                 {/* Cabeçalho */}
-                <div className="bg-gradient-to-r from-blue-700 to-blue-500 p-6 text-white shadow-md mb-6">
+                <div className="bg-gradient-to-r from-blue-700 to-blue-500 p-6 text-white">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
                         <div>
-                            <h1 className="text-2xl font-bold">Gestão de Apoio à Agricultura</h1>
+                            <h1 className="text-2xl font-bold">Gestão de Empresas Agrícolas</h1>
+                            {/* <p className="text-blue-100 mt-1">SistGestão Geral e Técnico-Profissional - Angola</p> */}
                         </div>
                         <div className="flex gap-4">
+                           
                             <button
-                                onClick={() => showToast('info', 'Função', 'Exportar dados das infraestruturas')}
+                                onClick={() => showToast('info', 'Função', 'Exportar dados das empresas')}
                                 className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
                             >
                                 <Download className="w-5 h-5 mr-2" />
@@ -433,337 +517,344 @@ const GestaoApoioAgricola = () => {
                     </div>
                 </div>
 
-                <div className="w-full bg-white rounded-xl shadow-md overflow-auto">
-                    {/* Barra de ferramentas */}
-                    <div className="p-6 border-b border-gray-200 bg-white">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {/* Busca */}
-                            <div className="lg:col-span-1">
-                                <CustomInput
-                                    type="text"
-                                    placeholder="Pesquisar por nome, BI/NIF, província ou instituição..."
-                                    value={searchTerm}
-                                    onChange={(value) => setSearchTerm(value)}
-                                    iconStart={<Search size={18} />}
-                                />
-                            </div>
-
-                            {/* Filtro Tipo */}
-                            <div>
-                                <CustomInput
-                                    type="select"
-                                    placeholder="Tipo de Infraestrutura"
-                                    value={selectedTipo ? { label: selectedTipo, value: selectedTipo } : null}
-                                    options={[
-                                        { label: 'Todos os Tipos', value: '' },
-                                        { label: 'Canal de Irrigação', value: 'Canal de Irrigação' },
-                                        { label: 'Represa/Barragem', value: 'Represa/Barragem' },
-                                        { label: 'Furo de Água / Poço Artesiano', value: 'Furo de Água / Poço Artesiano' },
-                                        { label: 'Sistema de Rega (aspersão/gota-a-gota)', value: 'Sistema de Rega (aspersão/gota-a-gota)' },
-                                        { label: 'Armazém de Conservação', value: 'Armazém de Conservação' },
-                                        { label: 'Silos de Grãos', value: 'Silos de Grãos' },
-                                        { label: 'Estufa Agrícola', value: 'Estufa Agrícola' },
-                                        { label: 'Estação Meteorológica', value: 'Estação Meteorológica' },
-                                        { label: 'Estrada de Acesso Rural', value: 'Estrada de Acesso Rural' },
-                                        { label: 'Mercado de Produtos Agrícolas', value: 'Mercado de Produtos Agrícolas' },
-                                        { label: 'Centro de Formação Agrária', value: 'Centro de Formação Agrária' },
-                                        { label: 'Centro de Extensão Rural', value: 'Centro de Extensão Rural' },
-                                        { label: 'Posto de Assistência Veterinária', value: 'Posto de Assistência Veterinária' },
-                                        { label: 'Matadouro Municipal / Abatedouro', value: 'Matadouro Municipal / Abatedouro' },
-                                        { label: 'Cais de Pesca / Infraestrutura Aquícola', value: 'Cais de Pesca / Infraestrutura Aquícola' },
-                                        { label: 'Centros de Processamento Agroalimentar', value: 'Centros de Processamento Agroalimentar' },
-                                        { label: 'Tratores/Equipamentos Agrícolas Comunitários', value: 'Tratores/Equipamentos Agrícolas Comunitários' },
-                                        { label: 'Outro', value: 'Outro' }
-                                    ]}
-                                    onChange={(option) => setSelectedTipo(option?.value || '')}
-                                    iconStart={<Filter size={18} />}
-                                />
-                            </div>
-
-                            {/* Filtro Estado */}
-                            <div>
-                                <CustomInput
-                                    type="select"
-                                    placeholder="Estado de Conservação"
-                                    value={selectedEstado ? { label: selectedEstado, value: selectedEstado } : null}
-                                    options={[
-                                        { label: 'Todos os Estados', value: '' },
-                                        { label: 'Excelente', value: 'Excelente' },
-                                        { label: 'Bom', value: 'Bom' },
-                                        { label: 'Razoável', value: 'Razoável' },
-                                        { label: 'Mau', value: 'Mau' }
-                                    ]}
-                                    onChange={(option) => setSelectedEstado(option?.value || '')}
-                                    iconStart={<Wrench size={18} />}
-                                />
-                            </div>
+                {/* Barra de ferramentas */}
+                <div className="p-6 border-b border-gray-200 bg-white">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {/* Busca */}
+                        <div className="lg:col-span-2">
+                            <CustomInput
+                                type="text"
+                                placeholder="Buscar por nome, gestor ou email..."
+                                value={searchTerm}
+                                onChange={(value) => setSearchTerm(value)}
+                                iconStart={<Search size={18} />}
+                            />
                         </div>
-                    </div>
 
-                    {/* Tabela - Desktop */}
-                    <div className="hidden md:block overflow-auto">
-                        <table className="w-full border-collapse">
-                            <thead className="bg-gradient-to-r from-blue-50 to-indigo-50 sticky top-0 z-10">
-                                <tr>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-blue-700 uppercase tracking-wider border-b border-blue-200">
-                                        <div className="flex items-center space-x-2">
-                                            <Building className="w-4 h-4" />
-                                            <span>Infraestrutura</span>
-                                        </div>
-                                    </th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-blue-700 uppercase tracking-wider border-b border-blue-200">
-                                        <div className="flex items-center space-x-2">
-                                            <Users className="w-4 h-4" />
-                                            <span>Entidade</span>
-                                        </div>
-                                    </th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-blue-700 uppercase tracking-wider border-b border-blue-200">
-                                        <div className="flex items-center space-x-2">
-                                            <MapPin className="w-4 h-4" />
-                                            <span>Localização</span>
-                                        </div>
-                                    </th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-blue-700 uppercase tracking-wider border-b border-blue-200">
-                                        <div className="flex items-center space-x-2">
-                                            <Settings className="w-4 h-4" />
-                                            <span>Características</span>
-                                        </div>
-                                    </th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-blue-700 uppercase tracking-wider border-b border-blue-200">
-                                        <div className="flex items-center space-x-2">
-                                            <Activity className="w-4 h-4" />
-                                            <span>Utilização</span>
-                                        </div>
-                                    </th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-blue-700 uppercase tracking-wider border-b border-blue-200">
-                                        <div className="flex items-center space-x-2">
-                                            <CheckCircle className="w-4 h-4" />
-                                            <span>Estado</span>
-                                        </div>
-                                    </th>
-                                    <th className="px-6 py-4 text-center text-xs font-semibold text-blue-700 uppercase tracking-wider border-b border-blue-200">
-                                        <div className="flex items-center justify-center space-x-2">
-                                            <Settings className="w-4 h-4" />
-                                            <span>Ações</span>
-                                        </div>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100 bg-white">
-                                {getCurrentItems().map((infra) => (
-                                    <tr key={infra.id} className="hover:bg-gradient-to-r hover:from-blue-25 hover:to-indigo-25 transition-all duration-200 group">
-                                        <td className="px-6 py-5 flex items-center space-x-4">
-                                            <div className="p-3 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl shadow-sm group-hover:shadow-md transition-shadow">
-                                                {getTipoIcon(infra.tipo_infrastrutura)}
-                                            </div>
-                                            <div className="min-w-0 flex-1">
-                                                <div className="text-sm font-semibold text-gray-900 max-w-[200px] truncate">
-                                                    {infra.nome_infrastrutura}
-                                                </div>
-                                                <div className="flex items-center text-xs text-blue-600 mt-1 font-medium">
-                                                    <Wrench className="w-3 h-3 mr-1" />
-                                                    {infra.tipo_infrastrutura}
-                                                </div>
-                                                <div className="flex items-center text-xs text-gray-500 mt-1">
-                                                    <CreditCard className="w-3 h-3 mr-1" />
-                                                    {infra.bi_nif}
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            <div className="text-sm font-medium text-gray-900 max-w-[150px] truncate">
-                                                {infra.entidade_responsavel.proprietario_instituicao}
-                                            </div>
-                                            <div className="flex items-center text-xs text-green-600 mt-1 font-medium">
-                                                <Phone className="w-3 h-3 mr-1" />
-                                                {infra.entidade_responsavel.contacto}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            <div className="text-sm font-medium text-gray-900">
-                                                {infra.localizacao.provincia}
-                                            </div>
-                                            <div className="flex items-center text-xs text-purple-600 mt-1 font-medium">
-                                                <Map className="w-3 h-3 mr-1" />
-                                                {infra.localizacao.municipio}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                                                <div className="flex items-center text-sm font-semibold text-gray-900">
-                                                    <Warehouse className="w-4 h-4 mr-2 text-orange-500" />
-                                                    {infra.caracteristicas_tecnicas.capacidade}
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            <div className="space-y-1">
-                                                <div className="flex items-center text-sm font-medium text-gray-900">
-                                                    <Users className="w-4 h-4 mr-2 text-emerald-500" />
-                                                    {infra.utilizacao.beneficiarios_directos}
-                                                </div>
-                                                <div className="flex items-center text-xs text-indigo-600 font-medium">
-                                                    <Clock className="w-3 h-3 mr-1" />
-                                                    {infra.utilizacao.frequencia_utilizacao}
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            <span className={`inline-flex items-center px-3 py-2 rounded-full text-xs font-semibold shadow-sm ${getEstadoColor(infra.caracteristicas_tecnicas.estado_conservacao)}`}>
-                                                {infra.caracteristicas_tecnicas.estado_conservacao === 'Bom' && <CheckCircle className="w-3 h-3 mr-1" />}
-                                                {infra.caracteristicas_tecnicas.estado_conservacao === 'Razoável' && <Clock className="w-3 h-3 mr-1" />}
-                                                {infra.caracteristicas_tecnicas.estado_conservacao === 'Mau' && <AlertCircle className="w-3 h-3 mr-1" />}
-                                                {infra.caracteristicas_tecnicas.estado_conservacao}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            <div className="flex items-center justify-center space-x-2">
-                                                <button
-                                                    onClick={() => handleViewInfraestrutura(infra.id)}
-                                                    className="p-2.5 bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 rounded-lg transition-all duration-200 hover:shadow-md group/btn"
-                                                    title="Visualizar"
-                                                >
-                                                    <Eye className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
-                                                </button>
-                                                <button
-                                                    onClick={() => openDeleteModal(infra.id)}
-                                                    className="p-2.5 bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 rounded-lg transition-all duration-200 hover:shadow-md group/btn"
-                                                    title="Remover"
-                                                >
-                                                    <Trash2 className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {/* Visualização em cards para mobile */}
-                    <div className="md:hidden overflow-auto">
-                        {getCurrentItems().map((infra) => (
-                            <div key={infra.id} className="p-4 border-b border-gray-200 text-end hover:bg-blue-50 transition-colors">
-                                <div className="flex text-end justify-between items-end mb-3">
-                                    <div>
-                                        <h3 className="text-sm font-semibold  text-gray-900">{infra.nome_infrastrutura}</h3>
-                                        <div className="text-xs text-gray-500 mt-1">BI/NIF: {infra.bi_nif}</div>
-                                        <div className="text-xs text-gray-500">Data: {new Date(infra.data_registo).toLocaleDateString('pt-BR')}</div>
-                                    </div>
-                                    <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getEstadoColor(infra.caracteristicas_tecnicas.estado_conservacao)}`}>
-                                        {infra.caracteristicas_tecnicas.estado_conservacao}
-                                    </span>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <div className="flex items-center text-xs">
-                                        <span className="mr-2 text-blue-500">
-                                            {infra.tipo_infrastrutura}
-                                        </span>
-                                        <span className="font-medium">Tipo:</span>
-                                        <span className="ml-1 text-gray-600">{infra.tipo_infrastrutura}</span>
-                                    </div>
-                                    <div className="flex items-center text-xs">
-                                        <MapPin className="w-3 h-3 mr-1 text-blue-500" />
-                                        <span className="font-medium">Local:</span>
-                                        <span className="ml-1 text-gray-600">{infra.localizacao.provincia} - {infra.localizacao.municipio}</span>
-                                    </div>
-                                    <div className="flex items-center text-xs">
-                                        <Users className="w-3 h-3 mr-1 text-green-500" />
-                                        <span className="font-medium">Beneficiários:</span>
-                                        <span className="ml-1 text-gray-600">{infra.utilizacao.beneficiarios_directos}</span>
-                                    </div>
-                                </div>
-
-                                <div className="mt-3 flex justify-between items-center">
-                                    <div className="flex space-x-1">
-                                        <button
-                                            onClick={() => handleViewInfraestrutura(infra.id)}
-                                            className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-full transition-colors"
-                                            title="Visualizar"
-                                        >
-                                            <Eye className="w-4 h-4" />
-                                        </button>
-                                        <button
-                                            onClick={() => handleEditInfraestrutura(infra.id)}
-                                            className="p-1.5 bg-yellow-50 hover:bg-yellow-100 text-yellow-600 rounded-full transition-colors"
-                                            title="Editar"
-                                        >
-                                            <Pencil className="w-4 h-4" />
-                                        </button>
-                                        <button
-                                            onClick={() => openDeleteModal(infra.id)}
-                                            className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-full transition-colors"
-                                            title="Remover"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Paginação */}
-                    {totalPages > 1 && (
-                        <div className="px-6 py-4 border-t border-gray-200 bg-white">
-                            <div className="flex items-center justify-between">
-                                <div className="text-sm text-gray-700">
-                                    Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, filteredInfraestruturas.length)} de {filteredInfraestruturas.length} infraestruturas
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                    <button
-                                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                                        disabled={currentPage === 1}
-                                        className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        <ChevronLeft className="w-5 h-5" />
-                                    </button>
-                                    <span className="px-3 py-2 text-sm font-medium">
-                                        Página {currentPage} de {totalPages}
-                                    </span>
-                                    <button
-                                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                                        disabled={currentPage === totalPages}
-                                        className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        <ChevronRight className="w-5 h-5" />
-                                    </button>
-                                </div>
-                            </div>
+                        {/* Filtro Região */}
+                        <div>
+                            <CustomInput
+                                type="select"
+                                placeholder="Região"
+                                value={selectedRegion ? {
+                                    label: getAdminRegionalName(selectedRegion),
+                                    value: selectedRegion
+                                } : null}
+                                options={[
+                                    { label: 'Todas as Regiões', value: '' },
+                                    ...uniqueRegions.map(region => ({
+                                        label: getAdminRegionalName(region),
+                                        value: region
+                                    }))
+                                ]}
+                                onChange={(option) => setSelectedRegion(option?.value || '')}
+                                iconStart={<MapPin size={18} />}
+                            />
                         </div>
-                    )}
 
-                    {/* Nenhum resultado encontrado */}
-                    {filteredInfraestruturas.length === 0 && (
-                        <div className="py-12 flex flex-col items-center justify-center text-center px-4">
-                            <Search className="w-16 h-16 text-gray-300 mb-4" />
-                            <h3 className="text-lg font-medium text-gray-900 mb-1">
-                                Nenhuma infraestrutura encontrada
-                            </h3>
-                            <p className="text-gray-500 max-w-md mb-6">
-                                Não encontramos resultados para a sua busca. Tente outros termos ou remova os filtros aplicados.
-                            </p>
-                            {(searchTerm || selectedTipo || selectedEstado) && (
-                                <button
-                                    onClick={() => {
-                                        setSearchTerm('');
-                                        setSelectedTipo('');
-                                        setSelectedEstado('');
-                                    }}
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                                >
-                                    Limpar filtros
-                                </button>
-                            )}
+                        <div>
+                            <CustomInput
+                                type="select"
+                                placeholder="Tipo de Actividade"
+                                value={selectedTipo ? { label: selectedTipo, value: selectedTipo } : null}
+                                options={[
+                                    { label: 'Todas as Atividades', value: '' },
+                                    { label: 'Agricultura', value: 'Agricultura' },
+                                    { label: 'Pecuária', value: 'Pecuária' },
+                                    { label: 'Agropecuária', value: 'Agropecuária' },
+                                    { label: 'Aquicultura', value: 'Aquicultura' },
+                                    { label: 'Produtos florestais', value: 'Produtos florestais' }
+                                ]}
+                                onChange={(option) => setSelectedTipo(option?.value || '')}
+                                iconStart={<School size={18} />}
+                            />
                         </div>
-                    )}
+
+                    </div>
                 </div>
 
-                <DeleteConfirmModal />
+                {/* Tabela - Desktop */}
+                <div className="hidden md:block overflow-visible" style={{ maxHeight: contentHeight }}>
+                    <table className="w-full border-collapse">
+                        <thead className="bg-gray-50 sticky top-0 z-10">
+                            <tr>
+                                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                                    Empresa
+                                </th>
+                                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                                    Tipo & Serviços
+                                </th>
+                               
+                                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                                    Localização
+                                </th>
+                                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                                    Contato & Capacidade
+                                </th>
+                                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                                    Situação Legal
+                                </th>
+                                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                                    Ação
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200 bg-white text-left">
+                            {getCurrentItems().map((empresa) => (
+                                <tr key={empresa.id} className="hover:bg-blue-50 transition-colors">
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <div className="flex items-start">
+                                            <div className="flex-shrink-0 h-12 w-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
+                                                {empresa.nomeEmpresa.charAt(0)}{empresa.nomeEmpresa.split(' ').pop().charAt(0)}
+                                            </div>
+                                            <div className="ml-4">
+                                                <div className="text-sm font-semibold text-gray-900 break-words whitespace-pre-line max-w-[200px]">{empresa.nomeEmpresa}</div>
+                                                <div className="text-xs text-gray-500 mt-1">NIF: {empresa.nif}</div>
+                                                <div className="text-xs text-gray-500">Fundada: {empresa.anoFundacao}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td className="px-6 py-4 whitespace-nowrap ">
+                                        <div className="space-y-2">
+                                            <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                {empresa.tipoEntidade.replace(/_/g, ' ')}
+                                            </div>
+                                            <div className="text-xs text-gray-600 break-before-all whitespace-pre-line max-w-[250px]">
+                                                {empresa.servicosPrestados.slice(0, 2).join(',\n')}
+                                                {empresa.servicosPrestados.length > 2 && (
+                                                    <span className="text-gray-400 block break-before-all"> +{empresa.servicosPrestados.length - 2}</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <div className="space-y-2">
+                                            <div className="flex items-center text-xs text-gray-700">
+                                                <MapPin className="w-4 h-4 mr-2 text-blue-500" />
+                                                {empresa.municipio}, {empresa.provincia}
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <div className="space-y-2">
+                                            <div className="flex items-center text-xs text-gray-700">
+                                                <Phone className="w-4 h-4 mr-2 text-blue-500" />
+                                                {empresa.telefone}
+                                            </div>
+                                            <div className="flex items-center text-xs text-gray-700">
+                                                <Users className="w-4 h-4 mr-2 text-blue-500" />
+                                                {empresa.numeroFuncionarios} funcionários
+                                            </div>
+                                            <div className="text-xs text-gray-600">
+                                                {empresa.volumeClientes} clientes/ano
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <div className="space-y-2">
+                                            <div className="flex items-center text-xs">
+                                                
+                                                <CheckCircle className="w-3.5 h-3.5 mr-1 text-green-500" />
+                                                <span className="text-gray-700">Licença: {empresa.licencaOperacao}</span>
+                                            </div>
+                                            <div className="flex items-center text-xs">
+                                                <Briefcase className="w-3.5 h-3.5 mr-1 text-blue-500" />
+                                                <span className="text-gray-700">Registo: {empresa.registoComercial}</span>
+                                            </div>
+                                            {empresa.certificacoesEspecificas && (
+                                                <div className="text-xs text-gray-600">
+                                                    <Award className="w-3.5 h-3.5 inline-block mr-1 text-yellow-500" />
+                                                    {empresa.certificacoesEspecificas}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </td>
+
+                                
+
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <div className="flex items-center justify-start space-x-1">
+                                            <button
+                                                onClick={() => handleViewEscola(empresa.id)}
+                                                className="p-2 hover:bg-blue-100 text-blue-600 hover:text-blue-800 rounded-full transition-colors"
+                                                title="Visualizar"
+                                            >
+                                                <Eye className="w-5 h-5" />
+                                            </button>
+                                            <button
+                                                onClick={() => openDeleteModal(empresa.id)}
+                                                className="p-2 hover:bg-red-100 text-red-600 hover:text-red-800 rounded-full transition-colors"
+                                                title="Remover"
+                                            >
+                                                <Trash2 className="w-5 h-5" />
+                                            </button>
+                                            <ActionMenu escola={empresa} />
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Visualização em cards para mobile */}
+                <div className="md:hidden overflow-visible" style={{ maxHeight: contentHeight }}>
+                    {getCurrentItems().map((empresa) => (
+                        <div key={empresa.id} className="p-4 border-b border-gray-200 hover:bg-blue-50 transition-colors">
+                            <div className="flex items-start">
+                                <div className="flex-shrink-0 h-16 w-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-md">
+                                    {empresa.nomeEmpresa.charAt(0)}{empresa.nomeEmpresa.split(' ').pop().charAt(0)}
+                                </div>
+                                <div className="flex-1 ml-4">
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <h3 className="text-sm font-semibold text-gray-900">{empresa.nomeEmpresa}</h3>
+                                            <div className="text-xs text-gray-500 mt-1">NIF: {empresa.nif}</div>
+                                            <div className="text-xs text-gray-500">Contato: {empresa.pessoaContacto}</div>
+                                        </div>
+                                        {/* <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${tipoColors[escola.tipoEnsino] || 'bg-gray-100 text-gray-800 border-gray-200'
+                                            }`}>
+                                            {getTipoEnsinoLabel(escola.tipoEnsino)}
+                                        </div> */}
+                                    </div>
+
+                                    <div className="mt-3 grid grid-cols-2 gap-2">
+                                        <div className="flex items-center text-xs text-gray-700">
+                                            <MapPin className="w-3.5 h-3.5 mr-1 text-blue-500" />
+                                            <span className="truncate">{empresa.municipio}</span>
+                                        </div>
+                                        <div className="flex items-center text-xs text-gray-700">
+                                            <Users className="w-3.5 h-3.5 mr-1 text-blue-500" />
+                                            {empresa.numeroFuncionarios} Funcionários
+                                        </div>
+                                        <div className="flex items-center text-xs text-gray-700">
+                                            <Phone className="w-3.5 h-3.5 mr-1 text-blue-500" />
+                                            {empresa.telefone}
+                                        </div>
+                                        <div className="flex items-center text-xs text-gray-700">
+                                            <Building className="w-3.5 h-3.5 mr-1 text-blue-500" />
+                                            {empresa.volumeClientes} Clientes/ano
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-3 flex justify-between items-center">
+                                        <div className="flex space-x-1">
+                                            <button
+                                                onClick={() => handleViewEscola(empresa.id)}
+                                                className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-full transition-colors"
+                                                title="Visualizar"
+                                            >
+                                                <Eye className="w-4 h-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => openDeleteModal(empresa.id)}
+                                                className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-full transition-colors"
+                                                title="Remover"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </div>
+
+                                        <div className="flex items-center space-x-3">
+                                            <div className="flex items-center">
+                                                <span className={`w-2.5 h-2.5 rounded-full mr-1.5 ${empresa.status === 'ATIVO' ? 'bg-green-500' : 'bg-gray-400'
+                                                    }`}></span>
+                                                <span className={`text-xs font-medium ${empresa.status === 'ATIVO' ? 'text-green-600' : 'text-gray-500'
+                                                    }`}>
+                                                    {empresa.status}
+                                                </span>
+                                            </div>
+
+                                            <ActionMenu escola={empresa} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Paginação */}
+                <div className="px-6 py-4 border-t border-gray-200 bg-white">
+                    <div className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
+                        <div className="text-sm text-gray-700">
+                            Mostrando{' '}
+                            <span className="font-medium">{filteredEscolas.length > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0}</span>
+                            {' '}a{' '}
+                            <span className="font-medium">
+                                {Math.min(currentPage * itemsPerPage, filteredEscolas.length)}
+                            </span>
+                            {' '}de{' '}
+                            <span className="font-medium">{filteredEscolas.length}</span>
+                            {' '}resultados
+                        </div>
+
+                        <div className="flex space-x-2">
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
+                                    ${currentPage === 1
+                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                        : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
+                                    }`}
+                            >
+                                <ChevronLeft className="w-4 h-4 mr-1" />
+                                Anterior
+                            </button>
+
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages || totalPages === 0}
+                                className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
+                                    ${currentPage === totalPages || totalPages === 0
+                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                        : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
+                                    }`}
+                            >
+                                Próximo
+                                <ChevronRight className="w-4 h-4 ml-1" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Nenhum resultado encontrado */}
+                {filteredEscolas.length === 0 && (
+                    <div className="py-12 flex flex-col items-center justify-center text-center px-4">
+                        <Search className="w-16 h-16 text-gray-300 mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-1">Nenhuma informação encontrada</h3>
+                        <p className="text-gray-500 max-w-md mb-6">
+                            Não encontramos resultados para sua busca. Tente outros termos ou remova os filtros aplicados.
+                        </p>
+                        {searchTerm || selectedRegion || selectedTipo || selectedStatus ? (
+                            <button
+                                onClick={() => {
+                                    setSearchTerm('');
+                                    setSelectedRegion('');
+                                    setSelectedTipo('');
+                                    setSelectedStatus('');
+                                }}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            >
+                                Limpar filtros
+                            </button>
+                        ) : (
+                            <p/>
+                               
+                        )}
+                    </div>
+                )}
             </div>
+
+            {/* Estatísticas das escolas */}
+         
         </div>
     );
 };
 
-export default GestaoApoioAgricola;
+export default GestaoApoiAgricola;

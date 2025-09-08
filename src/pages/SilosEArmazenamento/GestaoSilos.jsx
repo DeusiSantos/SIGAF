@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import {
     Search,
     Plus,
@@ -29,103 +30,156 @@ import {
     User,
     Award,
     Activity,
-    PlusCircle
+    PlusCircle,
+    Warehouse,
+    Package,
+    Boxes
 } from 'lucide-react';
 
 import CustomInput from '../../components/CustomInput';
-//import { useCooperativas } from '../../hooks/useCooperativas';
 
-// Dados estáticos das empresas
-const empresasAdaptadas = [
+// Dados fictícios dos silos - estrutura baseada no formulário de cadastro
+const silosData = [
     {
         id: 1,
-        nomeempresas: "AgroTech Angola Lda",
-        sigla: "5417890123",
-        nif: "5417890123",
-        dataFundacao: "2015-08-20",
+        // Identificação (Step 1)
+        nomeSilo: "Silo Central de Luanda",
+        tipoUnidade: "SILO_METALICO",
+        codigoRegistro: "SCL001",
+        
+        // Localização (Step 2)
+        endereco: "Zona Industrial de Luanda, Viana",
+        municipio: "Viana",
         provincia: "LUANDA",
-        municipio: "Luanda",
-        comuna: "Ingombota",
-        telefone: "222567890",
-        email: "info@agrotech.ao",
-        atividades: ["Agricultura", "Tecnologia"],
-        outrasAtividades: "Sistemas de irrigação",
-        numeroMembros: 85,
-        areaTotal: 250,
-        presidente: "Maria Santos Costa",
+        latitude: "-8.838333",
+        longitude: "13.234444",
+        
+        // Proprietário/Responsável (Step 3)
+        nomeProprietario: "António Silva Santos",
+        entidade: "Agro Luanda Lda",
+        nifProprietario: "5417189144",
+        telefoneProprietario: "222345678",
+        emailProprietario: "silo.central@agroluanda.ao",
+        
+        // Capacidade de Armazenamento (Step 4)
+        capacidadeTotal: 5000,
+        capacidadeUtilizada: 3200,
+        numeroUnidades: 8,
+        produtosArmazenados: ["MILHO", "ARROZ", "FEIJAO"],
+        
+        // Infraestrutura e Equipamentos (Step 5)
+        sistemaSeccagem: true,
+        sistemaVentilacao: true,
+        sistemaProtecaoPragas: true,
+        tipoEnergia: "REDE_PUBLICA",
+        estadoVias: "BOA",
+        equipamentosDisponiveis: ["BALANCAS", "ESTEIRAS", "ELEVADORES"],
+        
+        // Situação Legal (Step 6)
+        licencaOperacao: true,
+        certificacaoSanitaria: true,
+        dataLicenca: "2023-01-15",
+        validadeLicenca: "2025-01-15",
+        outrasAutorizacoes: "Licença ambiental municipal",
+        
+        // Observações
+        observacoes: "Silo principal da região com alta capacidade de armazenamento",
+        
         status: "ATIVO"
     },
     {
         id: 2,
-        nomeempresas: "Pecuária do Sul SA",
-        sigla: "5418901234",
-        nif: "5418901234",
-        dataFundacao: "2012-03-10",
-        provincia: "HUÍLA",
-        municipio: "Lubango",
-        comuna: "Arimba",
-        telefone: "261234567",
-        email: "geral@pecuariasul.ao",
-        atividades: ["Pecuária"],
-        outrasAtividades: "Processamento de carne",
-        numeroMembros: 120,
-        areaTotal: 500,
-        presidente: "António Ferreira",
+        // Identificação (Step 1)
+        nomeSilo: "Centro de Armazenamento Benguela",
+        tipoUnidade: "ARMAZEM_GRANELEIRO",
+        codigoRegistro: "CAB002",
+        
+        // Localização (Step 2)
+        endereco: "Zona Industrial, Benguela",
+        municipio: "Benguela",
+        provincia: "BENGUELA",
+        latitude: "-12.576111",
+        longitude: "13.405556",
+        
+        // Proprietário/Responsável (Step 3)
+        nomeProprietario: "Maria João Fernandes",
+        entidade: "Cooperativa Agrícola Benguela",
+        nifProprietario: "5417189145",
+        telefoneProprietario: "272123456",
+        emailProprietario: "armazem@coopbenguela.ao",
+        
+        // Capacidade de Armazenamento (Step 4)
+        capacidadeTotal: 3000,
+        capacidadeUtilizada: 1800,
+        numeroUnidades: 5,
+        produtosArmazenados: ["MILHO", "SOJA", "TRIGO"],
+        
+        // Infraestrutura e Equipamentos (Step 5)
+        sistemaSeccagem: true,
+        sistemaVentilacao: false,
+        sistemaProtecaoPragas: true,
+        tipoEnergia: "HIBRIDO",
+        estadoVias: "REGULAR",
+        equipamentosDisponiveis: ["BALANCAS", "LIMPEZA"],
+        
+        // Situação Legal (Step 6)
+        licencaOperacao: true,
+        certificacaoSanitaria: true,
+        dataLicenca: "2023-03-20",
+        validadeLicenca: "2025-03-20",
+        outrasAutorizacoes: "Certificação ISO 9001",
+        
+        // Observações
+        observacoes: "Centro especializado em grãos com sistema híbrido de energia",
+        
         status: "ATIVO"
     },
     {
         id: 3,
-        nomeempresas: "Benguela Agro Empresa",
-        sigla: "5419012345",
-        nif: "5419012345",
-        dataFundacao: "2018-11-05",
-        provincia: "BENGUELA",
-        municipio: "Benguela",
-        comuna: "Benguela",
-        telefone: "272345678",
-        email: "comercial@benguelaagro.ao",
-        atividades: ["Agricultura", "Aquicultura"],
-        outrasAtividades: "Exportação de produtos",
-        numeroMembros: 65,
-        areaTotal: 180,
-        presidente: "Carlos Mendes",
-        status: "ATIVO"
-    },
-    {
-        id: 4,
-        nomeempresas: "Florestal Cabinda Lda",
-        sigla: "5420123456",
-        nif: "5420123456",
-        dataFundacao: "2020-01-15",
-        provincia: "CABINDA",
-        municipio: "Cabinda",
-        comuna: "Cabinda",
-        telefone: "231456789",
-        email: "florestal@cabinda.ao",
-        atividades: ["Produtos florestais"],
-        outrasAtividades: "Reflorestamento",
-        numeroMembros: 40,
-        areaTotal: 300,
-        presidente: "Isabel Rodrigues",
-        status: "ATIVO"
-    },
-    {
-        id: 5,
-        nomeempresas: "Huambo Agropecuária SA",
-        sigla: "5421234567",
-        nif: "5421234567",
-        dataFundacao: "2016-07-22",
-        provincia: "HUAMBO",
+        // Identificação (Step 1)
+        nomeSilo: "Armazém Rural Huambo",
+        tipoUnidade: "ARMAZEM_CONVENCIONAL",
+        codigoRegistro: "ARH003",
+        
+        // Localização (Step 2)
+        endereco: "Zona Rural, Huambo",
         municipio: "Huambo",
-        comuna: "Huambo",
-        telefone: "241567890",
-        email: "huambo@agropecuaria.ao",
-        atividades: ["Agropecuária"],
-        outrasAtividades: "Distribuição de sementes",
-        numeroMembros: 95,
-        areaTotal: 220,
-        presidente: "Pedro Nunes",
-        status: "INATIVO"
+        provincia: "HUAMBO",
+        latitude: "-12.776111",
+        longitude: "15.738889",
+        
+        // Proprietário/Responsável (Step 3)
+        nomeProprietario: "José Carlos Mateus",
+        entidade: "Associação de Produtores do Huambo",
+        nifProprietario: "5417189146",
+        telefoneProprietario: "241987654",
+        emailProprietario: "armazem.huambo@gmail.com",
+        
+        // Capacidade de Armazenamento (Step 4)
+        capacidadeTotal: 1500,
+        capacidadeUtilizada: 900,
+        numeroUnidades: 3,
+        produtosArmazenados: ["MILHO", "FEIJAO", "AMENDOIM"],
+        
+        // Infraestrutura e Equipamentos (Step 5)
+        sistemaSeccagem: false,
+        sistemaVentilacao: true,
+        sistemaProtecaoPragas: false,
+        tipoEnergia: "GERADOR",
+        estadoVias: "MA",
+        equipamentosDisponiveis: ["BALANCAS"],
+        
+        // Situação Legal (Step 6)
+        licencaOperacao: false,
+        certificacaoSanitaria: false,
+        dataLicenca: null,
+        validadeLicenca: null,
+        outrasAutorizacoes: null,
+        
+        // Observações
+        observacoes: "Armazém rural em processo de regularização",
+        
+        status: "PENDENTE"
     }
 ];
 
@@ -138,8 +192,21 @@ const administracoesEstaticas = [
     { id: 5, nome: "Administração Regional de Cabinda" }
 ];
 
-const GestaoEmpresas = () => {
+const GestaoSilos = () => {
+    // Função para navegação de gestão de pessoal
+    const handlePessoal = (cooperativaId) => {
+        navigate(`/GerenciaRNPA/entidades-associativas/pessoal/${cooperativaId}`);
+    };
+    // Função para navegação de infraestrutura
+    const handleInfraestrutura = (cooperativaId) => {
+        navigate(`/GerenciaRNPA/entidades-associativas/infraestrutura/${cooperativaId}`);
+    };
+    // Função para navegação de relatórios
+    const handleRelatorios = (cooperativaId) => {
+        navigate(`/GerenciaRNPA/entidades-associativas/relatorios/${cooperativaId}`);
+    };
     const navigate = useNavigate();
+    // const { associacoesRurais, deleteAssociacaoRural } = useAssociacaoRural();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedRegion, setSelectedRegion] = useState('');
     const [selectedTipo, setSelectedTipo] = useState('');
@@ -148,17 +215,11 @@ const GestaoEmpresas = () => {
     const [toastMessage, setToastMessage] = useState(null);
     const [toastTimeout, setToastTimeout] = useState(null);
     const [contentHeight, setContentHeight] = useState('calc(100vh - 12rem)');
-    const containerRef = useRef(null);
     const itemsPerPage = 6;
+    const containerRef = useRef(null);
+    // Estados para o modal de exclusão
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [empresasToDelete, setempresasToDelete] = useState(null);
-
-    // Usar dados estáticos para empresas
-    const empresass = empresasAdaptadas;
-    
-    const deleteempresas = async (id) => {
-        console.log('Deletar empresa:', id);
-    };
+    const [associacaoToDelete, setAssociacaoToDelete] = useState(null);
 
     // Ajustar altura do conteúdo
     useEffect(() => {
@@ -208,84 +269,67 @@ const GestaoEmpresas = () => {
 
     
 
-    // Filtragem das escolas
-    const filteredEscolas = empresass.filter(empresas => {
-        const matchesSearch = empresas.nomeempresas?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            empresas.presidente?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            empresas.email?.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesRegion = !selectedRegion || empresas.provincia === selectedRegion;
-        const matchesTipo = !selectedTipo || (empresas.atividades && empresas.atividades.includes(selectedTipo));
-        const matchesStatus = !selectedStatus || empresas.status === selectedStatus;
+    // Filtragem dos silos
+    const filteredSilos = silosData.filter(silo => {
+        const matchesSearch = silo.nomeSilo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            silo.nomeProprietario.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            silo.emailProprietario.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesRegion = !selectedRegion || silo.provincia === selectedRegion;
+        const matchesTipo = !selectedTipo || silo.tipoUnidade === selectedTipo;
+        const matchesStatus = !selectedStatus || silo.status === selectedStatus;
 
         return matchesSearch && matchesRegion && matchesTipo && matchesStatus;
     });
 
     // Paginação
-    const totalPages = Math.ceil(filteredEscolas.length / itemsPerPage);
+    const totalPages = Math.ceil(filteredSilos.length / itemsPerPage);
     const getCurrentItems = () => {
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
-        return filteredEscolas.slice(startIndex, endIndex);
+        return filteredSilos.slice(startIndex, endIndex);
     };
 
-    // Navegação (simulada)
-    const handleViewEscola = (empresasId) => {
-        navigate(`/GerenciaRNPA/gestao-empresas/empresas/visualizar/${empresasId}`);
+    // Navegação para visualizar associação rural
+    const handleViewEscola = (associacaoId) => {
+        navigate(`/GerenciaRNPA/entidades-associativas/visualizar-associacao/${associacaoId}`);
     };
 
+   
 
-    const handleTransferencia = (empresasId) => {
+    const handleTransferencia = (cooperativaId) => {
         // Navegar para a rota de cadastro de produção passando o ID
-        navigate(`/GerenciaRNPA/entidades-associativas/cadastro-producao-empresas/${empresasId}`);
+        navigate(`/GerenciaRNPA/entidades-associativas/cadastro-producao-associacoes/${cooperativaId}`);
     };
 
     
 
-    // Função para abrir modal de confirmação
-    const openDeleteModal = (empresasId) => {
-        setempresasToDelete(empresasId);
-        setShowDeleteModal(true);
-    };
-
-    // Função para fechar modal
-    const closeDeleteModal = () => {
-        setShowDeleteModal(false);
-        setempresasToDelete(null);
-    };
-
-    // Função para deletar empresas após confirmação
-    const handleConfirmDelete = async () => {
-        if (!empresasToDelete) return;
-        try {
-            await deleteempresas(empresasToDelete);
-            showToast('success', 'Excluído', 'Empresa excluída com sucesso!');
-        } catch (erro) {
-            showToast('error', 'Erro', 'Erro ao excluir empresa.');
-            console(erro)
-        } finally {
-            closeDeleteModal();
-        }
-    };
-
     // Ações do menu dropdown
     const actionItems = [
-        { label: 'Cadastro de Produção', icon: <PlusCircle size={16} />, action: handleTransferencia },
-        { label: 'Relatóriosn', icon: <FileText size={16} />, action: () => {} },
-        { label: 'Infraestrutura', icon: <Building size={16} />, action: () => {} },
-        { label: 'Gestão de Pessoal', icon: <User size={16} />, action: () => {} }
+        { label: 'Cadastro da Produção', icon: <PlusCircle size={16} />, action: handleTransferencia },
+        // eslint-disable-next-line no-undef
+        { label: 'Relatórios', icon: <FileText size={16} />, action: handleRelatorios },
+        // eslint-disable-next-line no-undef
+        { label: 'Infraestrutura', icon: <Building size={16} />, action: handleInfraestrutura },
+        // eslint-disable-next-line no-undef
+        { label: 'Gestão de Pessoal', icon: <User size={16} />, action: handlePessoal }
     ];
 
-  
+    // Formatar data
+    //const formatDate = (dateString) => {
+     //   if (!dateString) return 'N/A';
+      //  const date = new Date(dateString);
+     //   return date.toLocaleDateString('pt-BR');
+   // };
 
     // Obter label do tipo de ensino
-   { /* const getTipoEnsinoLabel = (tipo) => {
+    {/*const getTipoEnsinoLabel = (tipo) => {
         const tipos = {
             'GERAL': 'Ensino Geral',
             'TECNICO_PROFISSIONAL': 'Técnico-Profissional',
             'MISTO': 'Misto'
         };
         return tipos[tipo] || tipo;
-    };*/}
+    */};
 
     // Componente Toast
     const Toast = () => {
@@ -353,9 +397,7 @@ const GestaoEmpresas = () => {
                                     key={index}
                                     className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
                                     onClick={() => {
-                                        if (typeof item.action === 'function') {
-                                            item.action(escola.id);
-                                        }
+                                        item.action(escola.id);
                                         setIsOpen(false);
                                     }}
                                 >
@@ -371,14 +413,40 @@ const GestaoEmpresas = () => {
     };
 
    
-
+  
     // Extrair regiões únicas para o filtro
-    const uniqueRegions = [...new Set(empresass.map(escola => escola.provincia))].filter(Boolean);
+    const uniqueRegions = [...new Set(silosData.map(silo => silo.provincia))].filter(Boolean);
+
+    // Função para abrir modal de confirmação
+    const openDeleteModal = (associacaoId) => {
+        setAssociacaoToDelete(associacaoId);
+        setShowDeleteModal(true);
+    };
+
+    // Função para fechar modal
+    const closeDeleteModal = () => {
+        setShowDeleteModal(false);
+        setAssociacaoToDelete(null);
+    };
+
+    // Função para deletar entreposto após confirmação
+    const handleConfirmDelete = async () => {
+        if (!associacaoToDelete) return;
+        try {
+            // TODO: Implementar delete do entreposto
+            showToast('success', 'Excluído', 'Silo excluído com sucesso!');
+        } catch (err) {
+            showToast('error', 'Erro', 'Erro ao excluir silo.');
+            console.error(err);
+        } finally {
+            closeDeleteModal();
+        }
+    };
 
     // Modal de confirmação visual
     const DeleteConfirmModal = () => {
         if (!showDeleteModal) return null;
-        const empresas = empresass.find(c => c.id === empresasToDelete);
+        const silo = silosData.find(c => c.id === associacaoToDelete);
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
                 <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm flex flex-col items-center">
@@ -387,8 +455,8 @@ const GestaoEmpresas = () => {
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Confirmar Exclusão</h3>
                     <p className="text-gray-600 text-center text-sm mb-4">
-                        Tem certeza que deseja excluir a empresa <span className="font-semibold text-red-600">{empresas?.nomeempresas || 'Selecionada'}</span>?<br/>
-                        Esta ação não pode ser desfeita. Todos os dados da empresa serão removidos permanentemente.
+                        Tem certeza que deseja excluir o silo <span className="font-semibold text-red-600">{silo?.nomeSilo || 'Selecionado'}</span>?<br/>
+                        Esta ação não pode ser desfeita. Todos os dados do silo serão removidos permanentemente.
                     </p>
                     <div className="flex gap-3 mt-2 w-full">
                         <button
@@ -413,16 +481,17 @@ const GestaoEmpresas = () => {
         <div className="min-h-screen" ref={containerRef}>
             <Toast />
             <DeleteConfirmModal />
-               {/* Estatísticas das empresass */}
+
+             {/* Estatísticas dos silos */}
             <div className="mt-6 mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-white rounded-xl shadow-md p-6">
                     <div className="flex items-center">
                         <div className="p-3 bg-blue-100 rounded-full">
-                            <Users className="w-6 h-6 text-blue-600" />
+                            <Boxes className="w-6 h-6 text-blue-600" />
                         </div>
                         <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-500">Total</p>
-                            <p className="text-2xl font-bold text-gray-900">{empresass.length}</p>
+                            <p className="text-sm font-medium text-gray-500">Total de Silos</p>
+                            <p className="text-2xl font-bold text-gray-900">{silosData.length}</p>
                         </div>
                     </div>
                 </div>
@@ -433,9 +502,9 @@ const GestaoEmpresas = () => {
                             <CheckCircle className="w-6 h-6 text-green-600" />
                         </div>
                         <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-500">Activos</p>
+                            <p className="text-sm font-medium text-gray-500">Silos Ativos</p>
                             <p className="text-2xl font-bold text-gray-900">
-                                {empresass.filter(c => c.status === 'ATIVO').length}
+                                {silosData.filter(c => c.status === 'ATIVO').length}
                             </p>
                         </div>
                     </div>
@@ -444,12 +513,12 @@ const GestaoEmpresas = () => {
                 <div className="bg-white rounded-xl shadow-md p-6">
                     <div className="flex items-center">
                         <div className="p-3 bg-purple-100 rounded-full">
-                            <GraduationCap className="w-6 h-6 text-purple-600" />
+                            <Package className="w-6 h-6 text-purple-600" />
                         </div>
                         <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-500">Funcionários</p>
+                            <p className="text-sm font-medium text-gray-500">Capacidade Total (t)</p>
                             <p className="text-2xl font-bold text-gray-900">
-                                0
+                                {silosData.reduce((total, s) => total + s.capacidadeTotal, 0).toLocaleString()}
                             </p>
                         </div>
                     </div>
@@ -458,30 +527,29 @@ const GestaoEmpresas = () => {
                 <div className="bg-white rounded-xl shadow-md p-6">
                     <div className="flex items-center">
                         <div className="p-3 bg-yellow-100 rounded-full">
-                            <Building className="w-6 h-6 text-yellow-600" />
+                            <Activity className="w-6 h-6 text-yellow-600" />
                         </div>
                         <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-500">Área (ha)</p>
+                            <p className="text-sm font-medium text-gray-500">Capacidade Utilizada (t)</p>
                             <p className="text-2xl font-bold text-gray-900">
-                               0
+                                {silosData.reduce((total, s) => total + s.capacidadeUtilizada, 0).toLocaleString()}
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="w-full bg-white rounded-xl shadow-md overflow-visible z-10">
+            <div className="w-full bg-white rounded-2xl shadow-md overflow-visible z-10">
                 {/* Cabeçalho */}
-                <div className="bg-gradient-to-r  from-blue-700 to-blue-500 p-6 text-white">
+                <div className="bg-gradient-to-r from-blue-700 to-blue-500 p-6 text-white">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
                         <div>
-                            <h1 className="text-2xl font-bold">Gestão de Empresas Agrícolas</h1>
-                            {/* <p className="text-blue-100 mt-1">SistGestão Geral e Técnico-Profissional - Angola</p> */}
+                            <h1 className="text-2xl font-bold">Gestão de Silos e Centros de Armazenamento</h1>
                         </div>
                         <div className="flex gap-4">
-                           
+                            
                             <button
-                                onClick={() => showToast('info', 'Função', 'Exportar dados das empresas')}
+                                onClick={() => showToast('info', 'Função', 'Exportar dados dos silos')}
                                 className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
                             >
                                 <Download className="w-5 h-5 mr-2" />
@@ -498,7 +566,7 @@ const GestaoEmpresas = () => {
                         <div className="lg:col-span-2">
                             <CustomInput
                                 type="text"
-                                placeholder="Buscar por nome, gestor ou email..."
+                                placeholder="Buscar por nome do silo, proprietário ou email..."
                                 value={searchTerm}
                                 onChange={(value) => setSearchTerm(value)}
                                 iconStart={<Search size={18} />}
@@ -511,14 +579,14 @@ const GestaoEmpresas = () => {
                                 type="select"
                                 placeholder="Região"
                                 value={selectedRegion ? {
-                                    label: getAdminRegionalName(selectedRegion),
+                                    label: getAdminRegionalName(parseInt(selectedRegion)),
                                     value: selectedRegion
                                 } : null}
                                 options={[
                                     { label: 'Todas as Regiões', value: '' },
-                                    ...uniqueRegions.map(region => ({
-                                        label: getAdminRegionalName(region),
-                                        value: region
+                                    ...uniqueRegions.map(provincia => ({
+                                        label: provincia,
+                                        value: provincia
                                     }))
                                 ]}
                                 onChange={(option) => setSelectedRegion(option?.value || '')}
@@ -529,18 +597,19 @@ const GestaoEmpresas = () => {
                         <div>
                             <CustomInput
                                 type="select"
-                                placeholder="Tipo de Actividade"
+                                placeholder="Tipo de Unidade"
                                 value={selectedTipo ? { label: selectedTipo, value: selectedTipo } : null}
                                 options={[
-                                    { label: 'Todas as Atividades', value: '' },
-                                    { label: 'Agricultura', value: 'Agricultura' },
-                                    { label: 'Pecuária', value: 'Pecuária' },
-                                    { label: 'Agropecuária', value: 'Agropecuária' },
-                                    { label: 'Aquicultura', value: 'Aquicultura' },
-                                    { label: 'Produtos florestais', value: 'Produtos florestais' }
+                                    { label: 'Todos os Tipos', value: '' },
+                                    { label: 'Silo Metálico', value: 'SILO_METALICO' },
+                                    { label: 'Silo de Concreto', value: 'SILO_CONCRETO' },
+                                    { label: 'Armazém Convencional', value: 'ARMAZEM_CONVENCIONAL' },
+                                    { label: 'Armazém Graneleiro', value: 'ARMAZEM_GRANELEIRO' },
+                                    { label: 'Centro de Distribuição', value: 'CENTRO_DISTRIBUICAO' },
+                                    { label: 'Outro', value: 'OUTRO' }
                                 ]}
                                 onChange={(option) => setSelectedTipo(option?.value || '')}
-                                iconStart={<School size={18} />}
+                                iconStart={<Warehouse size={18} />}
                             />
                         </div>
 
@@ -553,17 +622,16 @@ const GestaoEmpresas = () => {
                         <thead className="bg-gray-50 sticky top-0 z-10">
                             <tr>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                    Empresa
+                                    Silo/Centro
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                    Actividades
+                                    Tipo & Produtos
                                 </th>
-                               
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                     Localização
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                    Funcionários & Área
+                                    Capacidade & Licenças
                                 </th>
                                 
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
@@ -571,18 +639,16 @@ const GestaoEmpresas = () => {
                                 </th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-200 bg-white text-left">
-                            {getCurrentItems().map((empresas) => (
-                                <tr key={empresas.id} className="hover:bg-blue-50 transition-colors">
+                        <tbody className="divide-y divide-gray-200 bg-white text-start">
+                            {getCurrentItems().map((silo) => (
+                                <tr key={silo.id} className="hover:bg-blue-50 transition-colors">
+
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-start">
-                                            <div className="flex-shrink-0 h-12 w-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
-                                                {empresas.nomeempresas.charAt(0)}{empresas.nomeempresas.split(' ').pop().charAt(0)}
-                                            </div>
                                             <div className="ml-4">
-                                                <div className="text-sm font-semibold text-gray-900 break-words whitespace-pre-line max-w-[290px]">{empresas.nomeempresas}</div>
-                                                <div className="text-xs text-gray-500 mt-1">NIF: {empresas.sigla}</div>
-                                                <div className="text-xs text-gray-500">Gestor: {empresas.presidente}</div>
+                                                <div className="text-sm font-semibold text-gray-900 break-words whitespace-pre-line max-w-[290px]">{silo.nomeSilo}</div>
+                                                <div className="text-xs text-gray-500 mt-1">Código: {silo.codigoRegistro}</div>
+                                                <div className="text-xs text-gray-500">Prop.: {silo.nomeProprietario}</div>
                                             </div>
                                         </div>
                                     </td>
@@ -590,11 +656,11 @@ const GestaoEmpresas = () => {
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="space-y-2">
                                             <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                {empresas.atividades.slice(0, 1).map(a => a.replace(/[-_]/g, ' ')).join(', ')}
+                                               {silo.tipoUnidade.replace(/[-_]/g, ' ')}
                                             </div>
-                                            {empresas.atividades.length > 2 && (
-                                                <span className="text-gray-400 text-xs"> +{empresas.atividades.length - 2}</span>
-                                            )}
+                                            <div className="text-xs text-gray-600">
+                                                {silo.produtosArmazenados.length} produtos
+                                            </div>
                                         </div>
                                     </td>
 
@@ -602,46 +668,44 @@ const GestaoEmpresas = () => {
                                         <div className="space-y-2">
                                             <div className="flex items-center text-xs text-gray-700">
                                                 <MapPin className="w-4 h-4 mr-2 text-blue-500" />
-                                                {empresas.municipio}, {empresas.provincia}
+                                                {silo.municipio}, {silo.provincia}
                                             </div>
-                                            <div className="text-xs text-gray-600">
-                                                {empresas.comuna}
-                                            </div>
+                                           
                                         </div>
                                     </td>
 
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="space-y-2">
                                             <div className="flex items-center text-xs text-gray-700">
-                                                <Users className="w-4 h-4 mr-2 text-blue-500" />
-                                                {empresas.numeroMembros} funcionários
+                                                <Package className="w-4 h-4 mr-2 text-blue-500" />
+                                                {silo.capacidadeTotal}t ({silo.numeroUnidades} unidades)
                                             </div>
                                             <div className="flex items-center text-xs text-gray-700">
-                                                <Building className="w-4 h-4 mr-2 text-blue-500" />
-                                                {empresas.areaTotal} hectares
+                                                <CheckCircle className={`w-4 h-4 mr-2 ${silo.licencaOperacao ? 'text-green-500' : 'text-red-500'}`} />
+                                                Licença: {silo.licencaOperacao ? 'SIM' : 'NÃO'}
                                             </div>
                                         </div>
                                     </td>
 
-                                
+                                  
 
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="flex items-center justify-start space-x-1">
+                                        <div className="flex items-center justify-center space-x-1">
                                             <button
-                                                onClick={() => handleViewEscola(empresas.id)}
+                                                onClick={() => handleViewEscola(silo.id)}
                                                 className="p-2 hover:bg-blue-100 text-blue-600 hover:text-blue-800 rounded-full transition-colors"
                                                 title="Visualizar"
                                             >
                                                 <Eye className="w-5 h-5" />
                                             </button>
                                             <button
-                                                onClick={() => openDeleteModal(empresas.id)}
+                                                onClick={() => openDeleteModal(silo.id)}
                                                 className="p-2 hover:bg-red-100 text-red-600 hover:text-red-800 rounded-full transition-colors"
                                                 title="Remover"
                                             >
                                                 <Trash2 className="w-5 h-5" />
                                             </button>
-                                            <ActionMenu escola={empresas} />
+                                            <ActionMenu escola={silo} />
                                         </div>
                                     </td>
                                 </tr>
@@ -649,58 +713,58 @@ const GestaoEmpresas = () => {
                         </tbody>
                     </table>
                 </div>
+                
 
                 {/* Visualização em cards para mobile */}
                 <div className="md:hidden overflow-visible" style={{ maxHeight: contentHeight }}>
-                    {getCurrentItems().map((escola) => (
-                        <div key={escola.id} className="p-4 border-b border-gray-200 hover:bg-blue-50 transition-colors">
+                    {getCurrentItems().map((silo) => (
+                        <div key={silo.id} className="p-4 border-b border-gray-200 hover:bg-blue-50 transition-colors">
                             <div className="flex items-start">
-                                <div className="flex-shrink-0 h-16 w-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-md">
-                                    {escola.nomeempresas.charAt(0)}{escola.nomeempresas.split(' ').pop().charAt(0)}
+                                <div className="flex-shrink-0 h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <Warehouse className="h-8 w-8 text-blue-600" />
                                 </div>
                                 <div className="flex-1 ml-4">
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <h3 className="text-sm font-semibold text-gray-900">{escola.nomeempresas}</h3>
-                                            <div className="text-xs text-gray-500 mt-1">NIF: {escola.sigla}</div>
-                                            {/* <div className="text-xs text-gray-500">Dir.: {escola.diretor}</div> */}
+                                            <h3 className="text-sm font-semibold text-gray-900">{silo.nomeSilo}</h3>
+                                            <div className="text-xs text-gray-500 mt-1">Código: {silo.codigoRegistro}</div>
+                                            <div className="text-xs text-gray-500">Prop.: {silo.nomeProprietario}</div>
                                         </div>
-                                        {/* <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${tipoColors[escola.tipoEnsino] || 'bg-gray-100 text-gray-800 border-gray-200'
-                                            }`}>
-                                            {getTipoEnsinoLabel(escola.tipoEnsino)}
-                                        </div> */}
+                                        <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                            {silo.tipoUnidade.replace(/[-_]/g, ' ')}
+                                        </div>
                                     </div>
 
                                     <div className="mt-3 grid grid-cols-2 gap-2">
                                         <div className="flex items-center text-xs text-gray-700">
                                             <MapPin className="w-3.5 h-3.5 mr-1 text-blue-500" />
-                                            <span className="truncate">{escola.municipio}</span>
+                                            <span className="truncate">{silo.municipio}</span>
                                         </div>
                                         <div className="flex items-center text-xs text-gray-700">
-                                            <Users className="w-3.5 h-3.5 mr-1 text-blue-500" />
-                                            {escola.numeroMembros} Funcionários
+                                            <Package className="w-3.5 h-3.5 mr-1 text-blue-500" />
+                                            {silo.capacidadeTotal}t
                                         </div>
                                         <div className="flex items-center text-xs text-gray-700">
                                             <Phone className="w-3.5 h-3.5 mr-1 text-blue-500" />
-                                            {escola.telefone}
+                                            {silo.telefoneProprietario}
                                         </div>
                                         <div className="flex items-center text-xs text-gray-700">
-                                            <Building className="w-3.5 h-3.5 mr-1 text-blue-500" />
-                                            {escola.areaTotal} Hectares
+                                            <Activity className="w-3.5 h-3.5 mr-1 text-blue-500" />
+                                            {silo.numeroUnidades} unidades
                                         </div>
                                     </div>
 
                                     <div className="mt-3 flex justify-between items-center">
                                         <div className="flex space-x-1">
                                             <button
-                                                onClick={() => handleViewEscola(escola.id)}
+                                                onClick={() => handleViewEscola(silo.id)}
                                                 className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-full transition-colors"
                                                 title="Visualizar"
                                             >
                                                 <Eye className="w-4 h-4" />
                                             </button>
                                             <button
-                                                onClick={() => openDeleteModal(escola.id)}
+                                                onClick={() => openDeleteModal(silo.id)}
                                                 className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-full transition-colors"
                                                 title="Remover"
                                             >
@@ -710,15 +774,12 @@ const GestaoEmpresas = () => {
 
                                         <div className="flex items-center space-x-3">
                                             <div className="flex items-center">
-                                                <span className={`w-2.5 h-2.5 rounded-full mr-1.5 ${escola.status === 'ATIVO' ? 'bg-green-500' : 'bg-gray-400'
-                                                    }`}></span>
-                                                <span className={`text-xs font-medium ${escola.status === 'ATIVO' ? 'text-green-600' : 'text-gray-500'
-                                                    }`}>
-                                                    {escola.status}
+                                                <span className={`w-2.5 h-2.5 rounded-full mr-1.5 ${silo.status === 'ATIVO' ? 'bg-green-500' : silo.status === 'PENDENTE' ? 'bg-yellow-500' : 'bg-gray-400'}`}></span>
+                                                <span className={`text-xs font-medium ${silo.status === 'ATIVO' ? 'text-green-600' : silo.status === 'PENDENTE' ? 'text-yellow-600' : 'text-gray-500'}`}>
+                                                    {silo.status}
                                                 </span>
                                             </div>
-
-                                            <ActionMenu escola={escola} />
+                                            <ActionMenu escola={silo} />
                                         </div>
                                     </div>
                                 </div>
@@ -732,13 +793,13 @@ const GestaoEmpresas = () => {
                     <div className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
                         <div className="text-sm text-gray-700">
                             Mostrando{' '}
-                            <span className="font-medium">{filteredEscolas.length > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0}</span>
+                            <span className="font-medium">{filteredSilos.length > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0}</span>
                             {' '}a{' '}
                             <span className="font-medium">
-                                {Math.min(currentPage * itemsPerPage, filteredEscolas.length)}
+                                {Math.min(currentPage * itemsPerPage, filteredSilos.length)}
                             </span>
                             {' '}de{' '}
-                            <span className="font-medium">{filteredEscolas.length}</span>
+                            <span className="font-medium">{filteredSilos.length}</span>
                             {' '}resultados
                         </div>
 
@@ -773,12 +834,12 @@ const GestaoEmpresas = () => {
                 </div>
 
                 {/* Nenhum resultado encontrado */}
-                {filteredEscolas.length === 0 && (
+                {filteredSilos.length === 0 && (
                     <div className="py-12 flex flex-col items-center justify-center text-center px-4">
                         <Search className="w-16 h-16 text-gray-300 mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-1">Nenhuma informação encontrada</h3>
+                        <h3 className="text-lg font-medium text-gray-900 mb-1">Nenhum silo encontrado</h3>
                         <p className="text-gray-500 max-w-md mb-6">
-                            Não encontramos resultados para sua busca. Tente outros termos ou remova os filtros aplicados.
+                            Não encontramos silos para sua busca. Tente outros termos ou remova os filtros aplicados.
                         </p>
                         {searchTerm || selectedRegion || selectedTipo || selectedStatus ? (
                             <button
@@ -793,17 +854,15 @@ const GestaoEmpresas = () => {
                                 Limpar filtros
                             </button>
                         ) : (
-                            <p/>
-                               
+                            <p />
+                                
+                            
                         )}
                     </div>
                 )}
-            </div>
-
-            {/* Estatísticas das escolas */}
-         
+            </div>           
         </div>
     );
 };
 
-export default GestaoEmpresas;
+export default GestaoSilos;

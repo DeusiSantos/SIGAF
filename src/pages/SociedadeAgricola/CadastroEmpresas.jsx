@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {  useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -46,15 +46,15 @@ const CadastroEmpresas = () => {
   const [loading, setLoading] = useState(false);
   const [municipiosOptions, setMunicipiosOptions] = useState([]);
   const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({});
+  const [ setTouched] = useState({});
   const [uploadedFiles, setUploadedFiles] = useState({});
   const [toastMessage, setToastMessage] = useState(null);
   const [consultingNif, setConsultingNif] = useState(false);
   const [nifData, setNifData] = useState(null);
   const [consultingBI, setConsultingBI] = useState(false);
   const [consultingBIGerente, setConsultingBIGerente] = useState(false);
-  const [biData, setBiData] = useState(null);
-  const [biGerenteData, setBiGerenteData] = useState(null);
+  const [ setBiData] = useState(null);
+  const [ setBiGerenteData] = useState(null);
 
   // Estado inicial do formulário
   const initialState = {
@@ -394,24 +394,26 @@ const CadastroEmpresas = () => {
         if (!formData.telefone) newErrors.telefone = 'Campo obrigatório';
         if (!formData.email) newErrors.email = 'Campo obrigatório';
         break;
-      case 1: // Atividades
+      case 1: { // Atividades
         if (!formData.atividades || formData.atividades.length === 0) {
           newErrors.atividades = 'Selecione pelo menos uma atividade';
         }
         break;
-      case 2: // Representantes
+      }
+      case 2: { // Representantes
         if (!formData.nomeDiretor) newErrors.nomeDiretor = 'Campo obrigatório';
         if (!formData.biDiretor) newErrors.biDiretor = 'Campo obrigatório';
         if (!formData.nomeGerente) newErrors.nomeGerente = 'Campo obrigatório';
         if (!formData.nifGerente) newErrors.nifGerente = 'Campo obrigatório';
         break;
+      }
       case 3: // Empregados
         if (!formData.numeroEmpregados || formData.numeroEmpregados < 1) {
           newErrors.numeroEmpregados = 'Deve ter pelo menos 1 empregado';
         }
         if (!formData.perfilEmpregados) newErrors.perfilEmpregados = 'Campo obrigatório';
         break;
-      case 5: // Documentos - validação final
+      case 5: { // Documentos - validação final
         const requiredFiles = [
           'estatutoSocial', 'actaFundacao', 'listaPresenca',
           'rgCpfDiretor', 'rgCpfGerente', 'comprovanteEndereco', 'documentoNif'
@@ -421,27 +423,21 @@ const CadastroEmpresas = () => {
           newErrors.documentos = `Documentos obrigatórios faltando: ${missingFiles.join(', ')}`;
         }
         break;
+      }
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const isAllRequiredFilesUploaded = () => {
-    const requiredFiles = ['estatutoSocial', 'rgCpfDiretor', 'rgCpfGerente', 'comprovanteEndereco', 'documentoNif'];
-    return requiredFiles.every(file => uploadedFiles[file]);
-  };
+
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
 
     try {
-      // Função para extrair valores string de arrays
-      const extractStringValues = (array) => {
-        if (!array || array.length === 0) return null;
-        return array.map(item => typeof item === 'object' ? item.value : item);
-      };
+      
 
       const dataToSend = {
         command: "CREATE",
@@ -666,13 +662,16 @@ const CadastroEmpresas = () => {
 
 
               <CustomInput
-                type="date"
-                label="Data de Fundação"
+                type="number"
+                label="Ano de Fundação"
                 value={formData.dataFundacao}
                 onChange={(value) => handleInputChange('dataFundacao', value)}
                 required
                 errorMessage={errors.dataFundacao}
+                placeholder="Ex: 2020"
                 iconStart={<Calendar size={18} />}
+                min="1900"
+                max={new Date().getFullYear()}
               />
 
               <CustomInput
