@@ -50,6 +50,7 @@ import VisualizarProdutorFlorestal from './pages/VisualizarProdutorFlorestal';
 import EntidadesAssociativasGestao from './pages/SociedadeAgricola/EntidadesAssociativasGestao';
 import MenuEntrepostosMercado from './pages/EntrepostasMercado/MenuEntrepostasMercado';
 import MenuSilos from './pages/SilosEArmazenamento/MenuSilos';
+import VisualizarPraga from './pages/Pragas/VisualizarPraga';
 
 function App() {
   return (
@@ -67,6 +68,7 @@ function App() {
           
           {/* Rotas dos produtores (já existentes) */}
           <Route path="produtores/visualizar/:id" element={<VisualizarProdutor />} />
+          <Route path="praga/visualizar/:id" element={<VisualizarPraga />} />
           <Route path="produtores/editar/:id" element={<h1>Editar Produtor</h1>} />
           <Route path="produtores/historico-producao/:id" element={<HistoricoProducao />} />
           <Route path="produtores/historico-beneficios/:id" element={<HistoricoBeneficios />} />
