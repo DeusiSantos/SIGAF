@@ -778,13 +778,6 @@ const GestaoIncentivos = () => {
                                                     <Eye className="w-4 h-4" />
                                                 </button>
                                                 <button
-                                                    onClick={() => handleEditIncentivo(incentivo.id)}
-                                                    className="p-1.5 bg-green-50 hover:bg-green-100 text-green-600 rounded-full transition-colors"
-                                                    title="Editar"
-                                                >
-                                                    <Pencil className="w-4 h-4" />
-                                                </button>
-                                                <button
                                                     onClick={() => openDeleteModal(incentivo)} // ADICIONE o parâmetro incentivo
                                                     className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-full transition-colors"
                                                     title="Remover"

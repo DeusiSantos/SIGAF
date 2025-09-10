@@ -16,7 +16,7 @@ const PromocaoEscuteiros = () => {
     const [toastMessage, setToastMessage] = useState(null);
     const [toastTimeout, setToastTimeout] = useState(null);
 
-    const itemsPerPage = 10;
+    const itemsPerPage = 5;
     const { scout, loading: loadingScout, mutate } = useScout();
     const { groupings } = useGroupings();
 

@@ -12,6 +12,7 @@ import CadastroPragas from '../../pages/Pragas/CadastroPragas';
 import GestaoPragas from '../../pages/Pragas/GestaoPragas';
 import DashboardControlePragas from './DashboardControlePragas';
 
+
 const ControlePragasMenu = () => {
     const location = useLocation();
     const [activeSection, setActiveSection] = useState('dashboard');
