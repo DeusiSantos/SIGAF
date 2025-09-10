@@ -25,6 +25,29 @@ export const useProdutores = () => {
   return { produtor, loading, error };
 };
 
+export const useProdutoresFlorestais  = () => {
+  const [produtorFlorestais, setProdutorFlorestais] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchProdutores = async () => {
+      try {
+        const response = await api.get('/produtorFlorestal/all');
+        setProdutorFlorestais(response.data);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchProdutores();
+  }, []);
+
+  return { produtorFlorestais, loading, error };
+};
+
 export const useProdutoresAprovados = () => {
   const [produtor, setProdutor] = useState([]);
   const [loading, setLoading] = useState(true);

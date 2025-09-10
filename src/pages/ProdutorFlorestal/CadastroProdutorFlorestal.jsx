@@ -29,9 +29,9 @@ import {
   CreditCard
 } from 'lucide-react';
 
-import CustomInput from '../components/CustomInput';
-import provinciasData from '../components/Provincias.json';
-import ScrollToTop from '../components/ScrollToTop';
+import CustomInput from '../../components/CustomInput';
+import provinciasData from '../../components/Provincias.json';
+import ScrollToTop from '../../components/ScrollToTop';
 
 // Configuração do ícone do Leaflet
 const defaultIcon = L.icon({

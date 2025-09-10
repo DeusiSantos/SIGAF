@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { UserPlus, Users,Info, FileText, User, MapPin, Award, Check, X, Clock, AlertTriangle, CheckCircle } from 'lucide-react';
 
-import CadastroProdutorFlorestal from './CadastroProdutorFlorestal';
+import CadastroProdutorFlorestal from './ProdutorFlorestal/CadastroProdutorFlorestal';
 import ProdutoresFlorestais from './ProdutoresFlorestais';
 import ProdutoresGestaoAprovados from './ProdutoresGestaoAprovados';
 import { useProdutores, useProdutoresAprovados } from '../hooks/useRnpaData';

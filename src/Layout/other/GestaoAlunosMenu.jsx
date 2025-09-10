@@ -5,6 +5,7 @@ import CadastroProdutor from '../../pages/CadastroProdutor';
 import ProdutoresGestao from '../../pages/ProdutoresGestao';
 import ProdutoresGestaoAprovados from '../../pages/ProdutoresGestaoAprovados';
 import { useProdutores, useProdutoresAprovados } from '../../hooks/useRnpaData';
+import ProdutoresFlorestaisGestao from '../../pages/ProdutorFlorestal/ProdutoresFlorestaisGestao';
 
 const GestaoAlunosMenu = () => {
     const [activeSection, setActiveSection] = useState('gestao');
@@ -77,7 +78,7 @@ const GestaoAlunosMenu = () => {
                 return (
                     <div className="bg-white rounded-lg shadow-sm ">
                         <div className="text-center">
-                            <ProdutoresGestao />
+                            <ProdutoresFlorestaisGestao />
                         </div>
                     </div>
                 );
