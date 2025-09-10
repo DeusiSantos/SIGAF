@@ -175,7 +175,7 @@ const GestaoEscolas = () => {
     const [toastTimeout, setToastTimeout] = useState(null);
     const [contentHeight, setContentHeight] = useState('calc(100vh - 12rem)');
     const [escolas, setEscolas] = useState(escolasEstaticas);
-    const itemsPerPage = 6;
+    const itemsPerPage = 5;
     const containerRef = useRef(null);
 
     // Ajustar altura do conteúdo

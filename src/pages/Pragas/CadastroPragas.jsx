@@ -42,7 +42,7 @@ const CadastroPragas = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [ setTouched] = useState({});
+  const [ Touched , setTouched] = useState({});
   const [uploadedFiles, setUploadedFiles] = useState({});
   const [toastMessage, setToastMessage] = useState(null);
   const [municipiosOptions, setMunicipiosOptions] = useState([]);

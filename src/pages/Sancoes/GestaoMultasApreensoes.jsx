@@ -133,7 +133,7 @@ const GestaoMultasApreensoes = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [loading, setLoading] = useState(false);
-  const itemsPerPage = 8;
+  const itemsPerPage = 5;
   const containerRef = useRef(null);
 
   // Dados mock para demonstração

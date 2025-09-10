@@ -2205,33 +2205,7 @@ const VisualizarProdutorFlorestal = () => {
                                     <p className="text-gray-600">Código: {produtor.codigoRNPA}</p>
                                 </div>
 
-                                {/* Controles do Header */}
-                                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                                    {/* Seletor de Província */}
-                                    <div className="relative">
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                                            Filtrar por Província
-                                        </label>
-                                        <div className="relative">
-                                            <CustomInput
-                                                type="select"
-                                                value={selectedProvince}
-                                                onChange={setSelectedProvince}
-                                                options={provincias}
-                                                className="min-w-48"
-                                            />
-                                        </div>
-                                    </div>
-                                    {/* Filtros */}
-                                    <button
-                                        onClick={() => setShowFilters(!showFilters)}
-                                        className="flex items-center mt-4 space-x-2 px-3 py-2 text-gray-600 hover:text-gray-900 transition-colors border rounded-lg"
-                                    >
-                                        <Filter className="h-4 w-4" />
-                                        <span>Filtro Avançado</span>
-                                        <ChevronDown className={`h-4 w-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
-                                    </button>
-                                </div>
+                                
                             </div>
 
                             {/* Botões de ação do cabeçalho */}

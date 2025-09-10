@@ -359,8 +359,8 @@ const CadastroEntrepostosMercado = () => {
       case 0: // Identificação
         return (
           <div className="max-w-full mx-auto">
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 text-center rounded-2xl p-6 mb-8 border border-blue-100">
-              <div className="flex justify-center items-center text-center space-x-3 mb-3">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 text-start rounded-2xl p-6 mb-8 border border-blue-100">
+              <div className="flex justify-start items-center text-start space-x-3 mb-3">
                 <div className="p-2 bg-blue-100 rounded-lg">
                   <Building className="w-6 h-6 text-blue-600" />
                 </div>
@@ -427,8 +427,8 @@ const CadastroEntrepostosMercado = () => {
       case 1: // Localização
         return (
           <div className="max-w-full mx-auto">
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 mb-8 border border-green-100">
-              <div className="flex justify-center items-center text-center space-x-3 mb-3">
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 text-start rounded-2xl p-6 mb-8 border border-green-100">
+              <div className="flex justify-start items-center text-start space-x-3 mb-3">
                 <div className="p-2 bg-green-100 rounded-lg">
                   <MapPin className="w-6 h-6 text-green-600" />
                 </div>
@@ -548,8 +548,8 @@ const CadastroEntrepostosMercado = () => {
       case 2: // Responsável/Entidade Gestora
         return (
           <div className="max-w-full mx-auto">
-            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 mb-8 border border-purple-100">
-              <div className="flex justify-center items-center text-center space-x-3 mb-3">
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 text-start rounded-2xl p-6 mb-8 border border-purple-100">
+              <div className="flex justify-start items-center text-center space-x-3 mb-3">
                 <div className="p-2 bg-purple-100 rounded-lg">
                   <UserCheck className="w-6 h-6 text-purple-600" />
                 </div>
@@ -632,8 +632,8 @@ const CadastroEntrepostosMercado = () => {
       case 3: // Estrutura do Mercado/Entreposto
         return (
           <div className="max-w-full mx-auto">
-            <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-6 mb-8 border border-orange-100">
-              <div className="flex justify-center items-center text-center space-x-3 mb-3">
+            <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl text-start p-6 mb-8 border border-orange-100">
+              <div className="flex justify-start items-center text-center space-x-3 mb-3">
                 <div className="p-2 bg-orange-100 rounded-lg">
                   <Settings className="w-6 h-6 text-orange-600" />
                 </div>
@@ -718,8 +718,8 @@ const CadastroEntrepostosMercado = () => {
       case 4: // Produtos Comercializados
         return (
           <div className="max-w-full mx-auto">
-            <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-6 mb-8 border border-green-100">
-              <div className="flex justify-center items-center text-center space-x-3 mb-3">
+            <div className="bg-gradient-to-r from-green-50 to-blue-50 text-start rounded-2xl p-6 mb-8 border border-green-100">
+              <div className="flex justify-start items-center text-center space-x-3 mb-3">
                 <div className="p-2 bg-green-100 rounded-lg">
                   <Activity className="w-6 h-6 text-green-600" />
                 </div>
@@ -752,8 +752,8 @@ const CadastroEntrepostosMercado = () => {
       case 5: // Capacidade e Funcionamento
         return (
           <div className="max-w-full mx-auto">
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 mb-8 border border-blue-100">
-              <div className="flex justify-center items-center text-center space-x-3 mb-3">
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 text-start rounded-2xl p-6 mb-8 border border-blue-100">
+              <div className="flex justify-start items-center text-center space-x-3 mb-3">
                 <div className="p-2 bg-blue-100 rounded-lg">
                   <Calendar className="w-6 h-6 text-blue-600" />
                 </div>
@@ -822,8 +822,8 @@ const CadastroEntrepostosMercado = () => {
       case 6: // Situação Legal
         return (
           <div className="max-w-full mx-auto">
-            <div className="bg-gradient-to-r from-red-50 to-pink-50 rounded-2xl p-6 mb-8 border border-red-100">
-              <div className="flex justify-center items-center text-center space-x-3 mb-3">
+            <div className="bg-gradient-to-r from-red-50 to-pink-50 rounded-2xl text-start p-6 mb-8 border border-red-100">
+              <div className="flex justify-start items-center text-center space-x-3 mb-3">
                 <div className="p-2 bg-red-100 rounded-lg">
                   <FileText className="w-6 h-6 text-red-600" />
                 </div>
@@ -880,8 +880,8 @@ const CadastroEntrepostosMercado = () => {
       case 7: // Observações Gerais
         return (
           <div className="max-w-full mx-auto">
-            <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl p-6 mb-8 border border-gray-100">
-              <div className="flex justify-center items-center text-center space-x-3 mb-3">
+            <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl text-start p-6 mb-8 border border-gray-100">
+              <div className="flex justify-start items-center text-center space-x-3 mb-3">
                 <div className="p-2 bg-gray-100 rounded-lg">
                   <Info className="w-6 h-6 text-gray-600" />
                 </div>

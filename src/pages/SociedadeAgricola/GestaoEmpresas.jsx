@@ -470,9 +470,9 @@ const GestaoEmpresas = () => {
                 </div>
             </div>
 
-            <div className="w-full bg-white rounded-xl shadow-md overflow-visible z-10">
+            <div className="w-full bg-white rounded-xl shadow-md overflow-hidden">
                 {/* Cabeçalho */}
-                <div className="bg-gradient-to-r  from-blue-700 to-blue-500 p-6 text-white">
+                <div className="bg-gradient-to-r from-blue-700 to-blue-500 p-6 text-white rounded-t-xl">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
                         <div>
                             <h1 className="text-2xl font-bold">Gestão de Empresas Agrícolas</h1>

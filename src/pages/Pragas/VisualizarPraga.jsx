@@ -6,6 +6,7 @@ import {
     Edit,
     Save,
     X,
+    Globe,
     RefreshCw,
     Download,
     CreditCard,
@@ -19,6 +20,7 @@ import {
     AlertCircle,
     CheckCircle,
     Info,
+    Bug,
     Wheat,
     Trees,
     Leaf,
@@ -41,11 +43,13 @@ import {
     ChevronLeft,
     Package,
     Filter,
-    ChevronDown
+    ChevronDown,
+    Activity,
+    Heart
 } from 'lucide-react';
 
 // Importações do React Leaflet
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -63,40 +67,34 @@ L.Icon.Default.mergeOptions({
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-// Hook para buscar produtor por ID
-const useProdutorById = (id) => {
-    const [produtor, setProdutor] = useState(null);
+// Hook para buscar praga por ID
+const usePragaById = (id) => {   
+    const [praga, setPraga] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchProdutor = async () => {
+        const fetchPraga = async () => {
             if (!id) return;
 
             setLoading(true);
             setError(null);
 
             try {
-                const token = "91c163addd72730d6bfe7a2d80eac5129767a044";
-                const response = await api.get(`/formulario/${id}`, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Token ${token}`
-                    }
-                });
-                setProdutor(response.data);
+                const response = await api.get(`/pragas/${id}`);
+                setPraga(response.data);
             } catch (err) {
-                console.error('Erro ao buscar produtor:', err);
+                console.error('Erro ao buscar praga:', err);
                 setError(err.response?.data?.message || err.message);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchProdutor();
+        fetchPraga();
     }, [id]);
 
-    return { produtor, loading, error };
+    return { praga, loading, error };
 };
 
 // Hook para buscar incentivos do produtor
@@ -131,138 +129,71 @@ const useIncentivosByProdutor = (idProdutor) => {
 };
 
 // Função para mapear dados da API
-const mapApiDataToProdutor = (apiData) => {
+const mapApiDataToPraga = (apiData) => {
     if (!apiData) return null;
 
-    const getStatus = (item) => {
-        if (item.estado) {
-            const estado = item.estado.toLowerCase();
-            switch (estado) {
-                case 'conforme': return 'CONFORME';
-                case 'irregularidade': return 'IRREGULARIDADE';
-                default: return 'CONFORME';
-            }
-        }
-        if (item.permissao === 'nao') return 'CONFORME';
-        if (item._status === 'submitted_via_web') return 'CONFORME';
-        return 'CONFORME';
-    };
-
-    const getCoordinates = (gpsString) => {
-        if (!gpsString) return { lat: 0, lng: 0 };
-        const coords = gpsString.split(' ');
+    const getCoordinates = (coordString) => {
+        if (!coordString) return { lat: 0, lng: 0 };
+        const coords = coordString.split(',');
         return {
             lat: parseFloat(coords[0]) || 0,
             lng: parseFloat(coords[1]) || 0
         };
     };
 
-
-
     return {
-        id: apiData._uuid || apiData._id?.toString(),
-        codigoRNPA: `RNPA${new Date(apiData.registration_date || '2025-01-01').getFullYear()}${apiData._id?.toString().slice(-3)}`,
-        estado: apiData.estado,
-        statusProcesso: getStatus(apiData),
-        dataRegistro: apiData.registration_date,
-        dataSubmissao: apiData._submission_time,
-        statusSubmissao: apiData._status,
+        id: apiData._id || apiData.id,
 
-        // Inquiridor
-        codigoInquiridor: apiData.codigo_inquiridor,
-        nomeInquiridor: apiData.nome_inquiridor,
-        nomeMeioInquiridor: apiData.nome_meio,
-        sobrenomeInquiridor: apiData.sobrenome_inquiridor,
+        // Responsável
+        nomeResponsavel: apiData.nome_do_T_cnico_ou_Produtor || apiData.Nome_do_T_cnico || 'N/A',
+        telefone: apiData.telefone || apiData.Telefone || 'N/A',
+        instituicao: apiData.nome_da_Institui_o || apiData.Nome_da_Institui_o || 'N/A',
+        dataRegistro: apiData.data_de_Registro || apiData.Data_de_Registro,
 
         // Localização
-        provincia: apiData.Provincia?.toUpperCase() || 'N/A',
-        municipio: apiData.Municipio || 'N/A',
-        comuna: apiData.comuna || '',
-        geoLevel4: apiData.geo_level_4 || 'N/A',
-        geoLevel5: apiData.geo_level_5 || 'N/A',
-        geoLevel6: apiData.geo_level_6 || 'N/A',
-        coordenadasGPS: getCoordinates(apiData.gps_coordinates),
-        permissao: apiData.permissao === 'sim',
+        provincia: apiData.provincia?.toUpperCase() || apiData.Provincia?.toUpperCase() || 'N/A',
+        municipio: apiData.municipio || apiData.Municipio || 'N/A',
+        comuna: apiData.comuna || apiData.Comuna || 'N/A',
+        coordenadasGPS: getCoordinates(apiData.coordenadas_GPS || apiData.Coordenadas_GPS),
 
-        // Dados pessoais
-        nomeProdutor: apiData.nome_produtor || '',
-        nomeMeioProdutor: apiData.nome_meio_produtor || '',
-        sobrenomeProdutor: apiData.sobrenome_produtor || '',
-        nome: apiData.beneficiary_name || `${apiData.nome_produtor || ''} ${apiData.nome_meio_produtor || ''} ${apiData.sobrenome_produtor || ''}`.trim(),
-        genero: apiData.beneficiary_gender === 'm' ? 'MASCULINO' : 'FEMININO',
-        numeroBI: apiData.beneficiary_id_number || 'N/A',
-        telefone: apiData.beneficiary_phone_number || 'N/A',
-        dataNascimento: apiData.beneficiary_date_of_birth || '1990-01-01',
-        lugarNascimento: apiData.lugar_nascimento || '',
-        estadoCivil: apiData.estado_civil || 'solteiro',
-        nivelEscolaridade: apiData.nivel_escolaridade || 'primario',
-        gravida: apiData.gravida === 'sim',
-        possuiDeficiencia: apiData.possui_deficiencia === 'sim',
-        tipoDeficiencia: apiData.tipo_deficiencia || '',
+        // Tipo de Produção
+        tipoProducao: apiData.qual_o_tipo_de_produ_o_afetada || apiData.Qual_o_tipo_de_produ_o_afetada || 'N/A',
 
-        // ECA/Organização
-        e4FazesParteDeUmaCooper: apiData.e_4_Fazes_parte_de_uma_cooper || '',
-        tipoOrganizacao: apiData.tipo_organizacao || '',
-        especificarOrganizacao: apiData.especificar_organizacao || '',
-        nomeECA: apiData.nome_eca || '',
-        posicaoECA: apiData.posicao_eca || '',
-        tipoECA: apiData.tipo_eca || '',
 
-        // Agregado familiar
-        chefeAgregado: apiData.chefe_familiar === 'sim' || true,
-        nomeChefe: apiData.nome_chefe || '',
-        nomeMeioChefe: apiData.nome_meio_chefe || '',
-        sobrenomeChefe: apiData.sobrenome_chefe || '',
-        sexoChefe: apiData.sexo_chefe === 'm' ? 'MASCULINO' : 'FEMININO',
-        totalAgregado: parseInt(apiData.total_agregado) || 1,
-        feminino0a6: parseInt(apiData.feminino_0_6) || 0,
-        masculino0a6: parseInt(apiData.masculino_0_6) || 0,   
-        feminino7a18: parseInt(apiData.feminino_7_18) || 0,
-        masculino7a18: parseInt(apiData.masculino_7_18) || 0,
-        feminino19a60: parseInt(apiData.feminino_19_60) || 0,
-        masculino19a60: parseInt(apiData.masculino_19_60) || 0,
-        feminino61mais: parseInt(apiData.feminino_61_mais) || 0,
-        masculino61mais: parseInt(apiData.masculino_61_mais) || 0,
+        // Info Agrícolas
+        nomePropriedade: apiData.nome_da_Propriedade || apiData.Nome_da_Propriedade || 'N/A',
+        tipoCultura: apiData.tipo_de_culturas || apiData.Tipo_de_culturas || 'N/A',
+        culturaAfetada: apiData.frutas || apiData.Frutas || 'N/A',
+        faseCultura: apiData.fase_da_Cultura || apiData.Fase_da_Cultura || 'N/A',
+        areaTotalCultivada: parseFloat(apiData.rea_Total_Cultivada_ha) || 0,
+        dataPrimeiraObservacao: apiData.data_da_Primeira_Observa_o_001 || apiData.Data_da_Primeira_Observa_o_001,
+        nomePraga: apiData.nome_da_Praga || apiData.Nome_da_Praga || 'N/A',
+        nomeLocalPraga: apiData.nome_Local_da_Praga || apiData.Nome_Local_da_Praga || 'N/A',
+        sintomasObservados: apiData.sintomas_Observados_001 || apiData.Sintomas_Observados_001 || 'N/A',
+        percentagemAreaAfetada: parseFloat(apiData.percentagem_da_rea_Afetada_) || 0,
+        grauDano: apiData.grau_do_Dano_001 || apiData.Grau_do_Dano_001 || 'N/A',
+        aplicouMedidaControle: apiData.aplicou_alguma_medida_de_contr === 'Sim',
+        tipoMedidaAplicada: apiData.tipo_de_Medida_Aplicada || apiData.Tipo_de_Medida_Aplicada || 'N/A',
+        resultadoMedida: apiData.resultado_da_Medida || apiData.Resultado_da_Medida || 'N/A',
 
-        // Atividades
-        atividadesProdutor: apiData.atividades_produtor || '',
-        acessoTerra: apiData.acesso_terra === 'sim',
-        proprietarioTerra: apiData.e_proprietario === 'sim',
-        tituloTerra: apiData.titulo_terra === 'sim',
-        areaTotalCampos: parseFloat(apiData.area_total) || 0,
-        areaExplorada: parseFloat(apiData.area_explorada) || 0,
-        areaAgricola: parseFloat(apiData.area_agricola) || 0,
-        areaPecuaria: parseFloat(apiData.area_pecuaria) || 0,
-        areaFlorestal: parseFloat(apiData.area_florestal) || 0,
-        producaoSacos: parseInt(apiData.producao_sacos) || 0,
-        usoFertilizantes: apiData.uso_fertilizante === 'sim',
-        acessoIrrigacao: apiData.acesso_irrigacao === 'sim',
-        acessoRacao: apiData.acesso_racao === 'sim',
-        conhecimentoDoencas: apiData.conhecimento_doencas === 'sim',
-        creditoBeneficio: apiData.credito_beneficio === 'sim',
+        // Info Pecuárias
+        nomeFazenda: apiData.nome_da_Fazenda || apiData.Nome_da_Fazenda || 'N/A',
+        especieAnimalAfetada: apiData.esp_cie_Animal_Afetada || apiData.Esp_cie_Animal_Afetada || 'N/A',
+        numeroTotalAnimais: parseInt(apiData.n_mero_Total_de_Animais) || 0,
+        dataPrimeiraObservacaoPecuaria: apiData.data_da_Primeira_Observa_o || apiData.Data_da_Primeira_Observa_o,
+        nomePragaDoenca: apiData.nome_da_Praga_Doen_a || apiData.Nome_da_Praga_Doen_a || 'N/A',
+        sintomasObservadosPecuaria: apiData.sintomas_Observados || apiData.Sintomas_Observados || 'N/A',
+        numeroAnimaisAfetados: parseInt(apiData.n_mero_de_Animais_Afetados) || 0,
+        grauDanoPecuaria: apiData.grau_do_Dano || apiData.Grau_do_Dano || 'N/A',
+        aplicouTratamento: apiData.aplicou_algum_tratamento === 'Sim',
+        tipoTratamento: apiData.tipo_de_Tratamento_Usado || apiData.Tipo_de_Tratamento_Usado || 'N/A',
+        resultadoTratamento: apiData.resultado_do_Tratamento || apiData.Resultado_do_Tratamento || 'N/A',
+        necessitaApoioVeterinario: apiData.necessita_apoio_veterin_rio === 'Sim',
 
-        // Culturas e produção
-        culturasImportantes: apiData.culturas_importantes || '',
-        outraCultura: apiData.outra_cultura || '',
-        tipoSementeira: apiData.tipo_semanteira || '',
-        preparacaoTerra: apiData.preparacao_terra || '',
-        sistemaIrrigacao: apiData.sistema_irrigacao || '',
-        tecnologiaAgricola: apiData.tecnologia_agricola || '',
-
-        // Pecuária
-        tiposCriacao: apiData.tipos_criacao || '',
-        numeroAves: parseInt(apiData.numero_aves) || 0,
-        numeroVacas: parseInt(apiData.numero_vacas) || 0,
-        numeroCabras: parseInt(apiData.numero_cabras) || 0,
-        numeroOvelhas: parseInt(apiData.numero_ovelhas) || 0,
-        numeroPorcos: parseInt(apiData.numero_porcos) || 0,
-        numeroPeixes: parseInt(apiData.numero_peixes) || 0,
-        numeroCoelhos: parseInt(apiData.numero_coelhos) || 0,
-
-        // Bens e apoio
-        bensFamiliares: apiData.bens_familiares || '',
-        tipoApoio: apiData.tipo_apoio || '',
-        observacoesGerais: apiData.observacoes_gerais || '',
+        // Finalização
+        necessitaApoioTecnico: apiData.necessita_apoio_t_cnico === 'Sim',
+        observacoesAdicionais: apiData.observa_es_adicionais_001 || apiData.observa_es_adicionais || 'N/A',
+        nomeValidador: apiData.nome_do_Validador || apiData.Nome_do_Validador || 'N/A',
 
         // Dados originais
         dadosOriginais: apiData
@@ -361,42 +292,71 @@ const getPrimeiroNome = (nomeCompleto) => {
     return nomeCompleto.trim().split(' ')[0];
 };
 
-// Componente do Mapa
-const ProducerMap = ({ coordinates, producerName }) => {
-    if (!coordinates || !coordinates.lat || !coordinates.lng) {
-        return (
-            <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-                <div className="text-center text-gray-500">
-                    <MapPin className="w-8 h-8 mx-auto mb-2" />
-                    <p>Coordenadas não disponíveis</p>
-                </div>
-            </div>
-        );
-    }
+// Função para obter opções de cultura
+const getCulturaOptions = (tipoCultura) => {
+    const culturaMap = {
+        cereais: ['Arroz', 'Trigo', 'Milho', 'Cevada', 'Aveia', 'Sorgo'],
+        frutas: ['Banana', 'Manga', 'Laranja', 'Maçã', 'Abacaxi', 'Mamão', 'Uva'],
+        horticolas: ['Tomate', 'Alface', 'Cenoura', 'Pepino', 'Pimentão', 'Cebola'],
+        legumes: ['Feijão', 'Ervilha', 'Lentilha', 'Grão-de-bico', 'Soja'],
+        tuberculos: ['Batata', 'Batata-doce', 'Mandioca', 'Inhame', 'Cará']
+    };
 
-    const position = [coordinates.lat, coordinates.lng];
+    return (culturaMap[tipoCultura] || []).map(cultura => ({
+        label: cultura,
+        value: cultura
+    }));
+};
+
+// Componente para capturar cliques no mapa
+const MapClickHandler = ({ onLocationSelect }) => {
+    useMapEvents({
+        click: (e) => {
+            const { lat, lng } = e.latlng;
+            onLocationSelect(lat.toFixed(6), lng.toFixed(6));
+        }
+    });
+    return null;
+};
+
+// Componente de Mapa
+const MapaGPS = ({ latitude, longitude, onLocationSelect }) => {
+    const hasCoordinates = latitude && longitude && !isNaN(latitude) && !isNaN(longitude);
+    const center = hasCoordinates ? [parseFloat(latitude), parseFloat(longitude)] : [-8.838333, 13.234444];
+
+    useEffect(() => {
+        delete L.Icon.Default.prototype._getIconUrl;
+        L.Icon.Default.mergeOptions({
+            iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+            iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+        });
+    }, []);
 
     return (
-        <div className="h-64 rounded-lg overflow-hidden border border-gray-300">
+        <div className="w-full h-80 border border-gray-200 rounded-xl overflow-hidden shadow-sm">
             <MapContainer
-                center={position}
-                zoom={15}
-                style={{ height: '100%', width: '100%' }}
-                scrollWheelZoom={false}
+                center={center}
+                zoom={hasCoordinates ? 16 : 6}
+                className="w-full h-full"
+                key={`${latitude}-${longitude}`}
             >
                 <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 />
-                <Marker position={position}>
-                    <Popup>
-                        <div className="text-center">
-                            <strong>{producerName}</strong><br />
-                            Lat: {coordinates.lat}°<br />
-                            Lng: {coordinates.lng}°
-                        </div>
-                    </Popup>
-                </Marker>
+                <MapClickHandler onLocationSelect={onLocationSelect} />
+                {hasCoordinates && (
+                    <Marker position={center}>
+                        <Popup>
+                            <div className="text-center">
+                                <strong>Localização da Praga</strong><br />
+                                Latitude: {latitude}°<br />
+                                Longitude: {longitude}°
+                            </div>
+                        </Popup>
+                    </Marker>
+                )}
             </MapContainer>
         </div>
     );
@@ -488,13 +448,14 @@ const VisualizarPraga = () => {
     const [municipiosOptions, setMunicipiosOptions] = useState([]);
 
     // Estados principais
-    const [produtor, setProdutor] = useState(null);
+    const [praga, setPraga] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({});
     const [loading, setLoading] = useState(true);
     const [toastMessage, setToastMessage] = useState(null);
     const [gerando, setGerando] = useState(false);
     const [alterandoStatus, setAlterandoStatus] = useState(false);
+    const [currentStatus, setCurrentStatus] = useState(null);
     //const [consultingBI, setConsultingBI] = useState(false);
     const [activeIndex, setActiveIndex] = useState(0);
 
@@ -571,23 +532,23 @@ const VisualizarPraga = () => {
 
     // Steps do formulário
     const steps = [
-        { label: 'Inquiridor', icon: User },
-        { label: 'Produtor', icon: User },
-        { label: 'Áreas', icon: Trees },
-        { label: 'Espécies', icon: Leaf },
-        { label: 'Transportes', icon: Truck },
-        { label: 'Produtos', icon: Package }
+        { label: 'Responsável', icon: User },
+        { label: 'Localização', icon: MapPin },
+        { label: 'Tipo Produção', icon: Activity },
+        { label: 'Info Agrícolas', icon: Tractor },
+        { label: 'Info Pecuárias', icon: Heart },
+        { label: 'Finalização', icon: FileText }
     ];
 
     // Hooks para buscar dados
-    const { produtor: produtorAPI, loading: loadingAPI, error: errorAPI } = useProdutorById(id);
-   // const { incentivos, loading: loadingIncentivos } = useIncentivosByProdutor(id);
+    const { praga: pragaAPI, loading: loadingAPI, error: errorAPI } = usePragaById(id);
+    // const { incentivos, loading: loadingIncentivos } = useIncentivosByProdutor(id);
 
     // Mapear dados da API
-    const produtorMapeado = useMemo(() => {
-        if (!produtorAPI) return null;
-        return mapApiDataToProdutor(produtorAPI);
-    }, [produtorAPI]);
+    const pragaMapeada = useMemo(() => {
+        if (!pragaAPI) return null;
+        return mapApiDataToPraga(pragaAPI);
+    }, [pragaAPI]);
 
     // Lista predefinida de espécies florestais
     const especiesPredefinidas = [
@@ -611,8 +572,9 @@ const VisualizarPraga = () => {
 
     // Opções para selects
     const statusOptions = [
-        { label: 'Conforme', value: 'CONFORME' },
-        { label: 'Irregular', value: 'Irregular' },
+        { label: 'Controlado', value: 'CONTROLADO' },
+        { label: 'Detectado', value: 'DETECTADO' },
+        { label: 'Em Tratamento', value: 'EM_TRATAMENTO' },
     ];
 
     const generoOptions = [
@@ -620,6 +582,7 @@ const VisualizarPraga = () => {
         { label: 'Feminino', value: 'FEMININO' }
     ];
 
+    {    /*
     const tipoDocumentoOptions = [
         { label: 'Bilhete de Identidade', value: 'BI' },
         { label: 'Cartão de Eleitor', value: 'CARTAO_ELEITOR' },
@@ -672,6 +635,8 @@ const VisualizarPraga = () => {
         { value: 'huambo', label: 'Huambo' }
     ];
 
+      */}
+
     const periodoOptions = [
         { label: 'Todos', value: 'todos' },
         { label: 'Último mês', value: 'ultimomes' },
@@ -708,9 +673,9 @@ const VisualizarPraga = () => {
         return selectObject || '';
     };
 
-    const isProdutorAprovado = (produtor) => {
-        if (produtor?.estado) {
-            return produtor.estado.toLowerCase() === 'aprovado';
+    const isPragaAprovada = (praga) => {
+        if (praga?.estado) {
+            return praga.estado.toLowerCase() === 'aprovado';
         }
         const status = getSelectStringValue(formData?.statusProcesso);
         return status === 'APROVADO';
@@ -737,72 +702,54 @@ const VisualizarPraga = () => {
         updateFormData('municipio', '');
     };
 
+    // Função para buscar status atual da API
+    const fetchCurrentStatus = async () => {
+        try {
+            const response = await api.get(`/pragas/${id}`);
+            if (response.data && response.data.estado) {
+                setCurrentStatus(response.data.estado);
+            }
+        } catch (error) {
+            console.error('Erro ao buscar status atual:', error);
+        }
+    };
+
     // Carregar dados quando disponíveis
     useEffect(() => {
-        const loadProdutor = async () => {
+        const loadPraga = async () => {
             setLoading(loadingAPI);
 
             if (errorAPI) {
-                setToastMessage({ type: 'error', message: `Erro ao carregar produtor: ${errorAPI}` });
+                setToastMessage({ type: 'error', message: `Erro ao carregar praga: ${errorAPI}` });
                 setLoading(false);
                 return;
             }
 
-            if (!loadingAPI && produtorMapeado) {
+            if (!loadingAPI && pragaMapeada) {
                 try {
-                    setProdutor(produtorMapeado);
-
-                    const formattedData = {
-                        ...produtorMapeado,
-                        genero: getSelectValue(produtorMapeado.genero, generoOptions),
-                        provincia: getSelectValue(produtorMapeado.provincia, provinciasData.map(p => ({ label: p.nome, value: p.nome }))),
-                        statusProcesso: getSelectValue(produtorMapeado.statusProcesso, statusOptions),
-                        estadoCivil: getSelectValue(produtorMapeado.estadoCivil, estadoCivilOptions),
-                        nivelEscolaridade: getSelectValue(produtorMapeado.nivelEscolaridade, nivelEscolaridadeOptions),
-                    };
-
-                    setFormData(formattedData);
+                    setPraga(pragaMapeada);
+                    setFormData(pragaMapeada);
                     setLoading(false);
+                    // Buscar status atual da API
+                    fetchCurrentStatus();
                 } catch (error) {
                     console.error('Erro ao processar dados:', error);
-                    setToastMessage({ type: 'error', message: 'Erro ao processar dados do produtor' });
+                    setToastMessage({ type: 'error', message: 'Erro ao processar dados da praga' });
                     setLoading(false);
                 }
-            } else if (!loadingAPI && !produtorMapeado) {
-                setToastMessage({ type: 'error', message: 'Produtor não encontrado' });
+            } else if (!loadingAPI && !pragaMapeada) {
+                setToastMessage({ type: 'error', message: 'Praga não encontrada' });
                 setLoading(false);
             }
         };
 
-        loadProdutor();
-    }, [produtorMapeado, loadingAPI, errorAPI]);
+        loadPraga();
+    }, [pragaMapeada, loadingAPI, errorAPI]);
 
-    // Carregar imagens
-    useEffect(() => {
-        const carregarImagens = async () => {
-            try {
-                // Carregar foto de perfil
-                const respostaPerfil = await api.get(`/formulario/${parseInt(id)}/foto-beneficiary`, {
-                    responseType: 'blob'
-                });
-                const urlPerfil = URL.createObjectURL(respostaPerfil.data);
-                setImagemUrlPerfil(urlPerfil);
-
-                // Carregar impressões digitais
-                const respostaDigitais = await api.get(`/formulario/${parseInt(id)}/foto-biometrics`, {
-                    responseType: 'blob'
-                });
-                const urlDigitais = URL.createObjectURL(respostaDigitais.data);
-                setImagemUrlDigitais(urlDigitais);
-            } catch (error) {
-                console.error('Erro ao carregar imagens:', error);
-            }
-        };
-
-        if (id) {
-            carregarImagens();
-        }
-    }, [id]);
+    // Remover carregamento de imagens para pragas
+    // useEffect(() => {
+    //     // Pragas não possuem imagens associadas
+    // }, [id]);
 
     // Função para mostrar toast
     const showToast = (type, message) => {
@@ -816,7 +763,7 @@ const VisualizarPraga = () => {
     };
 
     // Função para calcular idade
-    const calculateAge = (dateString) => {
+    { /*const calculateAge = (dateString) => {
         if (!dateString) return { age: 0, text: 'N/A', isValid: false };
 
         try {
@@ -840,19 +787,20 @@ const VisualizarPraga = () => {
         } catch {
             return { age: 0, text: 'N/A', isValid: false };
         }
-    };
+    */};
 
     // Função para obter cor do status
     const getStatusColor = (status) => {
         const colors = {
-            'CONFORME': 'bg-blue-100 text-blue-800 border-blue-300',
-            'IRREGULAR': 'bg-gray-100 text-gray-800 border-gray-300'
+            'CONTROLADO': 'bg-green-100 text-green-800 border-green-300',
+            'DETECTADO': 'bg-red-100 text-red-800 border-red-300',
+            'EM_TRATAMENTO': 'bg-yellow-100 text-yellow-800 border-yellow-300'
         };
         return colors[status] || 'bg-gray-100 text-gray-800 border-gray-300';
     };
 
     // Funções para gerenciar áreas
-    const addArea = () => {
+    { /* const addArea = () => {
         const newArea = {
             nome: `Área Florestal ${areas.length + 1}`,
             tipo: { label: 'Privada', value: 'PRIVADA' },
@@ -865,8 +813,8 @@ const VisualizarPraga = () => {
             bairroAldeia: ''
         };
         setAreas(prev => [...prev, newArea]);
-    };
-
+    */};
+    { /*
     const removeArea = (index) => {
         setAreas(prev => prev.filter((_, i) => i !== index));
     };
@@ -879,15 +827,7 @@ const VisualizarPraga = () => {
         });
     };
 
-    // Funções para gerenciar espécies
-    const addEspecie = () => {
-        const newEspecie = {
-            id: Math.random().toString(36).slice(2, 10),
-            especie: [{ label: 'Baobá (Adansonia digitata)', value: 'baoba' }],
-            status: { label: 'Nativa', value: 'nativa' }
-        };
-        setEspecies(prev => [...prev, newEspecie]);
-    };
+    
 
     const removeEspecie = (index) => {
         setEspecies(prev => prev.filter((_, i) => i !== index));
@@ -901,19 +841,9 @@ const VisualizarPraga = () => {
         });
     };
 
-    // Funções para gerenciar transportes
-    const addTransporte = () => {
-        const newTransporte = {
-            licenseIndex: 0,
-            origem_areaIndex: 0,
-            destino: 'Benguela',
-            placa: 'BG-12-34-CD',
-            volume: '15',
-            qr_hash: '',
-            status: 'Em trânsito'
-        };
-        setTransportes(prev => [...prev, newTransporte]);
-    };
+        */}
+
+
 
     const removeTransporte = (index) => {
         setTransportes(prev => prev.filter((_, i) => i !== index));
@@ -927,18 +857,7 @@ const VisualizarPraga = () => {
         });
     };
 
-    // Funções para gerenciar produtos
-    const addProduto = () => {
-        const newProduto = {
-            especiesIds: [{ label: 'Baobá (Adansonia digitata)', value: 'baoba' }],
-            volumeAnual: '75',
-            origem_areaIndex: 0,
-            destino: 'Exportação',
-            rastreabilidade: '',
-            documentosTransporte: null
-        };
-        setProdutos(prev => [...prev, newProduto]);
-    };
+
 
     const removeProduto = (index) => {
         setProdutos(prev => prev.filter((_, i) => i !== index));
@@ -1025,15 +944,15 @@ const VisualizarPraga = () => {
             });
 
             if (response.status === 200) {
-                showToast('success', 'Foto de perfil atualizada com sucesso!');
+                showToast('success', 'Foto atualizada com sucesso!');
                 const url = URL.createObjectURL(file);
                 setImagemUrlPerfil(url);
                 setNovaFotoPerfil(null);
                 setPreviewPerfil('');
             }
         } catch (error) {
-            console.error('Erro ao fazer upload da foto de perfil:', error);
-            showToast('error', 'Erro ao atualizar foto de perfil');
+            console.error('Erro ao fazer upload da foto:', error);
+            showToast('error', 'Erro ao atualizar foto');
         } finally {
             setUploadingPerfil(false);
         }
@@ -1243,31 +1162,89 @@ const VisualizarPraga = () => {
 
     const handleSave = async () => {
         try {
-            if (!formData.nome) {
-                showToast('error', 'Nome é obrigatório');
+            if (!formData.nomeResponsavel) {
+                showToast('error', 'Nome do responsável é obrigatório');
                 return;
             }
 
             setLoading(true);
-            const token = "91c163addd72730d6bfe7a2d80eac5129767a044";
 
-            const dataToSend = prepareDataForAPI(formData);
-            console.log('Enviando dados:', dataToSend);
+            // Mapear dados para formato da API
+            const apiData = {
+                _id: parseInt(id),
+                data_de_Registro: formData.dataRegistro ? new Date(formData.dataRegistro).toISOString() : new Date().toISOString(),
+                nome_do_T_cnico: formData.nomeResponsavel || 'string',
+                nome_da_Institui_o: formData.instituicao || 'string',
+                que_tipo_de_servi_o_deseja_mon: 'Monitoramento de Pragas',
+                nome_do_T_cnico_ou_Produtor: formData.nomeResponsavel || 'string',
+                telefone: formData.telefone || 'string',
+                provincia: typeof formData.provincia === 'object' ? formData.provincia?.value || formData.provincia?.label || 'string' : formData.provincia || 'string',
+                municipio: typeof formData.municipio === 'object' ? formData.municipio?.value || formData.municipio?.label || 'string' : formData.municipio || 'string',
+                comuna: formData.comuna || 'string',
+                coordenadas_GPS: formData.coordenadasGPS ? `${formData.coordenadasGPS.lat},${formData.coordenadasGPS.lng}` : 'string',
+                nome_da_Propriedade: formData.nomePropriedade || 'string',
+                tipo_de_culturas: formData.tipoCultura || 'string',
+                frutas: Array.isArray(formData.culturaAfetada) ? formData.culturaAfetada.join(', ') : formData.culturaAfetada || 'string',
+                fase_da_Cultura: formData.faseCultura || 'string',
+                rea_Total_Cultivada_ha: formData.areaTotalCultivada?.toString() || 'string',
+                data_da_Primeira_Observa_o_001: formData.dataPrimeiraObservacao ? new Date(formData.dataPrimeiraObservacao).toISOString() : new Date().toISOString(),
+                nome_da_Praga: formData.nomePraga || 'string',
+                nome_Local_da_Praga: formData.nomeLocalPraga || 'string',
+                sintomas_Observados_001: formData.sintomasObservados || 'string',
+                percentagem_da_rea_Afetada_: formData.percentagemAreaAfetada?.toString() || 'string',
+                grau_do_Dano_001: formData.grauDano || 'string',
+                aplicou_alguma_medida_de_contr: formData.aplicouMedidaControle ? 'Sim' : 'Não',
+                tipo_de_Medida_Aplicada: formData.tipoMedidaAplicada || 'string',
+                resultado_da_Medida: formData.resultadoMedida || 'string',
+                nome_da_Fazenda: formData.nomeFazenda || 'string',
+                esp_cie_Animal_Afetada: Array.isArray(formData.especieAnimalAfetada) ? formData.especieAnimalAfetada.join(', ') : formData.especieAnimalAfetada || 'string',
+                os_animais_afectados_tenhem_al: 'string',
+                quais_s_o_as_vacinas_os_animais_afectados: 'string',
+                n_mero_Total_de_Animais: formData.numeroTotalAnimais?.toString() || 'string',
+                data_da_Primeira_Observa_o: formData.dataPrimeiraObservacaoPecuaria ? new Date(formData.dataPrimeiraObservacaoPecuaria).toISOString() : new Date().toISOString(),
+                nome_da_Praga_Doen_a: formData.nomePragaDoenca || 'string',
+                sintomas_Observados: formData.sintomasObservadosPecuaria || 'string',
+                n_mero_de_Animais_Afetados: formData.numeroAnimaisAfetados?.toString() || 'string',
+                grau_do_Dano: formData.grauDanoPecuaria || 'string',
+                aplicou_algum_tratamento: formData.aplicouTratamento ? 'Sim' : 'Não',
+                tipo_de_Tratamento_Usado: formData.tipoTratamento || 'string',
+                resultado_do_Tratamento: formData.resultadoTratamento || 'string',
+                necessita_apoio_veterin_rio: formData.necessitaApoioVeterinario ? 'Sim' : 'Não',
+                observa_es_adicionais: formData.observacoesAdicionais || formData.observacoesAdicionaisPecuaria || 'string',
+                qual_o_tipo_de_produ_o_afetada: formData.tipoProducao || 'string',
+                necessita_apoio_t_cnico: formData.necessitaApoioTecnico ? 'Sim' : 'Não',
+                observa_es_adicionais_001: formData.observacoesAdicionais || 'string',
+                nome_do_Validador: formData.nomeValidador || 'string',
+                valor_Estimado_da_Pecu_ria: 0,
+                valor_Estimado_Agr_colas: 0,
+                institui_o: formData.instituicao || 'string',
+                _attachments: []
+            };
 
-            const response = await api.put(`/formulario/${id}`, dataToSend, {
-                headers: {
-                    'Authorization': `Token ${token}`,
-                    'Content-Type': 'application/json'
-                }
+            console.log('=== DADOS ENVIADOS PARA ATUALIZAÇÃO ===');
+            console.log('FormData original:', formData);
+            console.log('Dados mapeados para API:', apiData);
+            console.log('URL da requisição:', `/pragas/${id}`);
+            console.log('Método:', 'PUT');
+            console.log('==========================================');
+
+            const response = await api.put(`/pragas/${id}`, apiData);
+
+            console.log('Resposta completa da API:', {
+                status: response.status,
+                statusText: response.statusText,
+                data: response.data
             });
-
-            console.log('Resposta da API:', response.data);
-            showToast('success', 'Dados atualizados com sucesso!');
+            
+            showToast('success', 'Dados da praga atualizados com sucesso!');
             setIsEditing(false);
+            
+            // Recarregar dados após salvar
+            window.location.reload();
 
         } catch (error) {
             console.error('Erro ao salvar:', error);
-            showToast('error', 'Erro ao salvar dados. Tente novamente.');
+            showToast('error', 'Erro ao salvar dados da praga. Tente novamente.');
         } finally {
             setLoading(false);
         }
@@ -1333,27 +1310,57 @@ const VisualizarPraga = () => {
     const confirmStatusChange = async () => {
         const value = pendingStatusValue;
         const novoStatus = getSelectStringValue(value);
+        const pragaId = praga?.id || formData?.id || parseInt(id);
 
+        // Mapear status para valores aceitos pela API
+        const statusMapping = {
+            'CONTROLADO': 'Controlado',
+            'DETECTADO': 'Detectado',
+            'EM_TRATAMENTO': 'EmTratamento',
+            'CRITICO': 'Critico'
+        };
+        
+        const estadoAPI = statusMapping[novoStatus] || novoStatus;
+
+        console.log('=== ALTERANDO ESTADO DA PRAGA ===');
+        console.log('ID da URL:', id);
+        console.log('ID da praga:', praga?.id);
+        console.log('ID do formData:', formData?.id);
+        console.log('ID final usado:', pragaId);
+        console.log('Novo status original:', novoStatus);
+        console.log('Estado mapeado para API:', estadoAPI);
+        console.log('=====================================');
 
         setAlterandoStatus(true);
         setShowStatusModal(false);
 
         try {
-            const token = "91c163addd72730d6bfe7a2d80eac5129767a044";
-            const resultado = await alterarEstadoProdutor(id, novoStatus, token);
+            const requestFormData = new FormData();
+            requestFormData.append('Id', pragaId);
+            requestFormData.append('Estado', estadoAPI);
 
-            if (resultado.sucesso) {
-                const updatedProdutor = { ...produtor, statusProcesso: novoStatus };
+            console.log('Dados enviados para API:', {
+                Id: pragaId,
+                Estado: estadoAPI
+            });
+
+            const response = await api.patch('/pragas/estado', requestFormData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+
+            if (response.status === 200 || response.status === 204) {
+                const updatedPraga = { ...praga, statusProcesso: novoStatus };
                 const updatedFormData = { ...formData, statusProcesso: value };
-                setProdutor(updatedProdutor);
+                setPraga(updatedPraga);
                 setFormData(updatedFormData);
-                showToast('success', resultado.mensagem);
-            } else {
-                showToast('error', resultado.mensagem);
+                setCurrentStatus(estadoAPI); // Atualizar status atual
+                showToast('success', 'Estado da praga alterado com sucesso!');
             }
         } catch (error) {
-            console.error('Erro inesperado:', error);
-            showToast('error', 'Erro inesperado ao alterar estado do produtor');
+            console.error('Erro ao alterar estado:', error);
+            showToast('error', 'Erro ao alterar estado da praga');
         } finally {
             setAlterandoStatus(false);
             setPendingStatusValue(null);
@@ -1395,12 +1402,7 @@ const VisualizarPraga = () => {
     const confirmCancelEdit = () => {
         setIsEditing(false);
         const formattedData = {
-            ...produtorMapeado,
-            genero: getSelectValue(produtorMapeado.genero, generoOptions),
-            provincia: getSelectValue(produtorMapeado.provincia, provinciasData.map(p => ({ label: p.nome, value: p.nome }))),
-            statusProcesso: getSelectValue(produtorMapeado.statusProcesso, statusOptions),
-            estadoCivil: getSelectValue(produtorMapeado.estadoCivil, estadoCivilOptions),
-            nivelEscolaridade: getSelectValue(produtorMapeado.nivelEscolaridade, nivelEscolaridadeOptions)
+            ...pragaMapeada
         };
         setFormData(formattedData);
         showToast('info', 'Edição cancelada');
@@ -1408,13 +1410,13 @@ const VisualizarPraga = () => {
     };
 
     const handleDownloadReport = async () => {
-        if (!produtor) {
-            showToast('error', 'Dados do produtor não encontrados');
+        if (!praga) {
+            showToast('error', 'Dados da praga não encontrados');
             return;
         }
 
         setGerando(true);
-        showToast('info', 'Gerando relatório do produtor...');
+        showToast('info', 'Gerando relatório da praga...');
 
         try {
             await gerarFichaProdutorPDF(id);
@@ -1433,7 +1435,7 @@ const VisualizarPraga = () => {
 
     // Função para renderizar botões de ação
     const renderActionButtons = () => {
-        const isAprovado = isProdutorAprovado(produtor);
+        const isAprovado = isPragaAprovada(praga);
 
         if (isAprovado) {
             return (
@@ -1471,7 +1473,7 @@ const VisualizarPraga = () => {
     // Função para renderizar conteúdo dos steps
     const renderStepContent = (index) => {
         switch (index) {
-            case 0: // Inquiridor
+            case 0: // Responsável
                 return (
                     <div className="max-w-full mx-auto">
                         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 mb-8 border border-blue-100">
@@ -1479,54 +1481,38 @@ const VisualizarPraga = () => {
                                 <div className="p-2 bg-blue-100 rounded-lg">
                                     <User className="w-6 h-6 text-blue-600" />
                                 </div>
-                                <h3 className="text-xl font-bold text-gray-800">Identificação do Inquiridor</h3>
+                                <h3 className="text-xl font-bold text-gray-800">Identificação do Responsável</h3>
                             </div>
                             <p className="text-gray-600">
-                                Informações sobre o inquiridor responsável pelo cadastro.
+                                Informe os dados do técnico ou produtor responsável pelo registro.
                             </p>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <CustomInput
                                 type="text"
-                                label="Código do Inquiridor"
-                                value={formData.codigoInquiridor || 'INQ001'}
-                                onChange={(value) => updateFormData('codigoInquiridor', value)}
+                                label="Nome do Técnico ou Produtor"
+                                value={formData.nomeResponsavel || ''}
+                                onChange={(value) => updateFormData('nomeResponsavel', value)}
                                 disabled={!isEditing}
-                                iconStart={<CreditCard size={18} />}
-                            />
-
-                            <CustomInput
-                                type="text"
-                                label="Nome do Inquiridor"
-                                value={formData.nomeInquiridor || 'João Silva'}
-                                onChange={(value) => updateFormData('nomeInquiridor', value)}
-                                disabled={!isEditing}
+                                placeholder="Nome completo do responsável"
                                 iconStart={<User size={18} />}
                             />
 
                             <CustomInput
                                 type="text"
-                                label="Nome do Meio"
-                                value={formData.nomeMeioInquiridor || 'Carlos'}
-                                onChange={(value) => updateFormData('nomeMeioInquiridor', value)}
+                                label="Telefone"
+                                value={formData.telefone || ''}
+                                onChange={(value) => updateFormData('telefone', value)}
                                 disabled={!isEditing}
-                                iconStart={<User size={18} />}
-                            />
-
-                            <CustomInput
-                                type="text"
-                                label="Sobrenome"
-                                value={formData.sobrenomeInquiridor || 'Santos'}
-                                onChange={(value) => updateFormData('sobrenomeInquiridor', value)}
-                                disabled={!isEditing}
-                                iconStart={<User size={18} />}
+                                placeholder="Ex: 923456789"
+                                iconStart={<Phone size={18} />}
                             />
 
                             <CustomInput
                                 type="date"
-                                label="Data de Registo"
-                                value={formData.dataRegistro || '2025-01-15'}
+                                label="Data de Registro"
+                                value={formData.dataRegistro || ''}
                                 onChange={(value) => updateFormData('dataRegistro', value)}
                                 disabled={!isEditing}
                                 iconStart={<Calendar size={18} />}
@@ -1535,498 +1521,905 @@ const VisualizarPraga = () => {
                     </div>
                 );
 
-            case 1: // Produtor
+            case 1: // Localização
                 return (
                     <div className="max-w-full mx-auto">
                         <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 mb-8 border border-green-100">
                             <div className="flex items-center space-x-3 mb-3">
                                 <div className="p-2 bg-green-100 rounded-lg">
-                                    <User className="w-6 h-6 text-green-600" />
+                                    <MapPin className="w-6 h-6 text-green-600" />
                                 </div>
-                                <h3 className="text-xl font-bold text-gray-800">Dados do Produtor Florestal</h3>
+                                <h3 className="text-xl font-bold text-gray-800">Localização</h3>
                             </div>
                             <p className="text-gray-600">
-                                Identificação do responsável pela atividade florestal.
+                                Informe a localização onde foi observada a praga.
                             </p>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <CustomInput
                                 type="select"
-                                label="Tipo de Documento"
-                                value={formData.tipoDocumento || { label: 'Bilhete de Identidade', value: 'BI' }}
-                                options={tipoDocumentoOptions}
-                                onChange={(value) => updateFormData('tipoDocumento', value)}
-                                disabled={!isEditing}
-                                placeholder="Selecione o tipo"
-                                iconStart={<CreditCard size={18} />}
-                            />
-
-                            {formData.tipoDocumento?.value === 'OUTRO' && (
-                                <CustomInput
-                                    type="text"
-                                    label="Nome do Documento"
-                                    value={formData.nomeOutroDocumento}
-                                    onChange={(value) => updateFormData('nomeOutroDocumento', value)}
-                                    disabled={!isEditing}
-                                    placeholder="Digite o nome do documento"
-                                    iconStart={<FileText size={18} />}
-                                />
-                            )}
-
-                            {formData.tipoDocumento?.value && formData.tipoDocumento?.value !== 'NAO_POSSUI' && (
-                                <div className="relative">
-                                    <CustomInput
-                                        type="text"
-                                        label="Número do Documento"
-                                        value={formData.numeroBI || '004567890LA041'}
-                                        onChange={(value) => updateFormData('numeroBI', value)}
-                                        disabled={!isEditing}
-                                        helperText={formData.tipoDocumento?.value === 'BI' ? 'Digite o BI para consulta automática dos dados' : ''}
-                                        placeholder="Digite o número"
-                                        iconStart={<CreditCard size={18} />}
-                                    />
-                                    {consultingBI && (
-                                        <div className="absolute right-3 top-9 flex items-center">
-                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
-                                            <span className="text-sm text-blue-600">Consultando...</span>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
-                            <CustomInput
-                                type="text"
-                                label="Nome do Produtor"
-                                value={formData.nomeProdutor || 'Maria'}
-                                onChange={(value) => updateFormData('nomeProdutor', value)}
-                                disabled={!isEditing}
-                                placeholder="Digite o nome"
-                                iconStart={<User size={18} />}
-                            />
-
-                            <CustomInput
-                                type="text"
-                                label="Sobrenome"
-                                value={formData.sobrenomeProdutor || 'Fernandes'}
-                                onChange={(value) => updateFormData('sobrenomeProdutor', value)}
-                                disabled={!isEditing}
-                                placeholder="Sobrenome"
-                                iconStart={<User size={18} />}
-                            />
-
-                            <CustomInput
-                                type="select"
-                                label="Gênero"
-                                value={formData.genero || { label: 'Feminino', value: 'FEMININO' }}
-                                options={generoOptions}
-                                onChange={(value) => updateFormData('genero', value)}
-                                disabled={!isEditing}
-                                placeholder="Selecione o gênero"
-                                iconStart={<User size={18} />}
-                            />
-
-                            <CustomInput
-                                type="select"
-                                label="Lugar de Nascimento"
-                                value={formData.lugarNascimento || { label: 'LUANDA', value: 'LUANDA' }}
+                                label="Província/Estado"
+                                value={formData.provincia}
                                 options={provinciasData.map(provincia => ({
                                     label: provincia.nome,
-                                    value: provincia.nome
+                                    value: provincia.nome.toUpperCase()
                                 }))}
-                                onChange={(value) => updateFormData('lugarNascimento', value)}
+                                onChange={(value) => handleProvinciaChange(value)}
                                 disabled={!isEditing}
-                                placeholder="Província de nascimento"
+                                placeholder="Selecione a província"
+                                iconStart={<Map size={18} />}
+                                required
+                            />
+
+                            <CustomInput
+                                type="select"
+                                label="Distrito/Município"
+                                value={formData.municipio}
+                                options={municipiosOptions}
+                                onChange={(value) => updateFormData('municipio', value)}
+                                disabled={!isEditing || !formData.provincia}
+                                placeholder="Selecione o município"
                                 iconStart={<MapPin size={18} />}
+                                required
                             />
 
                             <CustomInput
-                                type="date"
-                                label="Data de Nascimento"
-                                value={formData.dataNascimento || '1985-03-15'}
-                                onChange={(value) => updateFormData('dataNascimento', value)}
+                                type="text"
+                                label="Comuna"
+                                value={formData.comuna || ''}
+                                onChange={(value) => updateFormData('comuna', value)}
                                 disabled={!isEditing}
-                                iconStart={<User size={18} />}
+                                placeholder="Comuna"
+                                iconStart={<MapPin size={18} />}
+                                required
                             />
 
                             <CustomInput
-                                type="tel"
-                                label="Telefone do Produtor"
-                                value={formData.telefone || '923456789'}
-                                onChange={(value) => updateFormData('telefone', value)}
+                                type="text"
+                                label="Latitude"
+                                value={formData.coordenadasGPS?.lat || ''}
+                                onChange={(value) => updateFormData('coordenadasGPS', {
+                                    ...formData.coordenadasGPS,
+                                    lat: value
+                                })}
                                 disabled={!isEditing}
-                                placeholder="Ex: 923456789"
-                                iconStart={<User size={18} />}
-                                maxLength={9}
+                                placeholder="Ex: -8.8383"
+                                iconStart={<Globe size={18} />}
+                            />
+
+                            <CustomInput
+                                type="text"
+                                label="Longitude"
+                                value={formData.coordenadasGPS?.lng || ''}
+                                onChange={(value) => updateFormData('coordenadasGPS', {
+                                    ...formData.coordenadasGPS,
+                                    lng: value
+                                })}
+                                disabled={!isEditing}
+                                placeholder="Ex: 13.2344"
+                                iconStart={<Globe size={18} />}
                             />
                         </div>
-                    </div>
-                );
 
-            case 2: // Áreas
-                return (
-                    <div className="max-w-full mx-auto">
-                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 mb-8 border border-green-100">
-                            <div className="flex items-center space-x-3 mb-3">
-                                <div className="p-2 bg-green-100 rounded-lg">
-                                    <Trees className="w-6 h-6 text-green-600" />
+                        {isEditing && (
+                            <div className="mt-8 bg-white rounded-2xl border border-gray-200 p-6">
+                                <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                    <MapPin className="w-5 h-5 mr-2 text-blue-600" />
+                                    Coordenadas GPS
+                                </h4>
+
+                                <MapaGPS
+                                    latitude={formData.coordenadasGPS?.lat || ''}
+                                    longitude={formData.coordenadasGPS?.lng || ''}
+                                    onLocationSelect={(lat, lng) => {
+                                        updateFormData('coordenadasGPS', { lat, lng });
+                                    }}
+                                />
+
+                                <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+                                    <p className="text-sm text-blue-600 flex items-center">
+                                        <Info size={16} className="mr-2" />
+                                        Clique no mapa para selecionar uma localização automaticamente
+                                    </p>
                                 </div>
-                                <h3 className="text-xl font-bold text-gray-800">Áreas Florestais</h3>
                             </div>
-                            <p className="text-gray-600">
-                                Cadastre as áreas florestais vinculadas ao produtor.
-                            </p>
-                        </div>
-
-                        <div className="space-y-6">
-                            {areas.length === 0 && (
-                                <div className="text-center py-8 text-gray-500">
-                                    Nenhuma área cadastrada. Clique em "Adicionar Área" para começar.
-                                </div>
-                            )}
-
-                            {areas.map((area, index) => (
-                                <div key={index} className="bg-white rounded-2xl border border-gray-200 p-6 relative">
-                                    {isEditing && (
-                                        <button
-                                            onClick={() => removeArea(index)}
-                                            className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-600 transition-colors"
-                                        >
-                                            <X size={16} />
-                                        </button>
-                                    )}
-
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                        <CustomInput
-                                            type="text"
-                                            label="Nome da Área"
-                                            value={area.nome}
-                                            onChange={(value) => updateArea(index, 'nome', value)}
-                                            disabled={!isEditing}
-                                            iconStart={<Trees size={18} />}
-                                        />
-
-                                        <CustomInput
-                                            type="select"
-                                            label="Tipo"
-                                            value={area.tipo}
-                                            options={tipoAreaOptions}
-                                            onChange={(value) => updateArea(index, 'tipo', value)}
-                                            disabled={!isEditing}
-                                        />
-
-                                        <CustomInput
-                                            type="select"
-                                            label="Estado de Conservação"
-                                            value={area.estadoConservacao}
-                                            options={estadoConservacaoOptions}
-                                            onChange={(value) => updateArea(index, 'estadoConservacao', value)}
-                                            disabled={!isEditing}
-                                        />
-
-                                        <CustomInput
-                                            type="select"
-                                            label="Província"
-                                            value={area.provincia}
-                                            options={provinciasData.map(provincia => ({
-                                                label: provincia.nome,
-                                                value: provincia.nome.toUpperCase()
-                                            }))}
-                                            onChange={(value) => updateArea(index, 'provincia', value)}
-                                            disabled={!isEditing}
-                                            iconStart={<MapPin size={18} />}
-                                        />
-
-                                        <CustomInput
-                                            type="select"
-                                            label="Município"
-                                            value={area.municipio}
-                                            options={municipiosOptions}
-                                            onChange={(value) => updateArea(index, 'municipio', value)}
-                                            disabled={!isEditing || !area.provincia}
-                                            iconStart={<Map size={18} />}
-                                        />
-
-                                        <CustomInput
-                                            type="text"
-                                            label="Comuna/Distrito"
-                                            value={area.comuna}
-                                            onChange={(value) => updateArea(index, 'comuna', value)}
-                                            disabled={!isEditing}
-                                            iconStart={<Building size={18} />}
-                                        />
-
-                                        <CustomInput
-                                            type="text"
-                                            label="Bairro/Aldeia"
-                                            value={area.bairroAldeia}
-                                            onChange={(value) => updateArea(index, 'bairroAldeia', value)}
-                                            disabled={!isEditing}
-                                            iconStart={<Home size={18} />}
-                                        />
-                                    </div>
-
-                                    <div className="bg-gray-50 rounded-xl p-4">
-                                        <h5 className="text-md font-semibold mb-4 flex items-center">
-                                            <MapPin className="w-5 h-5 mr-2 text-blue-600" />
-                                            Coordenadas GPS
-                                        </h5>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                            <CustomInput
-                                                type="number"
-                                                label="Latitude"
-                                                value={area.lat}
-                                                onChange={(value) => updateArea(index, 'lat', value)}
-                                                disabled={!isEditing}
-                                                step="any"
-                                            />
-                                            <CustomInput
-                                                type="number"
-                                                label="Longitude"
-                                                value={area.lng}
-                                                onChange={(value) => updateArea(index, 'lng', value)}
-                                                disabled={!isEditing}
-                                                step="any"
-                                            />
-                                        </div>
-                                        {isEditing && (
-                                            <>
-                                                <ProducerMap
-                                                    coordinates={{ lat: parseFloat(area.lat), lng: parseFloat(area.lng) }}
-                                                    producerName={area.nome}
-                                                />
-                                                <div className="mt-3 p-3 bg-blue-50 rounded-lg">
-                                                    <p className="text-sm text-blue-600 flex items-center">
-                                                        <Info size={16} className="mr-2" />
-                                                        Clique no mapa para selecionar uma localização automaticamente
-                                                    </p>
-                                                </div>
-                                            </>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
-
-
-                        </div>
+                        )}
                     </div>
                 );
 
-            case 3: // Espécies
-                return (
-                    <div className="max-w-full mx-auto">
-                        <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-6 mb-8 border border-emerald-100">
-                            <div className="flex items-center space-x-3 mb-3">
-                                <div className="p-2 bg-emerald-100 rounded-lg">
-                                    <Leaf className="w-6 h-6 text-emerald-600" />
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-800">Espécies Florestais</h3>
-                            </div>
-                            <p className="text-gray-600">
-                                Catálogo de espécies florestais presentes nas áreas.
-                            </p>
-                        </div>
-
-                        <div className="space-y-6">
-                            {especies.length === 0 && (
-                                <div className="text-center py-8 text-gray-500">
-                                    Nenhuma espécie cadastrada. Clique em "Adicionar Espécie" para começar.
-                                </div>
-                            )}
-
-                            {especies.map((especie, index) => (
-                                <div key={index} className="bg-white rounded-2xl border border-gray-200 p-6 relative">
-                                    {isEditing && (
-                                        <button
-                                            onClick={() => removeEspecie(index)}
-                                            className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-600 transition-colors"
-                                        >
-                                            <X size={16} />
-                                        </button>
-                                    )}
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <CustomInput
-                                            type="multiselect"
-                                            label="Espécie"
-                                            value={especie.especie || []}
-                                            options={especiesPredefinidas}
-                                            onChange={(value) => updateEspecie(index, 'especie', value)}
-                                            disabled={!isEditing}
-                                            iconStart={<Leaf size={18} />}
-                                        />
-
-                                        <CustomInput
-                                            type="select"
-                                            label="Estado"
-                                            value={especie.status}
-                                            options={statusEspecieOptions}
-                                            onChange={(value) => updateEspecie(index, 'status', value)}
-                                            disabled={!isEditing}
-                                        />
-                                    </div>
-                                </div>
-                            ))}
-
-
-                        </div>
-
-
-                    </div>
-                );
-
-            case 4: // Transportes
-                return (
-                    <div className="max-w-full mx-auto">
-                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 mb-8 border border-blue-100">
-                            <div className="flex items-center space-x-3 mb-3">
-                                <div className="p-2 bg-blue-100 rounded-lg">
-                                    <Truck className="w-6 h-6 text-blue-600" />
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-800">Transportes</h3>
-                            </div>
-                            <p className="text-gray-600">
-                                Gestão de transportes de produtos florestais.
-                            </p>
-                        </div>
-
-                        <div className="space-y-6">
-                            {transportes.length === 0 && (
-                                <div className="text-center py-8 text-gray-500">
-                                    Nenhum transporte cadastrado. Clique em "Adicionar Transporte" para começar.
-                                </div>
-                            )}
-
-                            {transportes.map((transporte, index) => (
-                                <div key={index} className="bg-white rounded-2xl border border-gray-200 p-6 relative">
-                                    {isEditing && (
-                                        <button
-                                            onClick={() => removeTransporte(index)}
-                                            className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-600 transition-colors"
-                                        >
-                                            <X size={16} />
-                                        </button>
-                                    )}
-
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                        <CustomInput
-                                            type="text"
-                                            label="Destino"
-                                            value={transporte.destino}
-                                            onChange={(value) => updateTransporte(index, 'destino', value)}
-                                            disabled={!isEditing}
-                                            iconStart={<MapPin size={18} />}
-                                        />
-
-                                        <CustomInput
-                                            type="text"
-                                            label="Placa do Veículo"
-                                            value={transporte.placa}
-                                            onChange={(value) => updateTransporte(index, 'placa', value)}
-                                            disabled={!isEditing}
-                                            iconStart={<Truck size={18} />}
-                                        />
-
-                                        <CustomInput
-                                            type="text"
-                                            label="Volume (m³)"
-                                            value={transporte.volume}
-                                            onChange={(value) => updateTransporte(index, 'volume', value)}
-                                            disabled={!isEditing}
-                                            iconStart={<Package size={18} />}
-                                        />
-
-                                        <CustomInput
-                                            type="text"
-                                            label="Status"
-                                            value={transporte.status}
-                                            onChange={(value) => updateTransporte(index, 'status', value)}
-                                            disabled={!isEditing}
-                                        />
-                                    </div>
-                                </div>
-                            ))}
-
-
-                        </div>
-
-                    </div>
-                );
-
-            case 5: // Produtos
+            case 2: // Tipo de Produção
                 return (
                     <div className="max-w-full mx-auto">
                         <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 mb-8 border border-purple-100">
                             <div className="flex items-center space-x-3 mb-3">
                                 <div className="p-2 bg-purple-100 rounded-lg">
-                                    <Package className="w-6 h-6 text-purple-600" />
+                                    <Activity className="w-6 h-6 text-purple-600" />
                                 </div>
-                                <h3 className="text-xl font-bold text-gray-800">Produtos Florestais</h3>
+                                <h3 className="text-xl font-bold text-gray-800">Tipo de Produção Afetada</h3>
                             </div>
                             <p className="text-gray-600">
-                                Gestão de produtos e produção florestal.
+                                Selecione o tipo de produção afetada pela praga ou doença.
                             </p>
                         </div>
 
-                        <div className="space-y-6">
-                            {produtos.length === 0 && (
-                                <div className="text-center py-8 text-gray-500">
-                                    Nenhum produto cadastrado. Clique em "Adicionar Produto" para começar.
-                                </div>
-                            )}
-
-                            {produtos.map((produto, index) => (
-                                <div key={index} className="bg-white rounded-2xl border border-gray-200 p-6 relative">
-                                    {isEditing && (
-                                        <button
-                                            onClick={() => removeProduto(index)}
-                                            className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-600 transition-colors"
-                                        >
-                                            <X size={16} />
-                                        </button>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div 
+                                className={`p-6 border-2 rounded-2xl transition-all ${isEditing ? 'cursor-pointer hover:shadow-md' : ''} ${
+                                    formData.tipoProducao === 'agricola' || formData.tipoProducao === 'agrícola' 
+                                        ? 'border-blue-500 bg-blue-50' 
+                                        : 'border-gray-200'
+                                }`}
+                                onClick={() => isEditing && updateFormData('tipoProducao', 'agrícola')}
+                            >
+                                <div className="text-center">
+                                    <Tractor className="w-12 h-12 mx-auto mb-4 text-blue-600" />
+                                    <h4 className="text-lg font-semibold text-gray-800 mb-2">Agrícola</h4>
+                                    <p className="text-sm text-gray-600">Culturas agrícolas afetadas por pragas</p>
+                                    {(formData.tipoProducao === 'agricola' || formData.tipoProducao === 'agrícola') && (
+                                        <p className="text-sm font-medium text-blue-600 mt-2">✓ Selecionado</p>
                                     )}
+                                </div>
+                            </div>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div 
+                                className={`p-6 border-2 rounded-2xl transition-all ${isEditing ? 'cursor-pointer hover:shadow-md' : ''} ${
+                                    formData.tipoProducao === 'pecuaria' || formData.tipoProducao === 'pecuária'
+                                        ? 'border-blue-500 bg-blue-50' 
+                                        : 'border-gray-200'
+                                }`}
+                                onClick={() => isEditing && updateFormData('tipoProducao', 'pecuária')}
+                            >
+                                <div className="text-center">
+                                    <Heart className="w-12 h-12 mx-auto mb-4 text-blue-600" />
+                                    <h4 className="text-lg font-semibold text-gray-800 mb-2">Pecuária</h4>
+                                    <p className="text-sm text-gray-600">Animais afetados por pragas ou doenças</p>
+                                    {(formData.tipoProducao === 'pecuaria' || formData.tipoProducao === 'pecuária') && (
+                                        <p className="text-sm font-medium text-blue-600 mt-2">✓ Selecionado</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div 
+                                className={`p-6 border-2 rounded-2xl transition-all ${isEditing ? 'cursor-pointer hover:shadow-md' : ''} ${
+                                    formData.tipoProducao === 'ambas'
+                                        ? 'border-blue-500 bg-blue-50' 
+                                        : 'border-gray-200'
+                                }`}
+                                onClick={() => isEditing && updateFormData('tipoProducao', 'ambas')}
+                            >
+                                <div className="text-center">
+                                    <Activity className="w-12 h-12 mx-auto mb-4 text-blue-600" />
+                                    <h4 className="text-lg font-semibold text-gray-800 mb-2">Ambas</h4>
+                                    <p className="text-sm text-gray-600">Produção agrícola e pecuária afetadas</p>
+                                    {formData.tipoProducao === 'ambas' && (
+                                        <p className="text-sm font-medium text-blue-600 mt-2">✓ Selecionado</p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                            <p className="text-sm text-gray-600">
+                                <strong>Tipo selecionado :</strong> {formData.tipoProducao || 'N/A'}
+                            </p>
+                        </div>
+
+                    </div>
+                );
+
+            case 3: // Info Agrícolas
+                return (
+                    <div className="max-w-full mx-auto">
+                        <div className="bg-gradient-to-r from-blue-50 to-emerald-50 rounded-2xl p-6 mb-8 border border-blue-100">
+                            <div className="flex items-center space-x-3 mb-3">
+                                <div className="p-2 bg-blue-100 rounded-lg">
+                                    <Tractor className="w-6 h-6 text-blue-600" />
+                                </div>
+                                <h3 className="text-xl font-bold text-gray-800">Informações Agrícolas</h3>
+                            </div>
+                            <p className="text-gray-600">
+                                Detalhes sobre as culturas agrícolas afetadas pela praga.
+                            </p>
+                        </div>
+
+                        <div className="space-y-8">
+                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                                <h4 className="text-lg font-semibold text-gray-800 mb-6">Dados da Propriedade</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <CustomInput
+                                        type="text"
+                                        label="Nome da Propriedade"
+                                        value={formData.nomePropriedade || ''}
+                                        onChange={(value) => updateFormData('nomePropriedade', value)}
+                                        disabled={!isEditing}
+                                        placeholder="Nome da propriedade ou fazenda"
+                                        iconStart={<Building size={18} />}
+                                        required
+                                    />
+
+                                    <CustomInput
+                                        type="number"
+                                        label="Área Total Cultivada (ha)"
+                                        value={formData.areaTotalCultivada || ''}
+                                        onChange={(value) => updateFormData('areaTotalCultivada', value)}
+                                        disabled={!isEditing}
+                                        placeholder="Ex: 10.5"
+                                        iconStart={<Tractor size={18} />}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                                <h4 className="text-lg font-semibold text-gray-800 mb-6">Tipo de Cultura *</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <CustomInput
+                                        type={isEditing ? "select" : "text"}
+                                        label="Tipo de Cultura"
+                                        value={isEditing ?
+                                            formData.tipoCultura ? { label: formData.tipoCultura, value: formData.tipoCultura } : null :
+                                            formData.tipoCultura || ''
+                                        }
+                                        options={[
+                                            { label: 'Cereais', value: 'cereais' },
+                                            { label: 'Frutas', value: 'frutas' },
+                                            { label: 'Hortícolas', value: 'horticolas' },
+                                            { label: 'Legumes', value: 'legumes' },
+                                            { label: 'Tubérculos', value: 'tuberculos' }
+                                        ]}
+                                        onChange={(value) => {
+                                            updateFormData('tipoCultura', isEditing ? value?.value : value);
+                                            if (isEditing) {
+                                                updateFormData('culturaAfetada', []);
+                                            }
+                                        }}
+                                        disabled={!isEditing}
+                                        placeholder="Selecione o tipo de cultura"
+                                        iconStart={<Tractor size={18} />}
+                                        required
+                                    />
+
+                                    {formData.tipoCultura && (
                                         <CustomInput
-                                            type="select"
-                                            label="Espécies"
-                                            value={produto.especiesIds}
-                                            options={especiesPredefinidas}
-                                            onChange={(value) => updateProduto(index, 'especiesIds', value)}
+                                            type={isEditing ? "multiselect" : "text"}
+                                            label={`${formData.tipoCultura?.charAt(0).toUpperCase() + formData.tipoCultura?.slice(1)} Afetadas`}
+                                            value={isEditing ? 
+                                                formData.culturaAfetada || [] :
+                                                Array.isArray(formData.culturaAfetada) ? formData.culturaAfetada.join(', ') : formData.culturaAfetada || ''
+                                            }
+                                            options={getCulturaOptions(formData.tipoCultura)}
+                                            onChange={(value) => updateFormData('culturaAfetada', value)}
                                             disabled={!isEditing}
-                                            iconStart={<Leaf size={18} />}
+                                            iconStart={<Wheat size={18} />}
                                         />
+                                    )}
+                                </div>
+                            </div>
 
-                                        <CustomInput
-                                            type="text"
-                                            label="Volume Anual (m³)"
-                                            value={produto.volumeAnual}
-                                            onChange={(value) => updateProduto(index, 'volumeAnual', value)}
-                                            disabled={!isEditing}
-                                            iconStart={<Package size={18} />}
-                                        />
+                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                                <h4 className="text-lg font-semibold text-gray-800 mb-6">Fase da Cultura</h4>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    {['Germinação', 'Crescimento', 'Floração', 'Maturação'].map(fase => (
+                                        <label key={fase} className="flex items-center space-x-3 cursor-pointer">
+                                            <input
+                                                type="radio"
+                                                name="faseCultura"
+                                                value={fase}
+                                                checked={formData.faseCultura === fase}
+                                                onChange={(e) => updateFormData('faseCultura', e.target.value)}
+                                                disabled={!isEditing}
+                                                className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                            />
+                                            <span className="text-sm font-medium text-gray-700">{fase}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
 
-                                        <CustomInput
-                                            type="text"
-                                            label="Destino"
-                                            value={produto.destino}
-                                            onChange={(value) => updateProduto(index, 'destino', value)}
-                                            disabled={!isEditing}
-                                            iconStart={<MapPin size={18} />}
-                                        />
+                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                                <h4 className="text-lg font-semibold text-gray-800 mb-6">Informações da Praga</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <CustomInput
+                                        type="text"
+                                        label="Nome da Praga"
+                                        value={formData.nomePraga || ''}
+                                        onChange={(value) => updateFormData('nomePraga', value)}
+                                        disabled={!isEditing}
+                                        placeholder="Nome científico ou comum da praga"
+                                        iconStart={<Bug size={18} />}
+                                        required
+                                    />
 
+                                    <CustomInput
+                                        type="text"
+                                        label="Nome Local da Praga"
+                                        value={formData.nomeLocalPraga || ''}
+                                        onChange={(value) => updateFormData('nomeLocalPraga', value)}
+                                        disabled={!isEditing}
+                                        placeholder="Nome local/popular da praga"
+                                        iconStart={<Bug size={18} />}
+                                    />
+
+                                    <CustomInput
+                                        type="date"
+                                        label="Data da Primeira Observação"
+                                        value={formData.dataPrimeiraObservacao || ''}
+                                        onChange={(value) => updateFormData('dataPrimeiraObservacao', value)}
+                                        disabled={!isEditing}
+                                        iconStart={<Calendar size={18} />}
+                                    />
+
+                                    <CustomInput
+                                        type="number"
+                                        label="Percentagem da Área Afetada (%)"
+                                        value={formData.percentagemAreaAfetada || ''}
+                                        onChange={(value) => {
+                                            const numValue = parseFloat(value);
+                                            if (numValue > 100) {
+                                                showToast('warn', 'Valor máximo', 'Valor máximo 100%');
+                                                updateFormData('percentagemAreaAfetada', 100);
+                                            } else {
+                                                updateFormData('percentagemAreaAfetada', value);
+                                            }
+                                        }}
+                                        disabled={!isEditing}
+                                        placeholder="Ex: 25.5"
+                                        min="0"
+                                        max="100"
+                                        iconStart={<Activity size={18} />}
+                                    />
+
+                                    <div className="md:col-span-2">
                                         <CustomInput
-                                            type="text"
-                                            label="Rastreabilidade"
-                                            value={produto.rastreabilidade}
-                                            onChange={(value) => updateProduto(index, 'rastreabilidade', value)}
+                                            type="textarea"
+                                            label="Sintomas Observados"
+                                            value={formData.sintomasObservados || ''}
+                                            onChange={(value) => updateFormData('sintomasObservados', value)}
                                             disabled={!isEditing}
+                                            placeholder="Descreva os sintomas observados nas plantas..."
+                                            rows={3}
                                         />
                                     </div>
                                 </div>
-                            ))}
+                            </div>
 
+                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                                <h4 className="text-lg font-semibold text-gray-800 mb-6">Avaliação e Medidas</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <CustomInput
+                                        type={isEditing ? "select" : "text"}
+                                        label="Grau do Dano"
+                                        value={isEditing ? 
+                                            formData.grauDano ? { label: formData.grauDano, value: formData.grauDano } : null :
+                                            formData.grauDano || ''
+                                        }
+                                        options={[
+                                            { label: 'Leve', value: 'Leve' },
+                                            { label: 'Moderado', value: 'Moderado' },
+                                            { label: 'Grave', value: 'Grave' }
+                                        ]}
+                                        onChange={(value) => updateFormData('grauDano', isEditing ? value?.value : value)}
+                                        disabled={!isEditing}
+                                        placeholder="Selecione"
+                                        iconStart={<AlertCircle size={18} />}
+                                    />
 
+                                    <CustomInput
+                                        type={isEditing ? "select" : "text"}
+                                        label="Necessita apoio técnico?"
+                                        value={isEditing ?
+                                            formData.necessitaApoioTecnico !== undefined ? 
+                                                { label: formData.necessitaApoioTecnico ? 'Sim' : 'Não', value: formData.necessitaApoioTecnico } : null :
+                                            formData.necessitaApoioTecnico ? 'Sim' : 'Não'
+                                        }
+                                        options={[
+                                            { label: 'Sim', value: true },
+                                            { label: 'Não', value: false }
+                                        ]}
+                                        onChange={(value) => updateFormData('necessitaApoioTecnico', isEditing ? value?.value : value)}
+                                        disabled={!isEditing}
+                                        placeholder="Selecione"
+                                        iconStart={<CheckCircle size={18} />}
+                                    />
+
+                                    <CustomInput
+                                        type={isEditing ? "select" : "text"}
+                                        label="Aplicou medida de controle?"
+                                        value={isEditing ?
+                                            formData.aplicouMedidaControle !== undefined ?
+                                                { label: formData.aplicouMedidaControle ? 'Sim' : 'Não', value: formData.aplicouMedidaControle } : null :
+                                            formData.aplicouMedidaControle ? 'Sim' : 'Não'
+                                        }
+                                        options={[
+                                            { label: 'Sim', value: true },
+                                            { label: 'Não', value: false }
+                                        ]}
+                                        onChange={(value) => updateFormData('aplicouMedidaControle', isEditing ? value?.value : value)}
+                                        disabled={!isEditing}
+                                        placeholder="Selecione"
+                                        iconStart={<Activity size={18} />}
+                                    />
+                                </div>
+
+                                {formData.aplicouMedidaControle && (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                                        <CustomInput
+                                            type="text"
+                                            label="Tipo de Medida Aplicada"
+                                            value={formData.tipoMedidaAplicada || ''}
+                                            onChange={(value) => updateFormData('tipoMedidaAplicada', value)}
+                                            disabled={!isEditing}
+                                            placeholder="Ex: Pulverização com inseticida"
+                                            iconStart={<Activity size={18} />}
+                                        />
+
+                                        <CustomInput
+                                            type={isEditing ? "select" : "text"}
+                                            label="Resultado da Medida"
+                                            value={isEditing ?
+                                                formData.resultadoMedida ? { label: formData.resultadoMedida, value: formData.resultadoMedida } : null :
+                                                formData.resultadoMedida || ''
+                                            }
+                                            options={[
+                                                { label: 'Eficaz', value: 'Eficaz' },
+                                                { label: 'Parcial', value: 'Parcial' },
+                                                { label: 'Sem efeito', value: 'Sem efeito' }
+                                            ]}
+                                            onChange={(value) => updateFormData('resultadoMedida', isEditing ? value?.value : value)}
+                                            disabled={!isEditing}
+                                            placeholder="Selecione"
+                                            iconStart={<CheckCircle size={18} />}
+                                        />
+                                    </div>
+                                )}
+
+                                <div className="mt-6">
+                                    <CustomInput
+                                        type="textarea"
+                                        label="Observações Adicionais"
+                                        value={formData.observacoesAdicionais || ''}
+                                        onChange={(value) => updateFormData('observacoesAdicionais', value)}
+                                        disabled={!isEditing}
+                                        placeholder="Informações adicionais relevantes..."
+                                        rows={3}
+                                    />
+                                </div>
+                            </div>
+
+                            {(isEditing || formData.fotoPraga || previewPerfil) && (
+                                <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                                    <h4 className="text-lg font-semibold text-gray-800 mb-6">Foto da Praga ou Sintomas</h4>
+                                    <div className="relative">
+                                        <input
+                                            type="file"
+                                            className="hidden"
+                                            accept="image/*"
+                                            id="foto-praga-agricola"
+                                            onChange={handleFotoPerfilChange}
+                                            disabled={!isEditing}
+                                        />
+                                        <label
+                                            htmlFor="foto-praga-agricola"
+                                            className={`flex flex-col items-center justify-center h-40 sm:h-48 md:h-56 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
+                                                previewPerfil || formData.fotoPraga ? 
+                                                'bg-green-50 border-green-300 hover:bg-green-100' : 
+                                                'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
+                                            }`}
+                                        >
+                                            {previewPerfil ? (
+                                                <img src={previewPerfil} alt="Preview" className="w-full h-full object-cover rounded-lg max-w-full max-h-full" />
+                                            ) : formData.fotoPraga ? (
+                                                <>
+                                                    <CheckCircle className="w-8 h-8 mb-3 text-green-600" />
+                                                    <p className="text-sm font-medium text-green-600">Foto carregada com sucesso</p>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Camera className="w-8 h-8 mb-3 text-gray-400" />
+                                                    <p className="text-sm font-medium text-gray-500">{novaFotoPerfil ? novaFotoPerfil.name : 'Carregar foto da praga'}</p>
+                                                </>
+                                            )}
+                                        </label>
+                                        {previewPerfil && isEditing && (
+                                            <div className="flex gap-2 mt-3">
+                                                <button
+                                                    onClick={() => uploadFotoPerfil(novaFotoPerfil)}
+                                                    disabled={uploadingPerfil}
+                                                    className=" px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300 text-sm "
+                                                >
+                                                    {uploadingPerfil ? 'Enviando...' : 'Salvar Foto'}
+                                                </button>
+                                                <button
+                                                    onClick={cancelarFotoPerfil}
+                                                    className="px-3 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 text-sm"
+                                                >
+                                                    Cancelar
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                    </div>
+                );
+
+            case 4: // Info Pecuárias
+                if (formData.tipoProducao !== 'pecuaria' && formData.tipoProducao !== 'pecuária' && formData.tipoProducao !== 'ambas') {
+                    return (
+                        <div className="text-center py-20">
+                            <Heart className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+                            <h3 className="text-xl font-semibold text-gray-600 mb-2">Informações Pecuárias</h3>
+                            <p className="text-gray-500">Esta seção será preenchida apenas se a produção pecuária for afetada.</p>
+                        </div>
+                    );
+                }
+
+                return (
+                    <div className="max-w-full mx-auto">
+                        <div className="bg-gradient-to-r from-red-50 to-pink-50 rounded-2xl p-6 mb-8 border border-red-100">
+                            <div className="flex items-center space-x-3 mb-3">
+                                <div className="p-2 bg-red-100 rounded-lg">
+                                    <Heart className="w-6 h-6 text-red-600" />
+                                </div>
+                                <h3 className="text-xl font-bold text-gray-800">Informações Pecuárias</h3>
+                            </div>
+                            <p className="text-gray-600">
+                                Detalhes sobre os animais afetados pela praga ou doença.
+                            </p>
+                        </div>
+
+                        <div className="space-y-8">
+                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                                <h4 className="text-lg font-semibold text-gray-800 mb-6">Dados da Fazenda</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <CustomInput
+                                        type="text"
+                                        label="Nome da Fazenda"
+                                        value={formData.nomeFazenda || ''}
+                                        onChange={(value) => updateFormData('nomeFazenda', value)}
+                                        disabled={!isEditing}
+                                        placeholder="Nome da fazenda ou propriedade"
+                                        iconStart={<Building size={18} />}
+                                        required
+                                    />
+
+                                    <CustomInput
+                                        type="number"
+                                        label="Número Total de Animais"
+                                        value={formData.numeroTotalAnimais || ''}
+                                        onChange={(value) => updateFormData('numeroTotalAnimais', value)}
+                                        disabled={!isEditing}
+                                        placeholder="Ex: 150"
+                                        iconStart={<Heart size={18} />}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                                <h4 className="text-lg font-semibold text-gray-800 mb-6">Espécie Animal Afetada *</h4>
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                    {['Bovino', 'Caprino', 'Ovino', 'Suíno', 'Aves', 'Outros'].map(especie => (
+                                        <label key={especie} className="flex items-center space-x-3 cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={Array.isArray(formData.especieAnimalAfetada) ? 
+                                                    formData.especieAnimalAfetada.includes(especie) : 
+                                                    formData.especieAnimalAfetada === especie
+                                                }
+                                                onChange={(e) => {
+                                                    if (!isEditing) return;
+                                                    const currentEspecies = Array.isArray(formData.especieAnimalAfetada) ? 
+                                                        formData.especieAnimalAfetada : 
+                                                        formData.especieAnimalAfetada ? [formData.especieAnimalAfetada] : [];
+                                                    const newEspecies = e.target.checked
+                                                        ? [...currentEspecies, especie]
+                                                        : currentEspecies.filter(e => e !== especie);
+                                                    updateFormData('especieAnimalAfetada', newEspecies);
+                                                }}
+                                                disabled={!isEditing}
+                                                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                            />
+                                            <span className="text-sm font-medium text-gray-700">{especie}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                                <h4 className="text-lg font-semibold text-gray-800 mb-6">Informações da Praga/Doença</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <CustomInput
+                                        type="text"
+                                        label="Nome da Praga/Doença"
+                                        value={formData.nomePragaDoenca || ''}
+                                        onChange={(value) => updateFormData('nomePragaDoenca', value)}
+                                        disabled={!isEditing}
+                                        placeholder="Nome da praga ou doença"
+                                        iconStart={<Bug size={18} />}
+                                        required
+                                    />
+
+                                    <CustomInput
+                                        type="date"
+                                        label="Data da Primeira Observação"
+                                        value={formData.dataPrimeiraObservacaoPecuaria || ''}
+                                        onChange={(value) => updateFormData('dataPrimeiraObservacaoPecuaria', value)}
+                                        disabled={!isEditing}
+                                        iconStart={<Calendar size={18} />}
+                                    />
+
+                                    <CustomInput
+                                        type="number"
+                                        label="Número de Animais Afetados"
+                                        value={formData.numeroAnimaisAfetados || ''}
+                                        onChange={(value) => updateFormData('numeroAnimaisAfetados', value)}
+                                        disabled={!isEditing}
+                                        placeholder="Ex: 25"
+                                        iconStart={<Heart size={18} />}
+                                    />
+
+                                    <CustomInput
+                                        type={isEditing ? "select" : "text"}
+                                        label="Grau do Dano"
+                                        value={isEditing ?
+                                            formData.grauDanoPecuaria ? { label: formData.grauDanoPecuaria, value: formData.grauDanoPecuaria } : null :
+                                            formData.grauDanoPecuaria || ''
+                                        }
+                                        options={[
+                                            { label: 'Leve', value: 'Leve' },
+                                            { label: 'Moderado', value: 'Moderado' },
+                                            { label: 'Grave', value: 'Grave' }
+                                        ]}
+                                        onChange={(value) => updateFormData('grauDanoPecuaria', isEditing ? value?.value : value)}
+                                        disabled={!isEditing}
+                                        placeholder="Selecione"
+                                        iconStart={<AlertCircle size={18} />}
+                                    />
+
+                                    <div className="md:col-span-2">
+                                        <CustomInput
+                                            type="textarea"
+                                            label="Sintomas Observados"
+                                            value={formData.sintomasObservadosPecuaria || ''}
+                                            onChange={(value) => updateFormData('sintomasObservadosPecuaria', value)}
+                                            disabled={!isEditing}
+                                            placeholder="Descreva os sintomas observados nos animais..."
+                                            rows={3}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                                <h4 className="text-lg font-semibold text-gray-800 mb-6">Tratamento e Medidas</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <CustomInput
+                                        type={isEditing ? "select" : "text"}
+                                        label="Aplicou algum tratamento?"
+                                        value={isEditing ?
+                                            formData.aplicouTratamento !== undefined ?
+                                                { label: formData.aplicouTratamento ? 'Sim' : 'Não', value: formData.aplicouTratamento } : null :
+                                            formData.aplicouTratamento ? 'Sim' : 'Não'
+                                        }
+                                        options={[
+                                            { label: 'Sim', value: true },
+                                            { label: 'Não', value: false }
+                                        ]}
+                                        onChange={(value) => updateFormData('aplicouTratamento', isEditing ? value?.value : value)}
+                                        disabled={!isEditing}
+                                        placeholder="Selecione"
+                                        iconStart={<Activity size={18} />}
+                                    />
+
+                                    <CustomInput
+                                        type={isEditing ? "select" : "text"}
+                                        label="Necessita apoio veterinário?"
+                                        value={isEditing ?
+                                            formData.necessitaApoioVeterinario !== undefined ?
+                                                { label: formData.necessitaApoioVeterinario ? 'Sim' : 'Não', value: formData.necessitaApoioVeterinario } : null :
+                                            formData.necessitaApoioVeterinario ? 'Sim' : 'Não'
+                                        }
+                                        options={[
+                                            { label: 'Sim', value: true },
+                                            { label: 'Não', value: false }
+                                        ]}
+                                        onChange={(value) => updateFormData('necessitaApoioVeterinario', isEditing ? value?.value : value)}
+                                        disabled={!isEditing}
+                                        placeholder="Selecione"
+                                        iconStart={<CheckCircle size={18} />}
+                                    />
+                                </div>
+
+                                {(formData.aplicouTratamento === true || formData.aplicouTratamento?.value === true) && (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                                        <CustomInput
+                                            type="text"
+                                            label="Tipo de Tratamento Usado"
+                                            value={formData.tipoTratamento || ''}
+                                            onChange={(value) => updateFormData('tipoTratamento', value)}
+                                            disabled={!isEditing}
+                                            placeholder="Ex: Medicamento, vacina, etc."
+                                            iconStart={<Activity size={18} />}
+                                        />
+
+                                        <CustomInput
+                                            type={isEditing ? "select" : "text"}
+                                            label="Resultado do Tratamento"
+                                            value={isEditing ?
+                                                formData.resultadoTratamento ? { label: formData.resultadoTratamento, value: formData.resultadoTratamento } : null :
+                                                formData.resultadoTratamento || ''
+                                            }
+                                            options={[
+                                                { label: 'Eficaz', value: 'Eficaz' },
+                                                { label: 'Parcial', value: 'Parcial' },
+                                                { label: 'Sem efeito', value: 'Sem efeito' }
+                                            ]}
+                                            onChange={(value) => updateFormData('resultadoTratamento', isEditing ? value?.value : value)}
+                                            disabled={!isEditing}
+                                            placeholder="Selecione"
+                                            iconStart={<CheckCircle size={18} />}
+                                        />
+                                    </div>
+                                )}
+
+                                <div className="mt-6">
+                                    <CustomInput
+                                        type="textarea"
+                                        label="Observações Adicionais"
+                                        value={formData.observacoesAdicionaisPecuaria || ''}
+                                        onChange={(value) => updateFormData('observacoesAdicionaisPecuaria', value)}
+                                        disabled={!isEditing}
+                                        placeholder="Informações adicionais relevantes..."
+                                        rows={3}
+                                    />
+                                </div>
+                            </div>
+
+                            {(isEditing || formData.fotoPragaPecuaria || previewDigitais) && (
+                                <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                                    <h4 className="text-lg font-semibold text-gray-800 mb-6">Foto dos Sinais Clínicos</h4>
+                                    <div className="relative">
+                                        <input
+                                            type="file"
+                                            className="hidden"
+                                            accept="image/*"
+                                            id="foto-praga-pecuaria"
+                                            onChange={handleFotoDigitaisChange}
+                                            disabled={!isEditing}
+                                        />
+                                        <label
+                                            htmlFor="foto-praga-pecuaria"
+                                            className={`flex flex-col items-center justify-center h-40 sm:h-48 md:h-56 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
+                                                previewDigitais || formData.fotoPragaPecuaria ? 
+                                                'bg-green-50 border-green-300 hover:bg-green-100' : 
+                                                'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
+                                            }`}
+                                        >
+                                            {previewDigitais ? (
+                                                <img src={previewDigitais} alt="Preview" className="w-full h-full object-cover rounded-lg max-w-full max-h-full" />
+                                            ) : formData.fotoPragaPecuaria ? (
+                                                <>
+                                                    <CheckCircle className="w-8 h-8 mb-3 text-green-600" />
+                                                    <p className="text-sm font-medium text-green-600">Foto carregada com sucesso</p>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Camera className="w-8 h-8 mb-3 text-gray-400" />
+                                                    <p className="text-sm font-medium text-gray-500">{novaFotoDigitais ? novaFotoDigitais.name : 'Carregar foto dos sinais clínicos'}</p>
+                                                </>
+                                            )}
+                                        </label>
+                                        {previewDigitais && isEditing && (
+                                            <div className="flex gap-2 mt-3">
+                                                <button
+                                                    onClick={() => uploadFotoDigitais(novaFotoDigitais)}
+                                                    disabled={uploadingDigitais}
+                                                    className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300 text-sm"
+                                                >
+                                                    {uploadingDigitais ? 'Enviando...' : 'Salvar Foto'}
+                                                </button>
+                                                <button
+                                                    onClick={cancelarFotoDigitais}
+                                                    className="px-3 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 text-sm"
+                                                >
+                                                    Cancelar
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                );
+
+            case 5: // Finalização
+                return (
+                    <div className="max-w-full mx-auto">
+                        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-6 mb-8 border border-indigo-100">
+                            <div className="flex items-center space-x-3 mb-3">
+                                <div className="p-2 bg-indigo-100 rounded-lg">
+                                    <FileText className="w-6 h-6 text-indigo-600" />
+                                </div>
+                                <h3 className="text-xl font-bold text-gray-800">Finalização</h3>
+                            </div>
+                            <p className="text-gray-600">
+                                Informações do validador responsável pela confirmação dos dados.
+                            </p>
+                        </div>
+
+                        <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                            <h4 className="text-lg font-semibold text-gray-800 mb-6">Dados do Validador</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <CustomInput
+                                    type="text"
+                                    label="Nome do Validador"
+                                    value={formData.nomeValidador || ''}
+                                    onChange={(value) => updateFormData('nomeValidador', value)}
+                                    disabled={!isEditing}
+                                    placeholder="Nome completo do validador"
+                                    iconStart={<User size={18} />}
+                                    required
+                                />
+
+                                <CustomInput
+                                    type="text"
+                                    label="Instituição"
+                                    value={formData.instituicao || ''}
+                                    onChange={(value) => updateFormData('instituicao', value)}
+                                    disabled={!isEditing}
+                                    placeholder="Nome da instituição"
+                                    iconStart={<Building size={18} />}
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div className="mt-8 bg-blue-50 rounded-2xl p-6 border border-blue-200">
+                            <h4 className="text-lg font-semibold text-blue-800 mb-6 flex items-center">
+                                <Info className="w-5 h-5 mr-2" />
+                                Resumo do Registro
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                                <div>
+                                    <span className="font-medium text-gray-600">Responsável:</span>
+                                    <p className="text-gray-800">{formData.nomeResponsavel || 'N/A'}</p>
+                                </div>
+                                <div>
+                                    <span className="font-medium text-gray-600">Localização:</span>
+                                    <p className="text-gray-800">{formData.provincia || 'N/A'}, {formData.municipio || 'N/A'}</p>
+                                </div>
+                                <div>
+                                    <span className="font-medium text-gray-600">Tipo de Produção:</span>
+                                    <p className="text-gray-800 capitalize">{formData.tipoProducao || 'N/A'}</p>
+                                </div>
+                                {(formData.tipoProducao === 'agricola' || formData.tipoProducao === 'agrícola' || formData.tipoProducao === 'ambas') && (
+                                    <>
+                                        <div>
+                                            <span className="font-medium text-gray-600">Propriedade:</span>
+                                            <p className="text-gray-800">{formData.nomePropriedade || 'N/A'}</p>
+                                        </div>
+                                        <div>
+                                            <span className="font-medium text-gray-600">Praga Agrícola:</span>
+                                            <p className="text-gray-800">{formData.nomePraga || 'N/A'}</p>
+                                        </div>
+                                    </>
+                                )}
+                                {(formData.tipoProducao === 'pecuaria' || formData.tipoProducao === 'pecuária' || formData.tipoProducao === 'ambas') && (
+                                    <>
+                                        <div>
+                                            <span className="font-medium text-gray-600">Fazenda:</span>
+                                            <p className="text-gray-800">{formData.nomeFazenda || 'N/A'}</p>
+                                        </div>
+                                        <div>
+                                            <span className="font-medium text-gray-600">Praga/Doença:</span>
+                                            <p className="text-gray-800">{formData.nomePragaDoenca || 'N/A'}</p>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
                         </div>
                     </div>
                 );
@@ -2044,22 +2437,22 @@ const VisualizarPraga = () => {
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-600"></div>
-                    <p className="mt-4 text-gray-600">Carregando dados do produtor...</p>
+                    <p className="mt-4 text-gray-600">Carregando dados da praga...</p>
                 </div>
             </div>
         );
     }
 
-    // Produtor não encontrado
-    if (!produtor) {
+    // Praga não encontrada
+    if (!praga) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
                     <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">Produtor não encontrado</h1>
-                    <p className="text-gray-600 mb-6">O produtor solicitado não foi encontrado no sistema.</p>
+                    <h1 className="text-2xl font-bold text-gray-900 mb-2">Praga não encontrada</h1>
+                    <p className="text-gray-600 mb-6">A ocorrência de praga solicitada não foi encontrada no sistema.</p>
                     <button
-                        onClick={() => navigate('/GerenciaRNPA/gestao-agricultores/produtores')}
+                        onClick={() => navigate('/GerenciaRNPA/pragas')}
                         className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                     >
                         Voltar à lista
@@ -2193,45 +2586,19 @@ const VisualizarPraga = () => {
                             {/* Título e navegação */}
                             <div className="flex items-center gap-4">
                                 <button
-                                    onClick={() => navigate('/GerenciaRNPA/gestao-florestal/produtoresFlorestais')}
+                                    onClick={() => navigate('/GerenciaRNPA/pragas')}
                                     className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                                 >
                                     <ArrowLeft className="w-5 h-5 text-gray-600" />
                                 </button>
                                 <div>
                                     <h1 className="text-2xl font-bold text-gray-900">
-                                        {isEditing ? 'Editando Produtor Florestal' : 'Detalhes do Produtor Florestal'}
+                                        {isEditing ? 'Editando Ocorrência de Praga' : 'Detalhes da Ocorrência de Praga'}
                                     </h1>
-                                    <p className="text-gray-600">Código: {produtor.codigoRNPA}</p>
+                                    <p className="text-gray-600">ID: {praga?.id || 'N/A'}</p>
                                 </div>
 
-                                {/* Controles do Header */}
-                                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                                    {/* Seletor de Província */}
-                                    <div className="relative">
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">
-                                            Filtrar por Província
-                                        </label>
-                                        <div className="relative">
-                                            <CustomInput
-                                                type="select"
-                                                value={selectedProvince}
-                                                onChange={setSelectedProvince}
-                                                options={provincias}
-                                                className="min-w-48"
-                                            />
-                                        </div>
-                                    </div>
-                                    {/* Filtros */}
-                                    <button
-                                        onClick={() => setShowFilters(!showFilters)}
-                                        className="flex items-center mt-4 space-x-2 px-3 py-2 text-gray-600 hover:text-gray-900 transition-colors border rounded-lg"
-                                    >
-                                        <Filter className="h-4 w-4" />
-                                        <span>Filtro Avançado</span>
-                                        <ChevronDown className={`h-4 w-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
-                                    </button>
-                                </div>
+
                             </div>
 
                             {/* Botões de ação do cabeçalho */}
@@ -2356,17 +2723,23 @@ const VisualizarPraga = () => {
 
                         {/* Status Badge */}
                         <div className="mt-4 flex items-center gap-4">
-                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(getSelectStringValue(formData.statusProcesso))}`}>
-                                {getSelectStringValue(formData.statusProcesso) === 'CONFORME' && <Clock className="w-4 h-4 mr-1" />}
-                                {getSelectStringValue(formData.statusProcesso) === 'IRREGULAR' && <CheckCircle className="w-4 h-4 mr-1" />}
-                                {getSelectStringValue(formData.statusProcesso) === 'CONFORME' ? 'Conforme' :
-                                    getSelectStringValue(formData.statusProcesso) === 'IRREGULAR' ? ' Irregular' :
-                                        getSelectStringValue(formData.statusProcesso) === 'APROVADO' ? 'Aprovado' : 'Rejeitado'}
+                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${
+                                currentStatus === 'Controlado' ? 'bg-green-100 text-green-800 border-green-300' :
+                                currentStatus === 'Detectado' ? 'bg-red-100 text-red-800 border-red-300' :
+                                currentStatus === 'EmTratamento' ? 'bg-yellow-100 text-yellow-800 border-yellow-300' :
+                                'bg-gray-100 text-gray-800 border-gray-300'
+                            }`}>
+                                {currentStatus === 'Controlado' && <CheckCircle className="w-4 h-4 mr-1" />}
+                                {currentStatus === 'Detectado' && <AlertCircle className="w-4 h-4 mr-1" />}
+                                {currentStatus === 'EmTratamento' && <Clock className="w-4 h-4 mr-1" />}
+                                {currentStatus === 'Controlado' ? 'Controlado' :
+                                    currentStatus === 'Detectado' ? 'Detectado' :
+                                        currentStatus === 'EmTratamento' ? 'Em Tratamento' : currentStatus || 'N/A'}
                             </span>
-                            {isProdutorAprovado(produtor) && (
+                            {isPragaAprovada(praga) && (
                                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-50 text-green-700 border border-green-200">
                                     <Award className="w-4 h-4 mr-1" />
-                                    Produtor Validado
+                                    Praga Validada
                                 </span>
                             )}
                         </div>

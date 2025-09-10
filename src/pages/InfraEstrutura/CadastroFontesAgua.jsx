@@ -860,11 +860,10 @@ const CadastroFontesAgua = () => {
     };
 
     return (
-        <div className="bg-gray-50 min-h-screen">
+        <div className="bg-gray-50 min-h-screen rounded-xl shadow-md overflow-hidden">
             {/* Header */}
             <div className="text-center mb-6 p-10 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-cyan-50">
                 <h1 className="text-4xl font-bold mb-3 text-gray-800">Registo de Fontes de Água para Irrigação</h1>
-                <p className="text-gray-600">Sistema Nacional de Registo de Pequenos Agricultores</p>
             </div>
 
             {/* Stepper */}

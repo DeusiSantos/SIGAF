@@ -53,7 +53,9 @@ const GestaoPragas = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [lastUpdate, setLastUpdate] = useState(new Date());
-    const itemsPerPage = 26;
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [pragaToDelete, setPragaToDelete] = useState(null);
+    const itemsPerPage = 5;
     const containerRef = useRef(null);
 
     // Lista de províncias angolanas
@@ -88,6 +90,8 @@ const GestaoPragas = () => {
             }
 
             const dados = await response.json();
+
+            console
 
             // Filtrar dados válidos e mapear para estrutura compatível
             const dadosValidos = dados.filter(item =>
@@ -130,7 +134,7 @@ const GestaoPragas = () => {
                     numeroAnimaisAfetados: parseInt(item.n_mero_de_Animais_Afetados) || 0,
                     grauDano: item.grau_do_Dano_001 === 'grave' ? 'Grave' :
                         item.grau_do_Dano_001 === 'moderado' ? 'Moderado' :
-                            item.grau_do_Dano_001 === 'leve' ? 'Leve' : 'Leve',
+                            item.grau_do_Dano_001 === 'leve' ? 'Leve' : 'Regina',
                     dataRegistro: item.data_de_Registro,
                     dataPrimeiraObservacao: item.data_da_Primeira_Observa_o || item.data_da_Primeira_Observa_o_001,
                     aplicouMedidaControle: item.aplicou_alguma_medida_de_contr === 'sim',
@@ -234,6 +238,77 @@ const GestaoPragas = () => {
             'success',
             'Status Atualizado',
             `Ocorrência marcada como ${getStatusLabel(newStatus)}`
+        );
+    };
+
+    // Função para abrir modal de confirmação
+    const openDeleteModal = (pragaId) => {
+        setPragaToDelete(pragaId);
+        setShowDeleteModal(true);
+    };
+
+    // Função para fechar modal
+    const closeDeleteModal = () => {
+        setShowDeleteModal(false);
+        setPragaToDelete(null);
+    };
+
+    // Função para deletar praga após confirmação
+    const handleConfirmDelete = async () => {
+        if (!pragaToDelete) return;
+        try {
+            const response = await fetch(`https://mwangobrainsa-001-site2.mtempurl.com/api/pragas/${pragaToDelete}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            
+            if (response.ok) {
+                setPragas(prevPragas => prevPragas.filter(praga => praga.id !== pragaToDelete));
+                showToast('success', 'Excluído', 'Ocorrência de praga excluída com sucesso!');
+            } else {
+                throw new Error('Erro ao excluir');
+            }
+        } catch (error) {
+            console.error('Erro ao excluir praga:', error);
+            showToast('error', 'Erro', 'Erro ao excluir ocorrência de praga.');
+        } finally {
+            closeDeleteModal();
+        }
+    };
+
+    // Modal de confirmação visual
+    const DeleteConfirmModal = () => {
+        if (!showDeleteModal) return null;
+        const praga = pragas.find(p => p.id === pragaToDelete);
+        return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm flex flex-col items-center">
+                    <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-3">
+                        <AlertCircle className="w-6 h-6 text-red-600" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Confirmar Exclusão</h3>
+                    <p className="text-gray-600 text-center text-sm mb-4">
+                        Tem certeza que deseja excluir a ocorrência <span className="font-semibold text-red-600">{praga?.nomePraga || 'Selecionada'}</span>?<br/>
+                        Esta ação não pode ser desfeita. Todos os dados da ocorrência serão removidos permanentemente.
+                    </p>
+                    <div className="flex gap-3 mt-2 w-full">
+                        <button
+                            onClick={handleConfirmDelete}
+                            className="flex-1 p-2 bg-red-600 hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 text-white rounded-lg transition-all duration-200 transform hover:-translate-y-0.5"
+                        >
+                            Sim, excluir
+                        </button>
+                        <button
+                            onClick={closeDeleteModal}
+                            className="flex-1 p-2 bg-gray-100 hover:bg-gray-200 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 text-gray-700 rounded-lg transition-all duration-200 transform hover:-translate-y-0.5"
+                        >
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
         );
     };
 
@@ -738,14 +813,7 @@ const GestaoPragas = () => {
                                                 <Eye className="w-5 h-5" />
                                             </button>
                                             <button
-                                                onClick={() => handleEditPraga(praga.id)}
-                                                className="p-2 hover:bg-blue-100 text-blue-600 hover:text-blue-800 rounded-full transition-colors"
-                                                title="Editar"
-                                            >
-                                                <Pencil className="w-5 h-5" />
-                                            </button>
-                                            <button
-                                                onClick={() => handleDeletePraga(praga.id)}
+                                                onClick={() => openDeleteModal(praga.id)}
                                                 className="p-2 hover:bg-red-100 text-red-600 hover:text-red-800 rounded-full transition-colors"
                                                 title="Remover"
                                             >
@@ -815,14 +883,7 @@ const GestaoPragas = () => {
                                                 <Eye className="w-4 h-4" />
                                             </button>
                                             <button
-                                                onClick={() => handleEditPraga(praga.id)}
-                                                className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-full transition-colors"
-                                                title="Editar"
-                                            >
-                                                <Pencil className="w-4 h-4" />
-                                            </button>
-                                            <button
-                                                onClick={() => handleDeletePraga(praga.id)}
+                                                onClick={() => openDeleteModal(praga.id)}
                                                 className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-full transition-colors"
                                                 title="Remover"
                                             >
@@ -922,6 +983,7 @@ const GestaoPragas = () => {
                     </div>
                 )}
             </div>
+            <DeleteConfirmModal />
         </div>
     );
 };
