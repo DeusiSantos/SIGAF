@@ -596,13 +596,13 @@ const GestaoApoiAgricola = () => {
                                     Localização
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                    Contato & Capacidade
+                                    Contacto & Capacidade
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                     Situação Legal
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                    Ação
+                                    Acção
                                 </th>
                             </tr>
                         </thead>

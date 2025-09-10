@@ -216,7 +216,7 @@ const mapApiDataToProdutor = (apiData) => {
         sexoChefe: apiData.sexo_chefe === 'm' ? 'MASCULINO' : 'FEMININO',
         totalAgregado: parseInt(apiData.total_agregado) || 1,
         feminino0a6: parseInt(apiData.feminino_0_6) || 0,
-        masculino0a6: parseInt(apiData.masculino_0_6) || 0,
+        masculino0a6: parseInt(apiData.masculino_0_6) || 0,   
         feminino7a18: parseInt(apiData.feminino_7_18) || 0,
         masculino7a18: parseInt(apiData.masculino_7_18) || 0,
         feminino19a60: parseInt(apiData.feminino_19_60) || 0,

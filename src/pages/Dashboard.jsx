@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   PieChart, Pie, LineChart, Line, XAxis, YAxis, BarChart, Bar,
   CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, Sector
@@ -277,40 +277,62 @@ const Dashboard = () => {
     { value: 'cuanza_sul', label: 'Cuanza Sul' }
   ];
 
-  // Buscar total de produtores aprovados com filtro por província
+  // Função utilitária para construir endpoints com filtros
+  const buildEndpoint = useCallback((baseEndpoint) => {
+    const params = new URLSearchParams();
+
+    const provinciaValue = typeof selectedProvince === 'object' ? selectedProvince?.value : selectedProvince;
+    
+    if (provinciaValue && provinciaValue !== 'todas') {
+      const provinciaMap = {
+        'luanda': 'Luanda',
+        'benguela': 'Benguela', 
+        'huila': 'Huíla',
+        'bie': 'Bié',
+        'malanje': 'Malanje',
+        'huambo': 'Huambo',
+        'cabinda': 'Cabinda',
+        'zaire': 'Zaire',
+        'uige': 'Uíge',
+        'cunene': 'Cunene',
+        'namibe': 'Namibe',
+        'lunda_norte': 'Lunda Norte',
+        'lunda_sul': 'Lunda Sul',
+        'moxico': 'Moxico',
+        'cuando_cubango': 'Cuando Cubango',
+        'bengo': 'Bengo',
+        'cuanza_norte': 'Cuanza Norte',
+        'cuanza_sul': 'Cuanza Sul'
+      };
+      const nomeProvinciaCompleto = provinciaMap[provinciaValue];
+      if (nomeProvinciaCompleto) {
+        params.append('provincia', nomeProvinciaCompleto);
+      }
+    }
+    
+    if (selectedPeriodo !== 'todos') {
+      params.append('periodo', selectedPeriodo);
+    }
+    
+    if (selectedEstado !== 'todos') {
+      params.append('estado', selectedEstado);
+    }
+    
+    if (selectedAtividade !== 'todos') {
+      params.append('atividade', selectedAtividade);
+    }
+    
+    return params.toString() ? `${baseEndpoint}?${params.toString()}` : baseEndpoint;
+  }, [selectedProvince, selectedPeriodo, selectedEstado, selectedAtividade]);
+
+  // Buscar total de produtores aprovados com todos os filtros
   useEffect(() => {
     const fetchAprovados = async () => {
       try {
-        let endpoint = '/dashboard/totalDeProdutorAprovado';
-        
-        if (selectedProvince !== 'todas') {
-          const provinciaMap = {
-            'luanda': 'Luanda',
-            'benguela': 'Benguela', 
-            'huila': 'Huíla',
-            'bie': 'Bié',
-            'malanje': 'Malanje',
-            'huambo': 'Huambo',
-            'cabinda': 'Cabinda',
-            'zaire': 'Zaire',
-            'uige': 'Uíge',
-            'cunene': 'Cunene',
-            'namibe': 'Namibe',
-            'lunda_norte': 'Lunda Norte',
-            'lunda_sul': 'Lunda Sul',
-            'moxico': 'Moxico',
-            'cuando_cubango': 'Cuando Cubango',
-            'bengo': 'Bengo',
-            'cuanza_norte': 'Cuanza Norte',
-            'cuanza_sul': 'Cuanza Sul'
-          };
-          const nomeProvinciaCompleto = provinciaMap[selectedProvince];
-          endpoint += `?provincia=${encodeURIComponent(nomeProvinciaCompleto)}`;
-        }
-
+        const endpoint = buildEndpoint('/dashboard/totalDeProdutorAprovado');
         const resposta = await api.get(endpoint);
         setTotalAprovados(resposta.data || 0);
-        console.log('Total aprovados:', resposta.data, 'provincia:', selectedProvince);
+        console.log('Total aprovados:', resposta.data, 'filtros aplicados');
       } catch (error) {
         console.error('Erro ao buscar aprovados:', error);
         setTotalAprovados(481200); // Fallback
@@ -318,42 +340,16 @@ const Dashboard = () => {
     };
 
     fetchAprovados();
-  }, [selectedProvince]);
+  }, [buildEndpoint]);
 
-  // Buscar total de produtores com filtro por província
+  // Buscar total de produtores com todos os filtros
   useEffect(() => {
     const fetchTotal = async () => {
       try {
-        let endpoint = '/dashboard/totalDeProdutores';
-        
-        if (selectedProvince !== 'todas') {
-          const provinciaMap = {
-            'luanda': 'Luanda',
-            'benguela': 'Benguela', 
-            'huila': 'Huíla',
-            'bie': 'Bié',
-            'malanje': 'Malanje',
-            'huambo': 'Huambo',
-            'cabinda': 'Cabinda',
-            'zaire': 'Zaire',
-            'uige': 'Uíge',
-            'cunene': 'Cunene',
-            'namibe': 'Namibe',
-            'lunda_norte': 'Lunda Norte',
-            'lunda_sul': 'Lunda Sul',
-            'moxico': 'Moxico',
-            'cuando_cubango': 'Cuando Cubango',
-            'bengo': 'Bengo',
-            'cuanza_norte': 'Cuanza Norte',
-            'cuanza_sul': 'Cuanza Sul'
-          };
-          const nomeProvinciaCompleto = provinciaMap[selectedProvince];
-          endpoint += `?provincia=${encodeURIComponent(nomeProvinciaCompleto)}`;
-        }
-
+        const endpoint = buildEndpoint('/dashboard/totalDeProdutores');
         const resposta = await api.get(endpoint);
         setTotalProdutores(resposta.data || 0);
-        console.log('Total produtores:', resposta.data, 'provincia:', selectedProvince);
+        console.log('Total produtores:', resposta.data, 'filtros aplicados');
       } catch (error) {
         console.error('Erro ao buscar total:', error);
         setTotalProdutores(523450); // Fallback
@@ -361,42 +357,16 @@ const Dashboard = () => {
     };
 
     fetchTotal();
-  }, [selectedProvince]);
+  }, [buildEndpoint]);
 
-  // Buscar total de pecuária com filtro por província
+  // Buscar total de pecuária com todos os filtros
   useEffect(() => {
     const fetchPecuaria = async () => {
       try {
-        let endpoint = '/dashboard/totalPecuaria';
-        
-        if (selectedProvince !== 'todas') {
-          const provinciaMap = {
-            'luanda': 'Luanda',
-            'benguela': 'Benguela', 
-            'huila': 'Huíla',
-            'bie': 'Bié',
-            'malanje': 'Malanje',
-            'huambo': 'Huambo',
-            'cabinda': 'Cabinda',
-            'zaire': 'Zaire',
-            'uige': 'Uíge',
-            'cunene': 'Cunene',
-            'namibe': 'Namibe',
-            'lunda_norte': 'Lunda Norte',
-            'lunda_sul': 'Lunda Sul',
-            'moxico': 'Moxico',
-            'cuando_cubango': 'Cuando Cubango',
-            'bengo': 'Bengo',
-            'cuanza_norte': 'Cuanza Norte',
-            'cuanza_sul': 'Cuanza Sul'
-          };
-          const nomeProvinciaCompleto = provinciaMap[selectedProvince];
-          endpoint += `?provincia=${encodeURIComponent(nomeProvinciaCompleto)}`;
-        }
-
+        const endpoint = buildEndpoint('/dashboard/totalPecuaria');
         const resposta = await api.get(endpoint);
         setTotalPecuaria(resposta.data || 0);
-        console.log('Total pecuária:', resposta.data, 'provincia:', selectedProvince);
+        console.log('Total pecuária:', resposta.data, 'filtros aplicados');
       } catch (error) {
         console.error('Erro ao buscar pecuária:', error);
         setTotalPecuaria(89300); // Fallback
@@ -404,7 +374,7 @@ const Dashboard = () => {
     };
 
     fetchPecuaria();
-  }, [selectedProvince]);
+  }, [buildEndpoint]);
 
   // Buscar total de produtor florestal com filtro por província
   useEffect(() => {
@@ -537,59 +507,38 @@ const Dashboard = () => {
 
   // Buscar dados de gênero com filtro por província
   useEffect(() => {
-    const fetchGeneroData = async () => {
-      try {
-        setLoadingGenero(true);
-        let endpoint = '/dashboard/totalFemenino';
-        
-        // Adicionar filtro por província se selecionada
-        if (selectedProvince !== 'todas') {
-          const provinciaMap = {
-            'luanda': 'Luanda',
-            'benguela': 'Benguela', 
-            'huila': 'Huíla',
-            'bie': 'Bié',
-            'malanje': 'Malanje',
-            'huambo': 'Huambo',
-            'cabinda': 'Cabinda',
-            'zaire': 'Zaire',
-            'uige': 'Uíge',
-            'cunene': 'Cunene',
-            'namibe': 'Namibe',
-            'lunda_norte': 'Lunda Norte',
-            'lunda_sul': 'Lunda Sul',
-            'moxico': 'Moxico',
-            'cuando_cubango': 'Cuando Cubango',
-            'bengo': 'Bengo',
-            'cuanza_norte': 'Cuanza Norte',
-            'cuanza_sul': 'Cuanza Sul'
-          };
-          const nomeProvinciaCompleto = provinciaMap[selectedProvince];
-          endpoint += `?provincia=${encodeURIComponent(nomeProvinciaCompleto)}`;
-        }
-
-        const resposta = await api.get(endpoint);
+    setLoadingGenero(true);
+    let endpoint = '/dashboard/totalFemenino';
+    const params = [];
+    // Corrija para acessar sempre o .value e .label do objeto
+    if (selectedProvince && selectedProvince.value && selectedProvince.value !== 'todas') {
+      params.push(`provincia=${encodeURIComponent(selectedProvince.label)}`);
+    }
+    if (selectedEstado && selectedEstado.value && selectedEstado.value !== 'todos') {
+      params.push(`estado=${encodeURIComponent(selectedEstado.value)}`);
+    }
+    if (params.length > 0) {
+      endpoint += '?' + params.join('&');
+    }
+    api.get(endpoint)
+      .then(resposta => {
         const formularios = resposta.data;
-
-        const totalMasculinos = formularios.filter(f => f.sexo === 'Masculino').length;
-        const totalFemininos = formularios.filter(f => f.sexo === 'Feminino').length;
-
-        setMasculino(totalMasculinos);
-        setFeminino(totalFemininos);
-
-        console.log('Dados de gênero:', { masculino: totalMasculinos, feminino: totalFemininos, provincia: selectedProvince });
-      } catch (error) {
-        console.error('Erro ao buscar dados de gênero:', error);
-        // Fallback baseado no total de produtores
+        if (Array.isArray(formularios)) {
+          const totalMasculinos = formularios.filter(f => f.sexo === 'Masculino').length;
+          const totalFemininos = formularios.filter(f => f.sexo === 'Feminino').length;
+          setMasculino(totalMasculinos);
+          setFeminino(totalFemininos);
+        } else {
+          setMasculino(Math.round(totalProdutores * 0.57));
+          setFeminino(Math.round(totalProdutores * 0.43));
+        }
+      })
+      .catch(() => {
         setMasculino(Math.round(totalProdutores * 0.57));
         setFeminino(Math.round(totalProdutores * 0.43));
-      } finally {
-        setLoadingGenero(false);
-      }
-    };
-
-    fetchGeneroData();
-  }, [selectedProvince, totalProdutores]);
+      })
+      .finally(() => setLoadingGenero(false));
+  }, [selectedProvince, selectedEstado, totalProdutores]);
 
   // Buscar certificados
   useEffect(() => {
@@ -631,6 +580,8 @@ const Dashboard = () => {
       setLoadingAtividades(false);
     }
   }, [totalPecuaria, totalAgricultura, totalProdutorFlorestal, totalAquicultura]);
+
+
 
   // Calcular dados filtrados (agora os dados já vêm filtrados da API)
   const dadosFiltrados = useMemo(() => {
@@ -675,8 +626,19 @@ const Dashboard = () => {
       { name: 'Produtor Florestal', value: totalProdutorFlorestal, color: '#34D399' },
       { name: 'Aquicultura', value: totalAquicultura, color: '#06B6D4' }
     ];
+    const selectedValue = selectedAtividade?.value || selectedAtividade;
+    if (selectedValue !== 'todos') {
+      const atividadeMap = {
+        'agricultura': 'Agricultura',
+        'pecuaria': 'Pecuária',
+        'florestal': 'Produtor Florestal',
+        'aquicultura': 'Aquicultura'
+      };
+      const nomeAtividade = atividadeMap[selectedValue];
+      return atividades.filter(a => a.name === nomeAtividade && a.value > 0);
+    }
     return atividades.filter(a => a.value > 0);
-  }, [totalAgricultura, totalPecuaria, totalProdutorFlorestal, totalAquicultura]);
+  }, [totalAgricultura, totalPecuaria, totalProdutorFlorestal, totalAquicultura, selectedAtividade]);
 
   // Controlar loading geral
   useEffect(() => {
@@ -917,7 +879,11 @@ const Dashboard = () => {
                 <p className="text-sm font-medium text-gray-600">Aprovados</p>
                 <p className="text-3xl font-bold text-green-600 mt-1">{formatNumber(dadosFiltrados.totalAprovados)}</p>
                 <div className="flex items-center mt-2">
-                  <span className="text-sm text-gray-500">Taxa: {taxaAprovacao}%</span>
+                  <span className="text-sm text-gray-500">
+                    {(selectedEstado?.value || selectedEstado) === 'pendentes'
+                      ? `Total pendentes`
+                      : `Taxa: ${taxaAprovacao}%`}
+                  </span>
                 </div>
               </div>
               <div className="p-3 bg-green-50 rounded-lg">
@@ -1596,6 +1562,7 @@ const Dashboard = () => {
 
             <div className="grid grid-cols-2 gap-2 mt-4">
               {dadosPragasResumo.pragasPorGravidade.map((entry, index) => (
+               
                 <div key={index} className="flex items-center">
                   <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: entry.color }}></div>
                   <span className="text-sm text-gray-600">
@@ -1619,6 +1586,7 @@ const Dashboard = () => {
               {dadosPragasResumo.topPragas.slice(0, 4).map((praga, index) => (
                 <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center space-x-3">
+
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center ${praga.gravidade === 'Crítica' ? 'bg-red-100 text-red-600' :
                         praga.gravidade === 'Alta' ? 'bg-orange-100 text-orange-600' :
                           'bg-yellow-100 text-yellow-600'
@@ -1754,9 +1722,9 @@ const Dashboard = () => {
         .animate-slide-up {
           animation: slide-up 0.5s ease-out;
         }
+        }/style>
       `}</style>
     </div>
   );
 };
-
 export default Dashboard;
