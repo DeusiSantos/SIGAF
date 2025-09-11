@@ -1,6 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 import {
     Search,
     Plus,
@@ -30,162 +29,135 @@ import {
     User,
     Award,
     Activity,
-    PlusCircle
+    PlusCircle,
+    FileCheck,
+    Briefcase
 } from 'lucide-react';
 
 import CustomInput from '../../components/CustomInput';
+//import { useCooperativas } from '../../hooks/useCooperativas';
 
-// Dados fictícios dos entrepostos e mercados - estrutura baseada no formulário de cadastro
-const entrepostosMercados = [
+// Dados estáticos das empresas
+const empresasAdaptadas = [
     {
         id: 1,
-        // Identificação
-        nomeEntreposto: "Mercado Central de Luanda",
-        tipoUnidade: "MERCADO_MUNICIPAL",
-        outroTipoUnidade: null,
-        codigoRegistro: "MCL001",
-        
-        // Localização
-        endereco: "Rua Direita de Luanda, Ingombota",
-        municipio: "Luanda",
+        nomeEmpresa: "AgroTech Angola Lda",
+        tipoEntidade: "EMPRESA_PRIVADA",
+        nif: "5417890123",
+        anoFundacao: "2015",
+        enderecoSede: "Rua da Missão, 123, Ingombota",
         provincia: "LUANDA",
-        latitude: "-8.838333",
-        longitude: "13.234444",
-        
-        // Responsável/Entidade Gestora
-        nomeCompleto: "António Silva Santos",
-        entidadeGestora: "Administração Municipal de Luanda",
-        nifFiscal: "5417189144",
-        telefone: "222345678",
-        email: "mercado.central@luanda.gov.ao",
-        
-        // Estrutura do Mercado/Entreposto
-        numeroBancas: 150,
-        numeroArmazens: 12,
-        numeroLojas: 45,
-        areaTotal: 5000,
-        infraestruturas: ["AGUA_POTAVEL", "ENERGIA", "SANEAMENTO"],
-        outraInfraestrutura: null,
-        
-        // Produtos Comercializados
-        produtosComercializados: ["PRODUTOS_AGRICOLAS", "HORTICOLAS_FRUTAS", "PRODUTOS_PECUARIOS"],
-        
-        // Capacidade e Funcionamento
-        capacidadeMedia: "2000 pessoas/dia",
-        todosDias: true,
-        diasEspecificos: null,
-        horarioInicio: "06:00",
-        horarioFim: "18:00",
-        
-        // Situação Legal
-        licencaFuncionamento: "SIM",
-        certificacaoSanitaria: "SIM",
-        outrasAutorizacoes: "Licença ambiental municipal",
-        
-        // Observações Gerais
-        observacoes: "Mercado principal da cidade com grande movimento diário",
-        
+        municipio: "Luanda",
+        pessoaContacto: "Maria Santos Costa",
+        cargo: "Diretora Geral",
+        telefone: "222567890",
+        email: "info@agrotech.ao",
+        website: "www.agrotech.ao",
+        servicosPrestados: ["Fornecimento de Insumos Agrícolas", "Assistência Técnica"],
+        principaisBeneficiarios: "PEQUENOS_PRODUTORES",
+        numeroFuncionarios: 85,
+        areaCobertura: "PROVINCIAL",
+        volumeClientes: 250,
+        licencaOperacao: "SIM",
+        registoComercial: "SIM",
+        certificacoesEspecificas: "ISO 9001",
         status: "ATIVO"
     },
     {
         id: 2,
-        // Identificação
-        nomeEntreposto: "Entreposto Frigorífico Benguela",
-        tipoUnidade: "ENTREPOSTO",
-        outroTipoUnidade: null,
-        codigoRegistro: "EFB002",
-        
-        // Localização
-        endereco: "Zona Industrial, Benguela",
-        municipio: "Benguela",
-        provincia: "BENGUELA",
-        latitude: "-12.576111",
-        longitude: "13.405556",
-        
-        // Responsável/Entidade Gestora
-        nomeCompleto: "Maria João Fernandes",
-        entidadeGestora: "Frigorífico Benguela Lda",
-        nifFiscal: "5417189145",
-        telefone: "272123456",
-        email: "entreposto@frigobenguela.ao",
-        
-        // Estrutura do Mercado/Entreposto
-        numeroBancas: 0,
-        numeroArmazens: 8,
-        numeroLojas: 0,
-        areaTotal: 3000,
-        infraestruturas: ["FRIO", "CAMARA_CONGELACAO", "ENERGIA"],
-        outraInfraestrutura: null,
-        
-        // Produtos Comercializados
-        produtosComercializados: ["PEIXE_FRUTOS_MAR", "PRODUTOS_PECUARIOS"],
-        
-        // Capacidade e Funcionamento
-        capacidadeMedia: "500 toneladas/mês",
-        todosDias: false,
-        diasEspecificos: "Segunda a Sexta",
-        horarioInicio: "07:00",
-        horarioFim: "17:00",
-        
-        // Situação Legal
-        licencaFuncionamento: "SIM",
-        certificacaoSanitaria: "SIM",
-        outrasAutorizacoes: "Licença sanitária para produtos cárneos",
-        
-        // Observações Gerais
-        observacoes: "Entreposto especializado em conservação de produtos pereciveis",
-        
+        nomeEmpresa: "Pecuária do Sul SA",
+        tipoEntidade: "EMPRESA_PRIVADA",
+        nif: "5418901234",
+        anoFundacao: "2012",
+        enderecoSede: "Av. Norton de Matos, 456, Arimba",
+        provincia: "HUÍLA",
+        municipio: "Lubango",
+        pessoaContacto: "António Ferreira",
+        cargo: "Presidente",
+        telefone: "261234567",
+        email: "geral@pecuariasul.ao",
+        website: "www.pecuariasul.ao",
+        servicosPrestados: ["Mecanização Agrícola", "Comercialização e Logística"],
+        principaisBeneficiarios: "MEDIOS_PRODUTORES",
+        numeroFuncionarios: 120,
+        areaCobertura: "NACIONAL",
+        volumeClientes: 500,
+        licencaOperacao: "SIM",
+        registoComercial: "SIM",
+        certificacoesEspecificas: "HACCP",
         status: "ATIVO"
     },
     {
         id: 3,
-        // Identificação
-        nomeEntreposto: "Feira Popular do Huambo",
-        tipoUnidade: "MERCADO_INFORMAL",
-        outroTipoUnidade: null,
-        codigoRegistro: "FPH003",
-        
-        // Localização
-        endereco: "Bairro Comercial, Huambo",
-        municipio: "Huambo",
-        provincia: "HUAMBO",
-        latitude: "-12.776111",
-        longitude: "15.738889",
-        
-        // Responsável/Entidade Gestora
-        nomeCompleto: "José Carlos Mateus",
-        entidadeGestora: "Associação de Comerciantes do Huambo",
-        nifFiscal: "5417189146",
-        telefone: "241987654",
-        email: "feira.huambo@gmail.com",
-        
-        // Estrutura do Mercado/Entreposto
-        numeroBancas: 80,
-        numeroArmazens: 3,
-        numeroLojas: 15,
-        areaTotal: 2500,
-        infraestruturas: ["AGUA_POTAVEL", "ENERGIA"],
-        outraInfraestrutura: "Sistema de som ambiente",
-        
-        // Produtos Comercializados
-        produtosComercializados: ["PRODUTOS_AGRICOLAS", "HORTICOLAS_FRUTAS", "ARTESANATO_OUTRO"],
-        
-        // Capacidade e Funcionamento
-        capacidadeMedia: "800 pessoas/dia",
-        todosDias: false,
-        diasEspecificos: "Terça, Quinta e Sábado",
-        horarioInicio: "05:00",
-        horarioFim: "16:00",
-        
-        // Situação Legal
-        licencaFuncionamento: "NAO",
-        certificacaoSanitaria: "NAO",
-        outrasAutorizacoes: null,
-        
-        // Observações Gerais
-        observacoes: "Feira tradicional com foco em produtos locais e artesanato",
-        
+        nomeEmpresa: "Benguela Agro Empresa",
+        tipoEntidade: "COOPERATIVA",
+        nif: "5419012345",
+        anoFundacao: "2018",
+        enderecoSede: "Rua 4 de Fevereiro, 789, Centro",
+        provincia: "BENGUELA",
+        municipio: "Benguela",
+        pessoaContacto: "Carlos Mendes",
+        cargo: "Coordenador",
+        telefone: "272345678",
+        email: "comercial@benguelaagro.ao",
+        website: "www.benguelaagro.ao",
+        servicosPrestados: ["Transformação/Agroindústria", "Formação e Capacitação"],
+        principaisBeneficiarios: "ASSOCIACOES_COOPERATIVAS",
+        numeroFuncionarios: 65,
+        areaCobertura: "LOCAL_DISTRITAL",
+        volumeClientes: 180,
+        licencaOperacao: "SIM",
+        registoComercial: "SIM",
+        certificacoesEspecificas: "ISO 14001",
         status: "ATIVO"
+    },
+    {
+        id: 4,
+        nomeEmpresa: "Florestal Cabinda Lda",
+        tipoEntidade: "ONG",
+        nif: "5420123456",
+        anoFundacao: "2020",
+        enderecoSede: "Bairro Tchiowa, Lote 15",
+        provincia: "CABINDA",
+        municipio: "Cabinda",
+        pessoaContacto: "Isabel Rodrigues",
+        cargo: "Diretora Executiva",
+        telefone: "231456789",
+        email: "florestal@cabinda.ao",
+        website: "www.florestalcabinda.org",
+        servicosPrestados: ["Pesquisa e Inovação", "Assistência Técnica"],
+        principaisBeneficiarios: "PROJETOS_GOVERNAMENTAIS",
+        numeroFuncionarios: 40,
+        areaCobertura: "PROVINCIAL",
+        volumeClientes: 300,
+        licencaOperacao: "SIM",
+        registoComercial: "SIM",
+        certificacoesEspecificas: "FSC",
+        status: "ATIVO"
+    },
+    {
+        id: 5,
+        nomeEmpresa: "Huambo Agropecuária SA",
+        tipoEntidade: "ASSOCIACAO",
+        nif: "5421234567",
+        anoFundacao: "2016",
+        enderecoSede: "Rua Deolinda Rodrigues, 321",
+        provincia: "HUAMBO",
+        municipio: "Huambo",
+        pessoaContacto: "Pedro Nunes",
+        cargo: "Secretário Geral",
+        telefone: "241567890",
+        email: "huambo@agropecuaria.ao",
+        website: "www.huamboagro.ao",
+        servicosPrestados: ["Crédito Rural/Microfinanças", "Comercialização e Logística"],
+        principaisBeneficiarios: "GRANDES_PRODUTORES",
+        numeroFuncionarios: 95,
+        areaCobertura: "REGIONAL_INTERNACIONAL",
+        volumeClientes: 220,
+        licencaOperacao: "NAO",
+        registoComercial: "SIM",
+        certificacoesEspecificas: "ISO 22000",
+        status: "INATIVO"
     }
 ];
 
@@ -198,21 +170,8 @@ const administracoesEstaticas = [
     { id: 5, nome: "Administração Regional de Cabinda" }
 ];
 
-const GestaoEntrepostosMercado = () => {
-    // Função para navegação de gestão de pessoal
-    const handlePessoal = (cooperativaId) => {
-        navigate(`/GerenciaRNPA/entidades-associativas/pessoal/${cooperativaId}`);
-    };
-    // Função para navegação de infraestrutura
-    const handleInfraestrutura = (cooperativaId) => {
-        navigate(`/GerenciaRNPA/entidades-associativas/infraestrutura/${cooperativaId}`);
-    };
-    // Função para navegação de relatórios
-    const handleRelatorios = (cooperativaId) => {
-        navigate(`/GerenciaRNPA/entidades-associativas/relatorios/${cooperativaId}`);
-    };
+const GestaoApoiFlorestal = () => {
     const navigate = useNavigate();
-    // const { associacoesRurais, deleteAssociacaoRural } = useAssociacaoRural();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedRegion, setSelectedRegion] = useState('');
     const [selectedTipo, setSelectedTipo] = useState('');
@@ -221,11 +180,14 @@ const GestaoEntrepostosMercado = () => {
     const [toastMessage, setToastMessage] = useState(null);
     const [toastTimeout, setToastTimeout] = useState(null);
     const [contentHeight, setContentHeight] = useState('calc(100vh - 12rem)');
-    const itemsPerPage = 6;
     const containerRef = useRef(null);
-    // Estados para o modal de exclusão
+    const itemsPerPage = 6;
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [associacaoToDelete, setAssociacaoToDelete] = useState(null);
+    const [empresasToDelete, setempresasToDelete] = useState(null);
+
+    // Usar dados estáticos para empresas
+    const empresass = empresasAdaptadas;
+  
 
     // Ajustar altura do conteúdo
     useEffect(() => {
@@ -273,61 +235,86 @@ const GestaoEntrepostosMercado = () => {
         setToastTimeout(timeout);
     };
 
-    
+   
 
-    // Filtragem dos entrepostos e mercados
-    const filteredEntrepostos = entrepostosMercados.filter(entreposto => {
-        const matchesSearch = entreposto.nomeEntreposto.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            entreposto.nomeCompleto.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            entreposto.email.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesRegion = !selectedRegion || entreposto.provincia === selectedRegion;
-        const matchesTipo = !selectedTipo || entreposto.tipoUnidade === selectedTipo;
-        const matchesStatus = !selectedStatus || entreposto.status === selectedStatus;
+    // Filtragem das empresas
+    const filteredEscolas = empresass.filter(empresa => {
+        const matchesSearch = empresa.nomeEmpresa?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            empresa.pessoaContacto?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            empresa.email?.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesRegion = !selectedRegion || empresa.provincia === selectedRegion;
+        const matchesTipo = !selectedTipo || (empresa.servicosPrestados && empresa.servicosPrestados.some(s => s.includes(selectedTipo)));
+        const matchesStatus = !selectedStatus || empresa.status === selectedStatus;
 
         return matchesSearch && matchesRegion && matchesTipo && matchesStatus;
     });
 
     // Paginação
-    const totalPages = Math.ceil(filteredEntrepostos.length / itemsPerPage);
+    const totalPages = Math.ceil(filteredEscolas.length / itemsPerPage);
     const getCurrentItems = () => {
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
-        return filteredEntrepostos.slice(startIndex, endIndex);
+        return filteredEscolas.slice(startIndex, endIndex);
     };
 
-    // Navegação para visualizar associação rural
-    const handleViewEscola = (associacaoId) => {
-        navigate(`/GerenciaRNPA/entidades-associativas/visualizar-associacao/${associacaoId}`);
+    // Navegação (simulada)
+    const handleViewEscola = (empresasId) => {
+        navigate(`/GerenciaRNPA/gestao-empresas/empresas/visualizar/${empresasId}`);
     };
 
-   
 
-    const handleTransferencia = (cooperativaId) => {
+    const handleTransferencia = (empresasId) => {
         // Navegar para a rota de cadastro de produção passando o ID
-        navigate(`/GerenciaRNPA/entidades-associativas/cadastro-producao-associacoes/${cooperativaId}`);
+        navigate(`/GerenciaRNPA/entidades-associativas/cadastro-producao-empresas/${empresasId}`);
     };
 
-    
+  
+
+    // Função para abrir modal de confirmação
+    const openDeleteModal = (empresasId) => {
+        setempresasToDelete(empresasId);
+        setShowDeleteModal(true);
+    };
+
+    // Função para fechar modal
+    const closeDeleteModal = () => {
+        setShowDeleteModal(false);
+        setempresasToDelete(null);
+    };
+
+    // Função para deletar empresas após confirmação
+    const handleConfirmDelete = async () => {
+        if (!empresasToDelete) return;
+        try {
+            await deleteempresas(empresasToDelete);
+            showToast('success', 'Excluído', 'Empresa excluída com sucesso!');
+        } catch (erro) {
+            showToast('error', 'Erro', 'Erro ao excluir empresa.');
+            console(erro)
+        } finally {
+            closeDeleteModal();
+        }
+    };
 
     // Ações do menu dropdown
     const actionItems = [
-        { label: 'Cadastro da Produção', icon: <PlusCircle size={16} />, action: handleTransferencia },
-        // eslint-disable-next-line no-undef
-        { label: 'Relatórios', icon: <FileText size={16} />, action: handleRelatorios },
-        // eslint-disable-next-line no-undef
-        { label: 'Infraestrutura', icon: <Building size={16} />, action: handleInfraestrutura },
-        // eslint-disable-next-line no-undef
-        { label: 'Gestão de Pessoal', icon: <User size={16} />, action: handlePessoal }
+        { label: 'Cadastro de Produção', icon: <PlusCircle size={16} />, action: handleTransferencia },
+        { label: 'Relatóriosn', icon: <FileText size={16} />, action: "" },
+        {/* label: 'Infraestrutura', icon: <Building size={16} />, action: handleInfraestrutura */},
+        { /*label: 'Gestão de Pessoal', icon: <User size={16} />, action: handlePessoal*/ }
     ];
 
-    // Formatar data
-    //const formatDate = (dateString) => {
-     //   if (!dateString) return 'N/A';
-      //  const date = new Date(dateString);
-     //   return date.toLocaleDateString('pt-BR');
-   // };
+   
 
-    
+    // Obter label do tipo de ensino
+   { /* const getTipoEnsinoLabel = (tipo) => {
+        const tipos = {
+            'GERAL': 'Ensino Geral',
+            'TECNICO_PROFISSIONAL': 'Técnico-Profissional',
+            'MISTO': 'Misto'
+        };
+        return tipos[tipo] || tipo;
+    };*/}
 
     // Componente Toast
     const Toast = () => {
@@ -413,38 +400,12 @@ const GestaoEntrepostosMercado = () => {
    
 
     // Extrair regiões únicas para o filtro
-    const uniqueRegions = [...new Set(entrepostosMercados.map(entreposto => entreposto.provincia))].filter(Boolean);
-
-    // Função para abrir modal de confirmação
-    const openDeleteModal = (associacaoId) => {
-        setAssociacaoToDelete(associacaoId);
-        setShowDeleteModal(true);
-    };
-
-    // Função para fechar modal
-    const closeDeleteModal = () => {
-        setShowDeleteModal(false);
-        setAssociacaoToDelete(null);
-    };
-
-    // Função para deletar entreposto após confirmação
-    const handleConfirmDelete = async () => {
-        if (!associacaoToDelete) return;
-        try {
-            // TODO: Implementar delete do entreposto
-            showToast('success', 'Excluído', 'Entreposto excluído com sucesso!');
-        } catch (err) {
-            showToast('error', 'Erro', 'Erro ao excluir entreposto.');
-            console.error(err);
-        } finally {
-            closeDeleteModal();
-        }
-    };
+    const uniqueRegions = [...new Set(empresass.map(escola => escola.provincia))].filter(Boolean);
 
     // Modal de confirmação visual
     const DeleteConfirmModal = () => {
         if (!showDeleteModal) return null;
-        const entreposto = entrepostosMercados.find(c => c.id === associacaoToDelete);
+        const empresas = empresass.find(c => c.id === empresasToDelete);
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
                 <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm flex flex-col items-center">
@@ -453,8 +414,8 @@ const GestaoEntrepostosMercado = () => {
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Confirmar Exclusão</h3>
                     <p className="text-gray-600 text-center text-sm mb-4">
-                        Tem certeza que deseja excluir o entreposto <span className="font-semibold text-red-600">{entreposto?.nomeEntreposto || 'Selecionado'}</span>?<br/>
-                        Esta ação não pode ser desfeita. Todos os dados do entreposto serão removidos permanentemente.
+                        Tem certeza que deseja excluir a empresa <span className="font-semibold text-red-600">{empresas?.nomeEmpresa || 'Selecionada'}</span>?<br/>
+                        Esta ação não pode ser desfeita. Todos os dados da empresa serão removidos permanentemente.
                     </p>
                     <div className="flex gap-3 mt-2 w-full">
                         <button
@@ -479,8 +440,7 @@ const GestaoEntrepostosMercado = () => {
         <div className="min-h-screen" ref={containerRef}>
             <Toast />
             <DeleteConfirmModal />
-
-             {/* Estatísticas das cooperativas */}
+               {/* Estatísticas das empresass */}
             <div className="mt-6 mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-white rounded-xl shadow-md p-6">
                     <div className="flex items-center">
@@ -488,8 +448,8 @@ const GestaoEntrepostosMercado = () => {
                             <Users className="w-6 h-6 text-blue-600" />
                         </div>
                         <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-500">Total de Entrepostos</p>
-                            <p className="text-2xl font-bold text-gray-900">{entrepostosMercados.length}</p>
+                            <p className="text-sm font-medium text-gray-500">Total</p>
+                            <p className="text-2xl font-bold text-gray-900">{empresass.length}</p>
                         </div>
                     </div>
                 </div>
@@ -500,9 +460,9 @@ const GestaoEntrepostosMercado = () => {
                             <CheckCircle className="w-6 h-6 text-green-600" />
                         </div>
                         <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-500">Entrepostos Activos</p>
+                            <p className="text-sm font-medium text-gray-500">Activos</p>
                             <p className="text-2xl font-bold text-gray-900">
-                                {entrepostosMercados.filter(c => c.status === 'ATIVO').length}
+                                {empresass.filter(c => c.status === 'ATIVO').length}
                             </p>
                         </div>
                     </div>
@@ -514,9 +474,9 @@ const GestaoEntrepostosMercado = () => {
                             <GraduationCap className="w-6 h-6 text-purple-600" />
                         </div>
                         <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-500">Total de Bancas</p>
+                            <p className="text-sm font-medium text-gray-500">Funcionários</p>
                             <p className="text-2xl font-bold text-gray-900">
-                                {entrepostosMercados.reduce((total, e) => total + e.numeroBancas, 0)}
+                                0
                             </p>
                         </div>
                     </div>
@@ -528,29 +488,28 @@ const GestaoEntrepostosMercado = () => {
                             <Building className="w-6 h-6 text-yellow-600" />
                         </div>
                         <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-500">Área Total (m²)</p>
+                            <p className="text-sm font-medium text-gray-500">Área (ha)</p>
                             <p className="text-2xl font-bold text-gray-900">
-                                {entrepostosMercados.reduce((total, e) => total + e.areaTotal, 0).toLocaleString()}
+                               0
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="w-full bg-white rounded-2xl shadow-md overflow-visible z-10">
+            <div className="w-full bg-white rounded-xl shadow-md overflow-visible z-10">
                 {/* Cabeçalho */}
-                <div className="bg-gradient-to-r from-blue-700 to-blue-500 p-6 text-white rounded-t-xl
-
-">
+                <div className="bg-gradient-to-r from-blue-700 to-blue-500 p-6 text-white rounded-t-xl">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
                         <div>
-                            <h1 className="text-2xl font-bold">Gestão de Entrepostos e Mercados</h1>
+                            <h1 className="text-2xl font-bold">Gestão de Empresas de Apoio Florestal
+</h1>
                             {/* <p className="text-blue-100 mt-1">SistGestão Geral e Técnico-Profissional - Angola</p> */}
                         </div>
                         <div className="flex gap-4">
-                            
+                           
                             <button
-                                onClick={() => showToast('info', 'Função', 'Exportar dados das escolas')}
+                                onClick={() => showToast('info', 'Função', 'Exportar dados das empresas')}
                                 className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
                             >
                                 <Download className="w-5 h-5 mr-2" />
@@ -562,12 +521,12 @@ const GestaoEntrepostosMercado = () => {
 
                 {/* Barra de ferramentas */}
                 <div className="p-6 border-b border-gray-200 bg-white">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         {/* Busca */}
                         <div className="lg:col-span-2">
                             <CustomInput
                                 type="text"
-                                placeholder="Buscar por nome, responsável ou email..."
+                                placeholder="Buscar por nome, gestor ou email..."
                                 value={searchTerm}
                                 onChange={(value) => setSearchTerm(value)}
                                 iconStart={<Search size={18} />}
@@ -580,14 +539,14 @@ const GestaoEntrepostosMercado = () => {
                                 type="select"
                                 placeholder="Região"
                                 value={selectedRegion ? {
-                                    label: getAdminRegionalName(parseInt(selectedRegion)),
+                                    label: getAdminRegionalName(selectedRegion),
                                     value: selectedRegion
                                 } : null}
                                 options={[
                                     { label: 'Todas as Regiões', value: '' },
-                                    ...uniqueRegions.map(provincia => ({
-                                        label: provincia,
-                                        value: provincia
+                                    ...uniqueRegions.map(region => ({
+                                        label: getAdminRegionalName(region),
+                                        value: region
                                     }))
                                 ]}
                                 onChange={(option) => setSelectedRegion(option?.value || '')}
@@ -598,14 +557,15 @@ const GestaoEntrepostosMercado = () => {
                         <div>
                             <CustomInput
                                 type="select"
-                                placeholder="Tipo de Unidade"
+                                placeholder="Tipo de Actividade"
                                 value={selectedTipo ? { label: selectedTipo, value: selectedTipo } : null}
                                 options={[
-                                    { label: 'Todos os Tipos', value: '' },
-                                    { label: 'Entreposto', value: 'ENTREPOSTO' },
-                                    { label: 'Mercado Municipal', value: 'MERCADO_MUNICIPAL' },
-                                    { label: 'Mercado Informal/Feira', value: 'MERCADO_INFORMAL' },
-                                    { label: 'Outro', value: 'OUTRO' }
+                                    { label: 'Todas as Atividades', value: '' },
+                                    { label: 'Agricultura', value: 'Agricultura' },
+                                    { label: 'Pecuária', value: 'Pecuária' },
+                                    { label: 'Agropecuária', value: 'Agropecuária' },
+                                    { label: 'Aquicultura', value: 'Aquicultura' },
+                                    { label: 'Produtos florestais', value: 'Produtos florestais' }
                                 ]}
                                 onChange={(option) => setSelectedTipo(option?.value || '')}
                                 iconStart={<School size={18} />}
@@ -621,46 +581,52 @@ const GestaoEntrepostosMercado = () => {
                         <thead className="bg-gray-50 sticky top-0 z-10">
                             <tr>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                    Entreposto/Mercado
+                                    Empresa
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                    Tipo & Produtos
+                                    Tipo & Serviços
                                 </th>
+                               
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                     Localização
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                    Estrutura & Licenças
+                                    Contacto & Capacidade
                                 </th>
-                                
+                                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                                    Situação Legal
+                                </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                     Acção
                                 </th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-200 bg-white text-start">
-                            {getCurrentItems().map((entreposto) => (
-                                <tr key={entreposto.id} className="hover:bg-blue-50 transition-colors">
+                        <tbody className="divide-y divide-gray-200 bg-white text-left">
+                            {getCurrentItems().map((empresa) => (
+                                <tr key={empresa.id} className="hover:bg-blue-50 transition-colors">
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-start">
-                                            <div className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-semibold text-sm">
-                                                {entreposto.nomeEntreposto.split(' ').map(word => word[0]).join('').substring(0, 2).toUpperCase()}
+                                            <div className="flex-shrink-0 h-12 w-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
+                                                {empresa.nomeEmpresa.charAt(0)}{empresa.nomeEmpresa.split(' ').pop().charAt(0)}
                                             </div>
                                             <div className="ml-4">
-                                                <div className="text-sm font-semibold text-gray-900 break-words whitespace-pre-line max-w-[290px]">{entreposto.nomeEntreposto}</div>
-                                                <div className="text-xs text-gray-500 mt-1">Código: {entreposto.codigoRegistro}</div>
-                                                <div className="text-xs text-gray-500">Resp.: {entreposto.nomeCompleto}</div>
+                                                <div className="text-sm font-semibold text-gray-900 break-words whitespace-pre-line max-w-[200px]">{empresa.nomeEmpresa}</div>
+                                                <div className="text-xs text-gray-500 mt-1">NIF: {empresa.nif}</div>
+                                                <div className="text-xs text-gray-500">Fundada: {empresa.anoFundacao}</div>
                                             </div>
                                         </div>
                                     </td>
 
-                                    <td className="px-6 py-4 whitespace-nowrap">
+                                    <td className="px-6 py-4 whitespace-nowrap ">
                                         <div className="space-y-2">
                                             <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                               {entreposto.tipoUnidade.replace(/[-_]/g, ' ')}
+                                                {empresa.tipoEntidade.replace(/_/g, ' ')}
                                             </div>
-                                            <div className="text-xs text-gray-600">
-                                                {entreposto.produtosComercializados.length} produtos
+                                            <div className="text-xs text-gray-600 break-before-all whitespace-pre-line max-w-[250px]">
+                                                {empresa.servicosPrestados.slice(0, 2).join(',\n')}
+                                                {empresa.servicosPrestados.length > 2 && (
+                                                    <span className="text-gray-400 block break-before-all"> +{empresa.servicosPrestados.length - 2}</span>
+                                                )}
                                             </div>
                                         </div>
                                     </td>
@@ -669,7 +635,7 @@ const GestaoEntrepostosMercado = () => {
                                         <div className="space-y-2">
                                             <div className="flex items-center text-xs text-gray-700">
                                                 <MapPin className="w-4 h-4 mr-2 text-blue-500" />
-                                                {entreposto.municipio}, {entreposto.provincia}
+                                                {empresa.municipio}, {empresa.provincia}
                                             </div>
                                         </div>
                                     </td>
@@ -677,35 +643,58 @@ const GestaoEntrepostosMercado = () => {
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="space-y-2">
                                             <div className="flex items-center text-xs text-gray-700">
-                                                <Building className="w-4 h-4 mr-2 text-blue-500" />
-                                                {entreposto.numeroBancas} bancas, {entreposto.areaTotal}m²
+                                                <Phone className="w-4 h-4 mr-2 text-blue-500" />
+                                                {empresa.telefone}
                                             </div>
                                             <div className="flex items-center text-xs text-gray-700">
-                                                <CheckCircle className={`w-4 h-4 mr-2 ${entreposto.licencaFuncionamento === 'SIM' ? 'text-green-500' : 'text-red-500'}`} />
-                                                Licença: {entreposto.licencaFuncionamento}
+                                                <Users className="w-4 h-4 mr-2 text-blue-500" />
+                                                {empresa.numeroFuncionarios} funcionários
+                                            </div>
+                                            <div className="text-xs text-gray-600">
+                                                {empresa.volumeClientes} clientes/ano
                                             </div>
                                         </div>
                                     </td>
 
-                                  
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <div className="space-y-2">
+                                            <div className="flex items-center text-xs">
+                                                
+                                                <CheckCircle className="w-3.5 h-3.5 mr-1 text-green-500" />
+                                                <span className="text-gray-700">Licença: {empresa.licencaOperacao}</span>
+                                            </div>
+                                            <div className="flex items-center text-xs">
+                                                <Briefcase className="w-3.5 h-3.5 mr-1 text-blue-500" />
+                                                <span className="text-gray-700">Registo: {empresa.registoComercial}</span>
+                                            </div>
+                                            {empresa.certificacoesEspecificas && (
+                                                <div className="text-xs text-gray-600">
+                                                    <Award className="w-3.5 h-3.5 inline-block mr-1 text-yellow-500" />
+                                                    {empresa.certificacoesEspecificas}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </td>
+
+                                
 
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="flex items-center justify-center space-x-1">
+                                        <div className="flex items-center justify-start space-x-1">
                                             <button
-                                                onClick={() => handleViewEscola(entreposto.id)}
+                                                onClick={() => handleViewEscola(empresa.id)}
                                                 className="p-2 hover:bg-blue-100 text-blue-600 hover:text-blue-800 rounded-full transition-colors"
                                                 title="Visualizar"
                                             >
                                                 <Eye className="w-5 h-5" />
                                             </button>
                                             <button
-                                                onClick={() => openDeleteModal(entreposto.id)}
+                                                onClick={() => openDeleteModal(empresa.id)}
                                                 className="p-2 hover:bg-red-100 text-red-600 hover:text-red-800 rounded-full transition-colors"
                                                 title="Remover"
                                             >
                                                 <Trash2 className="w-5 h-5" />
                                             </button>
-                                            <ActionMenu escola={entreposto} />
+                                            <ActionMenu escola={empresa} />
                                         </div>
                                     </td>
                                 </tr>
@@ -713,58 +702,58 @@ const GestaoEntrepostosMercado = () => {
                         </tbody>
                     </table>
                 </div>
-                
 
                 {/* Visualização em cards para mobile */}
                 <div className="md:hidden overflow-visible" style={{ maxHeight: contentHeight }}>
-                    {getCurrentItems().map((entreposto) => (
-                        <div key={entreposto.id} className="p-4 border-b border-gray-200 hover:bg-blue-50 transition-colors">
+                    {getCurrentItems().map((empresa) => (
+                        <div key={empresa.id} className="p-4 border-b border-gray-200 hover:bg-blue-50 transition-colors">
                             <div className="flex items-start">
-                                <div className="flex-shrink-0 h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <Building className="h-8 w-8 text-blue-600" />
+                                <div className="flex-shrink-0 h-16 w-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-md">
+                                    {empresa.nomeEmpresa.charAt(0)}{empresa.nomeEmpresa.split(' ').pop().charAt(0)}
                                 </div>
                                 <div className="flex-1 ml-4">
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <h3 className="text-sm font-semibold text-gray-900">{entreposto.nomeEntreposto}</h3>
-                                            <div className="text-xs text-gray-500 mt-1">Código: {entreposto.codigoRegistro}</div>
-                                            <div className="text-xs text-gray-500">Resp.: {entreposto.nomeCompleto}</div>
+                                            <h3 className="text-sm font-semibold text-gray-900">{empresa.nomeEmpresa}</h3>
+                                            <div className="text-xs text-gray-500 mt-1">NIF: {empresa.nif}</div>
+                                            <div className="text-xs text-gray-500">Contato: {empresa.pessoaContacto}</div>
                                         </div>
-                                        <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                            {entreposto.tipoUnidade.replace(/[-_]/g, ' ')}
-                                        </div>
+                                        {/* <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${tipoColors[escola.tipoEnsino] || 'bg-gray-100 text-gray-800 border-gray-200'
+                                            }`}>
+                                            {getTipoEnsinoLabel(escola.tipoEnsino)}
+                                        </div> */}
                                     </div>
 
                                     <div className="mt-3 grid grid-cols-2 gap-2">
                                         <div className="flex items-center text-xs text-gray-700">
                                             <MapPin className="w-3.5 h-3.5 mr-1 text-blue-500" />
-                                            <span className="truncate">{entreposto.municipio}</span>
+                                            <span className="truncate">{empresa.municipio}</span>
                                         </div>
                                         <div className="flex items-center text-xs text-gray-700">
-                                            <Building className="w-3.5 h-3.5 mr-1 text-blue-500" />
-                                            {entreposto.numeroBancas} bancas
+                                            <Users className="w-3.5 h-3.5 mr-1 text-blue-500" />
+                                            {empresa.numeroFuncionarios} Funcionários
                                         </div>
                                         <div className="flex items-center text-xs text-gray-700">
                                             <Phone className="w-3.5 h-3.5 mr-1 text-blue-500" />
-                                            {entreposto.telefone}
+                                            {empresa.telefone}
                                         </div>
                                         <div className="flex items-center text-xs text-gray-700">
-                                            <Activity className="w-3.5 h-3.5 mr-1 text-blue-500" />
-                                            {entreposto.areaTotal}m²
+                                            <Building className="w-3.5 h-3.5 mr-1 text-blue-500" />
+                                            {empresa.volumeClientes} Clientes/ano
                                         </div>
                                     </div>
 
                                     <div className="mt-3 flex justify-between items-center">
                                         <div className="flex space-x-1">
                                             <button
-                                                onClick={() => handleViewEscola(entreposto.id)}
+                                                onClick={() => handleViewEscola(empresa.id)}
                                                 className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-full transition-colors"
                                                 title="Visualizar"
                                             >
                                                 <Eye className="w-4 h-4" />
                                             </button>
                                             <button
-                                                onClick={() => openDeleteModal(entreposto.id)}
+                                                onClick={() => openDeleteModal(empresa.id)}
                                                 className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-full transition-colors"
                                                 title="Remover"
                                             >
@@ -774,12 +763,24 @@ const GestaoEntrepostosMercado = () => {
 
                                         <div className="flex items-center space-x-3">
                                             <div className="flex items-center">
-                                                <span className={`w-2.5 h-2.5 rounded-full mr-1.5 ${entreposto.status === 'ATIVO' ? 'bg-green-500' : 'bg-gray-400'}`}></span>
-                                                <span className={`text-xs font-medium ${entreposto.status === 'ATIVO' ? 'text-green-600' : 'text-gray-500'}`}>
-                                                    {entreposto.status}
+                                                <span className={`w-2.5 h-2.5 rounded-full mr-1.5 ${empresa.status === 'ATIVO' ? 'bg-green-500' : 'bg-gray-400'
+                                                    }`}></span>
+                                                <span className={`text-xs font-medium ${empresa.status === 'ATIVO' ? 'text-green-600' : 'text-gray-500'
+                                                    }`}>
+                                                    {empresa.status}
                                                 </span>
                                             </div>
-                                            <ActionMenu escola={entreposto} />
+                                            <button
+                                                onClick={() => toggleStatus(empresa.id, empresa.status)}
+                                                className={`relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${empresa.status === 'ATIVO' ? 'bg-green-500' : 'bg-gray-200'
+                                                    }`}
+                                            >
+                                                <span
+                                                    className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${empresa.status === 'ATIVO' ? 'translate-x-5' : 'translate-x-0'
+                                                        }`}
+                                                />
+                                            </button>
+                                            <ActionMenu escola={empresa} />
                                         </div>
                                     </div>
                                 </div>
@@ -793,13 +794,13 @@ const GestaoEntrepostosMercado = () => {
                     <div className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
                         <div className="text-sm text-gray-700">
                             Mostrando{' '}
-                            <span className="font-medium">{filteredEntrepostos.length > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0}</span>
+                            <span className="font-medium">{filteredEscolas.length > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0}</span>
                             {' '}a{' '}
                             <span className="font-medium">
-                                {Math.min(currentPage * itemsPerPage, filteredEntrepostos.length)}
+                                {Math.min(currentPage * itemsPerPage, filteredEscolas.length)}
                             </span>
                             {' '}de{' '}
-                            <span className="font-medium">{filteredEntrepostos.length}</span>
+                            <span className="font-medium">{filteredEscolas.length}</span>
                             {' '}resultados
                         </div>
 
@@ -834,7 +835,7 @@ const GestaoEntrepostosMercado = () => {
                 </div>
 
                 {/* Nenhum resultado encontrado */}
-                {filteredEntrepostos.length === 0 && (
+                {filteredEscolas.length === 0 && (
                     <div className="py-12 flex flex-col items-center justify-center text-center px-4">
                         <Search className="w-16 h-16 text-gray-300 mb-4" />
                         <h3 className="text-lg font-medium text-gray-900 mb-1">Nenhuma informação encontrada</h3>
@@ -854,15 +855,17 @@ const GestaoEntrepostosMercado = () => {
                                 Limpar filtros
                             </button>
                         ) : (
-                            <p />
-                                
-                            
+                            <p/>
+                               
                         )}
                     </div>
                 )}
-            </div>           
+            </div>
+
+            {/* Estatísticas das escolas */}
+         
         </div>
     );
 };
 
-export default GestaoEntrepostosMercado;
+export default GestaoApoiFlorestal;

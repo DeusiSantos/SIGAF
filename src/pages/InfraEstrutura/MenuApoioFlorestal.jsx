@@ -5,10 +5,10 @@ import CadastroProdutor from '../CadastroProdutor';
 import ProdutoresGestao from '../ProdutoresGestao';
 import ProdutoresGestaoAprovados from '../ProdutoresGestaoAprovados';
 import { useProdutores, useProdutoresAprovados } from '../../hooks/useRnpaData';
-import GestaoApoioAgricola from './GestaoApoioAgricola';
+import GestaoApoioAgricola from '../ApoioAgricola/GestaoApoioAgricola';
 import RegistroApoioAgricola from './RegistroApoioAgricola';
 
-const MenuApoioAgricola = () => {
+const MenuApoioFlorestal = () => {
     const [activeSection, setActiveSection] = useState('gestao');
     const [showInfoModal, setShowInfoModal] = useState(false);
 
@@ -231,4 +231,4 @@ const MenuApoioAgricola = () => {
     );
 };
 
-export default MenuApoioAgricola;
+export default MenuApoioFlorestal;

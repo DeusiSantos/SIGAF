@@ -6,7 +6,7 @@ import {
   Calendar, Settings, Globe, TrendingUp, FileBarChart,
   EyeOff, Sprout, TreePine, Tractor, PanelLeftClose, PanelLeftOpen,
   Plus, Clock, AlertTriangle, CheckCircle,
-  BuildingIcon, Wheat, 
+  BuildingIcon, Wheat,
   File,
   Building,
   ShieldAlert,
@@ -40,17 +40,12 @@ const rnpaRoutes = {
       submenu: true
     },
     {
-      text: 'Florestais',
+      text: 'Produtores Florestais',
       icon: TreePine,
       path: '/GerenciaRNPA/gestao-florestal',
       submenu: true
     },
-    {
-      text: 'Infraestrutura',
-      icon: Building,
-      path: '/GerenciaRNPA/gestao-infraestrutura',
-      submenu: true
-    },
+    
     {
       text: 'Painel e Monitoramento',
       icon: TrendingUp,
@@ -70,12 +65,12 @@ const rnpaRoutes = {
     //   submenu: true
     // }
   ],
-  
+
   subMenus: {
     'Produtores Agrícolas': [
-      { 
-        text: 'Produtores', 
-        icon: Users, 
+      {
+        text: 'Produtores',
+        icon: Users,
         path: '/GerenciaRNPA/gestao-agricultores/produtores',
         hasDropdown: true,
         dropdownItems: [
@@ -85,15 +80,27 @@ const rnpaRoutes = {
           { text: 'Associação', path: '/GerenciaRNPA/gestao-agricultores/produtores/associacao' }
         ]
       },
+       {
+        text: 'Infraestrutura',
+        icon: Sprout,
+        path: '/GerenciaRNPA/gestao-florestal/produtoresFlorestais',
+        hasDropdown: true,
+        dropdownItems: [
+          { text: 'Irrigação', icon: Sprout, path: '/GerenciaRNPA/gestao-agricultores/produtores/irrigacao' },
+          { text: 'Silos e Centro de Armazenamento', icon: Archive, path: '/GerenciaRNPA/gestao-agricultores/produtores/silos-armazenamento' },
+          { text: 'Entrepostas e Mercado', icon: Building2, path: '/GerenciaRNPA/gestao-agricultores/produtores/entrepostasMercado' },
+          { text: 'Empresas de Apoio Agrícola', icon: Tractor, path: '/GerenciaRNPA/gestao-agricultores/produtores/apoio-agricola' }
+        ]
+      },
       { text: 'Validação e Certificado', icon: Shield, path: '/GerenciaRNPA/gestao-agricultores/workflow' },
       { text: 'Programas e Benefícios', icon: Award, path: '/GerenciaRNPA/gestao-agricultores/programas' },
       { text: 'Incentivos', icon: TrendingUp, path: '/GerenciaRNPA/gestao-agricultores/incentivos' }
     ],
-    
-    'Florestais': [
-      { 
-        text: 'Produtores', 
-        icon: Users, 
+
+    'Produtores Florestais': [
+      {
+        text: 'Produtores',
+        icon: Users,
         path: '/GerenciaRNPA/gestao-florestal/produtoresFlorestais',
         hasDropdown: true,
         dropdownItems: [
@@ -103,20 +110,25 @@ const rnpaRoutes = {
           { text: 'Associação', path: '/GerenciaRNPA/gestao-florestal/produtores/associacao' }
         ]
       },
+      {
+        text: 'Infraestrutura',
+        icon: Sprout,
+        path: '/GerenciaRNPA/gestao-florestal/produtoresFlorestais',
+        hasDropdown: true,
+        dropdownItems: [
+          { text: 'Irrigação', icon: Sprout, path: '/GerenciaRNPA/gestao-florestal/produtores/irrigacao' },
+          { text: 'Silos e Centro de Armazenamento', icon: Archive, path: '/GerenciaRNPA/gestao-florestal/produtores/silos-armazenamento' },
+          { text: 'Entrepostas e Mercado', icon: Building2, path: '/GerenciaRNPA/gestao-florestal/produtores/entrepostasMercado' },
+          { text: 'Empresas de Apoio Agrícola', icon: Tractor, path: '/GerenciaRNPA/gestao-florestal/produtores/apoio-agricola' }
+        ]
+      },
       { text: 'Validação e Certificado', icon: Shield, path: '/GerenciaRNPA/gestao-florestal/workflow' },
       { text: 'Programas e Benefícios', icon: Award, path: '/GerenciaRNPA/gestao-florestal/programas' },
       { text: 'Incentivos', icon: TrendingUp, path: '/GerenciaRNPA/gestao-florestal/incentivos' },
       { text: 'Certificação Florestal', icon: File, path: '/GerenciaRNPA/gestao-florestal/certificacaoFlorestal' },
       { text: 'Transgreções', icon: Gavel, path: '/GerenciaRNPA/sancoes' }
     ],
-    
-    'Infraestrutura': [
-      { text: 'Irrigação', icon: Sprout, path: '/GerenciaRNPA/gestao-infraestrutura/Irrigacao' },
-      { text: 'Silos e Centro de Armazenamento', icon: Archive, path: '/GerenciaRNPA/gestao-infraestrutura/silos-armazenamento' },
-      { text: 'Entrepostas e Mercado', icon: Building2, path: '/GerenciaRNPA/gestao-infraestrutura/entrepostasMercado' },
-      { text: 'Empresas de Apoio Agrícola', icon: Tractor, path: '/GerenciaRNPA/gestao-infraestrutura/apoio-agricola' }
-    ],
-    
+
     'Painel e Monitoramento': [
       { text: 'Controle de Pragas', icon: ShieldAlert, path: '/GerenciaRNPA/painel-monitoramento/indicadores' },
       { text: 'Meteorologia', icon: Globe, path: '/GerenciaRNPA/painel-monitoramento/meteorologia' },
@@ -138,7 +150,7 @@ const rnpaRoutes = {
 
 const DropdownMenuItem = ({ item, isActive, onItemClick, onDropdownClick }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  
+
   const handleMainClick = () => {
     onItemClick(item.text);
     if (item.hasDropdown) {
@@ -150,25 +162,23 @@ const DropdownMenuItem = ({ item, isActive, onItemClick, onDropdownClick }) => {
     onDropdownClick(dropdownItem.path);
     setIsDropdownOpen(false);
   };
-  
+
   return (
     <div className="relative">
       <button
         onClick={handleMainClick}
-        className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 ${
-          isActive
+        className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 ${isActive
             ? 'text-blue-600 bg-blue-50 font-semibold shadow-sm'
             : 'text-gray-600 hover:bg-blue-50 hover:text-blue-600'
-        }`}
+          }`}
       >
         <div className="flex items-center min-w-0">
           <item.icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-blue-600' : ''}`} />
           <span className="ml-3 text-sm truncate">{item.text}</span>
         </div>
         {item.hasDropdown && (
-          <ChevronRight className={`w-4 h-4 flex-shrink-0 transition-transform ${
-            isDropdownOpen ? 'rotate-90' : ''
-          }`} />
+          <ChevronRight className={`w-4 h-4 flex-shrink-0 transition-transform ${isDropdownOpen ? 'rotate-90' : ''
+            }`} />
         )}
         {isActive && !item.hasDropdown && (
           <div className="ml-auto">
@@ -176,7 +186,7 @@ const DropdownMenuItem = ({ item, isActive, onItemClick, onDropdownClick }) => {
           </div>
         )}
       </button>
-      
+
       {item.hasDropdown && isDropdownOpen && (
         <div className="ml-8 mt-2 space-y-1 animate-fade-in">
           {item.dropdownItems.map((dropdownItem, index) => (
@@ -221,7 +231,7 @@ const Layout = () => {
         setIsInSubmenu(true);
 
         const submenuItem = rnpaRoutes.subMenus[mainMenuItem.text]?.find(item =>
-          currentPath === item.path || 
+          currentPath === item.path ||
           (item.hasDropdown && item.dropdownItems?.some(dropItem => currentPath === dropItem.path))
         );
 
