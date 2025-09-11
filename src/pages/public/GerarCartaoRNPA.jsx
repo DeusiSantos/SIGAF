@@ -368,8 +368,8 @@ const mapearDadosAPI = (dadosAPI, fotoAPI = null, qrCodeDataURL = null) => {
     possuiDeficiencia: dadosAPI?.possui_deficiencia === 'sim' ? 'Sim' : 'Não',
 
     // Localização
-    provincia: dadosAPI?.Provincia,
-    municipio: dadosAPI?.Municipio,
+    provincia: dadosAPI?.provincia,
+    municipio: dadosAPI?.municipio,
     comuna: dadosAPI?.geo_level_4,
     aldeia: dadosAPI?.geo_level_5,
     localResidencia: dadosAPI?.geo_level_6 === 'urbana' ? 'Urbana' : 'Rural',

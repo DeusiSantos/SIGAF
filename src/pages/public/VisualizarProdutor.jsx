@@ -65,7 +65,7 @@ const useProdutorById = (id) => {
     const [produtor, setProdutor] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    
+
 
     useEffect(() => {
         const fetchProdutor = async () => {
@@ -521,7 +521,7 @@ const VisualizarProdutor = () => {
 
     const [showStatusModal, setShowStatusModal] = useState(false);
     const [pendingStatusValue, setPendingStatusValue] = useState(null);
-     const [gerandoPDF, setGerandoPDF] = useState(false);
+    const [gerandoPDF, setGerandoPDF] = useState(false);
 
 
     // Steps do formulário
@@ -912,8 +912,9 @@ const VisualizarProdutor = () => {
 
         return {
             id: parseInt(id),
-            provincia: convertValue(formData.provincia),
-            municipio: convertValue(formData.municipio) || '',
+            id: parseInt(id),
+            provincia: getSelectStringValue(formData.provincia),
+            municipio: getSelectStringValue(formData.municipio) || '',
             comuna: convertValue(formData.comuna) || '',
             geoLevel4: convertValue(formData.geoLevel4) || '',
             geoLevel5: convertValue(formData.geoLevel5) || '',
@@ -1216,18 +1217,18 @@ const VisualizarProdutor = () => {
         }
     };
 
-   const handleGerarPDFCompleto = async () => {
-           setGerandoPDF(true);
-           try {
-               await gerarFichaCompletaPDF(id);
-               showToast('success', 'Ficha completa com histórico de produção gerada com sucesso!');
-           } catch (error) {
-               console.error('Erro ao gerar PDF completo:', error);
-               showToast('error', `Erro ao gerar PDF: ${error.message}`);
-           } finally {
-               setGerandoPDF(false);
-           }
-       };
+    const handleGerarPDFCompleto = async () => {
+        setGerandoPDF(true);
+        try {
+            await gerarFichaCompletaPDF(id);
+            showToast('success', 'Ficha completa com histórico de produção gerada com sucesso!');
+        } catch (error) {
+            console.error('Erro ao gerar PDF completo:', error);
+            showToast('error', `Erro ao gerar PDF: ${error.message}`);
+        } finally {
+            setGerandoPDF(false);
+        }
+    };
 
     const handleGenerateCard = () => {
         navigate(`/GerenciaRNPA/gestao-escolar/produtores/gerar-cartao/${id}`);
@@ -1258,7 +1259,7 @@ const VisualizarProdutor = () => {
                         )}
                     </button>
 
-                     <button
+                    <button
                         onClick={handleGerarPDFCompleto}
                         disabled={gerando}
                         className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-300"
