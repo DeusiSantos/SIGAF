@@ -5,8 +5,11 @@ import CadastroProdutor from '../../pages/CadastroProdutor';
 import ProdutoresGestao from '../../pages/ProdutoresGestao';
 import ProdutoresGestaoAprovados from '../../pages/ProdutoresGestaoAprovados';
 import { useProdutores, useProdutoresAprovados } from '../../hooks/useRnpaData';
+import ProdutoresFlorestaisGestao from '../../pages/ProdutorFlorestal/ProdutoresFlorestaisGestao';
+import GestaoProdutoresFlorestais from '../../pages/GestaoProdutoresFlorestais';
+import CadastroProdutorFlorestal from '../../pages/ProdutorFlorestal/CadastroProdutorFlorestal';
 
-const GestaoAlunosMenu = () => {
+const GestaoProdutoresFlorestaisMenu = () => {
     const [activeSection, setActiveSection] = useState('gestao');
     const [showInfoModal, setShowInfoModal] = useState(false);
 
@@ -77,7 +80,7 @@ const GestaoAlunosMenu = () => {
                 return (
                     <div className="bg-white rounded-lg shadow-sm ">
                         <div className="text-center">
-                            <ProdutoresGestao />
+                            <ProdutoresFlorestaisGestao />
                         </div>
                     </div>
                 );
@@ -86,7 +89,7 @@ const GestaoAlunosMenu = () => {
                 return (
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
                         <div className="text-center">
-                            <ProdutoresGestaoAprovados />
+                            <GestaoProdutoresFlorestais />
                         </div>
                     </div>
                 );
@@ -95,7 +98,7 @@ const GestaoAlunosMenu = () => {
                 return (
                     <div className="bg-white  shadow-sm ">
                         <div className="text-center">
-                            <CadastroProdutor />
+                            <CadastroProdutorFlorestal />
                         </div>
                     </div>
                 );
@@ -239,4 +242,4 @@ const GestaoAlunosMenu = () => {
     );
 };
 
-export default GestaoAlunosMenu;
+export default GestaoProdutoresFlorestaisMenu;

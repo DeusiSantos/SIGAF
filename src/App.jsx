@@ -51,6 +51,7 @@ import EntidadesAssociativasGestao from './pages/SociedadeAgricola/EntidadesAsso
 import MenuEntrepostosMercado from './pages/EntrepostasMercado/MenuEntrepostasMercado';
 import MenuSilos from './pages/SilosEArmazenamento/MenuSilos';
 import VisualizarPraga from './pages/Pragas/VisualizarPraga';
+import GestaoProdutoresFlorestaisMenu from './Layout/other/GestaoProdutoresFlorestaisMenu';
 
 function App() {
   return (
@@ -76,6 +77,7 @@ function App() {
           <Route path="produtores/gerar-cartao/:id" element={<GerarCartaoRNPA />} />
           <Route path="certificados/visualizar/:produtorId" element={<VisualizarCertificados />} />
           <Route path="incentivos/visualizar/:id" element={<VisualizarIncentivo />} />
+          <Route path="produtores-florestais/visualizar/:id" element={<VisualizarProdutorFlorestal />} />
 
           {/* Rotas de gestão escolar (mantidas) */}
           <Route path="gestao-escolar/produtores" element={<h1 className="text-2xl font-semibold">Lista de Produtores</h1>} />
@@ -120,11 +122,11 @@ function App() {
           {/* 2. FLORESTAIS */}
           {/* ======================================= */}
           <Route path="gestao-florestal">
-            <Route index element={<GestaoProdutoresFlorestais />} />
+            <Route index element={<GestaoProdutoresFlorestaisMenu />} />
             
             {/* Produtores (com dropdown para Pessoal, Empresa, Cooperativa, Associação) */}
-            <Route path="produtores" element={<GestaoAlunosMenu />} />
-            <Route path="produtores/pessoal" element={<GestaoAlunosMenu />} />
+            <Route path="produtores" element={<GestaoProdutoresFlorestaisMenu />} />
+            <Route path="produtores/pessoal" element={<GestaoProdutoresFlorestaisMenu />} />
             <Route path="produtores/empresa" element={<EmpresasMenu />} />
             <Route path="produtores/cooperativa" element={<GestaoEntidadesAssociativasMenu />} />
             <Route path="produtores/associacao" element={<GestaoAssociacoesRuraisMenu />} />
@@ -133,6 +135,7 @@ function App() {
             
             {/* Validação e Certificado */}
             <Route path="workflow" element={<ValidarCerficacao />} />
+            
             
             {/* Passe (Certificados) */}
             <Route path="certificados" element={<CertificadosGestao />} />
