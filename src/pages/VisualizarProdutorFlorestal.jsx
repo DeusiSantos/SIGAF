@@ -64,6 +64,22 @@ const VisualizarProdutorFlorestal = () => {
     const [showMediaModal, setShowMediaModal] = useState(false);
     const [currentMedia, setCurrentMedia] = useState({ type: '', url: '', title: '' });
 
+    // Função para conversão segura de datas
+    const formatDateForInput = (dateValue) => {
+        if (!dateValue) return '';
+        
+        try {
+            const date = new Date(dateValue);
+            // Verifica se a data é válida
+            if (isNaN(date.getTime())) return '';
+            
+            return date.toISOString().split('T')[0];
+        } catch (error) {
+            console.warn('Erro ao converter data:', dateValue, error);
+            return '';
+        }
+    };
+
     // Steps do formulário
     const steps = [
         { label: 'Inventário', icon: TreePine },
@@ -171,31 +187,42 @@ const VisualizarProdutorFlorestal = () => {
             const response = await api.get(`/produtorFlorestal/${id}`);
             const data = response.data;
             
-            setProdutor(data);
-            setFormData({
+            // Validar e limpar datas inválidas
+            const cleanedData = {
                 ...data,
+                validade_pretendida: data.validade_pretendida && !isNaN(new Date(data.validade_pretendida).getTime()) 
+                    ? data.validade_pretendida : null,
+                data_da_inspe_o: data.data_da_inspe_o && !isNaN(new Date(data.data_da_inspe_o).getTime()) 
+                    ? data.data_da_inspe_o : null,
+                data: data.data && !isNaN(new Date(data.data).getTime()) 
+                    ? data.data : null
+            };
+            
+            setProdutor(cleanedData);
+            setFormData({
+                ...cleanedData,
                 // Converter arrays de strings em arrays de objetos para multiselect
-                esp_cies_predominantes: data.esp_cies_predominantes ? 
-                    data.esp_cies_predominantes.split(',').map(item => ({ 
+                esp_cies_predominantes: cleanedData.esp_cies_predominantes ? 
+                    cleanedData.esp_cies_predominantes.split(',').map(item => ({ 
                         label: getSpeciesLabel(item.trim()), 
                         value: item.trim() 
                     })) : [],
-                tipo_de_licen_a_solicitada: data.tipo_de_licen_a_solicitada ?
-                    data.tipo_de_licen_a_solicitada.split(',').map(item => ({ 
+                tipo_de_licen_a_solicitada: cleanedData.tipo_de_licen_a_solicitada ?
+                    cleanedData.tipo_de_licen_a_solicitada.split(',').map(item => ({ 
                         label: getLicenseLabel(item.trim()), 
                         value: item.trim() 
                     })) : [],
                 // Converter valores simples em objetos para select
-                propriedade: getSelectValue(data.propriedade, propriedadeOptions),
-                estado_de_conserva_o: getSelectValue(data.estado_de_conserva_o, estadoConservacaoOptions),
-                autoriza_o_final: getSelectValue(data.autoriza_o_final, autorizacaoOptions),
-                resultado_da_inspe_o: getSelectValue(data.resultado_da_inspe_o, resultadoInspecaoOptions),
-                auto_emitido: getSelectValue(data.auto_emitido, autoEmitidoOptions),
-                tipo_de_ocorr_ncia: getSelectValue(data.tipo_de_ocorr_ncia, tipoOcorrenciaOptions),
-                modo_de_submiss_o: getSelectValue(data.modo_de_submiss_o, modoSubmissaoOptions),
-                tipo_de_infra_o: getSelectValue(data.tipo_de_infra_o, tipoInfracaoOptions),
-                status_da_san_o: getSelectValue(data.status_da_san_o, statusSancaoOptions),
-                estado: getSelectValue(data.estado, statusOptions)
+                propriedade: getSelectValue(cleanedData.propriedade, propriedadeOptions),
+                estado_de_conserva_o: getSelectValue(cleanedData.estado_de_conserva_o, estadoConservacaoOptions),
+                autoriza_o_final: getSelectValue(cleanedData.autoriza_o_final, autorizacaoOptions),
+                resultado_da_inspe_o: getSelectValue(cleanedData.resultado_da_inspe_o, resultadoInspecaoOptions),
+                auto_emitido: getSelectValue(cleanedData.auto_emitido, autoEmitidoOptions),
+                tipo_de_ocorr_ncia: getSelectValue(cleanedData.tipo_de_ocorr_ncia, tipoOcorrenciaOptions),
+                modo_de_submiss_o: getSelectValue(cleanedData.modo_de_submiss_o, modoSubmissaoOptions),
+                tipo_de_infra_o: getSelectValue(cleanedData.tipo_de_infra_o, tipoInfracaoOptions),
+                status_da_san_o: getSelectValue(cleanedData.status_da_san_o, statusSancaoOptions),
+                estado: getSelectValue(cleanedData.estado, statusOptions)
             });
         } catch (error) {
             console.error('Erro ao buscar produtor:', error);
@@ -599,7 +626,7 @@ const VisualizarProdutorFlorestal = () => {
                                         <CustomInput
                                             type="date"
                                             label="Validade Pretendida"
-                                            value={formData.validade_pretendida ? new Date(formData.validade_pretendida).toISOString().split('T')[0] : ''}
+                                            value={formatDateForInput(formData.validade_pretendida)}
                                             onChange={(value) => updateFormData('validade_pretendida', value)}
                                             disabled={!isEditing}
                                         />
@@ -662,7 +689,7 @@ const VisualizarProdutorFlorestal = () => {
                                     <CustomInput
                                         type="date"
                                         label="Data da Inspeção"
-                                        value={formData.data_da_inspe_o ? new Date(formData.data_da_inspe_o).toISOString().split('T')[0] : ''}
+                                        value={formatDateForInput(formData.data_da_inspe_o)}
                                         onChange={(value) => updateFormData('data_da_inspe_o', value)}
                                         disabled={!isEditing}
                                     />
@@ -890,7 +917,7 @@ const VisualizarProdutorFlorestal = () => {
                                     <CustomInput
                                         type="date"
                                         label="Data"
-                                        value={formData.data ? new Date(formData.data).toISOString().split('T')[0] : ''}
+                                        value={formatDateForInput(formData.data)}
                                         onChange={(value) => updateFormData('data', value)}
                                         disabled={!isEditing}
                                     />
