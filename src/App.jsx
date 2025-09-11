@@ -38,8 +38,7 @@ import LicencaMenu from './pages/Licencas/LicencaMenu';
 import GestaoFiscalizacao from './pages/Fiscalizacao/GestaoFiscalizacao';
 import HistoricoMultasApreensoes from './pages/Sancoes/HistoricoMultasApreensoes';
 import GestaoMultasApreensoes from './pages/Sancoes/GestaoMultasApreensoes';
-import MenuApoioAgricola from './pages/InfraEstrutura/MenuApoioAgricola';
-import GestaoApoioAgricola from './pages/InfraEstrutura/GestaoApoioAgricola';
+import MenuApoioFlorestal from './pages/ApoioAgricola/MenuApoioAgricola';
 import InfraestruturaMenu from './Layout/other/IrrigacaoMenu';
 import IrrigacaoMenu from './Layout/other/IrrigacaoMenu';
 import TesteAmostrasSolo from './pages/InfraEstrutura/TesteAmostrasSolo';
@@ -52,6 +51,18 @@ import MenuEntrepostosMercado from './pages/EntrepostasMercado/MenuEntrepostasMe
 import MenuSilos from './pages/SilosEArmazenamento/MenuSilos';
 import VisualizarPraga from './pages/Pragas/VisualizarPraga';
 import GestaoProdutoresFlorestaisMenu from './Layout/other/GestaoProdutoresFlorestaisMenu';
+
+// Infraestrutura Agrícola
+import IrrigacaoMenuAgricola from './pages/infraestruturaAgricola/IrrigacaoMenu';
+import MenuSilosAgricola from './pages/infraestruturaAgricola/MenuSilos';
+import MenuEntrepostosMercadoAgricola from './pages/infraestruturaAgricola/MenuEntrepostosMercado';
+import MenuApoioAgricolaAgricola from './pages/infraestruturaAgricola/MenuApoioAgricola';
+
+// Infraestrutura Florestal
+import IrrigacaoMenuFlorestal from './pages/infraestruturaFlorestal/IrrigacaoMenu';
+import MenuSilosFlorestal from './pages/infraestruturaFlorestal/MenuSilos';
+import MenuEntrepostosMercadoFlorestal from './pages/infraestruturaFlorestal/MenuEntrepostosMercado';
+import MenuApoioAgricolaFlorestal from './pages/infraestruturaFlorestal/MenuApoioAgricola';
 
 function App() {
   return (
@@ -101,8 +112,14 @@ function App() {
             <Route path="produtores/empresa" element={<EmpresasMenu />} />
             <Route path="produtores/cooperativa" element={<GestaoEntidadesAssociativasMenu />} />
             <Route path="produtores/associacao" element={<GestaoAssociacoesRuraisMenu />} />
+            {/* Infraestrutura Agrícola */}
+            <Route path="produtores/irrigacao" element={<IrrigacaoMenuAgricola />} />
+            <Route path="produtores/silos-armazenamento" element={<MenuSilosAgricola />} />
+            <Route path="produtores/entrepostasMercado" element={<MenuEntrepostosMercadoAgricola />} />
+            <Route path="produtores/apoio-agricola" element={<MenuApoioAgricolaAgricola />} />
             <Route path="programas" element={<GestaoProgramasBeneficiosMenu />} />
             <Route path="incentivos" element={<IncentivoMenu />} />
+           
             
             {/* Validação e Certificado */}
             <Route path="workflow" element={<ValidarCerficacao />} />
@@ -130,6 +147,14 @@ function App() {
             <Route path="produtores/empresa" element={<EmpresasMenu />} />
             <Route path="produtores/cooperativa" element={<GestaoEntidadesAssociativasMenu />} />
             <Route path="produtores/associacao" element={<GestaoAssociacoesRuraisMenu />} />
+             {/* Irrigação */}
+            <Route path="produtores/irrigacao" element={<IrrigacaoMenuFlorestal />} />
+             {/* Silos e Centro de Armazenamento */}
+            <Route path="produtores/silos-armazenamento" element={<MenuSilosFlorestal />} />
+            {/* Entrepostas e Mercado */}
+            <Route path="produtores/entrepostasMercado" element={<MenuEntrepostosMercadoFlorestal />} />
+            {/* Empresas de Apoio Agrícola */}
+            <Route path="produtores/apoio-agricola" element={<MenuApoioAgricolaFlorestal />} />
             <Route path="programas" element={<GestaoProgramasBeneficiosMenu />} />
             <Route path="incentivos" element={<IncentivoMenu />} />
             
@@ -167,7 +192,7 @@ function App() {
           {/* 3. INFRAESTRUTURA */}
           {/* ======================================= */}
           <Route path="gestao-infraestrutura">
-            <Route index element={<MenuApoioAgricola />} />
+            <Route index element={<MenuApoioFlorestal />} />
             
             {/* Irrigação */}
             <Route path="Irrigacao" element={<IrrigacaoMenu />} />
@@ -180,10 +205,9 @@ function App() {
             {/* Entrepostas e Mercado */ }
             <Route path="entrepostasMercado" element={<MenuEntrepostosMercado />} />
             {/* Empresas de Apoio Agrícola */}
-            <Route path="apoio-agricola" element={<MenuApoioAgricola />} />
+            <Route path="apoio-agricola" element={<MenuApoioFlorestal />} />
             
             {/* Rotas adicionais */}
-            <Route path="gestao-apoio" element={<GestaoApoioAgricola />} />
             <Route path="teste-amostras" element={<TesteAmostrasSolo />} />
           </Route>
 

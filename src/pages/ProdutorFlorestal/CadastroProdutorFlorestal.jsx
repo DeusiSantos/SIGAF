@@ -118,12 +118,18 @@ const CadastroProdutorFlorestal = () => {
   const [errors, setErrors] = useState({});
   const [uploadedFiles, setUploadedFiles] = useState({});
   const [toastMessage, setToastMessage] = useState(null);
+  const [consultingBI, setConsultingBI] = useState(false);
+  const [consultingNif, setConsultingNif] = useState(false);
+  const [biData, setBiData] = useState(null);
+  const [nifData, setNifData] = useState(null);
+  const [consultaTimeout, setConsultaTimeout] = useState(null);
 
   // Estado inicial do formulário
   const initialState = {
     // Seção 1: Inventário e Mapeamento Florestal
     nomeProdutor: '',
-    biNif: '',
+    tipoDocumento: '',
+    numeroDocumento: '',
     contacto: '',
     latitudeGPS: '',
     longitudeGPS: '',
@@ -198,13 +204,131 @@ const CadastroProdutorFlorestal = () => {
     setFormData(prev => ({ ...prev, [fieldName]: file }));
   };
 
+  // Função para consultar BI na API
+  const consultarBI = async (biValue) => {
+    if (!biValue || biValue.length < 10) return;
+
+    setConsultingBI(true);
+
+    try {
+      const username = 'minagrif';
+      const password = 'Nz#$20!23Mg';
+      const credentials = btoa(`${username}:${password}`);
+
+      const response = await axios.get(`https://api.gov.ao/bi/v1/getBI`, {
+        params: { bi: biValue },
+        headers: {
+          'Authorization': `Basic ${credentials}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = response.data;
+      console.log('📊 Resposta BI:', { status: response.status, data });
+
+      if ((response.status === 200 || response.status === 400) && data && data.data) {
+        const biInfo = data.data;
+        setBiData(biInfo);
+
+        // Tentar diferentes campos para o contacto
+        const contacto = biInfo.phone || biInfo.telefone || biInfo.contacto || biInfo.mobile || biInfo.celular || '';
+        
+        console.log('📱 Campos de contacto disponíveis:', {
+          phone: biInfo.phone,
+          telefone: biInfo.telefone,
+          contacto: biInfo.contacto,
+          mobile: biInfo.mobile,
+          celular: biInfo.celular
+        });
+
+        setFormData(prev => ({
+          ...prev,
+          nomeProdutor: `${biInfo.first_name || ''} ${biInfo.last_name || ''}`.trim(),
+          contacto: contacto
+        }));
+
+        showToast('success', 'BI Consultado', 'Dados do produtor preenchidos automaticamente!');
+      } else {
+        setBiData(null);
+        showToast('warn', 'BI não encontrado', 'Não foi possível encontrar dados para este BI.');
+      }
+    } catch (error) {
+      setBiData(null);
+      showToast('error', 'Erro na consulta', 'Erro ao consultar BI. Tente novamente.');
+      console.error('Erro ao consultar BI:', error);
+    } finally {
+      setConsultingBI(false);
+    }
+  };
+
+  // Função para consultar NIF na API
+  const consultarNIF = async (nifValue) => {
+    if (!nifValue || nifValue.length < 9) return;
+
+    setConsultingNif(true);
+
+    try {
+      const username = 'minagrif';
+      const password = 'Nz#$20!23Mg';
+      const credentials = btoa(`${username}:${password}`);
+
+      const response = await axios.get(`https://api.gov.ao/nif/v1/consultarNIF`, {
+        params: {
+          tipoDocumento: 'NIF',
+          numeroDocumento: nifValue
+        },
+        headers: {
+          'Authorization': `Basic ${credentials}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = response.data;
+      console.log('📊 Resposta NIF:', { status: response.status, data });
+
+      if ((response.status === 200 || response.status === 400) && data && data.data) {
+        const nifInfo = data.data;
+        setNifData(nifInfo);
+
+        setFormData(prev => ({
+          ...prev,
+          nomeProdutor: nifInfo.nome_contribuinte || '',
+          contacto: nifInfo.numero_contacto || ''
+        }));
+
+        showToast('success', 'NIF Consultado', 'Dados da empresa preenchidos automaticamente!');
+      } else {
+        setNifData(null);
+        showToast('warn', 'NIF não encontrado', 'Não foi possível encontrar dados para este NIF.');
+      }
+    } catch (error) {
+      setNifData(null);
+      showToast('error', 'Erro na consulta', 'Erro ao consultar NIF. Tente novamente.');
+      console.error('Erro ao consultar NIF:', error);
+    } finally {
+      setConsultingNif(false);
+    }
+  };
+
+  // Função para consultar documento baseado no tipo selecionado
+  const handleDocumentoConsulta = (value) => {
+    if (!value || value.length < 9 || !formData.tipoDocumento) return;
+    
+    if (formData.tipoDocumento === 'BI') {
+      consultarBI(value);
+    } else if (formData.tipoDocumento === 'NIF') {
+      consultarNIF(value);
+    }
+  };
+
   const validateCurrentStep = () => {
     const newErrors = {};
 
     switch (activeIndex) {
       case 0: // Inventário
         if (!formData.nomeProdutor) newErrors.nomeProdutor = 'Campo obrigatório';
-        if (!formData.biNif) newErrors.biNif = 'Campo obrigatório';
+        if (!formData.tipoDocumento) newErrors.tipoDocumento = 'Campo obrigatório';
+        if (!formData.numeroDocumento) newErrors.numeroDocumento = 'Campo obrigatório';
         if (!formData.contacto) newErrors.contacto = 'Campo obrigatório';
         if (!formData.propriedade) newErrors.propriedade = 'Campo obrigatório';
         break;
@@ -246,7 +370,7 @@ const CadastroProdutorFlorestal = () => {
                   <User className="w-5 h-5 mr-2 text-green-600" />
                   Dados do Produtor
                 </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   <CustomInput
                     type="text"
                     label="Nome do Produtor"
@@ -259,15 +383,53 @@ const CadastroProdutorFlorestal = () => {
                   />
 
                   <CustomInput
-                    type="text"
-                    label="BI/NIF"
-                    value={formData.biNif}
-                    onChange={(value) => handleInputChange('biNif', value)}
+                    type="select"
+                    label="Tipo de Documento"
+                    value={formData.tipoDocumento}
+                    options={[
+                      { label: 'BI (Bilhete de Identidade)', value: 'BI' },
+                      { label: 'NIF (Número de Identificação Fiscal)', value: 'NIF' }
+                    ]}
+                    onChange={(value) => {
+                      // Garantir que apenas o valor string seja armazenado
+                      const tipoValue = typeof value === 'object' ? value.value : value;
+                      handleInputChange('tipoDocumento', tipoValue);
+                      handleInputChange('numeroDocumento', ''); // Limpar campo quando trocar tipo
+                    }}
                     required
-                    errorMessage={errors.biNif}
-                    placeholder="Digite o BI ou NIF"
+                    errorMessage={errors.tipoDocumento}
+                    placeholder="Selecione o tipo"
                     iconStart={<CreditCard size={18} />}
                   />
+
+                  {formData.tipoDocumento && (
+                    <CustomInput
+                      type="text"
+                      label={`Número do ${formData.tipoDocumento}`}
+                      value={formData.numeroDocumento}
+                      onChange={(value) => {
+                        handleInputChange('numeroDocumento', value);
+                        
+                        // Limpar timeout anterior
+                        if (consultaTimeout) {
+                          clearTimeout(consultaTimeout);
+                        }
+                        
+                        // Definir novo timeout para consulta após 2 segundos
+                        if (value.length >= 9) {
+                          const newTimeout = setTimeout(() => {
+                            handleDocumentoConsulta(value);
+                          }, 2000);
+                          setConsultaTimeout(newTimeout);
+                        }
+                      }}
+                      required
+                      errorMessage={errors.numeroDocumento}
+                      placeholder={`Digite o ${formData.tipoDocumento}`}
+                      iconStart={consultingBI || consultingNif ? <Loader size={18} className="animate-spin" /> : <CreditCard size={18} />}
+                      disabled={consultingBI || consultingNif}
+                    />
+                  )}
 
                   <CustomInput
                     type="tel"

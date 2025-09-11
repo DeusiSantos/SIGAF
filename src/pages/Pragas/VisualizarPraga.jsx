@@ -873,10 +873,7 @@ const VisualizarPraga = () => {
 
     // Função para consultar BI
     const consultarBI = async (biValue) => {
-        if (!biValue || biValue.length < 9) {
-            showToast('error', 'Digite um número de BI válido (mínimo 9 caracteres)');
-            return;
-        }
+        if (!biValue || biValue.length < 9) return;
 
         setConsultingBI(true);
 
@@ -893,33 +890,109 @@ const VisualizarPraga = () => {
                 },
             });
 
-            if (response.status === 200 && response.data.code === 200 && response.data.data) {
-                const biInfo = response.data.data;
+            const data = response.data;
 
-                const dadosAtualizados = {
-                    ...formData,
-                    nome: biInfo.first_name || formData.nome,
-                    sobrenomeProdutor: biInfo.last_name || formData.sobrenomeProdutor,
-                    numeroBI: biValue,
-                    dataNascimento: biInfo.birth_date ?
-                        new Date(biInfo.birth_date).toISOString().split('T')[0] :
-                        formData.dataNascimento,
-                    genero: biInfo.gender_name?.toLowerCase().includes('masculino') ?
-                        getSelectValue('MASCULINO', generoOptions) :
-                        getSelectValue('FEMININO', generoOptions),
-                };
+            if (response.status === 200 && data.code === 200 && data.data) {
+                const biInfo = data.data;
 
-                setFormData(dadosAtualizados);
+                setFormData(prev => ({
+                    ...prev,
+                    nomeResponsavel: `${biInfo.first_name || ''} ${biInfo.last_name || ''}`.trim(),
+                    telefone: biInfo.phone_number || prev.telefone,
+                }));
+
                 showToast('success', 'Dados do BI preenchidos automaticamente!');
                 setShowBIValidation(false);
             } else {
-                showToast('warn', response.data.message || 'BI não encontrado ou dados inválidos');
+                if (data.code === 404) {
+                    showToast('warn', 'BI não encontrado. Preencha manualmente.');
+                } else {
+                    showToast('warn', 'BI inválido. Verifique o número.');
+                }
             }
         } catch (error) {
             console.error('Erro ao consultar BI:', error);
-            showToast('error', 'Erro ao consultar BI. Tente novamente.');
+            if (error.response) {
+                showToast('error', `Erro ${error.response.status}: ${error.response.data?.message || 'Erro na consulta do BI'}`);
+            } else if (error.request) {
+                showToast('error', 'Erro de conexão. Verifique sua conexão.');
+            } else {
+                showToast('error', 'Erro ao consultar BI. Tente novamente.');
+            }
         } finally {
             setConsultingBI(false);
+        }
+    };
+
+    // Função para consultar NIF
+    const consultarNIF = async (nifValue) => {
+        if (!nifValue || nifValue.length < 9) return;
+
+        setConsultingBI(true);
+
+        try {
+            const username = 'minagrif';
+            const password = 'Nz#$20!23Mg';
+            const credentials = btoa(`${username}:${password}`);
+
+            const response = await axios.get(`https://api.gov.ao/nif/v1/consultarNIF`, {
+                params: {
+                    tipoDocumento: 'NIF',
+                    numeroDocumento: nifValue
+                },
+                headers: {
+                    'Authorization': `Basic ${credentials}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = response.data;
+
+            if (response.status === 200 && data.code === 200 && data.data) {
+                const nifInfo = data.data;
+
+                setFormData(prev => ({
+                    ...prev,
+                    nomeResponsavel: nifInfo.nome_contribuinte || prev.nomeResponsavel,
+                    telefone: nifInfo.numero_contacto || prev.telefone,
+                }));
+
+                showToast('success', 'Dados do NIF preenchidos automaticamente!');
+                setShowBIValidation(false);
+            } else {
+                if (data.code === 404) {
+                    showToast('warn', 'NIF não encontrado. Preencha manualmente.');
+                } else {
+                    showToast('warn', 'NIF inválido. Verifique o número.');
+                }
+            }
+        } catch (error) {
+            console.error('Erro ao consultar NIF:', error);
+            if (error.response) {
+                showToast('error', `Erro ${error.response.status}: ${error.response.data?.message || 'Erro na consulta do NIF'}`);
+            } else if (error.request) {
+                showToast('error', 'Erro de conexão. Verifique sua conexão.');
+            } else {
+                showToast('error', 'Erro ao consultar NIF. Tente novamente.');
+            }
+        } finally {
+            setConsultingBI(false);
+        }
+    };
+
+    // Função para detectar tipo de documento e consultar
+    const consultarDocumento = (docValue) => {
+        if (!docValue) return;
+        
+        // Detectar se é BI ou NIF baseado no formato
+        if (docValue.length >= 9) {
+            // Se contém apenas números, provavelmente é BI
+            if (/^\d+$/.test(docValue)) {
+                consultarBI(docValue);
+            } else {
+                // Se contém letras ou outros caracteres, provavelmente é NIF
+                consultarNIF(docValue);
+            }
         }
     };
 
@@ -1387,10 +1460,10 @@ const VisualizarPraga = () => {
 
     const validateBI = () => {
         if (!biValidation) {
-            setBiError('Por favor, digite o número do BI');
+            setBiError('Por favor, digite o número do BI/NIF');
             return;
         }
-        consultarBI(biValidation);
+        consultarDocumento(biValidation);
         setShowBIValidation(false);
         setBiError('');
     };
@@ -2491,14 +2564,14 @@ const VisualizarPraga = () => {
                     <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
                         <h3 className="text-lg font-semibold text-gray-900 mb-4">Validação de Identidade</h3>
                         <p className="text-gray-600 mb-4">
-                            Para editar os dados do produtor, digite o número do BI. Os dados pessoais serão preenchidos automaticamente.
+                            Para editar os dados da praga, digite o número do BI ou NIF. Os dados do responsável serão preenchidos automaticamente.
                         </p>
                         <CustomInput
                             type="text"
-                            label="Número do BI"
+                            label="BI/NIF*"
                             value={biValidation}
                             onChange={setBiValidation}
-                            placeholder="Digite o número do BI"
+                            placeholder="Digite o número do BI ou NIF"
                             errorMessage={biError}
                             iconStart={<FileText size={18} />}
                         />
