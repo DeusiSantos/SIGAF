@@ -41,11 +41,11 @@ import api from '../services/api';
 import axios from 'axios';
 
 // Componente para Avatar do Produtor com foto da API
-const ProdutorAvatar = ({ 
-    produtor, 
-    size = "w-16 h-16", 
+const ProdutorAvatar = ({
+    produtor,
+    size = "w-16 h-16",
     textSize = "text-lg",
-    showLoadingSpinner = true 
+    showLoadingSpinner = true
 }) => {
     const [imageUrl, setImageUrl] = useState(null);
     const [imageLoading, setImageLoading] = useState(true);
@@ -72,7 +72,7 @@ const ProdutorAvatar = ({
             try {
                 setImageLoading(true);
                 setImageError(false);
-                
+
                 const response = await axios.get(
                     `https://mwangobrainsa-001-site2.mtempurl.com/api/formulario/${produtor.id}/foto-beneficiary`,
                     {
@@ -83,7 +83,7 @@ const ProdutorAvatar = ({
                         }
                     }
                 );
-                
+
                 if (response.data && response.data.size > 0) {
                     const url = URL.createObjectURL(response.data);
                     setImageUrl(url);
@@ -91,7 +91,7 @@ const ProdutorAvatar = ({
                 } else {
                     setImageError(true);
                 }
-                
+
             } catch (error) {
                 console.error('Erro ao carregar foto do produtor:', error);
                 setImageError(true);
@@ -123,8 +123,8 @@ const ProdutorAvatar = ({
     if (imageUrl && !imageError) {
         return (
             <div className={`${size} rounded-full overflow-hidden shadow-sm border-2 border-white`}>
-                <img 
-                    src={imageUrl} 
+                <img
+                    src={imageUrl}
                     alt={`Foto de ${produtor.nome}`}
                     className="w-full h-full object-cover"
                     onError={() => {
@@ -155,10 +155,10 @@ const mapApiDataToProdutor = (apiData) => {
         // Mapear atividades da API para formato esperado
         const mapAtividades = (atividadesString) => {
             if (!atividadesString) return [];
-            
+
             // Separar por vírgula primeiro
             const atividadesComVirgula = atividadesString.split(',');
-            
+
             // Para cada atividade, verificar se contém espaços (múltiplas atividades)
             const atividades = [];
             atividadesComVirgula.forEach(atividade => {
@@ -180,7 +180,7 @@ const mapApiDataToProdutor = (apiData) => {
                     }
                 }
             });
-            
+
             return atividades;
         };
 
@@ -267,17 +267,17 @@ const ProdutoresGestao = () => {
     // Transformar dados da API para o formato esperado
     const produtores = useMemo(() => {
         const todosProdutores = [];
-        
+
         // Adicionar produtores regulares
         if (produtor && Array.isArray(produtor)) {
             todosProdutores.push(...mapApiDataToProdutor(produtor));
         }
-        
+
         // Adicionar produtores aprovados
         if (produtoresAprovados && Array.isArray(produtoresAprovados)) {
             todosProdutores.push(...mapApiDataToProdutor(produtoresAprovados));
         }
-        
+
         return todosProdutores;
     }, [produtor, produtoresAprovados]);
 
@@ -358,7 +358,7 @@ const ProdutoresGestao = () => {
         navigate(`/GerenciaRNPA/gestao-escolar/produtores/gerar-cartao/${produtorId}`);
     };
 
-     {/*const handleCadastroProdutor = () => {
+    {/*const handleCadastroProdutor = () => {
         navigate('/GerenciaRNPA/produtores/cadastrar');
     };*/}
 
@@ -403,7 +403,7 @@ const ProdutoresGestao = () => {
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Confirmar Exclusão</h3>
                     <p className="text-gray-600 text-center text-sm mb-4">
-                        Tem certeza que deseja excluir o produtor <span className="font-semibold text-red-600">{produtor?.nome || 'Selecionado'}</span>?<br/>
+                        Tem certeza que deseja excluir o produtor <span className="font-semibold text-red-600">{produtor?.nome || 'Selecionado'}</span>?<br />
                         Esta ação não pode ser desfeita. Todos os dados do produtor serão removidos permanentemente.
                     </p>
                     <div className="flex gap-3 mt-2 w-full">
@@ -467,7 +467,7 @@ const ProdutoresGestao = () => {
     const getActionItems = (produtor) => {
         const baseActions = [
             { label: 'Histórico de Produção', icon: <Tractor size={16} />, action: handleHistoricoProducao },
-           // { label: 'Histórico de Benefícios', icon: <Gift size={16} />, action: handleHistoricoBeneficios }
+            // { label: 'Histórico de Benefícios', icon: <Gift size={16} />, action: handleHistoricoBeneficios }
         ];
 
         // Adicionar "Gerar Cartão RNPA" apenas para produtores aprovados
@@ -643,72 +643,72 @@ const ProdutoresGestao = () => {
     const totalPendentes = localProdutores.filter(p => p.statusProcesso === 'PENDENTE').length;
     const totalAprovados = localProdutores.filter(p => p.statusProcesso === 'APROVADO').length;
     const totalRejeitados = localProdutores.filter(p => p.statusProcesso === 'REJEITADO').length;
-   
+
     return (
         <div>
             {/* Indicadores do topo */}
             <div className="w-full flex justify-center bg-transparent pb-[30px] pt-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 w-full">
-                <div className="bg-white rounded-xl shadow-md p-6">
-                    <div className="flex items-center">
-                        <div className="p-3 bg-blue-100 rounded-full">
-                            <User className="w-6 h-6 text-blue-600" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 w-full">
+                    <div className="bg-white rounded-xl shadow-md p-6">
+                        <div className="flex items-center">
+                            <div className="p-3 bg-blue-100 rounded-full">
+                                <User className="w-6 h-6 text-blue-600" />
+                            </div>
+                            <div className="flex flex-col items-center ml-4">
+                                <p className="text-sm font-medium text-gray-500">Total</p>
+                                <p className="text-2xl font-bold text-gray-900">{totalProdutores}</p>
+                            </div>
                         </div>
-                        <div className="flex flex-col items-center ml-4">
-                            <p className="text-sm font-medium text-gray-500">Total</p>
-                            <p className="text-2xl font-bold text-gray-900">{totalProdutores}</p>
+                    </div>
+                    <div className="bg-white rounded-xl shadow-md p-6">
+                        <div className="flex items-center">
+                            <div className="p-3 bg-blue-100 rounded-full">
+                                <Clock className="w-6 h-6 text-blue-600" />
+                            </div>
+                            <div className="flex flex-col items-center ml-4">
+                                <p className="text-sm font-medium text-gray-500">Processos</p>
+                                <p className="text-2xl font-bold text-gray-900">{totalProcessos}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="bg-white rounded-xl shadow-md p-6">
+                        <div className="flex items-center">
+                            <div className="p-3 bg-yellow-100 rounded-full">
+                                <AlertTriangle className="w-6 h-6 text-yellow-600" />
+                            </div>
+                            <div className="flex flex-col items-center ml-4">
+                                <p className="text-sm font-medium text-gray-500">Pendentes</p>
+                                <p className="text-2xl font-bold text-gray-900">{totalPendentes}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="bg-white rounded-xl shadow-md p-6">
+                        <div className="flex items-center">
+                            <div className="p-3 bg-green-100 rounded-full">
+                                <CheckCircle className="w-6 h-6 text-green-600" />
+                            </div>
+                            <div className="flex flex-col items-center ml-4">
+                                <p className="text-sm font-medium text-gray-500">Aprovados</p>
+                                <p className="text-2xl font-bold text-gray-900">{totalAprovados}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="bg-white rounded-xl shadow-md p-6">
+                        <div className="flex items-center">
+                            <div className="p-3 bg-red-100 rounded-full">
+                                <X className="w-6 h-6 text-red-600" />
+                            </div>
+                            <div className="flex flex-col items-center ml-4">
+                                <p className="text-sm font-medium text-gray-500">Rejeitados</p>
+                                <p className="text-2xl font-bold text-gray-900">{totalRejeitados}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div className="bg-white rounded-xl shadow-md p-6">
-                    <div className="flex items-center">
-                        <div className="p-3 bg-blue-100 rounded-full">
-                            <Clock className="w-6 h-6 text-blue-600" />
-                        </div>
-                        <div className="flex flex-col items-center ml-4">
-                            <p className="text-sm font-medium text-gray-500">Processos</p>
-                            <p className="text-2xl font-bold text-gray-900">{totalProcessos}</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="bg-white rounded-xl shadow-md p-6">
-                    <div className="flex items-center">
-                        <div className="p-3 bg-yellow-100 rounded-full">
-                            <AlertTriangle className="w-6 h-6 text-yellow-600" />
-                        </div>
-                        <div className="flex flex-col items-center ml-4">
-                            <p className="text-sm font-medium text-gray-500">Pendentes</p>
-                            <p className="text-2xl font-bold text-gray-900">{totalPendentes}</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="bg-white rounded-xl shadow-md p-6">
-                    <div className="flex items-center">
-                        <div className="p-3 bg-green-100 rounded-full">
-                            <CheckCircle className="w-6 h-6 text-green-600" />
-                        </div>
-                        <div className="flex flex-col items-center ml-4">
-                            <p className="text-sm font-medium text-gray-500">Aprovados</p>
-                            <p className="text-2xl font-bold text-gray-900">{totalAprovados}</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="bg-white rounded-xl shadow-md p-6">
-                    <div className="flex items-center">
-                        <div className="p-3 bg-red-100 rounded-full">
-                            <X className="w-6 h-6 text-red-600" />
-                        </div>
-                        <div className="flex flex-col items-center ml-4">
-                            <p className="text-sm font-medium text-gray-500">Rejeitados</p>
-                            <p className="text-2xl font-bold text-gray-900">{totalRejeitados}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
             </div>
 
             <div className="w-full bg-white rounded-xl  overflow-hidden" ref={containerRef}>
-           
+
                 <Toast />
 
                 {/* Cabeçalho */}
@@ -763,7 +763,7 @@ const ProdutoresGestao = () => {
                                     iconStart={<Filter size={18} />}
                                 />
                             </div>
-                            
+
                             {/* Filtro por provincia */}
                             <div>
                                 <CustomInput
@@ -851,7 +851,7 @@ const ProdutoresGestao = () => {
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-start text-start">
                                                     {/* Usando o novo componente ProdutorAvatar */}
-                                                    <ProdutorAvatar 
+                                                    <ProdutorAvatar
                                                         produtor={produtor}
                                                         size="w-20 h-20"
                                                         textSize="text-lg"
@@ -926,6 +926,85 @@ const ProdutoresGestao = () => {
                                         </tr>
                                     ))}
                                 </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colSpan={5}>
+                                            {/* Paginação */}
+                                            <div className="px-6 py-4 border-t border-gray-200 bg-white">
+                                                <div className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
+                                                    <div className="text-sm text-gray-700">
+                                                        Mostrando{' '}
+                                                        <span className="font-medium">{filteredProdutores.length > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0}</span>
+                                                        {' '}a{' '}
+                                                        <span className="font-medium">
+                                                            {Math.min(currentPage * itemsPerPage, filteredProdutores.length)}
+                                                        </span>
+                                                        {' '}de{' '}
+                                                        <span className="font-medium">{filteredProdutores.length}</span>
+                                                        {' '}resultados
+                                                    </div>
+
+                                                    <div className="flex items-center space-x-2">
+                                                        <button
+                                                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                                            disabled={currentPage === 1}
+                                                            className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
+                                        ${currentPage === 1
+                                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                                    : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
+                                                                }`}
+                                                        >
+                                                            <ChevronLeft className="w-4 h-4 mr-1" />
+                                                            Anterior
+                                                        </button>
+
+                                                        {/* Números das páginas */}
+                                                        <div className="flex space-x-1">
+                                                            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                                                let pageNum;
+                                                                if (totalPages <= 5) {
+                                                                    pageNum = i + 1;
+                                                                } else if (currentPage <= 3) {
+                                                                    pageNum = i + 1;
+                                                                } else if (currentPage >= totalPages - 2) {
+                                                                    pageNum = totalPages - 4 + i;
+                                                                } else {
+                                                                    pageNum = currentPage - 2 + i;
+                                                                }
+
+                                                                return (
+                                                                    <button
+                                                                        key={pageNum}
+                                                                        onClick={() => setCurrentPage(pageNum)}
+                                                                        className={`px-3 py-2 text-sm font-medium rounded-md ${currentPage === pageNum
+                                                                            ? 'bg-blue-600 text-white'
+                                                                            : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
+                                                                            }`}
+                                                                    >
+                                                                        {pageNum}
+                                                                    </button>
+                                                                );
+                                                            })}
+                                                        </div>
+
+                                                        <button
+                                                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                                            disabled={currentPage === totalPages || totalPages === 0}
+                                                            className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
+                                        ${currentPage === totalPages || totalPages === 0
+                                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                                    : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
+                                                                }`}
+                                                        >
+                                                            Próximo
+                                                            <ChevronRight className="w-4 h-4 ml-1" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tfoot>
                             </table>
                         )}
                     </div>
@@ -942,7 +1021,7 @@ const ProdutoresGestao = () => {
                                 <div key={produtor.id} className="p-4 border-b border-gray-200 hover:bg-blue-50 transition-colors">
                                     <div className="flex items-start">
                                         {/* Usando o novo componente ProdutorAvatar para mobile */}
-                                        <ProdutorAvatar 
+                                        <ProdutorAvatar
                                             produtor={produtor}
                                             size="w-16 h-16"
                                             textSize="text-lg"
@@ -1004,81 +1083,7 @@ const ProdutoresGestao = () => {
                         )}
                     </div>
 
-                    {/* Paginação */}
-                    <div className="px-6 py-4 border-t border-gray-200 bg-white">
-                        <div className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
-                            <div className="text-sm text-gray-700">
-                                Mostrando{' '}
-                                <span className="font-medium">{filteredProdutores.length > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0}</span>
-                                {' '}a{' '}
-                                <span className="font-medium">
-                                    {Math.min(currentPage * itemsPerPage, filteredProdutores.length)}
-                                </span>
-                                {' '}de{' '}
-                                <span className="font-medium">{filteredProdutores.length}</span>
-                                {' '}resultados
-                            </div>
-
-                            <div className="flex items-center space-x-2">
-                                <button
-                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                                    disabled={currentPage === 1}
-                                    className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
-                                        ${currentPage === 1
-                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                            : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
-                                        }`}
-                                >
-                                    <ChevronLeft className="w-4 h-4 mr-1" />
-                                    Anterior
-                                </button>
-
-                                {/* Números das páginas */}
-                                <div className="flex space-x-1">
-                                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                                        let pageNum;
-                                        if (totalPages <= 5) {
-                                            pageNum = i + 1;
-                                        } else if (currentPage <= 3) {
-                                            pageNum = i + 1;
-                                        } else if (currentPage >= totalPages - 2) {
-                                            pageNum = totalPages - 4 + i;
-                                        } else {
-                                            pageNum = currentPage - 2 + i;
-                                        }
-                                        
-                                        return (
-                                            <button
-                                                key={pageNum}
-                                                onClick={() => setCurrentPage(pageNum)}
-                                                className={`px-3 py-2 text-sm font-medium rounded-md ${
-                                                    currentPage === pageNum
-                                                        ? 'bg-blue-600 text-white'
-                                                        : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
-                                                }`}
-                                            >
-                                                {pageNum}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-
-                                <button
-                                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                                    disabled={currentPage === totalPages || totalPages === 0}
-                                    className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
-                                        ${currentPage === totalPages || totalPages === 0
-                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                            : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
-                                        }`}
-                                >
-                                    Próximo
-                                    <ChevronRight className="w-4 h-4 ml-1" />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
+                   
                     {/* Nenhum resultado encontrado */}
                     {!loadingProdutor && !loadingAprovados && filteredProdutores.length === 0 && (
                         <div className="py-12 flex flex-col items-center justify-center text-center px-4">
@@ -1103,7 +1108,7 @@ const ProdutoresGestao = () => {
                                     Limpar filtros
                                 </button>
                             ) : (
-                                <p/>
+                                <p />
                             )}
                         </div>
                     )}

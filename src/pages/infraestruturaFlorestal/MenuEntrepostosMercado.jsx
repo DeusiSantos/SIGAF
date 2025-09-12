@@ -17,7 +17,7 @@ import CadastroEmpresas from '../SociedadeAgricola/CadastroEmpresas';
 import CadastroEntrepostosMercado from './CadastroEntrepostosMercado';
 
 
-const MenuEntrepostosMercado = () => {
+const MenuEntrepostosMercadoFlorestal = () => {
     const [activeSection, setActiveSection] = useState('cadastro');
 
     const menuItems = [
@@ -119,4 +119,4 @@ const MenuEntrepostosMercado = () => {
     );
 };
 
-export default MenuEntrepostosMercado;
+export default MenuEntrepostosMercadoFlorestal;

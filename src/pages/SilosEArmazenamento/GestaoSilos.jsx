@@ -46,27 +46,27 @@ const silosData = [
         nomeSilo: "Silo Central de Luanda",
         tipoUnidade: "SILO_METALICO",
         codigoRegistro: "SCL001",
-        
+
         // Localização (Step 2)
         endereco: "Zona Industrial de Luanda, Viana",
         municipio: "Viana",
         provincia: "LUANDA",
         latitude: "-8.838333",
         longitude: "13.234444",
-        
+
         // Proprietário/Responsável (Step 3)
         nomeProprietario: "António Silva Santos",
         entidade: "Agro Luanda Lda",
         nifProprietario: "5417189144",
         telefoneProprietario: "222345678",
         emailProprietario: "silo.central@agroluanda.ao",
-        
+
         // Capacidade de Armazenamento (Step 4)
         capacidadeTotal: 5000,
         capacidadeUtilizada: 3200,
         numeroUnidades: 8,
         produtosArmazenados: ["MILHO", "ARROZ", "FEIJAO"],
-        
+
         // Infraestrutura e Equipamentos (Step 5)
         sistemaSeccagem: true,
         sistemaVentilacao: true,
@@ -74,17 +74,17 @@ const silosData = [
         tipoEnergia: "REDE_PUBLICA",
         estadoVias: "BOA",
         equipamentosDisponiveis: ["BALANCAS", "ESTEIRAS", "ELEVADORES"],
-        
+
         // Situação Legal (Step 6)
         licencaOperacao: true,
         certificacaoSanitaria: true,
         dataLicenca: "2023-01-15",
         validadeLicenca: "2025-01-15",
         outrasAutorizacoes: "Licença ambiental municipal",
-        
+
         // Observações
         observacoes: "Silo principal da região com alta capacidade de armazenamento",
-        
+
         status: "ATIVO"
     },
     {
@@ -93,27 +93,27 @@ const silosData = [
         nomeSilo: "Centro de Armazenamento Benguela",
         tipoUnidade: "ARMAZEM_GRANELEIRO",
         codigoRegistro: "CAB002",
-        
+
         // Localização (Step 2)
         endereco: "Zona Industrial, Benguela",
         municipio: "Benguela",
         provincia: "BENGUELA",
         latitude: "-12.576111",
         longitude: "13.405556",
-        
+
         // Proprietário/Responsável (Step 3)
         nomeProprietario: "Maria João Fernandes",
         entidade: "Cooperativa Agrícola Benguela",
         nifProprietario: "5417189145",
         telefoneProprietario: "272123456",
         emailProprietario: "armazem@coopbenguela.ao",
-        
+
         // Capacidade de Armazenamento (Step 4)
         capacidadeTotal: 3000,
         capacidadeUtilizada: 1800,
         numeroUnidades: 5,
         produtosArmazenados: ["MILHO", "SOJA", "TRIGO"],
-        
+
         // Infraestrutura e Equipamentos (Step 5)
         sistemaSeccagem: true,
         sistemaVentilacao: false,
@@ -121,17 +121,17 @@ const silosData = [
         tipoEnergia: "HIBRIDO",
         estadoVias: "REGULAR",
         equipamentosDisponiveis: ["BALANCAS", "LIMPEZA"],
-        
+
         // Situação Legal (Step 6)
         licencaOperacao: true,
         certificacaoSanitaria: true,
         dataLicenca: "2023-03-20",
         validadeLicenca: "2025-03-20",
         outrasAutorizacoes: "Certificação ISO 9001",
-        
+
         // Observações
         observacoes: "Centro especializado em grãos com sistema híbrido de energia",
-        
+
         status: "ATIVO"
     },
     {
@@ -140,27 +140,27 @@ const silosData = [
         nomeSilo: "Armazém Rural Huambo",
         tipoUnidade: "ARMAZEM_CONVENCIONAL",
         codigoRegistro: "ARH003",
-        
+
         // Localização (Step 2)
         endereco: "Zona Rural, Huambo",
         municipio: "Huambo",
         provincia: "HUAMBO",
         latitude: "-12.776111",
         longitude: "15.738889",
-        
+
         // Proprietário/Responsável (Step 3)
         nomeProprietario: "José Carlos Mateus",
         entidade: "Associação de Produtores do Huambo",
         nifProprietario: "5417189146",
         telefoneProprietario: "241987654",
         emailProprietario: "armazem.huambo@gmail.com",
-        
+
         // Capacidade de Armazenamento (Step 4)
         capacidadeTotal: 1500,
         capacidadeUtilizada: 900,
         numeroUnidades: 3,
         produtosArmazenados: ["MILHO", "FEIJAO", "AMENDOIM"],
-        
+
         // Infraestrutura e Equipamentos (Step 5)
         sistemaSeccagem: false,
         sistemaVentilacao: true,
@@ -168,17 +168,17 @@ const silosData = [
         tipoEnergia: "GERADOR",
         estadoVias: "MA",
         equipamentosDisponiveis: ["BALANCAS"],
-        
+
         // Situação Legal (Step 6)
         licencaOperacao: false,
         certificacaoSanitaria: false,
         dataLicenca: null,
         validadeLicenca: null,
         outrasAutorizacoes: null,
-        
+
         // Observações
         observacoes: "Armazém rural em processo de regularização",
-        
+
         status: "PENDENTE"
     }
 ];
@@ -267,7 +267,7 @@ const GestaoSilos = () => {
         setToastTimeout(timeout);
     };
 
-    
+
 
     // Filtragem dos silos
     const filteredSilos = silosData.filter(silo => {
@@ -294,14 +294,14 @@ const GestaoSilos = () => {
         navigate(`/GerenciaRNPA/entidades-associativas/visualizar-associacao/${associacaoId}`);
     };
 
-   
+
 
     const handleTransferencia = (cooperativaId) => {
         // Navegar para a rota de cadastro de produção passando o ID
         navigate(`/GerenciaRNPA/entidades-associativas/cadastro-producao-associacoes/${cooperativaId}`);
     };
 
-    
+
 
     // Ações do menu dropdown
     const actionItems = [
@@ -316,10 +316,10 @@ const GestaoSilos = () => {
 
     // Formatar data
     //const formatDate = (dateString) => {
-     //   if (!dateString) return 'N/A';
-      //  const date = new Date(dateString);
-     //   return date.toLocaleDateString('pt-BR');
-   // };
+    //   if (!dateString) return 'N/A';
+    //  const date = new Date(dateString);
+    //   return date.toLocaleDateString('pt-BR');
+    // };
 
     // Obter label do tipo de ensino
     {/*const getTipoEnsinoLabel = (tipo) => {
@@ -412,8 +412,8 @@ const GestaoSilos = () => {
         );
     };
 
-   
-  
+
+
     // Extrair regiões únicas para o filtro
     const uniqueRegions = [...new Set(silosData.map(silo => silo.provincia))].filter(Boolean);
 
@@ -455,7 +455,7 @@ const GestaoSilos = () => {
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Confirmar Exclusão</h3>
                     <p className="text-gray-600 text-center text-sm mb-4">
-                        Tem certeza que deseja excluir o silo <span className="font-semibold text-red-600">{silo?.nomeSilo || 'Selecionado'}</span>?<br/>
+                        Tem certeza que deseja excluir o silo <span className="font-semibold text-red-600">{silo?.nomeSilo || 'Selecionado'}</span>?<br />
                         Esta ação não pode ser desfeita. Todos os dados do silo serão removidos permanentemente.
                     </p>
                     <div className="flex gap-3 mt-2 w-full">
@@ -482,7 +482,7 @@ const GestaoSilos = () => {
             <Toast />
             <DeleteConfirmModal />
 
-             {/* Estatísticas dos silos */}
+            {/* Estatísticas dos silos */}
             <div className="mt-6 mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-white rounded-xl shadow-md p-6">
                     <div className="flex items-center">
@@ -549,7 +549,7 @@ const GestaoSilos = () => {
                             <h1 className="text-2xl font-bold">Gestão de Silos e Centros de Armazenamento</h1>
                         </div>
                         <div className="flex gap-4">
-                            
+
                             <button
                                 onClick={() => showToast('info', 'Função', 'Exportar dados dos silos')}
                                 className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
@@ -635,7 +635,7 @@ const GestaoSilos = () => {
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                     Capacidade & Licenças
                                 </th>
-                                
+
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                     Acção
                                 </th>
@@ -644,14 +644,14 @@ const GestaoSilos = () => {
                         <tbody className="divide-y divide-gray-200 bg-white text-start">
                             {getCurrentItems().map((silo) => (
                                 <tr key={silo.id} className="hover:bg-yellow-50 transition-colors">
-                                    
+
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-start">
                                             <div className="w-10 h-10 rounded-full bg-gradient-to-r from-yellow-600 to-yellow-500 flex items-center justify-center font-semibold text-sm">
-                                               <span className='text-white'> {silo.nomeSilo.split(' ').map(word => word[0]).join('').substring(0, 2).toUpperCase()}</span>
+                                                <span className='text-white'> {silo.nomeSilo.split(' ').map(word => word[0]).join('').substring(0, 2).toUpperCase()}</span>
                                             </div>
                                             <div className="ml-4">
-                                                
+
                                                 <div className="text-sm font-semibold text-gray-900 break-words whitespace-pre-line max-w-[290px]">{silo.nomeSilo}</div>
                                                 <div className="text-xs text-gray-500 mt-1">Código: {silo.codigoRegistro}</div>
                                                 <div className="text-xs text-gray-500">Prop.: {silo.nomeProprietario}</div>
@@ -662,7 +662,7 @@ const GestaoSilos = () => {
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="space-y-2">
                                             <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">
-                                               {silo.tipoUnidade.replace(/[-_]/g, ' ')}
+                                                {silo.tipoUnidade.replace(/[-_]/g, ' ')}
                                             </div>
                                             <div className="text-xs text-gray-600">
                                                 {silo.produtosArmazenados.length} produtos
@@ -676,7 +676,7 @@ const GestaoSilos = () => {
                                                 <MapPin className="w-4 h-4 mr-2 text-blue-500" />
                                                 {silo.municipio}, {silo.provincia}
                                             </div>
-                                           
+
                                         </div>
                                     </td>
 
@@ -693,7 +693,7 @@ const GestaoSilos = () => {
                                         </div>
                                     </td>
 
-                                  
+
 
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-center justify-center space-x-1">
@@ -717,9 +717,60 @@ const GestaoSilos = () => {
                                 </tr>
                             ))}
                         </tbody>
+
+                        <tfoot>
+                            <tr>
+                                <td colSpan={5}>
+                                    {/* Paginação */}
+                                    <div className="px-6 py-4 border-t border-gray-200 bg-white">
+                                        <div className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
+                                            <div className="text-sm text-gray-700">
+                                                Mostrando{' '}
+                                                <span className="font-medium">{filteredSilos.length > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0}</span>
+                                                {' '}a{' '}
+                                                <span className="font-medium">
+                                                    {Math.min(currentPage * itemsPerPage, filteredSilos.length)}
+                                                </span>
+                                                {' '}de{' '}
+                                                <span className="font-medium">{filteredSilos.length}</span>
+                                                {' '}resultados
+                                            </div>
+
+                                            <div className="flex space-x-2">
+                                                <button
+                                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                                    disabled={currentPage === 1}
+                                                    className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
+                                    ${currentPage === 1
+                                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                            : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
+                                                        }`}
+                                                >
+                                                    <ChevronLeft className="w-4 h-4 mr-1" />
+                                                    Anterior
+                                                </button>
+
+                                                <button
+                                                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                                    disabled={currentPage === totalPages || totalPages === 0}
+                                                    className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
+                                    ${currentPage === totalPages || totalPages === 0
+                                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                            : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
+                                                        }`}
+                                                >
+                                                    Próximo
+                                                    <ChevronRight className="w-4 h-4 ml-1" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
-                
+
 
                 {/* Visualização em cards para mobile */}
                 <div className="md:hidden overflow-visible" style={{ maxHeight: contentHeight }}>
@@ -794,50 +845,7 @@ const GestaoSilos = () => {
                     ))}
                 </div>
 
-                {/* Paginação */}
-                <div className="px-6 py-4 border-t border-gray-200 bg-white">
-                    <div className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
-                        <div className="text-sm text-gray-700">
-                            Mostrando{' '}
-                            <span className="font-medium">{filteredSilos.length > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0}</span>
-                            {' '}a{' '}
-                            <span className="font-medium">
-                                {Math.min(currentPage * itemsPerPage, filteredSilos.length)}
-                            </span>
-                            {' '}de{' '}
-                            <span className="font-medium">{filteredSilos.length}</span>
-                            {' '}resultados
-                        </div>
 
-                        <div className="flex space-x-2">
-                            <button
-                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                                disabled={currentPage === 1}
-                                className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
-                                    ${currentPage === 1
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
-                                    }`}
-                            >
-                                <ChevronLeft className="w-4 h-4 mr-1" />
-                                Anterior
-                            </button>
-
-                            <button
-                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                                disabled={currentPage === totalPages || totalPages === 0}
-                                className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
-                                    ${currentPage === totalPages || totalPages === 0
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
-                                    }`}
-                            >
-                                Próximo
-                                <ChevronRight className="w-4 h-4 ml-1" />
-                            </button>
-                        </div>
-                    </div>
-                </div>
 
                 {/* Nenhum resultado encontrado */}
                 {filteredSilos.length === 0 && (
@@ -861,12 +869,12 @@ const GestaoSilos = () => {
                             </button>
                         ) : (
                             <p />
-                                
-                            
+
+
                         )}
                     </div>
                 )}
-            </div>           
+            </div>
         </div>
     );
 };

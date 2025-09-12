@@ -88,7 +88,7 @@ const rnpaRoutes = {
         dropdownItems: [
           { text: 'Irrigação', icon: Sprout, path: '/GerenciaRNPA/gestao-agricultores/produtores/irrigacao' },
           { text: 'Silos e Centro de Armazenamento', icon: Archive, path: '/GerenciaRNPA/gestao-agricultores/produtores/silos-armazenamento' },
-          { text: 'Entrepostas e Mercado', icon: Building2, path: '/GerenciaRNPA/gestao-agricultores/produtores/entrepostasMercado' },
+          { text: 'Entrepostos e Mercado', icon: Building2, path: '/GerenciaRNPA/gestao-agricultores/produtores/entrepostosMercado' },
           { text: 'Empresas de Apoio Agrícola', icon: Tractor, path: '/GerenciaRNPA/gestao-agricultores/produtores/apoio-agricola' }
         ]
       },
@@ -118,7 +118,7 @@ const rnpaRoutes = {
         dropdownItems: [
           { text: 'Irrigação', icon: Sprout, path: '/GerenciaRNPA/gestao-florestal/produtores/irrigacao' },
           { text: 'Silos e Centro de Armazenamento', icon: Archive, path: '/GerenciaRNPA/gestao-florestal/produtores/silos-armazenamento' },
-          { text: 'Entrepostas e Mercado', icon: Building2, path: '/GerenciaRNPA/gestao-florestal/produtores/entrepostasMercado' },
+          { text: 'Entrepostos e Mercado', icon: Building2, path: '/GerenciaRNPA/gestao-florestal/produtores/entrepostosMercado' },
           { text: 'Empresas de Apoio Agrícola', icon: Tractor, path: '/GerenciaRNPA/gestao-florestal/produtores/apoio-agricola' }
         ]
       },
