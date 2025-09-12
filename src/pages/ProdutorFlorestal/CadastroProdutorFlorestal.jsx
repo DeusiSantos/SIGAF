@@ -1266,7 +1266,7 @@ const CadastroProdutorFlorestal = () => {
                   </div>
                   <div>
                     <span className="font-medium text-gray-600">BI/NIF:</span>
-                    <p className="text-gray-800">{formData.biNif || 'Não informado'}</p>
+                    <p className="text-gray-800">{formData.numeroDocumento  || 'Não informado'}</p>
                   </div>
                   <div>
                     <span className="font-medium text-gray-600">Contacto:</span>
@@ -1343,7 +1343,7 @@ const CadastroProdutorFlorestal = () => {
       // Criar o objeto de dados mapeado para a API
       const apiData = {
         Nome_do_Produtor: formData.nomeProdutor || '',
-        BI_NIF: formData.biNif || '',
+        BI_NIF: formData.numeroDocumento  || '',
         Contacto: formData.contacto || '',
         Localiza_o_GPS: `${formData.latitudeGPS || ''},${formData.longitudeGPS || ''},${formData.altitudeGPS || ''},${formData.precisaoGPS || ''}`,
         Propriedade: formData.propriedade?.value || formData.propriedade || '',

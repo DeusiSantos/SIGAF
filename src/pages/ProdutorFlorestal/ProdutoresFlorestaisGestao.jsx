@@ -166,15 +166,19 @@ const mapApiDataToProdutor = (apiData) => {
             return ['FLORESTAL', 'CONSERVAÇÃO'];
         };
 
-        // Determinar status baseado na autorização final
-        const getStatus = (autorizacao) => {
-            if (!autorizacao) return 'PENDENTE';
+        // Determinar status baseado no campo estado
+        const getStatus = (estado, autorizacao) => {
+            // Debug para ver os valores
+            console.log('Estado da API:', estado, 'Autorização:', autorizacao);
             
-            switch (autorizacao.toLowerCase()) {
-                case 'aprovada': return 'APROVADO';
-                case 'rejeitada': return 'REJEITADO';
+            if (!estado) return 'PENDENTE';
+            
+            switch (estado.toLowerCase()) {
+                case 'aprovado': return 'APROVADO';
+                case 'rejeitado': return 'REJEITADO';
                 case 'pendente': return 'PENDENTE';
-                case 'cancelada': return 'CANCELADO';
+                case 'cancelado': return 'CANCELADO';
+                case 'processo recebido': return 'PROCESSO_RECEBIDO';
                 default: return 'PENDENTE';
             }
         };
@@ -217,7 +221,7 @@ const mapApiDataToProdutor = (apiData) => {
             culturasPrincipais: item.esp_cies_predominantes ? 
                 item.esp_cies_predominantes.split(' ').slice(0, 3).map(esp => esp.replace(/_/g, ' ')) : ['Espécies Florestais'],
             numeroAnimais: 0, // Não aplicável para produtores florestais
-            statusProcesso: getStatus(item.autoriza_o_final),
+            statusProcesso: getStatus(item.estado, item.autoriza_o_final),
             dataSubmissao: item.data_da_inspe_o?.split('T')[0] || new Date().toISOString().split('T')[0],
             inquiridor: 'Sistema Florestal',
             observacoes: `Tipo de licença: ${item.tipo_de_licen_a_solicitada || 'N/A'} | Volume estimado: ${item.volume_estimado_m || 'N/A'}m³ | Estado: ${item.estado_de_conserva_o || 'N/A'}`,
