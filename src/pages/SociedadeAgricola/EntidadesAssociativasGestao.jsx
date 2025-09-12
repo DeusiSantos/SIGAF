@@ -234,7 +234,7 @@ const EntidadesAssociativasGestao = () => {
     };
 
     // Obter label do tipo de ensino
-   { /* const getTipoEnsinoLabel = (tipo) => {
+    { /* const getTipoEnsinoLabel = (tipo) => {
         const tipos = {
             'GERAL': 'Ensino Geral',
             'TECNICO_PROFISSIONAL': 'Técnico-Profissional',
@@ -346,7 +346,7 @@ const EntidadesAssociativasGestao = () => {
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Confirmar Exclusão</h3>
                     <p className="text-gray-600 text-center text-sm mb-4">
-                        Tem certeza que deseja excluir a associação <span className="font-semibold text-red-600">{cooperativa?.nomeCooperativa || 'Selecionada'}</span>?<br/>
+                        Tem certeza que deseja excluir a associação <span className="font-semibold text-red-600">{cooperativa?.nomeCooperativa || 'Selecionada'}</span>?<br />
                         Esta ação não pode ser desfeita. Todos os dados da cooperativa serão removidos permanentemente.
                     </p>
                     <div className="flex gap-3 mt-2 w-full">
@@ -372,7 +372,7 @@ const EntidadesAssociativasGestao = () => {
         <div className="min-h-screen" ref={containerRef}>
             <Toast />
             <DeleteConfirmModal />
-               {/* Estatísticas das cooperativas */}
+            {/* Estatísticas das cooperativas */}
             <div className="mt-6 mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-white rounded-xl shadow-md p-6">
                     <div className="flex items-center">
@@ -422,7 +422,7 @@ const EntidadesAssociativasGestao = () => {
                         <div className="ml-4">
                             <p className="text-sm font-medium text-gray-500">Área (ha)</p>
                             <p className="text-2xl font-bold text-gray-900">
-                               0
+                                0
                             </p>
                         </div>
                     </div>
@@ -438,7 +438,7 @@ const EntidadesAssociativasGestao = () => {
                             {/* <p className="text-blue-100 mt-1">SistGestão Geral e Técnico-Profissional - Angola</p> */}
                         </div>
                         <div className="flex gap-4">
-                           
+
                             <button
                                 onClick={() => showToast('info', 'Função', 'Exportar dados das escolas')}
                                 className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
@@ -517,14 +517,14 @@ const EntidadesAssociativasGestao = () => {
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                     Actividades
                                 </th>
-                               
+
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                     Localização
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                     Membros & Área
                                 </th>
-                                
+
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                     Acção
                                 </th>
@@ -535,7 +535,7 @@ const EntidadesAssociativasGestao = () => {
                                 <tr key={cooperativa.id} className="hover:bg-blue-50 transition-colors">
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-start">
-                                           
+
                                             <div className="ml-4">
                                                 <div className="text-sm font-semibold text-gray-900 break-words whitespace-pre-line max-w-[290px]">{cooperativa.nomeCooperativa}</div>
                                                 <div className="text-xs text-gray-500 mt-1">NIF: {cooperativa.sigla}</div>
@@ -580,7 +580,7 @@ const EntidadesAssociativasGestao = () => {
                                         </div>
                                     </td>
 
-                                
+
 
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-center justify-start space-x-1">
@@ -604,6 +604,56 @@ const EntidadesAssociativasGestao = () => {
                                 </tr>
                             ))}
                         </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colSpan={5}>
+                                    {/* Paginação */}
+                                    <div className="px-6 py-4 border-t border-gray-200 bg-white">
+                                        <div className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
+                                            <div className="text-sm text-gray-700">
+                                                Mostrando{' '}
+                                                <span className="font-medium">{filteredEscolas.length > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0}</span>
+                                                {' '}a{' '}
+                                                <span className="font-medium">
+                                                    {Math.min(currentPage * itemsPerPage, filteredEscolas.length)}
+                                                </span>
+                                                {' '}de{' '}
+                                                <span className="font-medium">{filteredEscolas.length}</span>
+                                                {' '}resultados
+                                            </div>
+
+                                            <div className="flex space-x-2">
+                                                <button
+                                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                                    disabled={currentPage === 1}
+                                                    className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
+                                    ${currentPage === 1
+                                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                            : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
+                                                        }`}
+                                                >
+                                                    <ChevronLeft className="w-4 h-4 mr-1" />
+                                                    Anterior
+                                                </button>
+
+                                                <button
+                                                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                                    disabled={currentPage === totalPages || totalPages === 0}
+                                                    className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
+                                    ${currentPage === totalPages || totalPages === 0
+                                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                            : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
+                                                        }`}
+                                                >
+                                                    Próximo
+                                                    <ChevronRight className="w-4 h-4 ml-1" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
 
@@ -693,50 +743,7 @@ const EntidadesAssociativasGestao = () => {
                     ))}
                 </div>
 
-                {/* Paginação */}
-                <div className="px-6 py-4 border-t border-gray-200 bg-white">
-                    <div className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
-                        <div className="text-sm text-gray-700">
-                            Mostrando{' '}
-                            <span className="font-medium">{filteredEscolas.length > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0}</span>
-                            {' '}a{' '}
-                            <span className="font-medium">
-                                {Math.min(currentPage * itemsPerPage, filteredEscolas.length)}
-                            </span>
-                            {' '}de{' '}
-                            <span className="font-medium">{filteredEscolas.length}</span>
-                            {' '}resultados
-                        </div>
 
-                        <div className="flex space-x-2">
-                            <button
-                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                                disabled={currentPage === 1}
-                                className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
-                                    ${currentPage === 1
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
-                                    }`}
-                            >
-                                <ChevronLeft className="w-4 h-4 mr-1" />
-                                Anterior
-                            </button>
-
-                            <button
-                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                                disabled={currentPage === totalPages || totalPages === 0}
-                                className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
-                                    ${currentPage === totalPages || totalPages === 0
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
-                                    }`}
-                            >
-                                Próximo
-                                <ChevronRight className="w-4 h-4 ml-1" />
-                            </button>
-                        </div>
-                    </div>
-                </div>
 
                 {/* Nenhum resultado encontrado */}
                 {filteredEscolas.length === 0 && (
@@ -759,15 +766,15 @@ const EntidadesAssociativasGestao = () => {
                                 Limpar filtros
                             </button>
                         ) : (
-                            <p/>
-                               
+                            <p />
+
                         )}
                     </div>
                 )}
             </div>
 
             {/* Estatísticas das escolas */}
-         
+
         </div>
     );
 };

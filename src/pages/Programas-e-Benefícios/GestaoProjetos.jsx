@@ -663,7 +663,7 @@ const GestaoProjetos = () => {
                                     <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                         Fase & Estado
                                     </th>
-                                    
+
                                     <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                         Beneficiários & Montante
                                     </th>
@@ -680,7 +680,7 @@ const GestaoProjetos = () => {
                                     <tr key={projeto.id} className="hover:bg-blue-50 transition-colors">
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center">
-                                               
+
                                                 <div className="ml-4 text-start">
                                                     <div className="text-sm font-semibold text-gray-900">{projeto.nomeProjeto || ''}</div>
                                                     <div className="text-xs text-gray-500 mt-1">Código: {projeto.id || ''}</div>
@@ -698,7 +698,7 @@ const GestaoProjetos = () => {
                                                 </div>
                                             </div>
                                         </td>
-                                        
+
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="space-y-2 text-start">
                                                 <div className="flex items-center text-xs text-gray-700">
@@ -753,6 +753,60 @@ const GestaoProjetos = () => {
                                     </tr>
                                 ))}
                             </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colSpan={5}>
+
+                                        {/* Paginação */}
+                                        {!isCadastro && !isVisualizacao && (
+                                            <div className="px-6 py-4 border-t border-gray-200 bg-white">
+                                                <div className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
+                                                    <div className="text-sm text-gray-700">
+                                                        Mostrando{' '}
+                                                        <span className="font-medium">{filteredProjetos.length > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0}</span>
+                                                        {' '}a{' '}
+                                                        <span className="font-medium">
+                                                            {Math.min(currentPage * itemsPerPage, filteredProjetos.length)}
+                                                        </span>
+                                                        {' '}de{' '}
+                                                        <span className="font-medium">{filteredProjetos.length}</span>
+                                                        {' '}resultados
+                                                    </div>
+
+                                                    <div className="flex space-x-2">
+                                                        <button
+                                                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                                            disabled={currentPage === 1}
+                                                            className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
+                                        ${currentPage === 1
+                                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                                    : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
+                                                                }`}
+                                                        >
+                                                            <ChevronLeft className="w-4 h-4 mr-1" />
+                                                            Anterior
+                                                        </button>
+
+                                                        <button
+                                                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                                            disabled={currentPage === totalPages || totalPages === 0}
+                                                            className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
+                                        ${currentPage === totalPages || totalPages === 0
+                                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                                    : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
+                                                                }`}
+                                                        >
+                                                            Próximo
+                                                            <ChevronRight className="w-4 h-4 ml-1" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                    </td>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                 )}
@@ -830,53 +884,6 @@ const GestaoProjetos = () => {
                                 </div>
                             </div>
                         ))}
-                    </div>
-                )}
-
-                {/* Paginação */}
-                {!isCadastro && !isVisualizacao && (
-                    <div className="px-6 py-4 border-t border-gray-200 bg-white">
-                        <div className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
-                            <div className="text-sm text-gray-700">
-                                Mostrando{' '}
-                                <span className="font-medium">{filteredProjetos.length > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0}</span>
-                                {' '}a{' '}
-                                <span className="font-medium">
-                                    {Math.min(currentPage * itemsPerPage, filteredProjetos.length)}
-                                </span>
-                                {' '}de{' '}
-                                <span className="font-medium">{filteredProjetos.length}</span>
-                                {' '}resultados
-                            </div>
-
-                            <div className="flex space-x-2">
-                                <button
-                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                                    disabled={currentPage === 1}
-                                    className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
-                                        ${currentPage === 1
-                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                            : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
-                                        }`}
-                                >
-                                    <ChevronLeft className="w-4 h-4 mr-1" />
-                                    Anterior
-                                </button>
-
-                                <button
-                                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                                    disabled={currentPage === totalPages || totalPages === 0}
-                                    className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
-                                        ${currentPage === totalPages || totalPages === 0
-                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                            : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
-                                        }`}
-                                >
-                                    Próximo
-                                    <ChevronRight className="w-4 h-4 ml-1" />
-                                </button>
-                            </div>
-                        </div>
                     </div>
                 )}
 

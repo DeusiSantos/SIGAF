@@ -695,7 +695,7 @@ const GestaoPragas = () => {
                                     Praga/Doença
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                    Produção Afetada
+                                    Produção Acfetada
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                     Responsável
@@ -710,7 +710,7 @@ const GestaoPragas = () => {
                                     Estado
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                    Ações
+                                    Acções
                                 </th>
                             </tr>
                         </thead>

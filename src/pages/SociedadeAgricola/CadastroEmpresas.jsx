@@ -46,15 +46,15 @@ const CadastroEmpresas = () => {
   const [loading, setLoading] = useState(false);
   const [municipiosOptions, setMunicipiosOptions] = useState([]);
   const [errors, setErrors] = useState({});
-  const [ setTouched] = useState({});
+  const [touched, setTouched] = useState({});
   const [uploadedFiles, setUploadedFiles] = useState({});
   const [toastMessage, setToastMessage] = useState(null);
   const [consultingNif, setConsultingNif] = useState(false);
   const [nifData, setNifData] = useState(null);
   const [consultingBI, setConsultingBI] = useState(false);
   const [consultingBIGerente, setConsultingBIGerente] = useState(false);
-  const [ setBiData] = useState(null);
-  const [ setBiGerenteData] = useState(null);
+  const [biData, setBiData] = useState(null);
+  const [biGerenteData, setBiGerenteData] = useState(null);
 
   // Estado inicial do formulário
   const initialState = {
@@ -165,7 +165,7 @@ const CadastroEmpresas = () => {
           nomeEmpresa: nifInfo.nome_contribuinte || '',
           email: nifInfo.email || '',
           telefone: nifInfo.numero_contacto || '',
-          dataFundacao: nifInfo.data_constituicao ? new Date(nifInfo.data_constituicao).toISOString().split('T')[0] : '',
+          dataFundacao: nifInfo.data_constituicao ? new Date(nifInfo.data_constituicao).getFullYear().toString() : '',
           provincia: nifInfo.provincia_morada ? {
             label: nifInfo.provincia_morada,
             value: nifInfo.provincia_morada.toUpperCase()
@@ -250,11 +250,14 @@ const CadastroEmpresas = () => {
         setBiData(biInfo);
 
         // Preencher campos automaticamente
+        const contacto = biInfo.phone || biInfo.telefone || biInfo.contacto || biInfo.mobile || biInfo.celular || '';
+        const email = biInfo.email || biInfo.email_address || biInfo.correio_eletronico || '';
+        
         setFormData(prev => ({
           ...prev,
           nomeDiretor: `${biInfo.first_name || ''} ${biInfo.last_name || ''}`.trim(),
-          telefoneDiretor: biInfo.phone || biInfo.telefone || biInfo.contacto || '',
-          emailDiretor: biInfo.email || biInfo.email_address || ''
+          telefoneDiretor: contacto,
+          emailDiretor: email
         }));
 
         showToast('success', 'BI Consultado', 'Dados preenchidos automaticamente!');
@@ -296,11 +299,14 @@ const CadastroEmpresas = () => {
         setBiGerenteData(biInfo);
 
         // Preencher campos automaticamente
+        const contacto = biInfo.phone || biInfo.telefone || biInfo.contacto || biInfo.mobile || biInfo.celular || '';
+        const email = biInfo.email || biInfo.email_address || biInfo.correio_eletronico || '';
+        
         setFormData(prev => ({
           ...prev,
           nomeGerente: `${biInfo.first_name || ''} ${biInfo.last_name || ''}`.trim(),
-          telefoneGerente: biInfo.phone || biInfo.telefone || biInfo.contacto || '',
-          emailGerente: biInfo.email || biInfo.email_address || ''
+          telefoneGerente: contacto,
+          emailGerente: email
         }));
 
         showToast('success', 'BI Consultado', 'Dados do gerente preenchidos automaticamente!');

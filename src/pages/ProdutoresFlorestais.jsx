@@ -1021,6 +1021,7 @@ const ProdutoresGestao = () => {
                                         </tr>
                                     ))}
                                 </tbody>
+                                
                             </table>
                         )}
                     </div>

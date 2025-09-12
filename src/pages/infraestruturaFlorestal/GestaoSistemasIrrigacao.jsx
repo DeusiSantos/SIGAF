@@ -39,9 +39,8 @@ import {
 } from 'lucide-react';
 
 const CustomInput = ({ type, label, value, onChange, options, required, errorMessage, disabled, placeholder, iconStart, helperText, rows, ...props }) => {
-  const baseInputClasses = `w-full p-3 border rounded-xl transition-all ${
-    errorMessage ? 'border-red-500 bg-red-50' : 'border-gray-200 focus:border-cyan-500'
-  } ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'} focus:outline-none focus:ring-2 focus:ring-cyan-200`;
+  const baseInputClasses = `w-full p-3 border rounded-xl transition-all ${errorMessage ? 'border-red-500 bg-red-50' : 'border-gray-200 focus:border-cyan-500'
+    } ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'} focus:outline-none focus:ring-2 focus:ring-cyan-200`;
 
   const renderInput = () => {
     switch (type) {
@@ -477,7 +476,7 @@ const GestaoSistemasIrrigacao = () => {
                 <div><strong>Código:</strong> {selectedRecord.codigoSistema}</div>
                 <div><strong>Fonte de Água:</strong> {selectedRecord.fonteAgua}</div>
                 <div><strong>Tipo de Irrigação:</strong> {getTipoIrrigacaoLabel(selectedRecord.tipoIrrigacao)}</div>
-                <div><strong>Status:</strong> 
+                <div><strong>Status:</strong>
                   <span className={`ml-2 px-2 py-1 rounded-full text-xs ${getStatusColor(selectedRecord.statusSistema)}`}>
                     {getStatusLabel(selectedRecord.statusSistema)}
                   </span>
@@ -682,7 +681,7 @@ const GestaoSistemasIrrigacao = () => {
                 <Plus className="w-5 h-5 mr-2" />
                 Novo Sistema
               </button>
-              
+
               <button
                 onClick={handleExportData}
                 disabled={sistemasIrrigacao.length === 0}
@@ -850,6 +849,60 @@ const GestaoSistemasIrrigacao = () => {
                   </tr>
                 ))}
               </tbody>
+              <tfoot>
+                <tr>
+                  <td colSpan={5}>
+                    {/* Paginação */}
+                    {!loading && filteredRecords.length > 0 && (
+                      <div className="px-6 py-4 border-t border-gray-200 bg-white">
+                        <div className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
+                          <div className="text-sm text-gray-700">
+                            Mostrando{' '}
+                            <span className="font-medium">{((currentPage - 1) * itemsPerPage) + 1}</span>
+                            {' '}a{' '}
+                            <span className="font-medium">
+                              {Math.min(currentPage * itemsPerPage, filteredRecords.length)}
+                            </span>
+                            {' '}de{' '}
+                            <span className="font-medium">{filteredRecords.length}</span>
+                            {' '}resultados
+                          </div>
+
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                              disabled={currentPage === 1}
+                              className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
+                    ${currentPage === 1
+                                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                  : 'bg-white text-cyan-700 hover:bg-cyan-50 border border-cyan-200'
+                                }
+                  `}
+                            >
+                              <ChevronLeft className="w-4 h-4 mr-1" />
+                              Anterior
+                            </button>
+
+                            <button
+                              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                              disabled={currentPage === totalPages || totalPages === 0}
+                              className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
+                    ${currentPage === totalPages || totalPages === 0
+                                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                  : 'bg-white text-cyan-700 hover:bg-cyan-50 border border-cyan-200'
+                                }
+                  `}
+                            >
+                              Próximo
+                              <ChevronRight className="w-4 h-4 ml-1" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              </tfoot>
             </table>
           )}
         </div>
@@ -910,54 +963,7 @@ const GestaoSistemasIrrigacao = () => {
           )}
         </div>
 
-        {/* Paginação */}
-        {!loading && filteredRecords.length > 0 && (
-          <div className="px-6 py-4 border-t border-gray-200 bg-white">
-            <div className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
-              <div className="text-sm text-gray-700">
-                Mostrando{' '}
-                <span className="font-medium">{((currentPage - 1) * itemsPerPage) + 1}</span>
-                {' '}a{' '}
-                <span className="font-medium">
-                  {Math.min(currentPage * itemsPerPage, filteredRecords.length)}
-                </span>
-                {' '}de{' '}
-                <span className="font-medium">{filteredRecords.length}</span>
-                {' '}resultados
-              </div>
 
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}
-                  className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
-                    ${currentPage === 1
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-white text-cyan-700 hover:bg-cyan-50 border border-cyan-200'
-                    }
-                  `}
-                >
-                  <ChevronLeft className="w-4 h-4 mr-1" />
-                  Anterior
-                </button>
-
-                <button
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages || totalPages === 0}
-                  className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
-                    ${currentPage === totalPages || totalPages === 0
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-white text-cyan-700 hover:bg-cyan-50 border border-cyan-200'
-                    }
-                  `}
-                >
-                  Próximo
-                  <ChevronRight className="w-4 h-4 ml-1" />
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Nenhum resultado encontrado */}
         {!loading && filteredRecords.length === 0 && (

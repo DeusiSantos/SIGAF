@@ -505,40 +505,137 @@ const Dashboard = () => {
     fetchAgricultura();
   }, [selectedProvince]);
 
-  // Buscar dados de gênero com filtro por província
-  useEffect(() => {
-    setLoadingGenero(true);
-    let endpoint = '/dashboard/totalFemenino';
-    const params = [];
-    // Corrija para acessar sempre o .value e .label do objeto
-    if (selectedProvince && selectedProvince.value && selectedProvince.value !== 'todas') {
-      params.push(`provincia=${encodeURIComponent(selectedProvince.label)}`);
-    }
-    if (selectedEstado && selectedEstado.value && selectedEstado.value !== 'todos') {
-      params.push(`estado=${encodeURIComponent(selectedEstado.value)}`);
-    }
-    if (params.length > 0) {
-      endpoint += '?' + params.join('&');
-    }
-    api.get(endpoint)
-      .then(resposta => {
-        const formularios = resposta.data;
-        if (Array.isArray(formularios)) {
-          const totalMasculinos = formularios.filter(f => f.sexo === 'Masculino').length;
-          const totalFemininos = formularios.filter(f => f.sexo === 'Feminino').length;
-          setMasculino(totalMasculinos);
-          setFeminino(totalFemininos);
-        } else {
-          setMasculino(Math.round(totalProdutores * 0.57));
-          setFeminino(Math.round(totalProdutores * 0.43));
-        }
-      })
-      .catch(() => {
+  // Buscar dados de gênero com todos os filtros
+useEffect(() => {
+  setLoadingGenero(true);
+  
+  const fetchGenero = async () => {
+    try {
+      const endpoint = buildEndpoint('/dashboard/totalFemenino');
+      const resposta = await api.get(endpoint);
+      
+      const formularios = resposta.data;
+      if (Array.isArray(formularios)) {
+        const totalMasculinos = formularios.filter(f => f.sexo === 'Masculino').length;
+        const totalFemininos = formularios.filter(f => f.sexo === 'Feminino').length;
+        setMasculino(totalMasculinos);
+        setFeminino(totalFemininos);
+      } else {
         setMasculino(Math.round(totalProdutores * 0.57));
         setFeminino(Math.round(totalProdutores * 0.43));
-      })
-      .finally(() => setLoadingGenero(false));
-  }, [selectedProvince, selectedEstado, totalProdutores]);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar dados de gênero:', error);
+      setMasculino(Math.round(totalProdutores * 0.57));
+      setFeminino(Math.round(totalProdutores * 0.43));
+    } finally {
+      setLoadingGenero(false);
+    }
+  };
+
+  fetchGenero();
+}, [buildEndpoint, totalProdutores]);
+
+// 2. CORRIGIR os useEffect das atividades para usar buildEndpoint
+// Substituir os useEffect existentes das atividades (linhas ~218-280) por estes:
+
+// Buscar agricultura com todos os filtros
+useEffect(() => {
+  const fetchAgricultura = async () => {
+    try {
+      const endpoint = buildEndpoint('/dashboard/totalAgricultura');
+      const resposta = await api.get(endpoint);
+      setTotalAgricultura(resposta.data || 0);
+      console.log('Total agricultura:', resposta.data, 'com todos os filtros aplicados');
+    } catch (error) {
+      console.error('Erro ao buscar agricultura:', error);
+      setTotalAgricultura(356700); // Fallback
+    }
+  };
+
+  fetchAgricultura();
+}, [buildEndpoint]);
+
+// Buscar pecuária com todos os filtros
+useEffect(() => {
+  const fetchPecuaria = async () => {
+    try {
+      const endpoint = buildEndpoint('/dashboard/totalPecuaria');
+      const resposta = await api.get(endpoint);
+      setTotalPecuaria(resposta.data || 0);
+      console.log('Total pecuária:', resposta.data, 'com todos os filtros aplicados');
+    } catch (error) {
+      console.error('Erro ao buscar pecuária:', error);
+      setTotalPecuaria(89300); // Fallback
+    }
+  };
+
+  fetchPecuaria();
+}, [buildEndpoint]);
+
+// Buscar produtor florestal com todos os filtros
+useEffect(() => {
+  const fetchFlorestal = async () => {
+    try {
+      const endpoint = buildEndpoint('/dashboard/totalProdutorFlorestal');
+      const resposta = await api.get(endpoint);
+      setTotalProdutorFlorestal(resposta.data || 0);
+      console.log('Total produtor florestal:', resposta.data, 'com todos os filtros aplicados');
+    } catch (error) {
+      console.error('Erro ao buscar produtor florestal:', error);
+      setTotalProdutorFlorestal(45600); // Fallback
+    }
+  };
+
+  fetchFlorestal();
+}, [buildEndpoint]);
+
+// Buscar aquicultura com todos os filtros
+useEffect(() => {
+  const fetchAquicultura = async () => {
+    try {
+      const endpoint = buildEndpoint('/dashboard/totalAquicultura');
+      const resposta = await api.get(endpoint);
+      setTotalAquicultura(resposta.data || 0);
+      console.log('Total aquicultura:', resposta.data, 'com todos os filtros aplicados');
+    } catch (error) {
+      console.error('Erro ao buscar aquicultura:', error);
+      setTotalAquicultura(31850); // Fallback
+    }
+  };
+
+  fetchAquicultura();
+}, [buildEndpoint]);
+
+
+
+// 4. ATUALIZAR o useMemo do gráfico de atividades para considerar o filtro de atividade
+const registrosPorAtividade = useMemo(() => {
+  let atividades = [
+    { name: 'Agricultura', value: totalAgricultura, color: '#10B981' },
+    { name: 'Pecuária', value: totalPecuaria, color: '#F59E0B' },
+    { name: 'Produtor Florestal', value: totalProdutorFlorestal, color: '#34D399' },
+    { name: 'Aquicultura', value: totalAquicultura, color: '#06B6D4' }
+  ];
+
+  // Filtrar por atividade específica se selecionada
+  const selectedValue = selectedAtividade?.value || selectedAtividade;
+  if (selectedValue && selectedValue !== 'todos') {
+    const atividadeMap = {
+      'agricultura': 'Agricultura',
+      'pecuaria': 'Pecuária',
+      'florestal': 'Produtor Florestal',
+      'aquicultura': 'Aquicultura'
+    };
+    const nomeAtividade = atividadeMap[selectedValue];
+    if (nomeAtividade) {
+      atividades = atividades.filter(a => a.name === nomeAtividade);
+    }
+  }
+  
+  // Remover atividades com valor 0
+  return atividades.filter(a => a.value > 0);
+}, [totalAgricultura, totalPecuaria, totalProdutorFlorestal, totalAquicultura, selectedAtividade]);
 
   // Buscar certificados
   useEffect(() => {
@@ -618,27 +715,7 @@ const Dashboard = () => {
     }
   ], [masculino, feminino]);
 
-  // Criar dados dinâmicos para o gráfico de atividades
-  const registrosPorAtividade = useMemo(() => {
-    const atividades = [
-      { name: 'Agricultura', value: totalAgricultura, color: '#10B981' },
-      { name: 'Pecuária', value: totalPecuaria, color: '#F59E0B' },
-      { name: 'Produtor Florestal', value: totalProdutorFlorestal, color: '#34D399' },
-      { name: 'Aquicultura', value: totalAquicultura, color: '#06B6D4' }
-    ];
-    const selectedValue = selectedAtividade?.value || selectedAtividade;
-    if (selectedValue !== 'todos') {
-      const atividadeMap = {
-        'agricultura': 'Agricultura',
-        'pecuaria': 'Pecuária',
-        'florestal': 'Produtor Florestal',
-        'aquicultura': 'Aquicultura'
-      };
-      const nomeAtividade = atividadeMap[selectedValue];
-      return atividades.filter(a => a.name === nomeAtividade && a.value > 0);
-    }
-    return atividades.filter(a => a.value > 0);
-  }, [totalAgricultura, totalPecuaria, totalProdutorFlorestal, totalAquicultura, selectedAtividade]);
+
 
   // Controlar loading geral
   useEffect(() => {
@@ -1109,9 +1186,9 @@ const Dashboard = () => {
         </div>
         <Separador icone={BarChart3} titulo="Dados Dos Incentivos" />
         {/* Gráficos de Incentivos (mantidos) */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6 mb-8">
           {/* Gráfico de Pizza - Incentivos por Tipo */}
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-all duration-200">
+          {/*<div className="bg-white rounded-xl col-span-5 shadow-sm p-6 border border-gray-100 hover:shadow-md transition-all duration-200">
             <div className="flex justify-between items-center mb-1">
               <h2 className="text-xl font-semibold text-gray-800">Incentivos por Tipo</h2>
               <div className="p-2 bg-green-50 rounded-lg">
@@ -1236,10 +1313,10 @@ const Dashboard = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </div>  */}
 
           {/* Gráfico de Pizza - Status dos Incentivos */}
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-all duration-200">
+          <div className="bg-white rounded-xl   shadow-sm p-6 border border-gray-100 hover:shadow-md transition-all duration-200">
             <div className="flex justify-between items-center mb-1">
               <h2 className="text-xl font-semibold text-gray-800">Estado dos Incentivos</h2>
               <div className="p-2 bg-blue-50 rounded-lg">
@@ -1367,7 +1444,7 @@ const Dashboard = () => {
           </div>
 
           {/* Gráfico de Pizza - Distribuição por Província */}
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-all duration-200">
+          <div className="bg-white  rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-all duration-200">
             <div className="flex justify-between items-center mb-1">
               <h2 className="text-xl font-semibold text-gray-800">Distribuição por Província</h2>
               <div className="p-2 bg-purple-50 rounded-lg">
