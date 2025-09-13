@@ -63,6 +63,11 @@ import IrrigacaoMenuFlorestal from './pages/infraestruturaFlorestal/IrrigacaoMen
 import MenuSilosFlorestal from './pages/infraestruturaFlorestal/MenuSilos';
 import MenuEntrepostosMercadoFlorestal from './pages/infraestruturaFlorestal/MenuEntrepostosMercado';
 import MenuApoioAgricolaFlorestal from './pages/infraestruturaFlorestal/MenuApoioAgricola';
+import CooperativaMenuAgricola from './pages/SociedadeAgricola/CooperativaMenuAgricola';
+import AssociacaoMenuAgricola from './pages/SociedadeAgricola/AssociacaoMenuAgricola';
+import EmpresasMenuFlorestal from './pages/SociedadeAgricola/EmpresasMenuFlorestal';
+import CooperativaMenuFlorestal from './pages/SociedadeAgricola/CooperativaMenuFlorestal';
+import AssociacaoMenuFlorestal from './pages/SociedadeAgricola/AssociacaoMenuFlorestal';
 
 function App() {
   return (
@@ -110,8 +115,8 @@ function App() {
             <Route path="produtores" element={<GestaoAlunosMenu />} />
             <Route path="produtores/pessoal" element={<GestaoAlunosMenu />} />
             <Route path="produtores/empresa" element={<EmpresasMenu />} />
-            <Route path="produtores/cooperativa" element={<GestaoEntidadesAssociativasMenu />} />
-            <Route path="produtores/associacao" element={<GestaoAssociacoesRuraisMenu />} />
+            <Route path="produtores/cooperativa" element={<CooperativaMenuAgricola />} />
+            <Route path="produtores/associacao" element={<AssociacaoMenuAgricola />} />
             {/* Infraestrutura Agrícola */}
             <Route path="produtores/irrigacao" element={<IrrigacaoMenuAgricola />} />
             <Route path="produtores/silos-armazenamento" element={<MenuSilosAgricola />} />
@@ -144,9 +149,9 @@ function App() {
             {/* Produtores (com dropdown para Pessoal, Empresa, Cooperativa, Associação) */}
             <Route path="produtores" element={<GestaoProdutoresFlorestaisMenu />} />
             <Route path="produtores/pessoal" element={<GestaoProdutoresFlorestaisMenu />} />
-            <Route path="produtores/empresa" element={<EmpresasMenu />} />
-            <Route path="produtores/cooperativa" element={<GestaoEntidadesAssociativasMenu />} />
-            <Route path="produtores/associacao" element={<GestaoAssociacoesRuraisMenu />} />
+            <Route path="produtores/empresa" element={<EmpresasMenuFlorestal />} />
+            <Route path="produtores/cooperativa" element={<CooperativaMenuFlorestal />} />
+            <Route path="produtores/associacao" element={<AssociacaoMenuFlorestal />} />
              {/* Irrigação */}
             <Route path="produtores/irrigacao" element={<IrrigacaoMenuFlorestal />} />
              {/* Silos e Centro de Armazenamento */}

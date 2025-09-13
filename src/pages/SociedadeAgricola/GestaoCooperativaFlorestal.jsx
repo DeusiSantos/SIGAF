@@ -48,7 +48,7 @@ const administracoesEstaticas = [
     { id: 5, nome: "Administração Regional de Cabinda" }
 ];
 
-const EmpresaGestao = () => {
+const GestaoCooperativaFlorestal = () => {
     // Função para navegação de gestão de pessoal
     const handlePessoal = (empresaId) => {
         navigate(`/GerenciaRNPA/gestao-empresas/pessoal/${empresaId}`);
@@ -90,7 +90,7 @@ const EmpresaGestao = () => {
         try {
             setLoading(true);
             setError(null);
-            const response = await api.get('/organizacao/empresasAgricolas');
+            const response = await api.get('/organizacao/cooperativasFlorestais');
             
             console.log('📊 Dados recebidos da API:', response.data);
             
@@ -458,7 +458,7 @@ const EmpresaGestao = () => {
                 <div className="bg-gradient-to-r from-blue-700 to-blue-500 p-6 text-white">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
                         <div>
-                            <h1 className="text-2xl font-bold">Gestão de Empresas Agrícolas</h1>
+                            <h1 className="text-2xl font-bold">Gestão de Cooperativa Florestais</h1>
                         </div>
                         <div className="flex gap-4">
                             <button
@@ -786,4 +786,4 @@ const EmpresaGestao = () => {
     );
 };
 
-export default EmpresaGestao;
+export default GestaoCooperativaFlorestal;
