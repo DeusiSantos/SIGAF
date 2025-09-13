@@ -94,6 +94,7 @@ function App() {
           <Route path="certificados/visualizar/:produtorId" element={<VisualizarCertificados />} />
           <Route path="incentivos/visualizar/:id" element={<VisualizarIncentivo />} />
           <Route path="produtores-florestais/visualizar/:id" element={<VisualizarProdutorFlorestal />} />
+          <Route path="gestao-empresas/visualizar-empresa/:id" element={<VisualizarAssociacaoRural />} />
 
           {/* Rotas de gestão escolar (mantidas) */}
           <Route path="gestao-escolar/produtores" element={<h1 className="text-2xl font-semibold">Lista de Produtores</h1>} />
