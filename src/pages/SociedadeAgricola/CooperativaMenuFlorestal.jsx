@@ -15,11 +15,13 @@ import GestaoTestesSolo from '../InfraEstrutura/GestaoTestesSolo';
 import GestaoEmpresas from './GestaoEmpresas';
 import EmpresaGestao from './GestaoEmpresas';
 import CadastroEmpresas from './CadastroEmpresas';
+import GestaoCooperativaFlorestal from './GestaoCooperativaFlorestal';
+import CadastroCooperativaFlorestal from './CadastroCooperativaFlorestal';
 
 
 
 const CooperativaMenuFlorestal = () => {
-    const [activeSection, setActiveSection] = useState('cadastro');
+    const [activeSection, setActiveSection] = useState('gestao');
 
     const menuItems = [
          {
@@ -65,7 +67,7 @@ const CooperativaMenuFlorestal = () => {
                 return (
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
                         <div className="text-center">
-                            <EmpresaGestao />
+                            <GestaoCooperativaFlorestal />
                         </div>
                     </div>
                 );
@@ -74,7 +76,7 @@ const CooperativaMenuFlorestal = () => {
                 return (
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
                         <div className="text-center">
-                            <CadastroEmpresas />
+                            <CadastroCooperativaFlorestal />
                         </div>
                     </div>
                 );
