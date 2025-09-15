@@ -571,7 +571,7 @@ const TesteAmostrasSolo = () => {
 
                                     <CustomInput
                                         type="number"
-                                        label="Umidade (%)"
+                                        label="Humidade (%)"
                                         value={formData.umidade}
                                         onChange={(value) => handleInputChange('umidade', value)}
                                         placeholder="Ex: 15.5"

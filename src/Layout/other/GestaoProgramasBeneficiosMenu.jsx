@@ -33,7 +33,7 @@ const GestaoProgramasBeneficiosMenu = () => {
             id: 'cadastro',
             title: 'Cadastrar ',
             icon: UserPlus,
-            description: 'Registrar novo',
+            description: 'Novo Projeto',
             color: 'blue'
         },
     ];

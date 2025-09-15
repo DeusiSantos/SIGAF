@@ -900,7 +900,9 @@ const ProdutoresGestao = () => {
 
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-center justify-center">
-                                                    <StatusMenu produtor={produtor} />
+                                                    <span className={`px-3 py-1.5 rounded-full text-xs font-medium border ${getStatusColor(produtor.statusProcesso)}`}>
+                                                        {produtor.statusProcesso}
+                                                    </span>
                                                 </div>
                                             </td>
 

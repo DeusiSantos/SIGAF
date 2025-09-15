@@ -350,10 +350,10 @@ const AssociasoesRurais = () => {
                 <div className="p-2 bg-blue-100 rounded-lg">
                   <Building className="w-6 h-6 text-blue-600" />
                 </div>
-                <h3 className="text-xl  font-bold text-gray-800">Dados da Cooperativa</h3>
+                <h3 className="text-xl  font-bold text-gray-800">Dados da Associação</h3>
               </div>
               <p className="text-gray-600">
-                Informe os dados básicos da cooperativa agrícola ou agropecuária. Digite o NIF para consulta automática.
+                Informe os dados básicos da associação agrícola ou agropecuária. Digite o NIF para consulta automática.
               </p>
             </div>
 
@@ -653,14 +653,18 @@ const AssociasoesRurais = () => {
                     placeholder="Número do produtor no RNPA"
                     iconStart={<CreditCard size={18} />}
                   />
-
                   <CustomInput
                     type="tel"
                     label="Telefone"
                     value={formData.telefonePresidente}
-                    onChange={(value) => handleInputChange('telefonePresidente', value)}
+                    onChange={(value) => {
+                      // Permite apenas números e limita a 9 dígitos
+                      const onlyNumbers = value.replace(/\D/g, '').slice(0, 9);
+                      handleInputChange('telefonePresidente', onlyNumbers);
+                    }}
                     placeholder="Ex: 923456789"
                     iconStart={<Phone size={18} />}
+                    maxLength={9}
                   />
 
                   <CustomInput
@@ -668,7 +672,7 @@ const AssociasoesRurais = () => {
                     label="E-mail"
                     value={formData.emailPresidente}
                     onChange={(value) => handleInputChange('emailPresidente', value)}
-                    placeholder="presidente@cooperativa.com"
+                    placeholder="presidente@associação.com"
                     iconStart={<Mail size={18} />}
                     errorMessage={errors.emailPresidente}
                   />
@@ -710,9 +714,14 @@ const AssociasoesRurais = () => {
                     type="tel"
                     label="Telefone"
                     value={formData.telefoneSecretario}
-                    onChange={(value) => handleInputChange('telefoneSecretario', value)}
+                    onChange={(value) => {
+                      // Permite apenas números e limita a 9 dígitos
+                      const onlyNumbers = value.replace(/\D/g, '').slice(0, 9);
+                      handleInputChange('telefoneSecretario', onlyNumbers);
+                    }}
                     placeholder="Ex: 923456789"
                     iconStart={<Phone size={18} />}
+                    maxLength={9}
                   />
 
                   <CustomInput
@@ -720,7 +729,7 @@ const AssociasoesRurais = () => {
                     label="E-mail"
                     value={formData.emailSecretario}
                     onChange={(value) => handleInputChange('emailSecretario', value)}
-                    placeholder="secretaria@cooperativa.com"
+                    placeholder="secretaria@assoviacao.com"
                     iconStart={<Mail size={18} />}
                     errorMessage={errors.emailSecretario}
                   />
@@ -765,7 +774,7 @@ const AssociasoesRurais = () => {
             <div className="bg-white rounded-2xl border border-gray-200 p-6">
               <h4 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
                 <Users className="w-5 h-5 mr-2 text-orange-600" />
-                Composição dos Cooperados
+                Composição da Associação
               </h4>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -972,7 +981,7 @@ const AssociasoesRurais = () => {
                         value={formData.equipamentosMedicao}
                         options={[
                           { label: 'Balanças (analógicas e digitais)', value: 'BALANCAS' },
-                          { label: 'Medidores de umidade do solo e de grãos', value: 'MEDIDORES_UMIDADE' },
+                          { label: 'Medidores de humidade do solo e de grãos', value: 'MEDIDORES_UMIDADE' },
                           { label: 'Medidores de pH', value: 'MEDIDORES_PH' },
                           { label: 'Estações meteorológicas simples', value: 'ESTACOES_METEOROLOGICAS' },
                           { label: 'GPS agrícola', value: 'GPS_AGRICOLA' }
@@ -1442,7 +1451,7 @@ const AssociasoesRurais = () => {
           } : '',
           comuna: nifInfo.comuna_morada || '',
         }));
-        showToast('success', 'NIF Consultado', 'Dados da cooperativa preenchidos automaticamente!');
+        showToast('success', 'NIF Consultado', 'Dados da Associaçao preenchidos automaticamente!');
       } else {
         setNifData(null);
         if (data.code === 404) {

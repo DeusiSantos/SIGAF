@@ -674,13 +674,7 @@ const GestaoSistemasIrrigacao = () => {
             </div>
 
             <div className="flex gap-4">
-              <button
-                onClick={() => showToast('info', 'Novo Sistema', 'Funcionalidade de cadastro será implementada em breve')}
-                className="inline-flex items-center px-4 py-2 bg-white text-cyan-700 rounded-lg hover:bg-cyan-50 transition-colors shadow-sm font-medium"
-              >
-                <Plus className="w-5 h-5 mr-2" />
-                Novo Sistema
-              </button>
+             
 
               <button
                 onClick={handleExportData}

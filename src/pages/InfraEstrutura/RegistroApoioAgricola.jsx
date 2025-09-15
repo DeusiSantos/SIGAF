@@ -834,7 +834,7 @@ const RegistroApoioAgricola = () => {
                 disabled={!formData.provincia}
               />
 
-              
+
               <CustomInput
                 type="text"
                 label="Latitude"
@@ -855,7 +855,7 @@ const RegistroApoioAgricola = () => {
             </div>
 
             <div className="mt-6">
-              
+
               <MapaGPS
                 latitude={formData.latitude}
                 longitude={formData.longitude}
@@ -919,11 +919,16 @@ const RegistroApoioAgricola = () => {
                 type="tel"
                 label="Telefone"
                 value={formData.telefone}
-                onChange={(value) => handleInputChange('telefone', value)}
+                onChange={(value) => {
+                  // Permite apenas números e limita a 9 dígitos
+                  const onlyNumbers = value.replace(/\D/g, '').slice(0, 9);
+                  handleInputChange('telefone', onlyNumbers);
+                }}
                 required
                 errorMessage={errors.telefone}
                 placeholder="Ex: 923456789"
                 iconStart={<Phone size={18} />}
+                maxLength={9}
               />
 
               <CustomInput
@@ -1202,7 +1207,7 @@ const RegistroApoioAgricola = () => {
           </div>
         );
 
-      
+
       default:
         return null;
     }
@@ -1222,12 +1227,11 @@ const RegistroApoioAgricola = () => {
     <div className="bg-gray-50 min-h-screen">
       {/* Toast Message */}
       {toastMessage && (
-        <div className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all ${
-          toastMessage.severity === 'success' ? 'bg-blue-100 border-l-4 border-blue-500 text-blue-700' :
-          toastMessage.severity === 'error' ? 'bg-red-100 border-l-4 border-red-500 text-red-700' :
-          toastMessage.severity === 'warn' ? 'bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700' :
-          'bg-blue-100 border-l-4 border-blue-500 text-blue-700'
-        }`}>
+        <div className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all ${toastMessage.severity === 'success' ? 'bg-blue-100 border-l-4 border-blue-500 text-blue-700' :
+            toastMessage.severity === 'error' ? 'bg-red-100 border-l-4 border-red-500 text-red-700' :
+              toastMessage.severity === 'warn' ? 'bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700' :
+                'bg-blue-100 border-l-4 border-blue-500 text-blue-700'
+          }`}>
           <div className="flex items-center">
             <div className="mr-3">
               {toastMessage.severity === 'success' && <CheckCircle size={20} />}
@@ -1248,7 +1252,7 @@ const RegistroApoioAgricola = () => {
           {/* Header */}
           <div className="text-center mb-8 p-8 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-emerald-50">
             <h1 className="text-4xl font-bold mb-3 text-gray-800">Cadastro de Empresas de Apoio à Agricultura
-</h1>
+            </h1>
           </div>
 
           {/* Stepper */}
@@ -1259,29 +1263,26 @@ const RegistroApoioAgricola = () => {
               const isCompleted = index < activeIndex;
 
               return (
-                <div 
-                  key={index} 
-                  className={`flex flex-col items-center cursor-pointer transition-all min-w-0 flex-shrink-0 mx-1 ${
-                    !isActive && !isCompleted ? 'opacity-50' : ''
-                  }`}
+                <div
+                  key={index}
+                  className={`flex flex-col items-center cursor-pointer transition-all min-w-0 flex-shrink-0 mx-1 ${!isActive && !isCompleted ? 'opacity-50' : ''
+                    }`}
                   onClick={() => setActiveIndex(index)}
                 >
-                  <div className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${
-                    isActive 
-                      ? 'bg-blue-600 text-white' 
-                      : isCompleted 
+                  <div className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${isActive
+                      ? 'bg-blue-600 text-white'
+                      : isCompleted
                         ? 'bg-green-500 text-white'
                         : 'bg-gray-200 text-gray-500'
-                  }`}>
+                    }`}>
                     {isCompleted ? (
                       <Check size={24} />
                     ) : (
                       <Icon size={24} />
                     )}
                   </div>
-                  <span className={`text-sm text-center font-medium ${
-                    isActive ? 'text-blue-700' : isCompleted ? 'text-green-600' : 'text-gray-500'
-                  }`}>
+                  <span className={`text-sm text-center font-medium ${isActive ? 'text-blue-700' : isCompleted ? 'text-green-600' : 'text-gray-500'
+                    }`}>
                     {step.label}
                   </span>
                 </div>
@@ -1290,10 +1291,10 @@ const RegistroApoioAgricola = () => {
           </div>
 
           {/* Progress Bar */}
-          <div className="w-full bg-gray-200 h-2 mb-8 mx-8" style={{width: 'calc(100% - 4rem)'}}>
-            <div 
-              className="bg-blue-600 h-2 transition-all duration-300 rounded-full" 
-              style={{width: `${((activeIndex + 1) / steps.length) * 100}%`}}
+          <div className="w-full bg-gray-200 h-2 mb-8 mx-8" style={{ width: 'calc(100% - 4rem)' }}>
+            <div
+              className="bg-blue-600 h-2 transition-all duration-300 rounded-full"
+              style={{ width: `${((activeIndex + 1) / steps.length) * 100}%` }}
             ></div>
           </div>
 
@@ -1307,11 +1308,10 @@ const RegistroApoioAgricola = () => {
                 type="button"
                 onClick={prevStep}
                 disabled={activeIndex === 0}
-                className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all ${
-                  activeIndex === 0
+                className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all ${activeIndex === 0
                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
+                  }`}
               >
                 <ChevronLeft size={20} className="mr-2" />
                 Anterior
@@ -1322,11 +1322,10 @@ const RegistroApoioAgricola = () => {
                   type="button"
                   onClick={handleSubmit}
                   disabled={loading}
-                  className={`flex items-center px-8 py-3 rounded-lg font-medium transition-all ${
-                    loading
+                  className={`flex items-center px-8 py-3 rounded-lg font-medium transition-all ${loading
                       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       : 'bg-blue-600 text-white hover:bg-blue-700'
-                  }`}
+                    }`}
                 >
                   {loading ? (
                     <>

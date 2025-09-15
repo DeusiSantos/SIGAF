@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UserPlus, Users, Info, FileText, User, Check, Calculator, X, TrendingUp, TrendingDown, MapPin, Award, DollarSign, Package, Activity } from 'lucide-react';
+import { UserPlus, Users, Info, FileText, User, Check, Calculator, X, TrendingUp, TrendingDown, MapPin, Award, DollarSign, Package, Activity, Split, Banknote } from 'lucide-react';
 
 import CadastroProdutor from '../../pages/CadastroProdutor';
 import ProdutoresGestao from '../../pages/ProdutoresGestao';
@@ -32,20 +32,20 @@ const IncentivoMenu = () => {
             id: 'cadastro',
             title: 'Cadastrar',
             icon: UserPlus,
-            description: 'Registrar Novo',
+            description: 'Novo Incentivo',
             color: 'blue'
         },
         {
             id: 'distribuicao',
             title: 'Distribuir',
-            icon: UserPlus,
-            description: 'Realizar Distribuilção',
+            icon:Split ,
+            description: 'Realizar Distribuição',
             color: 'blue'
         },
            {
             id: 'reembolso',
             title: 'Reembolsar',
-            icon: UserPlus,
+            icon: Banknote,
             description: 'Realizar Reembolso',
             color: 'blue'
         },

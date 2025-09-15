@@ -42,11 +42,11 @@ import axios from 'axios';
 import { useProdutoresFlorestais } from '../../hooks/useRnpaData';
 
 // Componente para Avatar do Produtor com foto da API
-const ProdutorAvatar = ({ 
-    produtor, 
-    size = "w-16 h-16", 
+const ProdutorAvatar = ({
+    produtor,
+    size = "w-16 h-16",
     textSize = "text-lg",
-    showLoadingSpinner = true 
+    showLoadingSpinner = true
 }) => {
     const [imageUrl, setImageUrl] = useState(null);
     const [imageLoading, setImageLoading] = useState(true);
@@ -73,7 +73,7 @@ const ProdutorAvatar = ({
             try {
                 setImageLoading(true);
                 setImageError(false);
-                
+
                 const response = await axios.get(
                     `https://mwangobrainsa-001-site2.mtempurl.com/api/produtorFlorestais/${produtor.id}/foto`,
                     {
@@ -84,7 +84,7 @@ const ProdutorAvatar = ({
                         }
                     }
                 );
-                
+
                 if (response.data && response.data.size > 0) {
                     const url = URL.createObjectURL(response.data);
                     setImageUrl(url);
@@ -92,7 +92,7 @@ const ProdutorAvatar = ({
                 } else {
                     setImageError(true);
                 }
-                
+
             } catch (error) {
                 console.error('Erro ao carregar foto do produtor florestal:', error);
                 setImageError(true);
@@ -121,8 +121,8 @@ const ProdutorAvatar = ({
     if (imageUrl && !imageError) {
         return (
             <div className={`${size} rounded-full overflow-hidden shadow-sm border-2 border-white`}>
-                <img 
-                    src={imageUrl} 
+                <img
+                    src={imageUrl}
                     alt={`Foto de ${produtor.nome}`}
                     className="w-full h-full object-cover"
                     onError={() => {
@@ -162,14 +162,14 @@ const mapApiDataToProdutor = (apiData) => {
         // Mapear espécies florestais como atividades
         const mapEspecies = (especiesString) => {
             if (!especiesString) return ['FLORESTAL'];
-            
+
             return ['FLORESTAL', 'CONSERVAÇÃO'];
         };
 
         // Determinar status baseado na autorização final
         const getStatus = (autorizacao) => {
             if (!autorizacao) return 'PENDENTE';
-            
+
             switch (autorizacao.toLowerCase()) {
                 case 'aprovada': return 'APROVADO';
                 case 'rejeitada': return 'REJEITADO';
@@ -214,7 +214,7 @@ const mapApiDataToProdutor = (apiData) => {
             bairro: location.bairro,
             atividades: mapEspecies(item.esp_cies_predominantes),
             areaTotalHa: parseFloat(item._rea_associada) || 0,
-            culturasPrincipais: item.esp_cies_predominantes ? 
+            culturasPrincipais: item.esp_cies_predominantes ?
                 item.esp_cies_predominantes.split(' ').slice(0, 3).map(esp => esp.replace(/_/g, ' ')) : ['Espécies Florestais'],
             numeroAnimais: 0, // Não aplicável para produtores florestais
             statusProcesso: getStatus(item.autoriza_o_final),
@@ -248,12 +248,12 @@ const ProdutoresFlorestaisGestao = () => {
     // Transformar dados da API para o formato esperado
     const produtores = useMemo(() => {
         const todosProdutores = [];
-        
+
         // Adicionar produtores florestais
         if (produtorFlorestais && Array.isArray(produtorFlorestais)) {
             todosProdutores.push(...mapApiDataToProdutor(produtorFlorestais));
         }
-        
+
         return todosProdutores;
     }, [produtorFlorestais]);
 
@@ -370,7 +370,7 @@ const ProdutoresFlorestaisGestao = () => {
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Confirmar Exclusão</h3>
                     <p className="text-gray-600 text-center text-sm mb-4">
-                        Tem certeza que deseja excluir o produtor florestal <span className="font-semibold text-red-600">{produtor?.nome || 'Selecionado'}</span>?<br/>
+                        Tem certeza que deseja excluir o produtor florestal <span className="font-semibold text-red-600">{produtor?.nome || 'Selecionado'}</span>?<br />
                         Esta ação não pode ser desfeita. Todos os dados do produtor serão removidos permanentemente.
                     </p>
                     <div className="flex gap-3 mt-2 w-full">
@@ -609,72 +609,72 @@ const ProdutoresFlorestaisGestao = () => {
     const totalPendentes = localProdutores.filter(p => p.statusProcesso === 'PENDENTE').length;
     const totalAprovados = localProdutores.filter(p => p.statusProcesso === 'APROVADO').length;
     const totalRejeitados = localProdutores.filter(p => p.statusProcesso === 'REJEITADO').length;
-   
+
     return (
         <div>
             {/* Indicadores do topo */}
             <div className="w-full flex justify-center bg-transparent pb-[30px] pt-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 w-full">
-                <div className="bg-white rounded-xl shadow-md p-6">
-                    <div className="flex items-center">
-                        <div className="p-3 bg-green-100 rounded-full">
-                            <TreePine className="w-6 h-6 text-green-600" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 w-full">
+                    <div className="bg-white rounded-xl shadow-md p-6">
+                        <div className="flex items-center">
+                            <div className="p-3 bg-green-100 rounded-full">
+                                <TreePine className="w-6 h-6 text-green-600" />
+                            </div>
+                            <div className="flex flex-col items-center ml-4">
+                                <p className="text-sm font-medium text-gray-500">Total</p>
+                                <p className="text-2xl font-bold text-gray-900">{totalProdutores}</p>
+                            </div>
                         </div>
-                        <div className="flex flex-col items-center ml-4">
-                            <p className="text-sm font-medium text-gray-500">Total</p>
-                            <p className="text-2xl font-bold text-gray-900">{totalProdutores}</p>
+                    </div>
+                    <div className="bg-white rounded-xl shadow-md p-6">
+                        <div className="flex items-center">
+                            <div className="p-3 bg-green-100 rounded-full">
+                                <Clock className="w-6 h-6 text-green-600" />
+                            </div>
+                            <div className="flex flex-col items-center ml-4">
+                                <p className="text-sm font-medium text-gray-500">Processos</p>
+                                <p className="text-2xl font-bold text-gray-900">{totalProcessos}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="bg-white rounded-xl shadow-md p-6">
+                        <div className="flex items-center">
+                            <div className="p-3 bg-yellow-100 rounded-full">
+                                <AlertTriangle className="w-6 h-6 text-yellow-600" />
+                            </div>
+                            <div className="flex flex-col items-center ml-4">
+                                <p className="text-sm font-medium text-gray-500">Pendentes</p>
+                                <p className="text-2xl font-bold text-gray-900">{totalPendentes}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="bg-white rounded-xl shadow-md p-6">
+                        <div className="flex items-center">
+                            <div className="p-3 bg-green-100 rounded-full">
+                                <CheckCircle className="w-6 h-6 text-green-600" />
+                            </div>
+                            <div className="flex flex-col items-center ml-4">
+                                <p className="text-sm font-medium text-gray-500">Aprovados</p>
+                                <p className="text-2xl font-bold text-gray-900">{totalAprovados}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="bg-white rounded-xl shadow-md p-6">
+                        <div className="flex items-center">
+                            <div className="p-3 bg-red-100 rounded-full">
+                                <X className="w-6 h-6 text-red-600" />
+                            </div>
+                            <div className="flex flex-col items-center ml-4">
+                                <p className="text-sm font-medium text-gray-500">Rejeitados</p>
+                                <p className="text-2xl font-bold text-gray-900">{totalRejeitados}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div className="bg-white rounded-xl shadow-md p-6">
-                    <div className="flex items-center">
-                        <div className="p-3 bg-green-100 rounded-full">
-                            <Clock className="w-6 h-6 text-green-600" />
-                        </div>
-                        <div className="flex flex-col items-center ml-4">
-                            <p className="text-sm font-medium text-gray-500">Processos</p>
-                            <p className="text-2xl font-bold text-gray-900">{totalProcessos}</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="bg-white rounded-xl shadow-md p-6">
-                    <div className="flex items-center">
-                        <div className="p-3 bg-yellow-100 rounded-full">
-                            <AlertTriangle className="w-6 h-6 text-yellow-600" />
-                        </div>
-                        <div className="flex flex-col items-center ml-4">
-                            <p className="text-sm font-medium text-gray-500">Pendentes</p>
-                            <p className="text-2xl font-bold text-gray-900">{totalPendentes}</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="bg-white rounded-xl shadow-md p-6">
-                    <div className="flex items-center">
-                        <div className="p-3 bg-green-100 rounded-full">
-                            <CheckCircle className="w-6 h-6 text-green-600" />
-                        </div>
-                        <div className="flex flex-col items-center ml-4">
-                            <p className="text-sm font-medium text-gray-500">Aprovados</p>
-                            <p className="text-2xl font-bold text-gray-900">{totalAprovados}</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="bg-white rounded-xl shadow-md p-6">
-                    <div className="flex items-center">
-                        <div className="p-3 bg-red-100 rounded-full">
-                            <X className="w-6 h-6 text-red-600" />
-                        </div>
-                        <div className="flex flex-col items-center ml-4">
-                            <p className="text-sm font-medium text-gray-500">Rejeitados</p>
-                            <p className="text-2xl font-bold text-gray-900">{totalRejeitados}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
             </div>
 
             <div className="w-full bg-white rounded-xl  overflow-hidden" ref={containerRef}>
-           
+
                 <Toast />
 
                 {/* Cabeçalho */}
@@ -730,7 +730,7 @@ const ProdutoresFlorestaisGestao = () => {
                                     iconStart={<Filter size={18} />}
                                 />
                             </div>
-                            
+
                             {/* Filtro por provincia */}
                             <div>
                                 <CustomInput
@@ -816,7 +816,7 @@ const ProdutoresFlorestaisGestao = () => {
                                         <tr key={produtor.id} className="hover:bg-green-50 transition-colors">
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-start text-start">
-                                                    <ProdutorAvatar 
+                                                    <ProdutorAvatar
                                                         produtor={produtor}
                                                         size="w-20 h-20"
                                                         textSize="text-lg"
@@ -868,7 +868,10 @@ const ProdutoresFlorestaisGestao = () => {
 
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-center justify-center">
-                                                    <StatusMenu produtor={produtor} />
+                                                    <span className={`px-3 py-1.5 rounded-full text-xs font-medium border ${getStatusColor(produtor.statusProcesso)}`}>
+                                                        {produtor.statusProcesso}
+                                                    </span>
+
                                                 </div>
                                             </td>
 
@@ -909,7 +912,7 @@ const ProdutoresFlorestaisGestao = () => {
                             getCurrentItems().map((produtor) => (
                                 <div key={produtor.id} className="p-4 border-b border-gray-200 hover:bg-green-50 transition-colors">
                                     <div className="flex items-start">
-                                        <ProdutorAvatar 
+                                        <ProdutorAvatar
                                             produtor={produtor}
                                             size="w-16 h-16"
                                             textSize="text-lg"
@@ -998,7 +1001,7 @@ const ProdutoresFlorestaisGestao = () => {
                                     Limpar filtros
                                 </button>
                             ) : (
-                                <p/>
+                                <p />
                             )}
                         </div>
                     )}

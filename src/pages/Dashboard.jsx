@@ -951,9 +951,7 @@ const registrosPorAtividade = useMemo(() => {
                     value={selectedProvince}
                     onChange={setSelectedProvince}
                     options={provincias}
-                    className="min-w-48"
                   />
-                  <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                 </div>
               </div>
               {/* Filtros  */}

@@ -434,7 +434,7 @@ const CadastroProdutor = () => {
           }
         }
 
-        // Preencher automaticamente os campos do formulário
+        // ...código anterior...
         setFormData(prev => ({
           ...prev,
           nomeProdutor: biInfo.first_name || '',
@@ -442,14 +442,23 @@ const CadastroProdutor = () => {
           sobrenomeProdutor: biInfo.last_name || '',
           dataNascimento: biInfo.birth_date ? new Date(biInfo.birth_date).toISOString().split('T')[0] : '',
           lugarNascimento: lugarNascimentoMapeado,
-          estadoCivil: estadoCivilMapeado ? {
-            label: getEstadoCivilLabel(estadoCivilMapeado),
-            value: estadoCivilMapeado
-          } : '',
-          sexoProdutor: sexoMapeado ? {
-            label: sexoMapeado === 'MASCULINO' ? 'MASCULINO' : 'FEMENINO',
-            value: sexoMapeado
-          } : '',
+          estadoCivil: estadoCivilMapeado
+            ? {
+              label: getEstadoCivilLabel(estadoCivilMapeado),
+              value: estadoCivilMapeado
+            }
+            : '',
+          sexoProdutor: biInfo.gender_name
+            ? {
+              label: biInfo.gender_name.toUpperCase(),
+              value: biInfo.gender_name.toUpperCase()
+            }
+            : (sexoMapeado
+              ? {
+                label: sexoMapeado === 'MASCULINO' ? 'MASCULINO' : 'FEMININO',
+                value: sexoMapeado
+              }
+              : ''),
         }));
 
         showToast('success', 'BI Consultado', 'Dados do produtor preenchidos automaticamente!');
@@ -773,7 +782,7 @@ const CadastroProdutor = () => {
         if (shouldShowDocumentNumber() && !formData.numeroDocumento) {
           newErrors.numeroDocumento = 'Campo obrigatório';
         }
-       
+
 
         // Validação do nome do documento "Outro"
         if (shouldShowDocumentName() && !formData.nomeOutroDocumento) {
@@ -781,7 +790,7 @@ const CadastroProdutor = () => {
         }
 
         if (!formData.telefoneProdutor) newErrors.telefoneProdutor = 'Campo obrigatório';
-        
+
         if (!formData.dataNascimento) newErrors.dataNascimento = 'Campo obrigatório';
         if (formData.dataNascimento && calculateAge(formData.dataNascimento) < 18) {
           newErrors.dataNascimento = 'Produtor deve ter pelo menos 18 anos';
@@ -1181,7 +1190,7 @@ const CadastroProdutor = () => {
                 iconStart={<User size={18} />}
               />
 
-             
+
 
               {/* <CustomInput
                 type="text"
@@ -1232,7 +1241,7 @@ const CadastroProdutor = () => {
                 />
               )}
 
-               {/* Exemplo de campo multiselect pré-preenchido */}
+              {/* Exemplo de campo multiselect pré-preenchido */}
               <CustomInput
                 type="multiselect"
                 label="Idiomas Falados"
@@ -1567,9 +1576,6 @@ const CadastroProdutor = () => {
                 </div>
                 <h3 className="text-xl font-bold text-gray-800">Composição do Agregado Familiar</h3>
               </div>
-              <p className="text-gray-600">
-                Grupo de pessoas que pernoitam no mesmo alojamento, partilham refeições e reconhecem uma mesma pessoa como chefe.
-              </p>
             </div>
 
             {errors.distribuicaoMembros && (
@@ -2549,7 +2555,7 @@ const CadastroProdutor = () => {
                         />
                         <CustomInput
                           type="select"
-                          label="Objetivo da Produção"
+                          label="Objectivo da Produção"
                           value={formData.objetivoOvinos}
                           options={[
                             { label: 'Carne', value: 'CARNE' },

@@ -44,7 +44,7 @@ const GestaoProdutoresFlorestaisMenu = () => {
             id: 'cadastro',
             title: 'Registrar ',
             icon: UserPlus,
-            description: 'Registrar novo',
+            description: 'Novo Produtor',
             color: 'blue'
         }
     ];

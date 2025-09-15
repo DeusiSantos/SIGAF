@@ -22,7 +22,7 @@ const GestaoEntidadesAssociativasMenu = () => {
             id: 'cadastro',
             title: 'Cadastrar',
             icon: UserPlus,
-            description: 'Registrar Novo',
+            description: 'Nova Entidade',
             color: 'blue'
         },
     ];
