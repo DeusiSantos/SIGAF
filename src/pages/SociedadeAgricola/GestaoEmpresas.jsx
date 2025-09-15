@@ -53,12 +53,12 @@ const EmpresaGestao = () => {
     const handlePessoal = (empresaId) => {
         navigate(`/GerenciaRNPA/gestao-empresas/pessoal/${empresaId}`);
     };
-    
+
     // Função para navegação de infraestrutura
     const handleInfraestrutura = (empresaId) => {
         navigate(`/GerenciaRNPA/gestao-empresas/infraestrutura/${empresaId}`);
     };
-    
+
     // Função para navegação de relatórios
     const handleRelatorios = (empresaId) => {
         navigate(`/GerenciaRNPA/gestao-empresas/relatorios/${empresaId}`);
@@ -75,12 +75,12 @@ const EmpresaGestao = () => {
     const [contentHeight, setContentHeight] = useState('calc(100vh - 12rem)');
     const itemsPerPage = 6;
     const containerRef = useRef(null);
-    
+
     // Estados para dados da API
     const [empresas, setEmpresas] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    
+
     // Estados para o modal de exclusão
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [empresaToDelete, setEmpresaToDelete] = useState(null);
@@ -91,9 +91,9 @@ const EmpresaGestao = () => {
             setLoading(true);
             setError(null);
             const response = await api.get('/organizacao/empresasAgricolas');
-            
+
             console.log('📊 Dados recebidos da API:', response.data);
-            
+
             const data = Array.isArray(response.data) ? response.data : response.data.data || [];
             setEmpresas(data);
         } catch (err) {
@@ -173,12 +173,12 @@ const EmpresaGestao = () => {
         const matchesSearch = empresa.nomeEntidade?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             empresa.nomePresidente?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             empresa.email?.toLowerCase().includes(searchTerm.toLowerCase());
-        
+
         const matchesRegion = !selectedRegion || empresa.provincia === selectedRegion;
-        
-        const matchesTipo = !selectedTipo || (empresa.atividades && 
+
+        const matchesTipo = !selectedTipo || (empresa.atividades &&
             empresa.atividades.some(atividade => atividade.includes(selectedTipo)));
-        
+
         const matchesStatus = !selectedStatus || empresa.estado === selectedStatus;
 
         return matchesSearch && matchesRegion && matchesTipo && matchesStatus;
@@ -213,7 +213,7 @@ const EmpresaGestao = () => {
     // Formatar atividades para exibição
     const formatAtividades = (atividades) => {
         if (!atividades || !Array.isArray(atividades)) return [];
-        return atividades.map(atividade => 
+        return atividades.map(atividade =>
             atividade.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1').trim()
         );
     };
@@ -455,7 +455,7 @@ const EmpresaGestao = () => {
 
             <div className="w-full bg-white rounded-xl shadow-md overflow-visible z-10">
                 {/* Cabeçalho */}
-                <div className="bg-gradient-to-r from-blue-700 to-blue-500 p-6 text-white">
+                <div className="bg-gradient-to-r rounded-t-xl from-blue-700 to-blue-500 p-6 text-white">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
                         <div>
                             <h1 className="text-2xl font-bold">Gestão de Empresas Agrícolas</h1>
@@ -586,16 +586,26 @@ const EmpresaGestao = () => {
                                         </div>
                                     </td>
 
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="space-y-2">
-                                            <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                {formatAtividades(empresa.atividades).slice(0, 1).join(', ')}
-                                            </div>
-                                            {empresa.atividades && empresa.atividades.length > 1 && (
-                                                <span className="text-gray-400 text-xs"> +{empresa.atividades.length - 1}</span>
+                                    <td className="px-6 py-4">
+                                        <div className="space-y-1 max-w-[200px]">
+                                            {/* mostra apenas a primeira atividade */}
+                                            {empresa.atividades?.length > 0 && (
+                                                <div className="inline-block">
+                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-1 mb-1">
+                                                        {empresa.atividades[0]}
+                                                    </span>
+                                                </div>
+                                            )}
+
+                                            {/* mostra o "+X mais" se houver mais de 1 atividade */}
+                                            {empresa.atividades?.length > 1 && (
+                                                <div className="text-gray-400 text-xs">
+                                                    +{empresa.atividades.length - 1} mais
+                                                </div>
                                             )}
                                         </div>
                                     </td>
+
 
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="space-y-2">
@@ -645,7 +655,7 @@ const EmpresaGestao = () => {
                             ))}
                         </tbody>
                         <tfoot>
-                            <tr>
+                            <tr className='rounded-b-xl'>
                                 <td colSpan={5}>
                                     {/* Paginação */}
                                     <div className="px-6 py-4 border-t border-gray-200 bg-white">

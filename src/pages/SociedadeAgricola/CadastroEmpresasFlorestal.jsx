@@ -973,11 +973,11 @@ const CadastroEmpresasFlorestal = () => {
                 type="multiselect"
                 value={formData.Atividades}
                 options={[
-                  { label: 'Produção Agrícola', value: 'PRODUCAO_AGRICOLA' },
-                  { label: 'Produção Pecuária', value: 'PRODUCAO_PECUARIA' },
-                  { label: 'Agroindústria', value: 'AGROINDUSTRIA' },
-                  { label: 'Comercialização', value: 'COMERCIALIZACAO' },
-                  { label: 'Assistência Técnica', value: 'ASSISTENCIA_TECNICA' },
+                  { label: 'Produção Agrícola', value: 'PRODUÇÃO AGRÍCOLA' },
+                  { label: 'Produção Pecuária', value: 'PRODUÇÃO PECUÁRIA' },
+                  { label: 'Agroindústria', value: 'AGROINDÚSTRIA' },
+                  { label: 'Comercialização', value: 'COMERCIALIZAÇÃO' },
+                  { label: 'Assistência Técnica', value: 'ASSISTÊNCIA TÉCNICA' },
                   { label: 'Outros', value: 'OUTROS' }
                 ]}
                 onChange={(value) => handleInputChange('Atividades', value)}
@@ -1293,8 +1293,8 @@ const CadastroEmpresasFlorestal = () => {
                   label="Perfil dos Empregados"
                   value={formData.PerfilCooperados || []}
                   options={[
-                    { label: 'Técnicos Agrícolas', value: 'TECNICOS_AGRICOLAS' },
-                    { label: 'Operários Rurais', value: 'OPERARIOS_RURAIS' },
+                    { label: 'Técnicos Agrícolas', value: 'TECNICOS AGRICOLAS' },
+                    { label: 'Operários Rurais', value: 'OPERARIOS RURAIS' },
                     { label: 'Administrativos', value: 'ADMINISTRATIVOS' },
                     { label: 'Outros', value: 'OUTROS' }
                   ]}
