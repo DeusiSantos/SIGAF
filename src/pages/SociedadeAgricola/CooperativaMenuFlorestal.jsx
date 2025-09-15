@@ -1,9 +1,26 @@
 import React, { useState } from 'react';
 import { UserPlus, Users, FileText, User, MapPin, Award } from 'lucide-react';
+
+import CadastroProdutor from '../CadastroProdutor';
+import ProdutoresGestao from '../ProdutoresGestao';
+import CadastroCooperativa from './EntidadesAssociativasCadastro';
+import AssociasoesRurais from './AssociasoesRurais';
+import CadastroProjetos from '../Programas-e-Benefícios/CadastroProjetos';
+import ValidarCerficacao from '../Validação e Certifica/validarCerficacao';
+import CertificadosGestao from '../CertificadosGestao';
+import CadastroFontesAgua from '../InfraEstrutura/CadastroFontesAgua';
+import GestaoSistemasIrrigacao from '../InfraEstrutura/GestaoSistemasIrrigacao';
+import TesteAmostrasSolo from '../InfraEstrutura/TesteAmostrasSolo';
+import GestaoTestesSolo from '../InfraEstrutura/GestaoTestesSolo';
+import GestaoEmpresas from './GestaoEmpresas';
 import EmpresaGestao from './GestaoEmpresas';
 import CadastroEmpresas from './CadastroEmpresas';
+import GestaoCooperativaFlorestal from './GestaoCooperativaFlorestal';
+import CadastroCooperativaFlorestal from './CadastroCooperativaFlorestal';
 
-const EmpresasMenu = () => {
+
+
+const CooperativaMenuFlorestal = () => {
     const [activeSection, setActiveSection] = useState('gestao');
 
     const menuItems = [
@@ -50,7 +67,7 @@ const EmpresasMenu = () => {
                 return (
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
                         <div className="text-center">
-                            <EmpresaGestao />
+                            <GestaoCooperativaFlorestal />
                         </div>
                     </div>
                 );
@@ -59,7 +76,7 @@ const EmpresasMenu = () => {
                 return (
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
                         <div className="text-center">
-                            <CadastroEmpresas />
+                            <CadastroCooperativaFlorestal />
                         </div>
                     </div>
                 );
@@ -105,4 +122,4 @@ const EmpresasMenu = () => {
     );
 };
 
-export default EmpresasMenu;
+export default CooperativaMenuFlorestal;

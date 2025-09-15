@@ -41,7 +41,7 @@ import CustomInput from '../../components/CustomInput';
 import provinciasData from '../../components/Provincias.json';
 import api from '../../services/api';
 
-const CadastroEmpresas = () => {
+const CadastroEmpresasFlorestal = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [municipiosOptions, setMunicipiosOptions] = useState([]);
@@ -58,7 +58,7 @@ const CadastroEmpresas = () => {
 
   // Estado inicial do formulário
   const initialState = {
-    TipoDeEntidade: "EmpresaAgricola",
+    TipoDeEntidade: "EmpresaFlorestal",
     // Dados da Empresa
     NomeEntidade: '',
     Sigla: '',
@@ -871,12 +871,15 @@ const CadastroEmpresas = () => {
                 type="tel"
                 label="Telefone"
                 value={formData.Telefone}
-                onChange={(value) => handleInputChange('Telefone', value)}
+                onChange={(value) => {
+                  // Permite apenas números e limita a 9 dígitos
+                  const onlyNumbers = value.replace(/\D/g, '').slice(0, 9);
+                  handleInputChange('Telefone', onlyNumbers);
+                }}
                 required
                 errorMessage={errors.Telefone}
                 placeholder="Ex: 923456789"
                 iconStart={<Phone size={18} />}
-                maxLength={9}
               />
 
               <CustomInput
@@ -1097,7 +1100,11 @@ const CadastroEmpresas = () => {
                     type="tel"
                     label="Telefone"
                     value={formData.TelefonePresidente}
-                    onChange={(value) => handleInputChange('TelefonePresidente', value)}
+                    onChange={(value) => {
+                      // Permite apenas números e limita a 9 dígitos
+                      const onlyNumbers = value.replace(/\D/g, '').slice(0, 9);
+                      handleInputChange('TelefonePresidente', onlyNumbers);
+                    }}
                     placeholder="Ex: 923456789"
                     iconStart={<Phone size={18} />}
                   />
@@ -1210,10 +1217,13 @@ const CadastroEmpresas = () => {
                     type="tel"
                     label="Telefone"
                     value={formData.TelefoneSecretarioOuGerente}
-                    onChange={(value) => handleInputChange('TelefoneSecretarioOuGerente', value)}
+                     onChange={(value) => {
+                      // Permite apenas números e limita a 9 dígitos
+                      const onlyNumbers = value.replace(/\D/g, '').slice(0, 9);
+                      handleInputChange('TelefoneSecretarioOuGerente', onlyNumbers);
+                    }}
                     placeholder="Ex: 923456789"
                     iconStart={<Phone size={18} />}
-                    mazLength={9}
                   />
 
                   <CustomInput
@@ -1775,7 +1785,7 @@ const CadastroEmpresas = () => {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200">
           {/* Header */}
           <div className="text-center mb-8 p-8 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-emerald-50">
-            <h1 className="text-4xl font-bold mb-3 text-gray-800">Cadastro de Empresas Agricolas</h1>
+            <h1 className="text-4xl font-bold mb-3 text-gray-800">Cadastro de Empresas Florestais</h1>
           </div>
 
           {/* Stepper */}
@@ -1880,4 +1890,4 @@ const CadastroEmpresas = () => {
   );
 };
 
-export default CadastroEmpresas;
+export default CadastroEmpresasFlorestal;

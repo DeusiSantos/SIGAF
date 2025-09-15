@@ -131,7 +131,7 @@ const VisualizarAssociacaoRural = () => {
             setLoadingAssociacao(true);
             setErroAssociacao(null);
             try {
-                const response = await api.get(`/associacaoRural/${id}`);
+                const response = await api.get(`/organizacao/${id}`);
                 setAssociacao(response.data);
             } catch (error) {
                 setErroAssociacao('Erro ao buscar dados da associação.');
@@ -298,7 +298,7 @@ const VisualizarAssociacaoRural = () => {
             formData.append('id', id);
             formData.append('estado', novoEstado);
 
-            await api.patch(`/associacaoRural/estado`, formData, {
+            await api.patch(`/organizacao/estado`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -408,13 +408,13 @@ const VisualizarAssociacaoRural = () => {
     const handleSave = async () => {
         try {
             await updateAssociacaoRural(associacao.id, formData);
-            showToast('success', 'Associação atualizada', 'Os dados foram salvos com sucesso!');
+            showToast('success', 'Entidade atualizada', 'Os dados foram salvos com sucesso!');
             // Recarregar dados da associação após salvar
-            const response = await api.get(`/associacaoRural/${associacao.id}`);
+            const response = await api.get(`/organizacao/${associacao.id}`);
             setAssociacao(response.data);
             setIsEditing(false);
         } catch (e) {
-            showToast('error', 'Erro ao salvar', 'Não foi possível atualizar a associação.');
+            showToast('error', 'Erro ao salvar', 'Não foi possível atualizar a Entidade.');
             console.error('Erro ao salvar associação:', e);
         }
     };
@@ -470,7 +470,7 @@ const VisualizarAssociacaoRural = () => {
                             <button onClick={() => navigate(-1)} className="p-2 rounded hover:bg-gray-100 text-gray-600"><ArrowLeft className="w-5 h-5" /></button>
                             <div className='flex flex-col'>
                                 <h2 className="text-2xl font-bold text-gray-900">
-                                    {isEditing ? 'Editando Associação' : 'Detalhes da Associação'}
+                                    {isEditing ? 'Editando Entidade' : 'Detalhes da Entidade'}
                                 </h2>
                                 <div className="text-gray-600">ID: {associacao.id || '--'} &bull; NIF: {associacao.nif || '--'}</div>
                             </div>
@@ -479,17 +479,17 @@ const VisualizarAssociacaoRural = () => {
                             <span
                                 key={status}
                                 className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border 
-                                ${status === 'ATIVO' ? 'bg-green-50 text-green-700 border-green-200' : ''}
-                                ${status === 'INATIVO' ? 'bg-gray-100 text-gray-500 border-gray-300' : ''}
-                                ${status === 'SUSPENSO' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' : ''}
+                                ${associacao.estado === 'ATIVO' ? 'bg-green-50 text-green-700 border-green-200' : ''}
+                                ${associacao.estado === 'INATIVO' ? 'bg-gray-100 text-gray-500 border-gray-300' : ''}
+                                ${associacao.estado === 'SUSPENSO' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' : ''}
                               `}
                             >
-                                {status === 'ATIVO' && <CheckCircle className="w-4 h-4 mr-1 text-green-600" />}
-                                {status === 'INATIVO' && <X className="w-4 h-4 mr-1 text-gray-400" />}
-                                {status === 'SUSPENSO' && <AlertTriangle className="w-4 h-4 mr-1 text-yellow-500" />}
-                                {status}
+                                {associacao.estado === 'ATIVO' && <CheckCircle className="w-4 h-4 mr-1 text-green-600" />}
+                                {associacao.estado === 'INATIVO' && <X className="w-4 h-4 mr-1 text-gray-400" />}
+                                {associacao.estado === 'SUSPENSO' && <AlertTriangle className="w-4 h-4 mr-1 text-yellow-500" />}
+                                {associacao.estado}
                             </span>
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border border-blue-200 bg-white text-blue-700"><BarChart2 className="w-4 h-4 mr-1" />  Associação Registrada</span>
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border border-blue-200 bg-white text-blue-700"><BarChart2 className="w-4 h-4 mr-1" />{associacao.tipoDeEntidade}</span>
                         </div>
                     </div>
                     {/*  */}
@@ -553,9 +553,9 @@ const VisualizarAssociacaoRural = () => {
                             <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2"><Building className="w-4 h-4 text-blue-600" /> Informações Básicas</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <CustomInput
-                                    label="Nome da Cooperativa"
-                                    value={isEditing ? formData?.nomeCooperativa : associacao.nomeCooperativa || ''}
-                                    onChange={v => handleChange('nomeCooperativa', v)}
+                                    label="Nome da Entidade"
+                                    value={isEditing ? formData?.nomeEntidade : associacao.nomeEntidade || ''}
+                                    onChange={v => handleChange('nomeEntidade', v)}
                                     disabled={!isEditing}
                                     iconStart={<Building size={18} />}
                                 />
@@ -644,10 +644,10 @@ const VisualizarAssociacaoRural = () => {
                             <div className="p-4 rounded-xl bg-green-50 border border-green-200">
                                 <div className="text-lg font-semibold text-green-700 mb-4">Secretário(a)</div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <CustomInput label="Nome" value={isEditing ? formData?.nomeSecretario : associacao.nomeSecretario || ''} onChange={v => handleChange('nomeSecretario', v)} disabled={!isEditing} iconStart={<User size={18} />} />
-                                    <CustomInput label="Número do BI" value={isEditing ? formData?.nifSecretario : associacao.nifSecretario || ''} onChange={v => handleChange('nifSecretario', v)} disabled={!isEditing} iconStart={<CreditCard size={18} />} />
-                                    <CustomInput label="Telefone" value={isEditing ? formData?.telefoneSecretario : associacao.telefoneSecretario || ''} onChange={v => handleChange('telefoneSecretario', v)} disabled={!isEditing} iconStart={<Phone size={18} />} />
-                                    <CustomInput label="E-mail" value={isEditing ? formData?.emailSecretario : associacao.emailSecretario || ''} onChange={v => handleChange('emailSecretario', v)} disabled={!isEditing} iconStart={<Mail size={18} />} />
+                                    <CustomInput label="Nome" value={isEditing ? formData?.nomeSecretarioOuGerente : associacao.nomeSecretarioOuGerente || ''} onChange={v => handleChange('nomeSecretarioOuGerente', v)} disabled={!isEditing} iconStart={<User size={18} />} />
+                                    <CustomInput label="Número do BI" value={isEditing ? formData?.biSecretarioOuGerente : associacao.biSecretarioOuGerente || ''} onChange={v => handleChange('biSecretarioOuGerente', v)} disabled={!isEditing} iconStart={<CreditCard size={18} />} />
+                                    <CustomInput label="Telefone" value={isEditing ? formData?.telefoneSecretarioOuGerente : associacao.telefoneSecretarioOuGerente || ''} onChange={v => handleChange('telefoneSecretarioOuGerente', v)} disabled={!isEditing} iconStart={<Phone size={18} />} />
+                                    <CustomInput label="E-mail" value={isEditing ? formData?.emailSecretarioOuGerente : associacao.emailSecretarioOuGerente || ''} onChange={v => handleChange('emailSecretarioOuGerente', v)} disabled={!isEditing} iconStart={<Mail size={18} />} />
                                 </div>
                             </div>
                         </div>

@@ -44,11 +44,77 @@ import {
   Download,
   Activity,
   Mountain,
+  Upload,
+  Banknote,
+  Factory,
+  Users as UsersIcon,
+  Building2,
 } from 'lucide-react';
 
 import CustomInput from '../components/CustomInput';
 import provinciasData from '../components/Provincias.json'
-import { useProdutoresAprovados } from '../hooks/useRnpaData';
+
+// Hook para buscar produtores florestais
+const useProdutoresFlorestais = () => {
+  const [produtores, setProdutores] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProdutores = async () => {
+      try {
+        const response = await fetch('https://mwangobrainsa-001-site2.mtempurl.com/api/produtorFlorestal/all');
+        const data = await response.json();
+        setProdutores(data);
+      } catch (error) {
+        console.error('Erro ao buscar produtores florestais:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProdutores();
+  }, []);
+
+  return { produtores, loading };
+};
+
+// Hook para buscar entidades (empresas, cooperativas, associações)
+const useEntidades = () => {
+  const [empresas, setEmpresas] = useState([]);
+  const [cooperativas, setCooperativas] = useState([]);
+  const [associacoes, setAssociacoes] = useState([]);
+  const [loadingEntidades, setLoadingEntidades] = useState(true);
+
+  useEffect(() => {
+    const fetchEntidades = async () => {
+      try {
+        const [empresasRes, cooperativasRes, associacoesRes] = await Promise.all([
+          fetch('https://mwangobrainsa-001-site2.mtempurl.com/api/organizacao/empresasFlorestais'),
+          fetch('https://mwangobrainsa-001-site2.mtempurl.com/api/organizacao/cooperativasFlorestais'),
+          fetch('https://mwangobrainsa-001-site2.mtempurl.com/api/organizacao/AssociacoesFlorestais')
+        ]);
+
+        const [empresasData, cooperativasData, associacoesData] = await Promise.all([
+          empresasRes.json(),
+          cooperativasRes.json(),
+          associacoesRes.json()
+        ]);
+
+        setEmpresas(empresasData);
+        setCooperativas(cooperativasData);
+        setAssociacoes(associacoesData);
+      } catch (error) {
+        console.error('Erro ao buscar entidades:', error);
+      } finally {
+        setLoadingEntidades(false);
+      }
+    };
+
+    fetchEntidades();
+  }, []);
+
+  return { empresas, cooperativas, associacoes, loadingEntidades };
+};
 
 const CertificacaoProdutorFlorestal = () => {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -58,10 +124,14 @@ const CertificacaoProdutorFlorestal = () => {
   const [touched, setTouched] = useState({});
   const [toastMessage, setToastMessage] = useState(null);
   const [produtorSelecionado, setProdutorSelecionado] = useState(null);
+  const [entidadeSelecionada, setEntidadeSelecionada] = useState(null);
+  const [tipoSelecionado, setTipoSelecionado] = useState(''); // 'produtor', 'empresa', 'cooperativa', 'associacao'
   const [modoBusca, setModoBusca] = useState(true);
+  const [documentosUpload, setDocumentosUpload] = useState([]);
 
-  // Hook para buscar produtores aprovados
-  const { produtor: produtoresAprovados, loading: loadingProdutores } = useProdutoresAprovados();
+  // Hooks para buscar dados
+  const { produtores: produtoresFlorestais, loading: loadingProdutores } = useProdutoresFlorestais();
+  const { empresas, cooperativas, associacoes, loadingEntidades } = useEntidades();
 
   // Estados para as tabelas dinâmicas
   const [areasFlorestais, setAreasFlorestais] = useState([]);
@@ -71,7 +141,7 @@ const CertificacaoProdutorFlorestal = () => {
   // Estado inicial do formulário
   const initialState = {
     nomeCompleto: '',
-    nomeEmpresa: '',
+    nomeEntidade: '',
     bi: '',
     dataNascimento: '',
     sexo: '',
@@ -82,7 +152,7 @@ const CertificacaoProdutorFlorestal = () => {
     municipio: '',
     comuna: '',
     numeroLicencaExploracao: '',
-    tipoLicenca: '',
+    tiposLicenca: [], // Multiselect
     areaFlorestaTotalHa: '',
     coordenadasGPS: '',
     finalidadeLicenca: [],
@@ -98,13 +168,44 @@ const CertificacaoProdutorFlorestal = () => {
   const [formData, setFormData] = useState(initialState);
 
   const steps = [
-    { label: 'Identificação', icon: Search },
+    { label: 'Tipo de Entidade', icon: Search },
     { label: 'Dados Pessoais', icon: User },
-    { label: 'Dados da Empresa', icon: Building },
+    { label: 'Dados da Entidade', icon: Building },
     { label: 'Áreas Florestais', icon: Trees },
     { label: 'Espécies Autorizadas', icon: Mountain },
     { label: 'Histórico de Exploração', icon: Activity },
+    { label: 'Documentos', icon: Upload },
     { label: 'Licença Florestal', icon: Award }
+  ];
+
+  // Tipos de licença com preços
+  const tiposLicencaOptions = [
+    { label: 'Licença de Exploração Florestal', value: 'EXPLORACAO_FLORESTAL', preco: 77000 },
+    { label: 'Licença de Plantio Florestal', value: 'PLANTIO_FLORESTAL', preco: 150000 },
+    { label: 'Licença de Manejo Florestal', value: 'MANEJO_FLORESTAL', preco: 12000 },
+    { label: 'Licença de Reflorestamento', value: 'REFLORESTAMENTO', preco: 32000 },
+    { label: 'Licença de exploração de Madeira em toro', value: 'MADEIRA_TORO', preco: 50000 },
+    { label: 'Licença de exploração de lenha', value: 'LENHA', preco: 15000 },
+    { label: 'Licença de exploração de carvão vegetal', value: 'CARVAO', preco: 20000 },
+    { label: 'Licença de exploração de produtos não lenhosos', value: 'NAO_LENHOSOS', preco: 25000 },
+    { label: 'Licença de exploração Comunitária', value: 'COMUNITARIA', preco: 10000 },
+    { label: 'Licença de aproveitamento de desperdícios', value: 'DESPERDICIOS', preco: 8000 },
+  ];
+
+  // Documentos necessários para upload
+  const documentosNecessarios = [
+    'Identificação do requerente',
+    'Comprovativo de registo da empresa/associação',
+    'Declaração das autoridades tradicionais e da administração municipal',
+    'Declaração de Não Devedor Fiscal',
+    'Contrato de parceria',
+    'Declaração de sujeição às leis vigentes e tribunais nacionais',
+    'Prova de capacidade financeira',
+    'Croquis de localização da área',
+    'Memória descritiva da área de exploração',
+    'Plano de Exploração Florestal',
+    'Licença Ambiental e Estudo de Impacto Ambiental',
+    'Relatório de atividade desenvolvida'
   ];
 
   const showToast = (severity, summary, detail, duration = 3000) => {
@@ -129,140 +230,7 @@ const CertificacaoProdutorFlorestal = () => {
 
   const validateCurrentStep = () => {
     const newErrors = {};
-
-    console.log('🔍 Validando step florestal:', activeIndex);
-    console.log('📋 FormData atual:', formData);
-
-    // switch (activeIndex) {
-    //   case 0: // Identificação
-    //     if (modoBusca) {
-    //       if (!produtorSelecionado) {
-    //         newErrors.produtorSelecionado = 'Selecione um produtor existente';
-    //       }
-    //     } else {
-    //       if (!hasValidValue(formData.nomeCompleto)) {
-    //         newErrors.nomeCompleto = 'Campo obrigatório';
-    //       }
-    //       if (!hasValidValue(formData.bi)) {
-    //         newErrors.bi = 'Campo obrigatório';
-    //       }
-    //     }
-    //     break;
-
-    //   case 1: // Dados Pessoais
-    //     if (!hasValidValue(formData.nomeCompleto)) {
-    //       newErrors.nomeCompleto = 'Campo obrigatório';
-    //     }
-    //     if (!hasValidValue(formData.bi)) {
-    //       newErrors.bi = 'Campo obrigatório';
-    //     }
-    //     if (!hasValidValue(formData.telefone)) {
-    //       newErrors.telefone = 'Campo obrigatório';
-    //     }
-    //     if (!hasValidValue(formData.provincia)) {
-    //       newErrors.provincia = 'Campo obrigatório';
-    //     }
-    //     if (!hasValidValue(formData.municipio)) {
-    //       newErrors.municipio = 'Campo obrigatório';
-    //     }
-    //     break;
-
-    //   case 2: // Dados da Empresa
-    //     if (!hasValidValue(formData.nomeEmpresa)) {
-    //       newErrors.nomeEmpresa = 'Campo obrigatório';
-    //     }
-    //     if (!hasValidValue(formData.numeroLicencaExploracao)) {
-    //       newErrors.numeroLicencaExploracao = 'Campo obrigatório';
-    //     }
-    //     if (!hasValidValue(formData.tipoLicenca)) {
-    //       newErrors.tipoLicenca = 'Campo obrigatório';
-    //     }
-    //     break;
-
-    //   case 3: // Áreas Florestais
-    //     if (areasFlorestais.length === 0) {
-    //       newErrors.areasFlorestais = 'Adicione pelo menos uma área florestal';
-    //     }
-        
-    //     areasFlorestais.forEach((item, index) => {
-    //       if (!item.nomeArea) {
-    //         newErrors[`areaFlorestal_${index}_nome`] = `Nome da área é obrigatório na linha ${index + 1}`;
-    //       }
-    //       if (!item.areaHectares || parseFloat(item.areaHectares) <= 0) {
-    //         newErrors[`areaFlorestal_${index}_area`] = `Área deve ser maior que zero na linha ${index + 1}`;
-    //       }
-    //       if (!item.localizacao) {
-    //         newErrors[`areaFlorestal_${index}_localizacao`] = `Localização é obrigatória na linha ${index + 1}`;
-    //       }
-    //     });
-    //     break;
-
-    //   case 4: // Espécies Autorizadas
-    //     if (especiesAutorizadas.length === 0) {
-    //       newErrors.especiesAutorizadas = 'Adicione pelo menos uma espécie autorizada';
-    //     }
-        
-    //     especiesAutorizadas.forEach((item, index) => {
-    //       if (!item.especie) {
-    //         newErrors[`especie_${index}_nome`] = `Nome da espécie é obrigatório na linha ${index + 1}`;
-    //       }
-    //       if (!item.volumeAutorizado || parseFloat(item.volumeAutorizado) <= 0) {
-    //         newErrors[`especie_${index}_volume`] = `Volume deve ser maior que zero na linha ${index + 1}`;
-    //       }
-    //     });
-    //     break;
-
-    //   case 5: // Histórico de Exploração
-    //     // Histórico é opcional, mas se existir deve ter campos válidos
-    //     historicoExploracoes.forEach((item, index) => {
-    //       if (item.ano || item.especie || item.volumeExplorado) {
-    //         if (!item.ano) {
-    //           newErrors[`historico_${index}_ano`] = `Ano é obrigatório na linha ${index + 1}`;
-    //         }
-    //         if (!item.especie) {
-    //           newErrors[`historico_${index}_especie`] = `Espécie é obrigatória na linha ${index + 1}`;
-    //         }
-    //       }
-    //     });
-    //     break;
-
-    //   case 6: // Licença Florestal
-    //     if (!hasValidValue(formData.validadeInicio)) {
-    //       newErrors.validadeInicio = 'Campo obrigatório';
-    //     }
-    //     if (!hasValidValue(formData.validadeFim)) {
-    //       newErrors.validadeFim = 'Campo obrigatório';
-    //     }
-    //     if (!hasValidValue(formData.tecnicoResponsavel)) {
-    //       newErrors.tecnicoResponsavel = 'Campo obrigatório';
-    //     }
-    //     if (!hasValidValue(formData.cargoTecnico)) {
-    //       newErrors.cargoTecnico = 'Campo obrigatório';
-    //     }
-        
-    //     // Validar datas
-    //     const dataInicio = getDisplayValue(formData.validadeInicio);
-    //     const dataFim = getDisplayValue(formData.validadeFim);
-        
-    //     if (dataInicio && dataFim) {
-    //       const inicio = new Date(dataInicio);
-    //       const fim = new Date(dataFim);
-          
-    //       if (fim <= inicio) {
-    //         newErrors.validadeFim = 'Data final deve ser posterior à data inicial';
-    //       }
-    //     }
-
-    //     // Validar se há pelo menos uma área florestal e uma espécie
-    //     if (areasFlorestais.length === 0) {
-    //       newErrors.areasFlorestaisGeral = 'É necessário ter pelo menos uma área florestal registrada';
-    //     }
-    //     if (especiesAutorizadas.length === 0) {
-    //       newErrors.especiesAutorizadasGeral = 'É necessário ter pelo menos uma espécie autorizada';
-    //     }
-    //     break;
-    // }
-
+    console.log('Validando step florestal:', activeIndex);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -270,7 +238,7 @@ const CertificacaoProdutorFlorestal = () => {
   const handleInputChange = (field, value) => {
     setTouched(prev => ({ ...prev, [field]: true }));
     setFormData(prev => ({ ...prev, [field]: value }));
-    
+
     if (errors[field]) {
       setErrors(prev => {
         const newErrors = { ...prev };
@@ -306,32 +274,24 @@ const CertificacaoProdutorFlorestal = () => {
     }
   };
 
-  const buscarProdutor = (produtorOption) => {
-    const produtorId = typeof produtorOption === 'object' ? produtorOption.value : produtorOption;
-    const produtor = produtoresAprovados.find(p => p._id === parseInt(produtorId));
+  const selecionarEntidade = (tipo, entidade = null) => {
+    setTipoSelecionado(tipo);
+    setEntidadeSelecionada(entidade);
+    setProdutorSelecionado(null);
 
-    if (produtor) {
-      setProdutorSelecionado(produtor);
-
-      const nomeCompleto = [
-        produtor.nome_produtor,
-        produtor.nome_meio_produtor,
-        produtor.sobrenome_produtor
-      ].filter(Boolean).join(' ');
-
+    if (entidade) {
       setFormData(prev => ({
         ...prev,
-        nomeCompleto: nomeCompleto,
-        bi: produtor.beneficiary_id_number || '',
-        telefone: produtor.beneficiary_phone_number || '',
-        provincia: produtor.provincia || '',
-        municipio: produtor.municipio || '',
-        comuna: produtor.comuna || ''
+        nomeEntidade: entidade.nomeEntidade || '',
+        telefone: entidade.telefone || '',
+        provincia: entidade.provincia || '',
+        municipio: entidade.municipio || '',
+        comuna: entidade.comuna || '',
       }));
 
-      if (produtor.provincia) {
+      if (entidade.provincia) {
         const provinciaSelected = provinciasData.find(
-          p => p.nome.toUpperCase() === produtor.provincia?.toUpperCase()
+          p => p.nome.toUpperCase() === entidade.provincia?.toUpperCase()
         );
         if (provinciaSelected) {
           try {
@@ -347,31 +307,56 @@ const CertificacaoProdutorFlorestal = () => {
           }
         }
       }
+    }
 
-      if (errors.produtorSelecionado) {
-        setErrors(prev => {
-          const newErrors = { ...prev };
-          delete newErrors.produtorSelecionado;
-          return newErrors;
-        });
-      }
+    showToast('success', 'Entidade Selecionada', `${tipo} selecionada com sucesso!`);
+  };
+
+  const buscarProdutor = (produtorOption) => {
+    const produtorId = typeof produtorOption === 'object' ? produtorOption.value : produtorOption;
+    const produtor = produtoresFlorestais.find(p => p._id === parseInt(produtorId));
+
+    if (produtor) {
+      setProdutorSelecionado(produtor);
+      setTipoSelecionado('produtor');
+
+      setFormData(prev => ({
+        ...prev,
+        nomeCompleto: produtor.nome_do_Produtor || '',
+        bi: produtor.bI_NIF || '',
+        telefone: produtor.contacto || '',
+        provincia: produtor.provincia || '',
+        municipio: produtor.municipio || '',
+        comuna: produtor.comuna || ''
+      }));
 
       showToast('success', 'Produtor Encontrado', 'Dados preenchidos automaticamente!');
     }
   };
 
-  const produtoresOptions = produtoresAprovados.map(p => {
-    const nomeCompleto = [
-      p.nome_produtor,
-      p.nome_meio_produtor,
-      p.sobrenome_produtor
-    ].filter(Boolean).join(' ');
+  // Preparar opções para os selects
+  const produtoresOptions = produtoresFlorestais.map(p => ({
+    label: `${p.nome_do_Produtor} - ${p.bI_NIF}`,
+    value: p._id.toString()
+  }));
 
-    return {
-      label: `${nomeCompleto} - ${p.beneficiary_id_number}`,
-      value: p._id.toString()
-    };
-  });
+  const empresasOptions = empresas.map(e => ({
+    label: `${e.nomeEntidade} - ${e.nif}`,
+    value: e.id.toString(),
+    entidade: e
+  }));
+
+  const cooperativasOptions = cooperativas.map(c => ({
+    label: `${c.nomeEntidade} - ${c.nif}`,
+    value: c.id.toString(),
+    entidade: c
+  }));
+
+  const associacoesOptions = associacoes.map(a => ({
+    label: `${a.nomeEntidade} - ${a.nif}`,
+    value: a.id.toString(),
+    entidade: a
+  }));
 
   // Funções para gerenciar áreas florestais
   const adicionarAreaFlorestal = () => {
@@ -385,14 +370,6 @@ const CertificacaoProdutorFlorestal = () => {
       observacoes: ''
     };
     setAreasFlorestais([...areasFlorestais, novaArea]);
-    
-    if (errors.areasFlorestais) {
-      setErrors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors.areasFlorestais;
-        return newErrors;
-      });
-    }
   };
 
   const removerAreaFlorestal = (id) => {
@@ -403,18 +380,6 @@ const CertificacaoProdutorFlorestal = () => {
     setAreasFlorestais(areasFlorestais.map(item =>
       item.id === id ? { ...item, [campo]: valor } : item
     ));
-    
-    const index = areasFlorestais.findIndex(item => item.id === id);
-    if (index !== -1) {
-      const errorKey = `areaFlorestal_${index}_${campo === 'nomeArea' ? 'nome' : campo === 'areaHectares' ? 'area' : 'localizacao'}`;
-      if (errors[errorKey]) {
-        setErrors(prev => {
-          const newErrors = { ...prev };
-          delete newErrors[errorKey];
-          return newErrors;
-        });
-      }
-    }
   };
 
   // Funções para gerenciar espécies autorizadas
@@ -429,14 +394,6 @@ const CertificacaoProdutorFlorestal = () => {
       observacoes: ''
     };
     setEspeciesAutorizadas([...especiesAutorizadas, novaEspecie]);
-    
-    if (errors.especiesAutorizadas) {
-      setErrors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors.especiesAutorizadas;
-        return newErrors;
-      });
-    }
   };
 
   const removerEspecieAutorizada = (id) => {
@@ -472,6 +429,35 @@ const CertificacaoProdutorFlorestal = () => {
     ));
   };
 
+  // Função para calcular o total da fatura
+  const calcularTotalFatura = () => {
+    if (!Array.isArray(formData.tiposLicenca)) return 0;
+
+    return formData.tiposLicenca.reduce((total, tipoLicenca) => {
+      // Se tipoLicenca é um objeto, pegar o value, senão usar direto
+      const tipoValue = typeof tipoLicenca === 'object' ? tipoLicenca.value : tipoLicenca;
+      const licenca = tiposLicencaOptions.find(opt => opt.value === tipoValue);
+      console.log('Calculando fatura - Tipo:', tipoValue, 'Licença encontrada:', licenca);
+      return total + (licenca ? licenca.preco : 0);
+    }, 0);
+  };
+
+  // Função para gerar fatura
+  const gerarFatura = () => {
+    const total = calcularTotalFatura();
+    const dadosFatura = {
+      numeroProcesso: formData.numeroProcesso,
+      nomeEntidade: tipoSelecionado === 'produtor' ? formData.nomeCompleto : formData.nomeEntidade,
+      tipoEntidade: tipoSelecionado,
+      tiposLicenca: formData.tiposLicenca,
+      valorTotal: total,
+      dataEmissao: new Date().toLocaleDateString('pt-BR')
+    };
+
+    console.log('Gerando fatura:', dadosFatura);
+    showToast('success', 'Fatura Gerada', `Fatura de ${total.toLocaleString('pt-AO', { style: 'currency', currency: 'AOA' })} gerada com sucesso!`);
+  };
+
   const formatDate = (dateString) => {
     if (!dateString) return '';
     try {
@@ -484,7 +470,7 @@ const CertificacaoProdutorFlorestal = () => {
 
   const renderStepContent = (index) => {
     switch (index) {
-      case 0: // Identificação
+      case 0: // Tipo de Entidade
         return (
           <div className="w-full mx-auto">
             <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 mb-8 border border-green-100">
@@ -492,135 +478,188 @@ const CertificacaoProdutorFlorestal = () => {
                 <div className="p-2 bg-green-100 rounded-lg">
                   <Search className="w-6 h-6 text-green-600" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-800">Identificação do Produtor ou Empresa Florestal</h3>
+                <h3 className="text-xl font-bold text-gray-800">Selecionar Tipo de Entidade</h3>
               </div>
               <p className="text-gray-600">
-                Primeiro, vamos identificar se o produtor já está cadastrado no sistema ou se é um novo cadastro.
+                Selecione o tipo de entidade que receberá o certificado florestal.
               </p>
             </div>
 
-            {errors.produtorSelecionado && (
-              <div className="mb-6 p-4 bg-red-50 rounded-lg border border-red-200">
-                <div className="flex items-center">
-                  <AlertCircle className="w-5 h-5 text-red-600 mr-2" />
-                  <p className="text-red-700 text-sm font-medium">
-                    {errors.produtorSelecionado}
-                  </p>
-                </div>
-              </div>
-            )}
-
             <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
-              <div className="flex items-center space-x-4 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <button
-                  className={`px-6 py-3 rounded-xl font-medium transition-all ${modoBusca
-                    ? 'bg-green-600 text-white shadow-lg'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  className={`p-6 rounded-xl border-2 transition-all text-center hover:shadow-lg ${tipoSelecionado === 'produtor'
+                      ? 'border-green-500 bg-green-50 text-green-700'
+                      : 'border-gray-200 hover:border-green-300'
                     }`}
-                  onClick={() => {
-                    setModoBusca(true);
-                    setProdutorSelecionado(null);
-                    setFormData(initialState);
-                    setErrors({});
-                  }}
+                  onClick={() => setTipoSelecionado('produtor')}
                 >
-                  <Search size={18} className="mr-2 inline" />
-                  Buscar Existente
+                  <User size={32} className="mx-auto mb-3" />
+                  <h4 className="font-semibold">Produtor Florestal</h4>
                 </button>
+
                 <button
-                  className={`px-6 py-3 rounded-xl font-medium transition-all ${!modoBusca
-                    ? 'bg-green-600 text-white shadow-lg'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  className={`p-6 rounded-xl border-2 transition-all text-center hover:shadow-lg ${tipoSelecionado === 'empresa'
+                      ? 'border-blue-500 bg-blue-50 text-blue-700'
+                      : 'border-gray-200 hover:border-blue-300'
                     }`}
-                  onClick={() => {
-                    setModoBusca(false);
-                    setProdutorSelecionado(null);
-                    setFormData(initialState);
-                    setErrors({});
-                  }}
+                  onClick={() => setTipoSelecionado('empresa')}
                 >
-                  <Plus size={18} className="mr-2 inline" />
-                  Novo Cadastro
+                  <Factory size={32} className="mx-auto mb-3" />
+                  <h4 className="font-semibold">Empresa</h4>
+                </button>
+
+                <button
+                  className={`p-6 rounded-xl border-2 transition-all text-center hover:shadow-lg ${tipoSelecionado === 'cooperativa'
+                      ? 'border-purple-500 bg-purple-50 text-purple-700'
+                      : 'border-gray-200 hover:border-purple-300'
+                    }`}
+                  onClick={() => setTipoSelecionado('cooperativa')}
+                >
+                  <UsersIcon size={32} className="mx-auto mb-3" />
+                  <h4 className="font-semibold">Cooperativa</h4>
+                </button>
+
+                <button
+                  className={`p-6 rounded-xl border-2 transition-all text-center hover:shadow-lg ${tipoSelecionado === 'associacao'
+                      ? 'border-amber-500 bg-amber-50 text-amber-700'
+                      : 'border-gray-200 hover:border-amber-300'
+                    }`}
+                  onClick={() => setTipoSelecionado('associacao')}
+                >
+                  <Building2 size={32} className="mx-auto mb-3" />
+                  <h4 className="font-semibold">Associação</h4>
                 </button>
               </div>
 
-              {modoBusca ? (
-                <div className="space-y-4">
-                  <h4 className="text-lg font-semibold text-gray-800 mb-4">Buscar Produtor ou Empresa Existente</h4>
-
-                  {loadingProdutores ? (
-                    <div className="flex items-center justify-center py-8">
-                      <Loader className="animate-spin w-6 h-6 text-green-600 mr-2" />
-                      <span className="text-gray-600">Carregando produtores...</span>
+              {tipoSelecionado && (
+                <div className="border-t pt-6">
+                  {tipoSelecionado === 'produtor' && (
+                    <div>
+                      <h4 className="text-lg font-semibold mb-4">Selecionar Produtor Florestal</h4>
+                      {loadingProdutores ? (
+                        <div className="flex items-center justify-center py-8">
+                          <Loader className="animate-spin w-6 h-6 text-green-600 mr-2" />
+                          <span>Carregando produtores...</span>
+                        </div>
+                      ) : (
+                        <CustomInput
+                          type="select"
+                          label="Produtor Florestal"
+                          value=""
+                          options={produtoresOptions}
+                          onChange={buscarProdutor}
+                          placeholder="Selecione um produtor"
+                          iconStart={<User size={18} />}
+                        />
+                      )}
                     </div>
-                  ) : (
-                    <CustomInput
-                      type="select"
-                      label="Selecionar Produtor ou Empresa"
-                      value=""
-                      options={produtoresOptions}
-                      onChange={(value) => buscarProdutor(value)}
-                      placeholder="Selecione um produtor existente"
-                      iconStart={<Search size={18} />}
-                      errorMessage={errors.produtorSelecionado}
-                    />
                   )}
 
-                  {produtorSelecionado && (
+                  {tipoSelecionado === 'empresa' && (
+                    <div>
+                      <h4 className="text-lg font-semibold mb-4">Selecionar Empresa</h4>
+                      {loadingEntidades ? (
+                        <div className="flex items-center justify-center py-8">
+                          <Loader className="animate-spin w-6 h-6 text-blue-600 mr-2" />
+                          <span>Carregando empresas...</span>
+                        </div>
+                      ) : (
+                        <CustomInput
+                          type="select"
+                          label="Empresa Florestal"
+                          value=""
+                          options={empresasOptions}
+                          onChange={(value) => {
+                            const empresa = empresasOptions.find(opt => opt.value === value.value);
+                            selecionarEntidade('empresa', empresa?.entidade);
+                          }}
+                          placeholder="Selecione uma empresa"
+                          iconStart={<Factory size={18} />}
+                        />
+                      )}
+                    </div>
+                  )}
+
+                  {tipoSelecionado === 'cooperativa' && (
+                    <div>
+                      <h4 className="text-lg font-semibold mb-4">Selecionar Cooperativa</h4>
+                      {loadingEntidades ? (
+                        <div className="flex items-center justify-center py-8">
+                          <Loader className="animate-spin w-6 h-6 text-purple-600 mr-2" />
+                          <span>Carregando cooperativas...</span>
+                        </div>
+                      ) : (
+                        <CustomInput
+                          type="select"
+                          label="Cooperativa Florestal"
+                          value=""
+                          options={cooperativasOptions}
+                          onChange={(value) => {
+                            const cooperativa = cooperativasOptions.find(opt => opt.value === value.value);
+                            selecionarEntidade('cooperativa', cooperativa?.entidade);
+                          }}
+                          placeholder="Selecione uma cooperativa"
+                          iconStart={<UsersIcon size={18} />}
+                        />
+                      )}
+                    </div>
+                  )}
+
+                  {tipoSelecionado === 'associacao' && (
+                    <div>
+                      <h4 className="text-lg font-semibold mb-4">Selecionar Associação</h4>
+                      {loadingEntidades ? (
+                        <div className="flex items-center justify-center py-8">
+                          <Loader className="animate-spin w-6 h-6 text-amber-600 mr-2" />
+                          <span>Carregando associações...</span>
+                        </div>
+                      ) : (
+                        <CustomInput
+                          type="select"
+                          label="Associação Florestal"
+                          value=""
+                          options={associacoesOptions}
+                          onChange={(value) => {
+                            const associacao = associacoesOptions.find(opt => opt.value === value.value);
+                            selecionarEntidade('associacao', associacao?.entidade);
+                          }}
+                          placeholder="Selecione uma associação"
+                          iconStart={<Building2 size={18} />}
+                        />
+                      )}
+                    </div>
+                  )}
+
+                  {(produtorSelecionado || entidadeSelecionada) && (
                     <div className="mt-6 p-6 bg-green-50 rounded-xl border border-green-200">
                       <div className="flex items-center mb-3">
                         <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
-                        <h5 className="font-semibold text-green-800">Produtor Selecionado</h5>
+                        <h5 className="font-semibold text-green-800">
+                          {tipoSelecionado === 'produtor' ? 'Produtor Selecionado' : 'Entidade Selecionada'}
+                        </h5>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                        <div><strong>Nome:</strong> {formData.nomeCompleto}</div>
-                        <div><strong>BI:</strong> {formData.bi}</div>
-                        <div><strong>Telefone:</strong> {formData.telefone}</div>
-                        <div><strong>Localização:</strong> {formData.provincia} - {formData.municipio}</div>
+                        <div><strong>Nome:</strong> {
+                          tipoSelecionado === 'produtor'
+                            ? produtorSelecionado?.nome_do_Produtor
+                            : entidadeSelecionada?.nomeEntidade
+                        }</div>
+                        <div><strong>Identificação:</strong> {
+                          tipoSelecionado === 'produtor'
+                            ? produtorSelecionado?.bI_NIF
+                            : entidadeSelecionada?.nif
+                        }</div>
                       </div>
                     </div>
                   )}
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <h4 className="text-lg font-semibold text-gray-800 mb-4">Novo Produtor Florestal</h4>
-                  <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                    <p className="text-green-700 text-sm">
-                      <Info size={18} className="inline mr-2" />
-                      Preencha os dados básicos do novo produtor florestal. Os campos detalhados serão preenchidos nas próximas etapas.
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <CustomInput
-                      type="text"
-                      label="Nome Completo"
-                      value={formData.nomeCompleto}
-                      onChange={(value) => handleInputChange('nomeCompleto', value)}
-                      required
-                      errorMessage={errors.nomeCompleto}
-                      placeholder="Digite o nome completo"
-                      iconStart={<User size={18} />}
-                    />
-
-                    <CustomInput
-                      type="text"
-                      label="Número do Bilhete de Identidade"
-                      value={formData.bi}
-                      onChange={(value) => handleInputChange('bi', value)}
-                      required
-                      errorMessage={errors.bi}
-                      placeholder="Digite o número do BI"
-                      iconStart={<CreditCard size={18} />}
-                    />
-                  </div>
                 </div>
               )}
             </div>
           </div>
         );
 
-      case 1: // Dados Pessoais
+      case 1: // Dados Pessoais (apenas para produtores)
         return (
           <div className="w-full mx-auto">
             <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 mb-8 border border-purple-100">
@@ -628,10 +667,15 @@ const CertificacaoProdutorFlorestal = () => {
                 <div className="p-2 bg-purple-100 rounded-lg">
                   <User className="w-6 h-6 text-purple-600" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-800">Dados Pessoais do Produtor</h3>
+                <h3 className="text-xl font-bold text-gray-800">
+                  {tipoSelecionado === 'produtor' ? 'Dados Pessoais do Produtor' : 'Representante Legal'}
+                </h3>
               </div>
               <p className="text-gray-600">
-                Complete ou verifique as informações pessoais do produtor florestal.
+                {tipoSelecionado === 'produtor'
+                  ? 'Complete ou verifique as informações pessoais do produtor florestal.'
+                  : 'Dados do representante legal da entidade.'
+                }
               </p>
             </div>
 
@@ -665,10 +709,13 @@ const CertificacaoProdutorFlorestal = () => {
                   type="tel"
                   label="Contacto Telefónico"
                   value={formData.telefone}
-                  onChange={(value) => handleInputChange('telefone', value)}
+                  onChange={(value) => {
+                    // Permite apenas números e limita a 9 dígitos
+                    const onlyNumbers = value.replace(/\D/g, '').slice(0, 9);
+                    handleInputChange('telefone', onlyNumbers);
+                  }}
                   required
                   errorMessage={errors.telefone}
-                  disabled={produtorSelecionado !== null}
                   placeholder="Ex: 923456789"
                   iconStart={<Phone size={18} />}
                 />
@@ -684,7 +731,6 @@ const CertificacaoProdutorFlorestal = () => {
                   onChange={(value) => handleProvinciaChange(value)}
                   required
                   errorMessage={errors.provincia}
-                  disabled={produtorSelecionado !== null}
                   placeholder="Selecione a província"
                   iconStart={<MapPin size={18} />}
                 />
@@ -697,7 +743,7 @@ const CertificacaoProdutorFlorestal = () => {
                   onChange={(value) => handleInputChange('municipio', typeof value === 'object' ? value.value : value)}
                   required
                   errorMessage={errors.municipio}
-                  disabled={produtorSelecionado !== null || !formData.provincia}
+                  disabled={!formData.provincia}
                   placeholder="Selecione o município"
                   iconStart={<Map size={18} />}
                 />
@@ -709,14 +755,65 @@ const CertificacaoProdutorFlorestal = () => {
                   onChange={(value) => handleInputChange('comuna', value)}
                   placeholder="Digite a comuna"
                   iconStart={<Building size={18} />}
-                  disabled={produtorSelecionado !== null}
                 />
               </div>
             </div>
           </div>
         );
 
-      case 2: // Dados da Empresa
+      case 2: // Dados da Entidade (apenas se não for produtor individual)
+        if (tipoSelecionado === 'produtor') {
+          return (
+            <div className="w-full mx-auto">
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 mb-8 border border-blue-100">
+                <div className="flex items-center space-x-3 mb-3">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <Info className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800">Dados da Licença</h3>
+                </div>
+                <p className="text-gray-600">
+                  Configure os tipos de licença florestal para o produtor individual.
+                </p>
+              </div>
+
+              <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                <CustomInput
+                  type="multiselect"
+                  label="Tipos de Licença Florestal"
+                  value={formData.tiposLicenca}
+                  options={tiposLicencaOptions}
+                  onChange={(value) => handleInputChange('tiposLicenca', value)}
+                  placeholder="Selecione os tipos de licença"
+                  iconStart={<Award size={18} />}
+                />
+
+                {formData.tiposLicenca && formData.tiposLicenca.length > 0 && (
+                  <div className="mt-6 p-4 bg-green-50 rounded-lg">
+                    <h5 className="font-semibold text-green-800 mb-4">Resumo dos Custos</h5>
+                    <div className="space-y-2">
+                      {formData.tiposLicenca.map(tipo => {
+                        const tipoValue = typeof tipo === 'object' ? tipo.value : tipo;
+                        const licenca = tiposLicencaOptions.find(opt => opt.value === tipoValue);
+                        return licenca ? (
+                          <div key={tipoValue} className="flex justify-between text-sm">
+                            <span>{licenca.label}</span>
+                            <span className="font-medium">{licenca.preco.toLocaleString('pt-AO', { style: 'currency', currency: 'AOA' })}</span>
+                          </div>
+                        ) : null;
+                      })}
+                      <div className="border-t pt-2 flex justify-between font-bold">
+                        <span>Total</span>
+                        <span>{calcularTotalFatura().toLocaleString('pt-AO', { style: 'currency', currency: 'AOA' })}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        }
+
         return (
           <div className="w-full mx-auto">
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 mb-8 border border-blue-100">
@@ -724,23 +821,24 @@ const CertificacaoProdutorFlorestal = () => {
                 <div className="p-2 bg-blue-100 rounded-lg">
                   <Building className="w-6 h-6 text-blue-600" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-800">Dados da Empresa/Licença</h3>
+                <h3 className="text-xl font-bold text-gray-800">Dados da Entidade</h3>
               </div>
               <p className="text-gray-600">
-                Informações sobre a empresa e licença de exploração florestal.
+                Informações sobre a entidade e tipos de licença florestal.
               </p>
             </div>
 
             <div className="bg-white rounded-2xl border border-gray-200 p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <CustomInput
                   type="text"
-                  label="Nome da Empresa"
-                  value={formData.nomeEmpresa}
-                  onChange={(value) => handleInputChange('nomeEmpresa', value)}
+                  label="Nome da Entidade"
+                  value={formData.nomeEntidade}
+                  onChange={(value) => handleInputChange('nomeEntidade', value)}
                   required
-                  errorMessage={errors.nomeEmpresa}
-                  placeholder="Nome da empresa exploradora"
+                  errorMessage={errors.nomeEntidade}
+                  disabled={entidadeSelecionada !== null}
+                  placeholder="Nome da entidade"
                   iconStart={<Building size={18} />}
                 />
 
@@ -749,28 +847,21 @@ const CertificacaoProdutorFlorestal = () => {
                   label="Número da Licença de Exploração"
                   value={formData.numeroLicencaExploracao}
                   onChange={(value) => handleInputChange('numeroLicencaExploracao', value)}
-                  required
-                  errorMessage={errors.numeroLicencaExploracao}
                   placeholder="Ex: DNF/2025/001"
                   iconStart={<FileText size={18} />}
                 />
 
-                <CustomInput
-                  type="select"
-                  label="Tipo de Licença"
-                  value={formData.tipoLicenca ? { label: formData.tipoLicenca, value: formData.tipoLicenca } : null}
-                  options={[
-                    { label: 'Licença de Exploração Florestal', value: 'EXPLORACAO_FLORESTAL' },
-                    { label: 'Licença de Plantio Florestal', value: 'PLANTIO_FLORESTAL' },
-                    { label: 'Licença de Manejo Florestal', value: 'MANEJO_FLORESTAL' },
-                    { label: 'Licença de Reflorestamento', value: 'REFLORESTAMENTO' }
-                  ]}
-                  onChange={(value) => handleInputChange('tipoLicenca', typeof value === 'object' ? value.value : value)}
-                  required
-                  errorMessage={errors.tipoLicenca}
-                  placeholder="Selecione o tipo de licença"
-                  iconStart={<Trees size={18} />}
-                />
+                <div className="md:col-span-2">
+                  <CustomInput
+                    type="multiselect"
+                    label="Tipos de Licença Florestal"
+                    value={formData.tiposLicenca}
+                    options={tiposLicencaOptions}
+                    onChange={(value) => handleInputChange('tiposLicenca', value)}
+                    placeholder="Selecione os tipos de licença"
+                    iconStart={<Award size={18} />}
+                  />
+                </div>
 
                 <CustomInput
                   type="number"
@@ -781,18 +872,38 @@ const CertificacaoProdutorFlorestal = () => {
                   iconStart={<Mountain size={18} />}
                 />
 
-                <div className="md:col-span-2">
-                  <CustomInput
-                    type="text"
-                    label="Coordenadas GPS Gerais"
-                    value={formData.coordenadasGPS}
-                    onChange={(value) => handleInputChange('coordenadasGPS', value)}
-                    placeholder="Ex: -8.838333, 13.234444"
-                    iconStart={<MapPin size={18} />}
-                    helperText="Formato: latitude, longitude"
-                  />
-                </div>
+                <CustomInput
+                  type="text"
+                  label="Coordenadas GPS Gerais"
+                  value={formData.coordenadasGPS}
+                  onChange={(value) => handleInputChange('coordenadasGPS', value)}
+                  placeholder="Ex: -8.838333, 13.234444"
+                  iconStart={<MapPin size={18} />}
+                  helperText="Formato: latitude, longitude"
+                />
               </div>
+
+              {formData.tiposLicenca && formData.tiposLicenca.length > 0 && (
+                <div className="mt-6 p-4 bg-green-50 rounded-lg">
+                  <h5 className="font-semibold text-green-800 mb-4">Resumo dos Custos</h5>
+                  <div className="space-y-2">
+                    {formData.tiposLicenca.map(tipo => {
+                      const tipoValue = typeof tipo === 'object' ? tipo.value : tipo;
+                      const licenca = tiposLicencaOptions.find(opt => opt.value === tipoValue);
+                      return licenca ? (
+                        <div key={tipoValue} className="flex justify-between text-sm">
+                          <span>{licenca.label}</span>
+                          <span className="font-medium">{licenca.preco.toLocaleString('pt-AO', { style: 'currency', currency: 'AOA' })}</span>
+                        </div>
+                      ) : null;
+                    })}
+                    <div className="border-t pt-2 flex justify-between font-bold">
+                      <span>Total</span>
+                      <span>{calcularTotalFatura().toLocaleString('pt-AO', { style: 'currency', currency: 'AOA' })}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         );
@@ -811,17 +922,6 @@ const CertificacaoProdutorFlorestal = () => {
                 Registre as áreas florestais sob licença de exploração.
               </p>
             </div>
-
-            {errors.areasFlorestais && (
-              <div className="mb-6 p-4 bg-red-50 rounded-lg border border-red-200">
-                <div className="flex items-center">
-                  <AlertCircle className="w-5 h-5 text-red-600 mr-2" />
-                  <p className="text-red-700 text-sm font-medium">
-                    {errors.areasFlorestais}
-                  </p>
-                </div>
-              </div>
-            )}
 
             <div className="bg-white rounded-2xl border border-gray-200 p-6">
               <div className="flex justify-between items-center mb-6">
@@ -857,56 +957,29 @@ const CertificacaoProdutorFlorestal = () => {
                               type="text"
                               value={item.nomeArea}
                               onChange={(e) => atualizarAreaFlorestal(item.id, 'nomeArea', e.target.value)}
-                              className={`w-full p-2 border rounded text-sm ${
-                                errors[`areaFlorestal_${index}_nome`] 
-                                  ? 'border-red-500 bg-red-50' 
-                                  : 'border-gray-200'
-                              }`}
+                              className="w-full p-2 border border-gray-200 rounded text-sm"
                               placeholder="Nome da área..."
                             />
-                            {errors[`areaFlorestal_${index}_nome`] && (
-                              <p className="text-red-500 text-xs mt-1">
-                                {errors[`areaFlorestal_${index}_nome`]}
-                              </p>
-                            )}
                           </td>
                           <td className="border border-gray-300 p-2">
                             <input
                               type="number"
                               value={item.areaHectares}
                               onChange={(e) => atualizarAreaFlorestal(item.id, 'areaHectares', e.target.value)}
-                              className={`w-full p-2 border rounded text-sm ${
-                                errors[`areaFlorestal_${index}_area`] 
-                                  ? 'border-red-500 bg-red-50' 
-                                  : 'border-gray-200'
-                              }`}
+                              className="w-full p-2 border border-gray-200 rounded text-sm"
                               step="0.1"
                               min="0"
                               placeholder="0.0"
                             />
-                            {errors[`areaFlorestal_${index}_area`] && (
-                              <p className="text-red-500 text-xs mt-1">
-                                {errors[`areaFlorestal_${index}_area`]}
-                              </p>
-                            )}
                           </td>
                           <td className="border border-gray-300 p-2">
                             <input
                               type="text"
                               value={item.localizacao}
                               onChange={(e) => atualizarAreaFlorestal(item.id, 'localizacao', e.target.value)}
-                              className={`w-full p-2 border rounded text-sm ${
-                                errors[`areaFlorestal_${index}_localizacao`] 
-                                  ? 'border-red-500 bg-red-50' 
-                                  : 'border-gray-200'
-                              }`}
+                              className="w-full p-2 border border-gray-200 rounded text-sm"
                               placeholder="Prov.-Munic.-Comuna"
                             />
-                            {errors[`areaFlorestal_${index}_localizacao`] && (
-                              <p className="text-red-500 text-xs mt-1">
-                                {errors[`areaFlorestal_${index}_localizacao`]}
-                              </p>
-                            )}
                           </td>
                           <td className="border border-gray-300 p-2">
                             <input
@@ -960,32 +1033,6 @@ const CertificacaoProdutorFlorestal = () => {
                   <p className="text-sm">Clique em "Adicionar Área" para começar</p>
                 </div>
               )}
-
-              {areasFlorestais.length > 0 && (
-                <div className="mt-6 p-4 bg-green-50 rounded-lg">
-                  <h5 className="font-semibold text-green-800 mb-2">Resumo das Áreas Florestais</h5>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                    <div className="text-center">
-                      <span className="block text-2xl font-bold text-green-600">
-                        {areasFlorestais.reduce((acc, item) => acc + (parseFloat(item.areaHectares) || 0), 0).toFixed(1)}
-                      </span>
-                      <span className="text-gray-600">Total Área (ha)</span>
-                    </div>
-                    <div className="text-center">
-                      <span className="block text-2xl font-bold text-blue-600">
-                        {areasFlorestais.length}
-                      </span>
-                      <span className="text-gray-600">Áreas Registradas</span>
-                    </div>
-                    <div className="text-center">
-                      <span className="block text-2xl font-bold text-purple-600">
-                        {new Set(areasFlorestais.map(item => item.tipoFloresta).filter(Boolean)).size}
-                      </span>
-                      <span className="text-gray-600">Tipos de Floresta</span>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         );
@@ -1004,17 +1051,6 @@ const CertificacaoProdutorFlorestal = () => {
                 Registre as espécies florestais autorizadas e seus volumes permitidos.
               </p>
             </div>
-
-            {errors.especiesAutorizadas && (
-              <div className="mb-6 p-4 bg-red-50 rounded-lg border border-red-200">
-                <div className="flex items-center">
-                  <AlertCircle className="w-5 h-5 text-red-600 mr-2" />
-                  <p className="text-red-700 text-sm font-medium">
-                    {errors.especiesAutorizadas}
-                  </p>
-                </div>
-              </div>
-            )}
 
             <div className="bg-white rounded-2xl border border-gray-200 p-6">
               <div className="flex justify-between items-center mb-6">
@@ -1048,11 +1084,7 @@ const CertificacaoProdutorFlorestal = () => {
                             <select
                               value={item.especie}
                               onChange={(e) => atualizarEspecieAutorizada(item.id, 'especie', e.target.value)}
-                              className={`w-full p-2 border rounded text-sm ${
-                                errors[`especie_${index}_nome`] 
-                                  ? 'border-red-500 bg-red-50' 
-                                  : 'border-gray-200'
-                              }`}
+                              className="w-full p-2 border border-gray-200 rounded text-sm"
                             >
                               <option value="">Selecione...</option>
                               <option value="MAFUMEIRA">Mafumeira</option>
@@ -1063,11 +1095,6 @@ const CertificacaoProdutorFlorestal = () => {
                               <option value="EMBONDEIRO">Embondeiro</option>
                               <option value="OUTROS">Outros</option>
                             </select>
-                            {errors[`especie_${index}_nome`] && (
-                              <p className="text-red-500 text-xs mt-1">
-                                {errors[`especie_${index}_nome`]}
-                              </p>
-                            )}
                           </td>
                           <td className="border border-gray-300 p-2">
                             <input
@@ -1083,20 +1110,11 @@ const CertificacaoProdutorFlorestal = () => {
                               type="number"
                               value={item.volumeAutorizado}
                               onChange={(e) => atualizarEspecieAutorizada(item.id, 'volumeAutorizado', e.target.value)}
-                              className={`w-full p-2 border rounded text-sm ${
-                                errors[`especie_${index}_volume`] 
-                                  ? 'border-red-500 bg-red-50' 
-                                  : 'border-gray-200'
-                              }`}
+                              className="w-full p-2 border border-gray-200 rounded text-sm"
                               step="0.1"
                               min="0"
                               placeholder="0.0"
                             />
-                            {errors[`especie_${index}_volume`] && (
-                              <p className="text-red-500 text-xs mt-1">
-                                {errors[`especie_${index}_volume`]}
-                              </p>
-                            )}
                           </td>
                           <td className="border border-gray-300 p-2">
                             <select
@@ -1138,32 +1156,6 @@ const CertificacaoProdutorFlorestal = () => {
                   <Mountain size={48} className="mx-auto mb-4 text-gray-300" />
                   <p className="text-lg font-medium">Nenhuma espécie autorizada registrada</p>
                   <p className="text-sm">Clique em "Adicionar Espécie" para começar</p>
-                </div>
-              )}
-
-              {especiesAutorizadas.length > 0 && (
-                <div className="mt-6 p-4 bg-amber-50 rounded-lg">
-                  <h5 className="font-semibold text-amber-800 mb-2">Resumo das Espécies Autorizadas</h5>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                    <div className="text-center">
-                      <span className="block text-2xl font-bold text-amber-600">
-                        {especiesAutorizadas.reduce((acc, item) => acc + (parseFloat(item.volumeAutorizado) || 0), 0).toFixed(1)}
-                      </span>
-                      <span className="text-gray-600">Volume Total Autorizado</span>
-                    </div>
-                    <div className="text-center">
-                      <span className="block text-2xl font-bold text-green-600">
-                        {especiesAutorizadas.length}
-                      </span>
-                      <span className="text-gray-600">Espécies Registradas</span>
-                    </div>
-                    <div className="text-center">
-                      <span className="block text-2xl font-bold text-blue-600">
-                        {new Set(especiesAutorizadas.map(item => item.unidade).filter(Boolean)).size}
-                      </span>
-                      <span className="text-gray-600">Unidades Diferentes</span>
-                    </div>
-                  </div>
                 </div>
               )}
             </div>
@@ -1218,11 +1210,7 @@ const CertificacaoProdutorFlorestal = () => {
                               type="number"
                               value={item.ano}
                               onChange={(e) => atualizarHistoricoExploracao(item.id, 'ano', e.target.value)}
-                              className={`w-full p-2 border rounded text-sm ${
-                                errors[`historico_${index}_ano`] 
-                                  ? 'border-red-500 bg-red-50' 
-                                  : 'border-gray-200'
-                              }`}
+                              className="w-full p-2 border border-gray-200 rounded text-sm"
                               min="2000"
                               max="2030"
                             />
@@ -1231,11 +1219,7 @@ const CertificacaoProdutorFlorestal = () => {
                             <select
                               value={item.especie}
                               onChange={(e) => atualizarHistoricoExploracao(item.id, 'especie', e.target.value)}
-                              className={`w-full p-2 border rounded text-sm ${
-                                errors[`historico_${index}_especie`] 
-                                  ? 'border-red-500 bg-red-50' 
-                                  : 'border-gray-200'
-                              }`}
+                              className="w-full p-2 border border-gray-200 rounded text-sm"
                             >
                               <option value="">Selecione...</option>
                               <option value="MAFUMEIRA">Mafumeira</option>
@@ -1303,7 +1287,85 @@ const CertificacaoProdutorFlorestal = () => {
           </div>
         );
 
-      case 6: // Licença Florestal
+      case 6: // Upload de Documentos
+        return (
+          <div className="w-full mx-auto">
+            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-6 mb-8 border border-indigo-100">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="p-2 bg-indigo-100 rounded-lg">
+                  <Upload className="w-6 h-6 text-indigo-600" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-800">Upload de Documentos</h3>
+              </div>
+              <p className="text-gray-600">
+                Carregue os documentos necessários para a emissão do certificado florestal.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+              <h4 className="text-lg font-semibold text-gray-800 mb-6">Documentos Necessários</h4>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {documentosNecessarios.map((documento, index) => (
+                  <div key={index} className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div className="flex items-start mb-3">
+                      <FileText size={20} className="text-gray-400 mr-2 mt-1 flex-shrink-0" />
+                      <span className="text-sm font-medium leading-tight">{documento}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <input
+                        type="file"
+                        id={`doc-${index}`}
+                        className="hidden"
+                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            setDocumentosUpload(prev => {
+                              const exists = prev.find(d => d.documento === documento);
+                              if (exists) {
+                                return prev.map(d => d.documento === documento ? { documento, arquivo: file.name } : d);
+                              } else {
+                                return [...prev, { documento, arquivo: file.name }];
+                              }
+                            });
+                            showToast('success', 'Documento Carregado', `${documento} carregado com sucesso!`);
+                          }
+                        }}
+                      />
+                      <label
+                        htmlFor={`doc-${index}`}
+                        className="cursor-pointer bg-indigo-600 text-white px-3 py-2 rounded text-sm hover:bg-indigo-700 transition-colors flex items-center"
+                      >
+                        <Upload size={16} className="mr-1" />
+                        Upload
+                      </label>
+                      {documentosUpload.find(d => d.documento === documento) && (
+                        <CheckCircle size={20} className="text-green-600 ml-2" />
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {documentosUpload.length > 0 && (
+                <div className="mt-6 p-4 bg-green-50 rounded-lg">
+                  <h5 className="font-semibold text-green-800 mb-2">Documentos Carregados ({documentosUpload.length})</h5>
+                  <div className="space-y-1">
+                    {documentosUpload.map((doc, index) => (
+                      <div key={index} className="flex items-center text-sm text-green-700">
+                        <CheckCircle size={16} className="mr-2" />
+                        <span>{doc.documento} - {doc.arquivo}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+
+      case 7: // Licença Florestal
         return (
           <div className="w-full mx-auto">
             <div className="bg-gradient-to-r from-green-50 to-yellow-50 rounded-2xl p-6 mb-8 border border-green-100">
@@ -1314,53 +1376,11 @@ const CertificacaoProdutorFlorestal = () => {
                 <h3 className="text-xl font-bold text-gray-800">Certificado de Licença Florestal</h3>
               </div>
               <p className="text-gray-600">
-                Complete as informações finais para emissão do certificado de licença florestal.
+                Complete as informações finais e gere a fatura para emissão do certificado.
               </p>
             </div>
 
-            {/* Exibir erros gerais */}
-            {errors.areasFlorestaisGeral && (
-              <div className="mb-6 p-4 bg-red-50 rounded-lg border border-red-200">
-                <div className="flex items-center">
-                  <AlertCircle className="w-5 h-5 text-red-600 mr-2" />
-                  <p className="text-red-700 text-sm font-medium">
-                    {errors.areasFlorestaisGeral}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {errors.especiesAutorizadasGeral && (
-              <div className="mb-6 p-4 bg-red-50 rounded-lg border border-red-200">
-                <div className="flex items-center">
-                  <AlertCircle className="w-5 h-5 text-red-600 mr-2" />
-                  <p className="text-red-700 text-sm font-medium">
-                    {errors.especiesAutorizadasGeral}
-                  </p>
-                </div>
-              </div>
-            )}
-
             <div className="space-y-6">
-              {/* Finalidade da Licença */}
-              <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                <h4 className="text-lg font-semibold text-gray-800 mb-4">Finalidade da Licença</h4>
-                <p className="text-gray-600 mb-4">Selecione as finalidades da licença florestal:</p>
-                <CustomInput
-                  type="multiselect"
-                  label="Finalidades da Licença"
-                  value={formData.finalidadeLicenca}
-                  options={[
-                    { label: 'Exploração Comercial', value: 'EXPLORACAO_COMERCIAL' },
-                    { label: 'Manejo Sustentável', value: 'MANEJO_SUSTENTAVEL' },
-                    { label: 'Reflorestamento', value: 'REFLORESTAMENTO' },
-                    { label: 'Pesquisa Científica', value: 'PESQUISA_CIENTIFICA' },
-                    { label: 'Conservação', value: 'CONSERVACAO' }
-                  ]}
-                  onChange={(value) => handleInputChange('finalidadeLicenca', value)}
-                />
-              </div>
-
               {/* Período de Validade */}
               <div className="bg-white rounded-2xl border border-gray-200 p-6">
                 <h4 className="text-lg font-semibold text-gray-800 mb-4">Período de Validade da Licença</h4>
@@ -1371,7 +1391,6 @@ const CertificacaoProdutorFlorestal = () => {
                     value={formData.validadeInicio}
                     onChange={(value) => handleInputChange('validadeInicio', value)}
                     required
-                    errorMessage={errors.validadeInicio}
                     iconStart={<Calendar size={18} />}
                   />
                   <CustomInput
@@ -1380,7 +1399,6 @@ const CertificacaoProdutorFlorestal = () => {
                     value={formData.validadeFim}
                     onChange={(value) => handleInputChange('validadeFim', value)}
                     required
-                    errorMessage={errors.validadeFim}
                     iconStart={<Calendar size={18} />}
                   />
                 </div>
@@ -1396,7 +1414,6 @@ const CertificacaoProdutorFlorestal = () => {
                     value={formData.tecnicoResponsavel}
                     onChange={(value) => handleInputChange('tecnicoResponsavel', value)}
                     required
-                    errorMessage={errors.tecnicoResponsavel}
                     placeholder="Nome do técnico da DNF"
                     iconStart={<User size={18} />}
                   />
@@ -1407,7 +1424,6 @@ const CertificacaoProdutorFlorestal = () => {
                     value={formData.cargoTecnico}
                     onChange={(value) => handleInputChange('cargoTecnico', value)}
                     required
-                    errorMessage={errors.cargoTecnico}
                     placeholder="Ex: Técnico Florestal Superior"
                     iconStart={<Award size={18} />}
                   />
@@ -1436,99 +1452,57 @@ const CertificacaoProdutorFlorestal = () => {
                 </div>
               </div>
 
-              {/* Preview do Certificado */}
+              {/* Fatura */}
               <div className="bg-white rounded-2xl border border-gray-200 p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-lg font-semibold text-gray-800">Preview do Certificado Florestal</h4>
-                  <button className="text-green-600 hover:text-green-800 flex items-center">
-                    <Eye size={18} className="mr-2" />
-                    Visualizar Completo
+                  <h4 className="text-lg font-semibold text-gray-800">Fatura de Licenciamento</h4>
+                  <button
+                    onClick={gerarFatura}
+                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center"
+                  >
+                    <Banknote size={18} className="mr-2" />
+                    Gerar Fatura
                   </button>
                 </div>
 
-                <div className="border-2 border-gray-300 rounded-lg p-6 bg-gray-50">
-                  <div className="text-center mb-6 border-b-2 border-gray-400 pb-4">
-                    <div className="text-xs font-bold mb-1">REPÚBLICA DE ANGOLA</div>
-                    <div className="text-xs font-bold mb-1">MINISTÉRIO DA AGRICULTURA E FLORESTAS</div>
-                    <div className="text-xs font-bold mb-1">DIRECÇÃO NACIONAL DE FLORESTAS (DNF)</div>
-                    <div className="text-sm font-bold underline mb-2">CERTIFICADO DE LICENÇA FLORESTAL</div>
-                    
-                  </div>
+                {formData.tiposLicenca && formData.tiposLicenca.length > 0 && (
+                  <div className="border-2 border-gray-300 rounded-lg p-6">
+                    <div className="text-center mb-4 border-b pb-4">
+                      <h5 className="font-bold text-lg">FATURA DE LICENCIAMENTO FLORESTAL</h5>
+                      <p className="text-sm text-gray-600">Processo Nº: {formData.numeroProcesso}</p>
+                      <p className="text-sm text-gray-600">
+                        {tipoSelecionado === 'produtor' ? formData.nomeCompleto : formData.nomeEntidade}
+                      </p>
+                    </div>
 
-                  <div className="text-xs mb-4 text-justify">
-                    Nos termos da legislação florestal em vigor, certifica-se que a licença acima identificada autoriza a 
-                    empresa <strong>{getDisplayValue(formData.nomeEmpresa) || '________________________________________'}</strong>, 
-                    Portadora da Licença de Exploração Nº<strong>{getDisplayValue(formData.numeroLicencaExploracao) || '__________________________'}</strong> 
-                    exercer a actividade de Produtor florestal especificada, limitada às espécies, volumes e prazos indicados.
-                  </div>
+                    <div className="space-y-2 mb-4">
+                      {formData.tiposLicenca.map(tipo => {
+                        const tipoValue = typeof tipo === 'object' ? tipo.value : tipo;
+                        const licenca = tiposLicencaOptions.find(opt => opt.value === tipoValue);
+                        return licenca ? (
+                          <div key={tipoValue} className="flex justify-between">
+                            <span>{licenca.label}</span>
+                            <span className="font-medium">{licenca.preco.toLocaleString('pt-AO', { style: 'currency', currency: 'AOA' })}</span>
+                          </div>
+                        ) : null;
+                      })}
+                    </div>
 
-                  <div className="border border-gray-400 p-3 mb-4 bg-gray-100">
-                    <div className="grid grid-cols-2 gap-4 text-xs">
-                      <div><strong>Área Florestal (ID/Nome):</strong></div>
-                      <div><strong>Localização (GPS/Prov.-Município-Comuna):</strong></div>
-                      <div className="mt-2">
-                        {areasFlorestais.length > 0 
-                          ? areasFlorestais.map(area => area.nomeArea).join(', ')
-                          : '_________________________'
-                        }
-                      </div>
-                      <div className="mt-2">
-                        {areasFlorestais.length > 0 
-                          ? areasFlorestais.map(area => area.localizacao).join(', ')
-                          : '_________________________'
-                        }
-                      </div>
-                      <div className="mt-4"><strong>Espécies Autorizadas:</strong></div>
-                      <div className="mt-4"><strong>Volume Autorizado (m³):</strong></div>
-                      <div className="mt-2">
-                        {especiesAutorizadas.length > 0 
-                          ? especiesAutorizadas.map(esp => esp.especie).join(', ')
-                          : '_________________________'
-                        }
-                      </div>
-                      <div className="mt-2">
-                        {especiesAutorizadas.length > 0 
-                          ? especiesAutorizadas.reduce((acc, esp) => acc + (parseFloat(esp.volumeAutorizado) || 0), 0).toFixed(1)
-                          : '_________________________'
-                        }
-                      </div>
-                      <div className="mt-4"><strong>Validade: Início</strong></div>
-                      <div className="mt-4"><strong>Validade: Fim</strong></div>
-                      <div className="mt-2">
-                        {formatDate(formData.validadeInicio) || '____/____/______'}
-                      </div>
-                      <div className="mt-2">
-                        {formatDate(formData.validadeFim) || '____/____/______'}
-                      </div>
+                    <div className="border-t pt-4 flex justify-between font-bold text-lg">
+                      <span>Total a Pagar</span>
+                      <span className="text-green-600">{calcularTotalFatura().toLocaleString('pt-AO', { style: 'currency', currency: 'AOA' })}</span>
+                    </div>
+
+                    <div className="mt-4 text-center">
+                      <button
+                        className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center mx-auto"
+                      >
+                        <Download size={18} className="mr-2" />
+                        Baixar Fatura
+                      </button>
                     </div>
                   </div>
-
-                  <div className="border border-gray-400 p-2 mb-4">
-                    <div className="text-xs font-bold mb-1">Condições Especiais / Observações</div>
-                    <div className="text-xs">
-                      {getDisplayValue(formData.condicoesEspeciais) || '_____________________________________________________'}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 text-xs">
-                    <div>
-                      <div><strong>Local e Data de Emissão</strong></div>
-                      <div>{getDisplayValue(formData.municipio) || '________________________'}</div>
-                      <div>{formatDate(new Date())}</div>
-                    </div>
-                    <div>
-                      <div><strong>Emitido por (DNF)</strong></div>
-                      <div><strong>Nome:</strong> {getDisplayValue(formData.tecnicoResponsavel) || '__________________________'}</div>
-                      <div><strong>Cargo:</strong> {getDisplayValue(formData.cargoTecnico) || '__________________________'}</div>
-                      <div><strong>Assinatura:</strong> _____________________</div>
-                    </div>
-                  </div>
-
-                  <div className="text-center mt-4 text-xs">
-                    A licença é pessoal e intransmissível. O transporte de produtos florestais deve estar acompanhado deste 
-                    certificado e do respectivo comprovativo de origem.
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
@@ -1613,7 +1587,7 @@ const CertificacaoProdutorFlorestal = () => {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200">
           {/* Header */}
           <div className="text-center mb-6 p-8 border-b border-gray-100 bg-gradient-to-r from-green-50 to-emerald-50">
-            <h1 className="text-4xl font-bold mb-3 text-gray-800">Certificação de Produtor Florestal</h1>
+            <h1 className="text-4xl font-bold mb-3 text-gray-800">Certificação de Licença Florestal</h1>
           </div>
 
           {/* Step Navigation */}

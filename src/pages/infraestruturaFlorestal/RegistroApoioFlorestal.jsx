@@ -228,7 +228,9 @@ const RegistroApoioFlorestal = () => {
           nomeEmpresa: nifInfo.nome_contribuinte || '',
           email: nifInfo.email || '',
           telefone: nifInfo.numero_contacto || '',
-          dataFundacao: nifInfo.data_constituicao ? new Date(nifInfo.data_constituicao).toISOString().split('T')[0] : '',
+          anoFundacao: nifInfo.data_constituicao
+            ? new Date(nifInfo.data_constituicao).getFullYear().toString()
+            : '',
           provincia: nifInfo.provincia_morada ? {
             label: nifInfo.provincia_morada,
             value: nifInfo.provincia_morada.toUpperCase()
@@ -382,8 +384,8 @@ const RegistroApoioFlorestal = () => {
 
   // Debounce para consulta do NIF
   const debounceTimer = React.useRef(null);
-  const biDebounceTimer = React.useRef(null);
-  const biGerenteDebounceTimer = React.useRef(null);
+  //const biDebounceTimer = React.useRef(null);
+  //const biGerenteDebounceTimer = React.useRef(null);
   const handleNifChange = (value) => {
     setFormData(prev => ({ ...prev, nif: value }));
     setTouched(prev => ({ ...prev, nif: true }));
@@ -439,10 +441,10 @@ const RegistroApoioFlorestal = () => {
     }
   };
 
-  const handleFileUpload = (fieldName, file) => {
+{/*const handleFileUpload = (fieldName, file) => {
     setUploadedFiles(prev => ({ ...prev, [fieldName]: file }));
     setFormData(prev => ({ ...prev, [fieldName]: file }));
-  };
+  */};
 
   const validateCurrentStep = () => {
     const newErrors = {};
@@ -489,10 +491,10 @@ const RegistroApoioFlorestal = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const isAllRequiredFilesUploaded = () => {
+  {/*const isAllRequiredFilesUploaded = () => {
     const requiredFiles = ['estatutoSocial', 'rgCpfDiretor', 'rgCpfGerente', 'comprovanteEndereco', 'documentoNif'];
     return requiredFiles.every(file => uploadedFiles[file]);
-  };
+  */};
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -500,10 +502,10 @@ const RegistroApoioFlorestal = () => {
 
     try {
       // Função para extrair valores string de arrays
-      const extractStringValues = (array) => {
+      {/*const extractStringValues = (array) => {
         if (!array || array.length === 0) return null;
         return array.map(item => typeof item === 'object' ? item.value : item);
-      };
+      */};
 
       const dataToSend = {
         command: "CREATE",
@@ -1228,9 +1230,9 @@ const RegistroApoioFlorestal = () => {
       {/* Toast Message */}
       {toastMessage && (
         <div className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all ${toastMessage.severity === 'success' ? 'bg-blue-100 border-l-4 border-blue-500 text-blue-700' :
-            toastMessage.severity === 'error' ? 'bg-red-100 border-l-4 border-red-500 text-red-700' :
-              toastMessage.severity === 'warn' ? 'bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700' :
-                'bg-blue-100 border-l-4 border-blue-500 text-blue-700'
+          toastMessage.severity === 'error' ? 'bg-red-100 border-l-4 border-red-500 text-red-700' :
+            toastMessage.severity === 'warn' ? 'bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700' :
+              'bg-blue-100 border-l-4 border-blue-500 text-blue-700'
           }`}>
           <div className="flex items-center">
             <div className="mr-3">
@@ -1270,10 +1272,10 @@ const RegistroApoioFlorestal = () => {
                   onClick={() => setActiveIndex(index)}
                 >
                   <div className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${isActive
-                      ? 'bg-blue-600 text-white'
-                      : isCompleted
-                        ? 'bg-green-500 text-white'
-                        : 'bg-gray-200 text-gray-500'
+                    ? 'bg-blue-600 text-white'
+                    : isCompleted
+                      ? 'bg-green-500 text-white'
+                      : 'bg-gray-200 text-gray-500'
                     }`}>
                     {isCompleted ? (
                       <Check size={24} />
@@ -1309,8 +1311,8 @@ const RegistroApoioFlorestal = () => {
                 onClick={prevStep}
                 disabled={activeIndex === 0}
                 className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all ${activeIndex === 0
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
               >
                 <ChevronLeft size={20} className="mr-2" />
@@ -1323,8 +1325,8 @@ const RegistroApoioFlorestal = () => {
                   onClick={handleSubmit}
                   disabled={loading}
                   className={`flex items-center px-8 py-3 rounded-lg font-medium transition-all ${loading
-                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
                     }`}
                 >
                   {loading ? (

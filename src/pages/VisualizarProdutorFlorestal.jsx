@@ -67,12 +67,12 @@ const VisualizarProdutorFlorestal = () => {
     // Função para conversão segura de datas
     const formatDateForInput = (dateValue) => {
         if (!dateValue) return '';
-        
+
         try {
             const date = new Date(dateValue);
             // Verifica se a data é válida
             if (isNaN(date.getTime())) return '';
-            
+
             return date.toISOString().split('T')[0];
         } catch (error) {
             console.warn('Erro ao converter data:', dateValue, error);
@@ -186,31 +186,31 @@ const VisualizarProdutorFlorestal = () => {
         try {
             const response = await api.get(`/produtorFlorestal/${id}`);
             const data = response.data;
-            
+
             // Validar e limpar datas inválidas
             const cleanedData = {
                 ...data,
-                validade_pretendida: data.validade_pretendida && !isNaN(new Date(data.validade_pretendida).getTime()) 
+                validade_pretendida: data.validade_pretendida && !isNaN(new Date(data.validade_pretendida).getTime())
                     ? data.validade_pretendida : null,
-                data_da_inspe_o: data.data_da_inspe_o && !isNaN(new Date(data.data_da_inspe_o).getTime()) 
+                data_da_inspe_o: data.data_da_inspe_o && !isNaN(new Date(data.data_da_inspe_o).getTime())
                     ? data.data_da_inspe_o : null,
-                data: data.data && !isNaN(new Date(data.data).getTime()) 
+                data: data.data && !isNaN(new Date(data.data).getTime())
                     ? data.data : null
             };
-            
+
             setProdutor(cleanedData);
             setFormData({
                 ...cleanedData,
                 // Converter arrays de strings em arrays de objetos para multiselect
-                esp_cies_predominantes: cleanedData.esp_cies_predominantes ? 
-                    cleanedData.esp_cies_predominantes.split(',').map(item => ({ 
-                        label: getSpeciesLabel(item.trim()), 
-                        value: item.trim() 
+                esp_cies_predominantes: cleanedData.esp_cies_predominantes ?
+                    cleanedData.esp_cies_predominantes.split(',').map(item => ({
+                        label: getSpeciesLabel(item.trim()),
+                        value: item.trim()
                     })) : [],
                 tipo_de_licen_a_solicitada: cleanedData.tipo_de_licen_a_solicitada ?
-                    cleanedData.tipo_de_licen_a_solicitada.split(',').map(item => ({ 
-                        label: getLicenseLabel(item.trim()), 
-                        value: item.trim() 
+                    cleanedData.tipo_de_licen_a_solicitada.split(',').map(item => ({
+                        label: getLicenseLabel(item.trim()),
+                        value: item.trim()
                     })) : [],
                 // Converter valores simples em objetos para select
                 propriedade: getSelectValue(cleanedData.propriedade, propriedadeOptions),
@@ -410,25 +410,23 @@ const VisualizarProdutorFlorestal = () => {
         }
     };
 
-    // Função para abrir modal de mídia
-    const openMediaModal = (type, url, title) => {
-        // Converter caminho do servidor em URL válida
+    // Função para abrir modal de mídia usando endpoints específicos
+    const openMediaModal = (endpoint, type, title) => {
         const baseUrl = 'https://mwangobrainsa-001-site2.mtempurl.com';
-        const relativePath = url.split('wwwroot')[1]?.replace(/\\/g, '/') || url;
-        const fullUrl = `${baseUrl}${relativePath}`;
-        
+        const fullUrl = `${baseUrl}${endpoint}`;
+
         setCurrentMedia({ type, url: fullUrl, title });
         setShowMediaModal(true);
     };
 
     // Função para renderizar botão de mídia
-    const renderMediaButton = (url, type, title, icon) => {
-        if (!url) return null;
-        
+    const renderMediaButton = (fieldValue, endpoint, type, title, icon) => {
+        if (!fieldValue) return null;
+
         const Icon = icon;
         return (
             <button
-                onClick={() => openMediaModal(type, url, title)}
+                onClick={() => openMediaModal(endpoint, type, title)}
                 className="flex items-center px-3 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors"
             >
                 <Icon size={16} className="mr-2" />
@@ -484,9 +482,15 @@ const VisualizarProdutorFlorestal = () => {
                                         type="tel"
                                         label="Contacto"
                                         value={formData.contacto || ''}
-                                        onChange={(value) => updateFormData('contacto', value)}
                                         disabled={!isEditing}
                                         iconStart={<Phone size={18} />}
+                                        onChange={(value) => {
+                                            // Permite apenas números e limita a 9 dígitos
+                                            const onlyNumbers = value.replace(/\D/g, '').slice(0, 9);
+                                            updateFormData('contacto', value, onlyNumbers);
+                                        }}
+                                        placeholder="Ex: 923456789"
+                                        maxLength={9}
                                     />
 
                                     <CustomInput
@@ -649,7 +653,13 @@ const VisualizarProdutorFlorestal = () => {
                                     Documentos
                                 </h4>
                                 <div className="flex gap-3">
-                                    {renderMediaButton(formData.upload_de_documentos, 'document', 'Ver Documento', Eye)}
+                                    {renderMediaButton(
+                                        formData.upload_de_documentos,
+                                        `/api/produtorFlorestal/${id}/documento`,
+                                        'document',
+                                        'Ver Documento',
+                                        Eye
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -739,8 +749,20 @@ const VisualizarProdutorFlorestal = () => {
                                     Evidências da Fiscalização
                                 </h4>
                                 <div className="flex gap-3">
-                                    {renderMediaButton(formData.foto, 'image', 'Ver Foto', Camera)}
-                                    {renderMediaButton(formData.v_deo, 'video', 'Ver Vídeo', Play)}
+                                    {renderMediaButton(
+                                        formData.foto,
+                                        `/api/produtorFlorestal/${id}/fotoDefiscalizacaoEInspecoes`,
+                                        'image',
+                                        'Ver Foto',
+                                        Camera
+                                    )}
+                                    {renderMediaButton(
+                                        formData.v_deo,
+                                        `/api/produtorFlorestal/${id}/videoDefiscalizacaoEInspecoes`,
+                                        'video',
+                                        'Ver Vídeo',
+                                        Play
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -814,8 +836,20 @@ const VisualizarProdutorFlorestal = () => {
                                     Evidências da Ocorrência
                                 </h4>
                                 <div className="flex gap-3">
-                                    {renderMediaButton(formData.foto_001, 'image', 'Ver Foto', Camera)}
-                                    {renderMediaButton(formData.v_deo_001, 'video', 'Ver Vídeo', Play)}
+                                    {renderMediaButton(
+                                        formData.foto_001,
+                                        `/api/produtorFlorestal/${id}/fotoDeOcorrenciasFlorestais`,
+                                        'image',
+                                        'Ver Foto',
+                                        Camera
+                                    )}
+                                    {renderMediaButton(
+                                        formData.v_deo_001,
+                                        `/api/produtorFlorestal/${id}/videoDeOcorrenciasFlorestais`,
+                                        'video',
+                                        'Ver Vídeo',
+                                        Play
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -957,8 +991,20 @@ const VisualizarProdutorFlorestal = () => {
                                     Evidências da Sanção
                                 </h4>
                                 <div className="flex gap-3">
-                                    {renderMediaButton(formData.foto_002, 'image', 'Ver Foto', Camera)}
-                                    {renderMediaButton(formData.v_deo_002, 'video', 'Ver Vídeo', Play)}
+                                    {renderMediaButton(
+                                        formData.foto_002,
+                                        `/api/produtorFlorestal/${id}/fotoDeSancoesEAutosDeInfracao`,
+                                        'image',
+                                        'Ver Foto',
+                                        Camera
+                                    )}
+                                    {renderMediaButton(
+                                        formData.v_deo_002,
+                                        `/api/produtorFlorestal/${id}/videoDeSancoesEAutosDeInfracao`,
+                                        'video',
+                                        'Ver Vídeo',
+                                        Play
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -1010,11 +1056,10 @@ const VisualizarProdutorFlorestal = () => {
         <div className="min-h-screen bg-gray-50">
             {/* Toast Message */}
             {toastMessage && (
-                <div className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
-                    toastMessage.type === 'success' ? 'bg-green-100 border-l-4 border-green-500 text-green-700' :
-                    toastMessage.type === 'error' ? 'bg-red-100 border-l-4 border-red-500 text-red-700' :
-                    'bg-blue-100 border-l-4 border-blue-500 text-blue-700'
-                }`}>
+                <div className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${toastMessage.type === 'success' ? 'bg-green-100 border-l-4 border-green-500 text-green-700' :
+                        toastMessage.type === 'error' ? 'bg-red-100 border-l-4 border-red-500 text-red-700' :
+                            'bg-blue-100 border-l-4 border-blue-500 text-blue-700'
+                    }`}>
                     <div className="flex items-center">
                         {toastMessage.type === 'success' && <CheckCircle className="w-5 h-5 mr-2" />}
                         {toastMessage.type === 'error' && <AlertCircle className="w-5 h-5 mr-2" />}
@@ -1109,8 +1154,8 @@ const VisualizarProdutorFlorestal = () => {
                         </div>
                         <div className="flex justify-center">
                             {currentMedia.type === 'image' && (
-                                <img 
-                                    src={currentMedia.url} 
+                                <img
+                                    src={currentMedia.url}
                                     alt={currentMedia.title}
                                     className="max-w-full max-h-[70vh] object-contain"
                                     onError={(e) => {
@@ -1120,8 +1165,8 @@ const VisualizarProdutorFlorestal = () => {
                                 />
                             )}
                             {currentMedia.type === 'video' && (
-                                <video 
-                                    controls 
+                                <video
+                                    controls
                                     className="max-w-full max-h-[70vh]"
                                     onError={(e) => {
                                         e.target.style.display = 'none';
@@ -1133,13 +1178,13 @@ const VisualizarProdutorFlorestal = () => {
                                 </video>
                             )}
                             {currentMedia.type === 'document' && (
-                                <iframe 
-                                    src={currentMedia.url} 
+                                <iframe
+                                    src={currentMedia.url}
                                     className="w-full h-[70vh]"
                                     title={currentMedia.title}
                                 />
                             )}
-                            <div style={{display: 'none'}} className="text-center py-8">
+                            <div style={{ display: 'none' }} className="text-center py-8">
                                 <AlertCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                                 <p className="text-gray-600">Não foi possível carregar o arquivo</p>
                             </div>
@@ -1156,7 +1201,7 @@ const VisualizarProdutorFlorestal = () => {
                             {/* Título e navegação */}
                             <div className="flex items-center gap-4">
                                 <button
-                                    onClick={() => navigate('/GerenciaRNPA/gestao-florestal/produtoresFlorestais')}
+                                    onClick={() => navigate('/GerenciaRNPA/gestao-florestal/produtores/pessoal')}
                                     className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                                 >
                                     <ArrowLeft className="w-5 h-5 text-gray-600" />
@@ -1196,10 +1241,10 @@ const VisualizarProdutorFlorestal = () => {
                                         </button>
                                     </>
                                 ) : (
-                                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                                    <div className="flex flex-col sm:flex-row  gap-3 w-full sm:w-auto">
                                         <button
                                             onClick={() => setIsEditing(true)}
-                                            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                            className="flex items-center px-4 py-2 h-[44px] bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                                         >
                                             <Edit className="w-4 h-4 mr-2" />
                                             Editar
@@ -1243,25 +1288,22 @@ const VisualizarProdutorFlorestal = () => {
                             return (
                                 <div
                                     key={index}
-                                    className={`flex flex-col items-center cursor-pointer transition-all min-w-0 flex-shrink-0 mx-1 ${
-                                        index > activeIndex ? 'opacity-50' : ''
-                                    }`}
+                                    className={`flex flex-col items-center cursor-pointer transition-all min-w-0 flex-shrink-0 mx-1 ${index > activeIndex ? 'opacity-50' : ''
+                                        }`}
                                     onClick={() => setActiveIndex(index)}
                                 >
-                                    <div className={`flex items-center justify-center w-12 h-12 rounded-full mb-2 transition-colors ${
-                                        index < activeIndex ? 'bg-blue-500 text-white' :
-                                        index === activeIndex ? 'bg-blue-600 text-white' :
-                                        'bg-gray-200 text-gray-500'
-                                    }`}>
+                                    <div className={`flex items-center justify-center w-12 h-12 rounded-full mb-2 transition-colors ${index < activeIndex ? 'bg-blue-500 text-white' :
+                                            index === activeIndex ? 'bg-blue-600 text-white' :
+                                                'bg-gray-200 text-gray-500'
+                                        }`}>
                                         {index < activeIndex ? (
                                             <CheckCircle size={20} />
                                         ) : (
                                             <StepIcon size={20} />
                                         )}
                                     </div>
-                                    <span className={`text-sm text-center font-medium ${
-                                        index === activeIndex ? 'text-blue-700' : 'text-gray-500'
-                                    }`}>
+                                    <span className={`text-sm text-center font-medium ${index === activeIndex ? 'text-blue-700' : 'text-gray-500'
+                                        }`}>
                                         {step.label}
                                     </span>
                                 </div>
@@ -1285,10 +1327,9 @@ const VisualizarProdutorFlorestal = () => {
                     {/* Navigation Buttons */}
                     <div className="flex justify-between items-center p-6 border-t border-gray-100 bg-gray-50">
                         <button
-                            className={`px-6 py-2 rounded-lg border border-gray-300 flex items-center transition-all font-medium ${
-                                activeIndex === 0 ? 'opacity-50 cursor-not-allowed bg-gray-100' : 
-                                'bg-white hover:bg-gray-50 text-gray-700 hover:border-gray-400'
-                            }`}
+                            className={`px-6 py-2 rounded-lg border border-gray-300 flex items-center transition-all font-medium ${activeIndex === 0 ? 'opacity-50 cursor-not-allowed bg-gray-100' :
+                                    'bg-white hover:bg-gray-50 text-gray-700 hover:border-gray-400'
+                                }`}
                             onClick={() => setActiveIndex((prev) => Math.max(prev - 1, 0))}
                             disabled={activeIndex === 0}
                         >
@@ -1301,10 +1342,9 @@ const VisualizarProdutorFlorestal = () => {
                         </div>
 
                         <button
-                            className={`px-6 py-2 rounded-lg flex items-center transition-all font-medium ${
-                                activeIndex === steps.length - 1 ? 'opacity-50 cursor-not-allowed bg-gray-300 text-gray-600' : 
-                                'bg-blue-600 hover:bg-blue-700 text-white shadow-lg'
-                            }`}
+                            className={`px-6 py-2 rounded-lg flex items-center transition-all font-medium ${activeIndex === steps.length - 1 ? 'opacity-50 cursor-not-allowed bg-gray-300 text-gray-600' :
+                                    'bg-blue-600 hover:bg-blue-700 text-white shadow-lg'
+                                }`}
                             onClick={() => setActiveIndex((prev) => Math.min(prev + 1, steps.length - 1))}
                             disabled={activeIndex === steps.length - 1}
                         >

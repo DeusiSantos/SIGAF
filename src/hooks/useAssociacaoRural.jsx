@@ -10,7 +10,7 @@ export const useAssociacaoRural = () => {
   const fetchAssociacoesRurais = async () => {
     setLoading(true);
     try {
-      const response = await api.get('/associacaoRural/all');
+      const response = await api.get('/organizacao/all');
       setAssociacoesRurais(response.data);
       setLoading(false);
     } catch (err) {
@@ -23,7 +23,7 @@ export const useAssociacaoRural = () => {
   const createAssociacaoRural = async (associacaoRuralData) => {
     setLoading(true);
     try {
-      const response = await api.post('/associacaoRural', associacaoRuralData);
+      const response = await api.post('/organizacao', associacaoRuralData);
       await fetchAssociacoesRurais(); // Atualizar a lista
       return response.data;
     } catch (err) {
@@ -38,7 +38,7 @@ export const useAssociacaoRural = () => {
   const updateAssociacaoRural = async (id, associacaoRuralData) => {
     setLoading(true);
     try {
-      const response = await api.put(`/associacaoRural/${id}`, associacaoRuralData);
+      const response = await api.put(`/organizacao/${id}`, associacaoRuralData);
       await fetchAssociacoesRurais(); // Atualizar a lista
       return response.data;
     } catch (err) {
@@ -53,7 +53,7 @@ export const useAssociacaoRural = () => {
   const deleteAssociacaoRural = async (id) => {
     setLoading(true);
     try {
-      const response = await api.delete(`/associacaoRural/${id}`);
+      const response = await api.delete(`/organizacao/${id}`);
       await fetchAssociacoesRurais(); // Atualizar a lista
       return response.data;
     } catch (err) {

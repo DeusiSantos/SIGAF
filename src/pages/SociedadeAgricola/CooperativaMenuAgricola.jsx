@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { UserPlus, Users, FileText, User, MapPin, Award } from 'lucide-react';
-import EmpresaGestao from './GestaoEmpresas';
-import CadastroEmpresas from './CadastroEmpresas';
+import GestaoCooperativaAgricola from './GestaoCooperativaAgricola';
+import CadastroCooperativaAgricola from './CadastroCooperativaAgricola';
 
-const EmpresasMenu = () => {
+
+const CooperativaMenuAgricola = () => {
     const [activeSection, setActiveSection] = useState('gestao');
 
     const menuItems = [
@@ -50,7 +51,7 @@ const EmpresasMenu = () => {
                 return (
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
                         <div className="text-center">
-                            <EmpresaGestao />
+                            <GestaoCooperativaAgricola />
                         </div>
                     </div>
                 );
@@ -59,7 +60,7 @@ const EmpresasMenu = () => {
                 return (
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
                         <div className="text-center">
-                            <CadastroEmpresas />
+                            <CadastroCooperativaAgricola />
                         </div>
                     </div>
                 );
@@ -105,4 +106,4 @@ const EmpresasMenu = () => {
     );
 };
 
-export default EmpresasMenu;
+export default CooperativaMenuAgricola;
