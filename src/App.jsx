@@ -124,6 +124,8 @@ function App() {
             <Route path="produtores/entrepostosMercado" element={<MenuEntrepostosMercadoAgricola />} />
             <Route path="produtores/apoio-agricola" element={<MenuApoioAgricolaAgricola />} />
             <Route path="programas" element={<GestaoProgramasBeneficiosMenu />} />
+             <Route path="programas-beneficios/visualizar/:id" element={<VisualizarProjeto />} />
+
             <Route path="incentivos" element={<IncentivoMenu />} />
            
             
@@ -284,6 +286,9 @@ function App() {
 
           {/* ======================================= */}
           {/* ROTAS ADICIONAIS (mantidas) */}
+
+
+          
           {/* ======================================= */}
 
           {/* Gestão de Agentes de Campo */}
