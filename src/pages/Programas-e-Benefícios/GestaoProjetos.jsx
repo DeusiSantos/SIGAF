@@ -209,9 +209,8 @@ const GestaoProjetos = () => {
 
     // Navegação (simulada)
     const handleViewProjeto = (projetoId) => {
-        navigate(`/GerenciaRNPA/programas-beneficios/visualizar/${projetoId}`);
+        navigate(`/GerenciaRNPA/gestao-agricultores/programas-beneficios/visualizar/${projetoId}`);
     };
-
     {/*const handleEditProjeto = (projetoId) => {
         const projeto = projetos.find(p => p.id === projetoId);
         navigate('/GerenciaRNPA/programas-beneficios', { state: { projetoEditando: projeto } });
