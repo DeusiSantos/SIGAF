@@ -801,13 +801,15 @@ const CustomInput = ({
       case 'select':
         return (
           <div className="relative">
-            <span className={getIconClasses('start')}>{getIconByType()}</span>
+            {(iconStart || !iconStart) && (
+              <span className={getIconClasses('start')}>{iconStart || <ChevronDown size={18} />}</span>
+            )}
             <button
               ref={inputRef}
               type="button"
               onClick={toggleDropdown}
               disabled={disabled}
-              className={`${getBaseInputClasses(true, true)} text-left`}
+              className={`${getBaseInputClasses(iconStart || true, !iconStart)} text-left`}
               onFocus={handleFocus}
               onBlur={handleBlur}
             >
@@ -819,9 +821,11 @@ const CustomInput = ({
                 </span>
               )}
             </button>
-            <span className={`${getIconClasses('end')} transition-transform ${dropdownOpen ? 'transform rotate-180' : ''}`}>
-              <ChevronDown size={18} />
-            </span>
+            {!iconStart && (
+              <span className={`${getIconClasses('end')} transition-transform ${dropdownOpen ? 'transform rotate-180' : ''}`}>
+                <ChevronDown size={18} />
+              </span>
+            )}
             {dropdownOpen && renderDropdown()}
           </div>
         );

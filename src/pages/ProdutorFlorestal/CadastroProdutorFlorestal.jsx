@@ -232,7 +232,7 @@ const CadastroProdutorFlorestal = () => {
 
         // Tentar diferentes campos para o contacto
         const contacto = biInfo.phone || biInfo.telefone || biInfo.contacto || biInfo.mobile || biInfo.celular || '';
-        
+
         console.log('📱 Campos de contacto disponíveis:', {
           phone: biInfo.phone,
           telefone: biInfo.telefone,
@@ -313,7 +313,7 @@ const CadastroProdutorFlorestal = () => {
   // Função para consultar documento baseado no tipo selecionado
   const handleDocumentoConsulta = (value) => {
     if (!value || value.length < 9 || !formData.tipoDocumento) return;
-    
+
     if (formData.tipoDocumento === 'BI') {
       consultarBI(value);
     } else if (formData.tipoDocumento === 'NIF') {
@@ -409,12 +409,12 @@ const CadastroProdutorFlorestal = () => {
                       value={formData.numeroDocumento}
                       onChange={(value) => {
                         handleInputChange('numeroDocumento', value);
-                        
+
                         // Limpar timeout anterior
                         if (consultaTimeout) {
                           clearTimeout(consultaTimeout);
                         }
-                        
+
                         // Definir novo timeout para consulta após 2 segundos
                         if (value.length >= 9) {
                           const newTimeout = setTimeout(() => {
@@ -435,12 +435,18 @@ const CadastroProdutorFlorestal = () => {
                     type="tel"
                     label="Contacto"
                     value={formData.contacto}
-                    onChange={(value) => handleInputChange('contacto', value)}
                     required
-                    errorMessage={errors.contacto}
+                    onChange={(value) => {
+                      // Permite apenas números e limita a 9 dígitos
+                      const onlyNumbers = value.replace(/\D/g, '').slice(0, 9);
+                      handleInputChange('contacto', onlyNumbers);
+                    }}
                     placeholder="Ex: 923456789"
                     iconStart={<Phone size={18} />}
+                    maxLength={9}
                   />
+
+
 
                   <CustomInput
                     type="select"
@@ -668,11 +674,10 @@ const CadastroProdutorFlorestal = () => {
                     />
                     <label
                       htmlFor="documentos-upload"
-                      className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-                        uploadedFiles.uploadDocumentos
+                      className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${uploadedFiles.uploadDocumentos
                           ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
                           : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                      }`}
+                        }`}
                     >
                       <FileText className={`w-8 h-8 mb-3 ${uploadedFiles.uploadDocumentos ? 'text-blue-500' : 'text-gray-400'}`} />
                       <p className={`text-sm font-medium ${uploadedFiles.uploadDocumentos ? 'text-blue-600' : 'text-gray-500'}`}>
@@ -783,11 +788,10 @@ const CadastroProdutorFlorestal = () => {
                       />
                       <label
                         htmlFor="foto-fiscalizacao-upload"
-                        className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-                          uploadedFiles.fotoFiscalizacao
+                        className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${uploadedFiles.fotoFiscalizacao
                             ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
                             : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                        }`}
+                          }`}
                       >
                         <Camera className={`w-8 h-8 mb-3 ${uploadedFiles.fotoFiscalizacao ? 'text-blue-500' : 'text-gray-400'}`} />
                         <p className={`text-sm font-medium ${uploadedFiles.fotoFiscalizacao ? 'text-blue-600' : 'text-gray-500'}`}>
@@ -811,11 +815,10 @@ const CadastroProdutorFlorestal = () => {
                       />
                       <label
                         htmlFor="video-fiscalizacao-upload"
-                        className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-                          uploadedFiles.videoFiscalizacao
+                        className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${uploadedFiles.videoFiscalizacao
                             ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
                             : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                        }`}
+                          }`}
                       >
                         <Camera className={`w-8 h-8 mb-3 ${uploadedFiles.videoFiscalizacao ? 'text-blue-500' : 'text-gray-400'}`} />
                         <p className={`text-sm font-medium ${uploadedFiles.videoFiscalizacao ? 'text-blue-600' : 'text-gray-500'}`}>
@@ -964,11 +967,10 @@ const CadastroProdutorFlorestal = () => {
                       />
                       <label
                         htmlFor="foto-ocorrencia-upload"
-                        className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-                          uploadedFiles.fotoOcorrencia
+                        className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${uploadedFiles.fotoOcorrencia
                             ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
                             : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                        }`}
+                          }`}
                       >
                         <Camera className={`w-8 h-8 mb-3 ${uploadedFiles.fotoOcorrencia ? 'text-blue-500' : 'text-gray-400'}`} />
                         <p className={`text-sm font-medium ${uploadedFiles.fotoOcorrencia ? 'text-blue-600' : 'text-gray-500'}`}>
@@ -992,11 +994,10 @@ const CadastroProdutorFlorestal = () => {
                       />
                       <label
                         htmlFor="video-ocorrencia-upload"
-                        className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-                          uploadedFiles.videoOcorrencia
+                        className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${uploadedFiles.videoOcorrencia
                             ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
                             : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                        }`}
+                          }`}
                       >
                         <Camera className={`w-8 h-8 mb-3 ${uploadedFiles.videoOcorrencia ? 'text-blue-500' : 'text-gray-400'}`} />
                         <p className={`text-sm font-medium ${uploadedFiles.videoOcorrencia ? 'text-blue-600' : 'text-gray-500'}`}>
@@ -1190,11 +1191,10 @@ const CadastroProdutorFlorestal = () => {
                       />
                       <label
                         htmlFor="foto-sancao-upload"
-                        className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-                          uploadedFiles.fotoSancao
+                        className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${uploadedFiles.fotoSancao
                             ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
                             : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                        }`}
+                          }`}
                       >
                         <Camera className={`w-8 h-8 mb-3 ${uploadedFiles.fotoSancao ? 'text-blue-500' : 'text-gray-400'}`} />
                         <p className={`text-sm font-medium ${uploadedFiles.fotoSancao ? 'text-blue-600' : 'text-gray-500'}`}>
@@ -1218,11 +1218,10 @@ const CadastroProdutorFlorestal = () => {
                       />
                       <label
                         htmlFor="video-sancao-upload"
-                        className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-                          uploadedFiles.videoSancao
+                        className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${uploadedFiles.videoSancao
                             ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
                             : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                        }`}
+                          }`}
                       >
                         <Camera className={`w-8 h-8 mb-3 ${uploadedFiles.videoSancao ? 'text-blue-500' : 'text-gray-400'}`} />
                         <p className={`text-sm font-medium ${uploadedFiles.videoSancao ? 'text-blue-600' : 'text-gray-500'}`}>
@@ -1257,7 +1256,7 @@ const CadastroProdutorFlorestal = () => {
                 <CheckCircle className="w-5 h-5 mr-2 text-green-600" />
                 Resumo do Cadastro
               </h4>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                 <div className="space-y-3">
                   <div>
@@ -1266,7 +1265,7 @@ const CadastroProdutorFlorestal = () => {
                   </div>
                   <div>
                     <span className="font-medium text-gray-600">BI/NIF:</span>
-                    <p className="text-gray-800">{formData.numeroDocumento  || 'Não informado'}</p>
+                    <p className="text-gray-800">{formData.numeroDocumento || 'Não informado'}</p>
                   </div>
                   <div>
                     <span className="font-medium text-gray-600">Contacto:</span>
@@ -1277,7 +1276,7 @@ const CadastroProdutorFlorestal = () => {
                     <p className="text-gray-800">{formData.propriedade?.label || formData.propriedade || 'Não informado'}</p>
                   </div>
                 </div>
-                
+
                 <div className="space-y-3">
                   <div>
                     <span className="font-medium text-gray-600">Volume Estimado:</span>
@@ -1290,8 +1289,8 @@ const CadastroProdutorFlorestal = () => {
                   <div>
                     <span className="font-medium text-gray-600">Localização:</span>
                     <p className="text-gray-800">
-                      {formData.latitudeGPS && formData.longitudeGPS ? 
-                        `${formData.latitudeGPS}°, ${formData.longitudeGPS}°` : 
+                      {formData.latitudeGPS && formData.longitudeGPS ?
+                        `${formData.latitudeGPS}°, ${formData.longitudeGPS}°` :
                         'Não informado'
                       }
                     </p>
@@ -1343,17 +1342,17 @@ const CadastroProdutorFlorestal = () => {
       // Criar o objeto de dados mapeado para a API
       const apiData = {
         Nome_do_Produtor: formData.nomeProdutor || '',
-        BI_NIF: formData.numeroDocumento  || '',
+        BI_NIF: formData.numeroDocumento || '',
         Contacto: formData.contacto || '',
         Localiza_o_GPS: `${formData.latitudeGPS || ''},${formData.longitudeGPS || ''},${formData.altitudeGPS || ''},${formData.precisaoGPS || ''}`,
         Propriedade: formData.propriedade?.value || formData.propriedade || '',
-        Esp_cies_predominantes: Array.isArray(formData.especiesPredominantes) ? 
-          formData.especiesPredominantes.map(item => item.value || item).join(',') : 
+        Esp_cies_predominantes: Array.isArray(formData.especiesPredominantes) ?
+          formData.especiesPredominantes.map(item => item.value || item).join(',') :
           formData.especiesPredominantes || '',
         Volume_estimado_m: formData.volumeEstimado?.toString() || '0',
         Estado_de_conserva_o: formData.estadoConservacao?.value || formData.estadoConservacao || '',
-        Tipo_de_licen_a_solicitada: Array.isArray(formData.tipoLicencaSolicitada) ? 
-          formData.tipoLicencaSolicitada.map(item => item.value || item).join(',') : 
+        Tipo_de_licen_a_solicitada: Array.isArray(formData.tipoLicencaSolicitada) ?
+          formData.tipoLicencaSolicitada.map(item => item.value || item).join(',') :
           formData.tipoLicencaSolicitada || '',
         _rea_associada: formData.areaAssociada || '',
         Upload_de_documentos: '', // Será preenchido com arquivo
@@ -1495,12 +1494,11 @@ const CadastroProdutorFlorestal = () => {
     <div className="bg-gray-50 min-h-screen">
       {/* Toast Message */}
       {toastMessage && (
-        <div className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all ${
-          toastMessage.severity === 'success' ? 'bg-green-100 border-l-4 border-green-500 text-green-700' :
-          toastMessage.severity === 'error' ? 'bg-red-100 border-l-4 border-red-500 text-red-700' :
-          toastMessage.severity === 'warn' ? 'bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700' :
-          'bg-blue-100 border-l-4 border-blue-500 text-blue-700'
-        }`}>
+        <div className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all ${toastMessage.severity === 'success' ? 'bg-green-100 border-l-4 border-green-500 text-green-700' :
+            toastMessage.severity === 'error' ? 'bg-red-100 border-l-4 border-red-500 text-red-700' :
+              toastMessage.severity === 'warn' ? 'bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700' :
+                'bg-blue-100 border-l-4 border-blue-500 text-blue-700'
+          }`}>
           <div className="flex items-center">
             <div className="mr-3">
               {toastMessage.severity === 'success' && <CheckCircle size={20} />}
@@ -1531,25 +1529,22 @@ const CadastroProdutorFlorestal = () => {
               return (
                 <div
                   key={index}
-                  className={`flex flex-col items-center cursor-pointer transition-all min-w-0 flex-shrink-0 mx-1 ${
-                    index > activeIndex ? 'opacity-50' : ''
-                  }`}
+                  className={`flex flex-col items-center cursor-pointer transition-all min-w-0 flex-shrink-0 mx-1 ${index > activeIndex ? 'opacity-50' : ''
+                    }`}
                   onClick={() => index <= activeIndex && setActiveIndex(index)}
                 >
-                  <div className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${
-                    index < activeIndex ? 'bg-green-500 text-white' :
-                    index === activeIndex ? 'bg-green-600 text-white' :
-                    'bg-gray-200 text-gray-500'
-                  }`}>
+                  <div className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${index < activeIndex ? 'bg-green-500 text-white' :
+                      index === activeIndex ? 'bg-green-600 text-white' :
+                        'bg-gray-200 text-gray-500'
+                    }`}>
                     {index < activeIndex ? (
                       <Check size={24} />
                     ) : (
                       <StepIcon size={24} />
                     )}
                   </div>
-                  <span className={`text-sm text-center font-medium ${
-                    index === activeIndex ? 'text-green-700' : 'text-gray-500'
-                  }`}>
+                  <span className={`text-sm text-center font-medium ${index === activeIndex ? 'text-green-700' : 'text-gray-500'
+                    }`}>
                     {step.label}
                   </span>
                 </div>
@@ -1573,10 +1568,9 @@ const CadastroProdutorFlorestal = () => {
           {/* Navigation Buttons */}
           <div className="flex justify-between items-center p-8 pt-6 border-t border-gray-100 bg-gray-50">
             <button
-              className={`px-8 py-3 rounded-xl border border-gray-300 flex items-center transition-all font-medium ${
-                activeIndex === 0 ? 'opacity-50 cursor-not-allowed bg-gray-100' : 
-                'bg-white hover:bg-gray-50 text-gray-700 hover:border-gray-400'
-              }`}
+              className={`px-8 py-3 rounded-xl border border-gray-300 flex items-center transition-all font-medium ${activeIndex === 0 ? 'opacity-50 cursor-not-allowed bg-gray-100' :
+                  'bg-white hover:bg-gray-50 text-gray-700 hover:border-gray-400'
+                }`}
               onClick={() => setActiveIndex((prev) => Math.max(prev - 1, 0))}
               disabled={activeIndex === 0}
             >
@@ -1589,9 +1583,8 @@ const CadastroProdutorFlorestal = () => {
             </div>
 
             <button
-              className={`px-8 py-3 rounded-xl flex items-center transition-all font-medium ${
-                'bg-green-600 hover:bg-green-700 text-white shadow-lg'
-              }`}
+              className={`px-8 py-3 rounded-xl flex items-center transition-all font-medium ${'bg-green-600 hover:bg-green-700 text-white shadow-lg'
+                }`}
               disabled={loading}
               onClick={(e) => {
                 e.preventDefault();

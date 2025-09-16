@@ -614,11 +614,16 @@ const CadastroCooperativa = () => {
                 type="tel"
                 label="Telefone"
                 value={formData.telefone}
-                onChange={(value) => handleInputChange('telefone', value)}
+                onChange={(value) => {
+                  // Permite apenas números e limita a 9 dígitos
+                  const onlyNumbers = value.replace(/\D/g, '').slice(0, 9);
+                  handleInputChange('telefone', onlyNumbers);
+                }}
                 required
                 errorMessage={errors.telefone}
                 placeholder="Ex: 923456789"
                 iconStart={<Phone size={18} />}
+                maxLength={9}
               />
 
               <CustomInput
@@ -803,9 +808,14 @@ const CadastroCooperativa = () => {
                     type="tel"
                     label="Telefone"
                     value={formData.telefonePresidente}
-                    onChange={(value) => handleInputChange('telefonePresidente', value)}
+                    onChange={(value) => {
+                      // Permite apenas números e limita a 9 dígitos
+                      const onlyNumbers = value.replace(/\D/g, '').slice(0, 9);
+                      handleInputChange('telefonePresidente', onlyNumbers);
+                    }}
                     placeholder="Ex: 923456789"
                     iconStart={<Phone size={18} />}
+                    maxLength={9}
                   />
 
                   <CustomInput
@@ -854,7 +864,11 @@ const CadastroCooperativa = () => {
                     type="tel"
                     label="Telefone"
                     value={formData.telefoneSecretario}
-                    onChange={(value) => handleInputChange('telefoneSecretario', value)}
+                    onChange={(value) => {
+                      // Permite apenas números e limita a 9 dígitos
+                      const onlyNumbers = value.replace(/\D/g, '').slice(0, 9);
+                      handleInputChange('telefoneSecretario', onlyNumbers);
+                    }}
                     placeholder="Ex: 923456789"
                     iconStart={<Phone size={18} />}
                   />
@@ -1080,7 +1094,7 @@ const CadastroCooperativa = () => {
                         value={formData.equipamentosMedicao}
                         options={[
                           { label: 'Balanças (analógicas e digitais)', value: 'BALANCAS' },
-                          { label: 'Medidores de umidade do solo e de grãos', value: 'MEDIDORES_UMIDADE' },
+                          { label: 'Medidores de humidade do solo e de grãos', value: 'MEDIDORES_UMIDADE' },
                           { label: 'Medidores de pH', value: 'MEDIDORES_PH' },
                           { label: 'Estações meteorológicas simples', value: 'ESTACOES_METEOROLOGICAS' },
                           { label: 'GPS agrícola', value: 'GPS_AGRICOLA' }

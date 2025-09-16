@@ -871,7 +871,11 @@ const CadastroEmpresasFlorestal = () => {
                 type="tel"
                 label="Telefone"
                 value={formData.Telefone}
-                onChange={(value) => handleInputChange('Telefone', value)}
+                onChange={(value) => {
+                  // Permite apenas números e limita a 9 dígitos
+                  const onlyNumbers = value.replace(/\D/g, '').slice(0, 9);
+                  handleInputChange('Telefone', onlyNumbers);
+                }}
                 required
                 errorMessage={errors.Telefone}
                 placeholder="Ex: 923456789"
@@ -1096,7 +1100,11 @@ const CadastroEmpresasFlorestal = () => {
                     type="tel"
                     label="Telefone"
                     value={formData.TelefonePresidente}
-                    onChange={(value) => handleInputChange('TelefonePresidente', value)}
+                    onChange={(value) => {
+                      // Permite apenas números e limita a 9 dígitos
+                      const onlyNumbers = value.replace(/\D/g, '').slice(0, 9);
+                      handleInputChange('TelefonePresidente', onlyNumbers);
+                    }}
                     placeholder="Ex: 923456789"
                     iconStart={<Phone size={18} />}
                   />
@@ -1209,7 +1217,11 @@ const CadastroEmpresasFlorestal = () => {
                     type="tel"
                     label="Telefone"
                     value={formData.TelefoneSecretarioOuGerente}
-                    onChange={(value) => handleInputChange('TelefoneSecretarioOuGerente', value)}
+                     onChange={(value) => {
+                      // Permite apenas números e limita a 9 dígitos
+                      const onlyNumbers = value.replace(/\D/g, '').slice(0, 9);
+                      handleInputChange('TelefoneSecretarioOuGerente', onlyNumbers);
+                    }}
                     placeholder="Ex: 923456789"
                     iconStart={<Phone size={18} />}
                   />

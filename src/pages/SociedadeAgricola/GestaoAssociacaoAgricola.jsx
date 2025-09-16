@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+//import axios from 'axios';
 import {
     Search,
     Plus,
@@ -40,13 +40,13 @@ import CustomInput from '../../components/CustomInput';
 import api from '../../services/api';
 
 // Dados estáticos das administrações regionais
-const administracoesEstaticas = [
+{/*const administracoesEstaticas = [
     { id: 1, nome: "Administração Regional de Luanda" },
     { id: 2, nome: "Administração Regional de Benguela" },
     { id: 3, nome: "Administração Regional de Huambo" },
     { id: 4, nome: "Administração Regional de Huíla" },
     { id: 5, nome: "Administração Regional de Cabinda" }
-];
+];  */}
 
 const GestaoAssociacaoAgricola = () => {
     // Função para navegação de gestão de pessoal
@@ -148,10 +148,10 @@ const GestaoAssociacaoAgricola = () => {
     }, [toastTimeout]);
 
     // Função para obter o nome da administração regional
-    const getAdminRegionalName = (adminRegionalId) => {
+   { /* const getAdminRegionalName = (adminRegionalId) => {
         const admin = administracoesEstaticas.find(a => a.id === adminRegionalId);
         return admin ? admin.nome : `Região ${adminRegionalId}`;
-    };
+    */};
 
     // Função para mostrar toast
     const showToast = (type, title, message, duration = 5000) => {

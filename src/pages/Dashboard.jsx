@@ -216,7 +216,7 @@ const Dashboard = () => {
   // Estados para controle dos gráficos de pizza
   const [activeIndexGenero, setActiveIndexGenero] = useState(0);
   const [activeIndexAtividades, setActiveIndexAtividades] = useState(0);
-  const [activeIndexTipo, setActiveIndexTipo] = useState(0);
+ // const [activeIndexTipo, setActiveIndexTipo] = useState(0);
   const [activeIndexStatus, setActiveIndexStatus] = useState(0);
   const [activeIndexProvincia, setActiveIndexProvincia] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -246,7 +246,7 @@ const Dashboard = () => {
   // Estados de loading separados
   const [loadingGenero, setLoadingGenero] = useState(true);
   const [loadingAtividades, setLoadingAtividades] = useState(true);
-  const [consultingBI, setConsultingBI] = useState(false);
+ // const [consultingBI, setConsultingBI] = useState(false);
   //const [error, setError] = useState(null);
 
   // Estados para filtros adicionais
@@ -325,31 +325,118 @@ const Dashboard = () => {
     return params.toString() ? `${baseEndpoint}?${params.toString()}` : baseEndpoint;
   }, [selectedProvince, selectedPeriodo, selectedEstado, selectedAtividade]);
 
-  // Buscar total de produtores aprovados com todos os filtros
+  // Buscar total de produtores por estado (aprovados/pendentes) somando agrícolas e florestais
   useEffect(() => {
+    console.log('🔄 useEffect aprovados executado com:', { selectedProvince, selectedEstado });
+    
     const fetchAprovados = async () => {
       try {
-        const endpoint = buildEndpoint('/dashboard/totalDeProdutorAprovado');
-        const resposta = await api.get(endpoint);
-        setTotalAprovados(resposta.data || 0);
-        console.log('Total aprovados:', resposta.data, 'filtros aplicados');
+        console.log('📡 Buscando dados de todos os produtores...');
+        const [respostaAgricola, respostaFlorestal] = await Promise.all([
+          api.get('/formulario/all'),
+          api.get('/produtorFlorestal/all')
+        ]);
+        
+        let dadosAgricola = Array.isArray(respostaAgricola.data) ? respostaAgricola.data : [];
+        let dadosFlorestal = Array.isArray(respostaFlorestal.data) ? respostaFlorestal.data : [];
+        
+        console.log('📊 Dados recebidos:', {
+          agricola: dadosAgricola.length,
+          florestal: dadosFlorestal.length
+        });
+        
+        // Filtrar por província se selecionada
+        if (selectedProvince && selectedProvince !== 'todas') {
+          const provinciaValue = typeof selectedProvince === 'object' ? selectedProvince.value : selectedProvince;
+          const provinciaMap = {
+            'luanda': 'Luanda', 'benguela': 'Benguela', 'huila': 'Huíla', 'bie': 'Bié',
+            'malanje': 'Malanje', 'huambo': 'Huambo', 'cabinda': 'Cabinda', 'zaire': 'Zaire',
+            'uige': 'Uíge', 'cunene': 'Cunene', 'namibe': 'Namibe', 'lunda_norte': 'Lunda Norte',
+            'lunda_sul': 'Lunda Sul', 'moxico': 'Moxico', 'cuando_cubango': 'Cuando Cubango',
+            'bengo': 'Bengo', 'cuanza_norte': 'Cuanza Norte', 'cuanza_sul': 'Cuanza Sul'
+          };
+          const nomeProvinciaCompleto = provinciaMap[provinciaValue] || provinciaValue;
+          
+          dadosAgricola = dadosAgricola.filter(p => p.provincia === nomeProvinciaCompleto);
+          dadosFlorestal = dadosFlorestal.filter(p => p.provincia === nomeProvinciaCompleto);
+        }
+        
+        // Filtrar por estado se selecionado
+        const estadoValue = typeof selectedEstado === 'object' ? selectedEstado.value : selectedEstado;
+        if (estadoValue && estadoValue !== 'todos') {
+          const estadoFiltro = estadoValue === 'aprovados' ? 'Aprovado' : 'Pendente';
+          dadosAgricola = dadosAgricola.filter(p => p.estado === estadoFiltro);
+          dadosFlorestal = dadosFlorestal.filter(p => p.estado === estadoFiltro);
+        } else {
+          // Se não há filtro de estado, pegar apenas aprovados por padrão
+          dadosAgricola = dadosAgricola.filter(p => p.estado === 'Aprovado');
+          dadosFlorestal = dadosFlorestal.filter(p => p.estado === 'Aprovado');
+        }
+        
+        const totalAgricola = dadosAgricola.length;
+        const totalFlorestal = dadosFlorestal.length;
+        const totalGeral = totalAgricola + totalFlorestal;
+        
+        setTotalAprovados(totalGeral);
+        console.log('📈 Total por estado:', { agricola: totalAgricola, florestal: totalFlorestal, total: totalGeral, estado: estadoValue });
       } catch (error) {
         console.error('Erro ao buscar aprovados:', error);
-        setTotalAprovados(481200); // Fallback
+        setTotalAprovados(0); // Fallback
       }
     };
 
     fetchAprovados();
-  }, [buildEndpoint]);
+  }, [selectedProvince, selectedEstado]);
 
-  // Buscar total de produtores com todos os filtros
+  // Buscar total de produtores somando agrícolas e florestais com filtro por província
   useEffect(() => {
     const fetchTotal = async () => {
       try {
-        const endpoint = buildEndpoint('/dashboard/totalDeProdutores');
-        const resposta = await api.get(endpoint);
-        setTotalProdutores(resposta.data || 0);
-        console.log('Total produtores:', resposta.data, 'filtros aplicados');
+        const [respostaAgricola, respostaFlorestal] = await Promise.all([
+          api.get('/formulario/all'),
+          api.get('/produtorFlorestal/all')
+        ]);
+        
+        let dadosAgricola = Array.isArray(respostaAgricola.data) ? respostaAgricola.data : [];
+        let dadosFlorestal = Array.isArray(respostaFlorestal.data) ? respostaFlorestal.data : [];
+        
+        // Debug: verificar estrutura dos dados
+        console.log('Dados brutos:', {
+          agricola: dadosAgricola.slice(0, 2),
+          florestal: dadosFlorestal.slice(0, 2)
+        });
+        
+        // Filtrar por província se selecionada
+        if (selectedProvince && selectedProvince !== 'todas') {
+          const provinciaValue = typeof selectedProvince === 'object' ? selectedProvince.value : selectedProvince;
+          const provinciaMap = {
+            'luanda': 'Luanda', 'benguela': 'Benguela', 'huila': 'Huíla', 'bie': 'Bié',
+            'malanje': 'Malanje', 'huambo': 'Huambo', 'cabinda': 'Cabinda', 'zaire': 'Zaire',
+            'uige': 'Uíge', 'cunene': 'Cunene', 'namibe': 'Namibe', 'lunda_norte': 'Lunda Norte',
+            'lunda_sul': 'Lunda Sul', 'moxico': 'Moxico', 'cuando_cubango': 'Cuando Cubango',
+            'bengo': 'Bengo', 'cuanza_norte': 'Cuanza Norte', 'cuanza_sul': 'Cuanza Sul'
+          };
+          const nomeProvinciaCompleto = provinciaMap[provinciaValue] || provinciaValue;
+          
+          console.log('Filtrando por província:', nomeProvinciaCompleto);
+          
+          dadosAgricola = dadosAgricola.filter(p => {
+            console.log('Produtor agrícola:', p.provincia, '===', nomeProvinciaCompleto, '?', p.provincia === nomeProvinciaCompleto);
+            return p.provincia === nomeProvinciaCompleto;
+          });
+          
+          dadosFlorestal = dadosFlorestal.filter(p => {
+            console.log('Produtor florestal:', p.provincia, '===', nomeProvinciaCompleto, '?', p.provincia === nomeProvinciaCompleto);
+            return p.provincia === nomeProvinciaCompleto;
+          });
+        }
+        
+        const totalAgricola = dadosAgricola.length;
+        const totalFlorestal = dadosFlorestal.length;
+        const totalGeral = totalAgricola + totalFlorestal;
+        
+        setTotalProdutores(totalGeral);
+        console.log('Total produtores:', { agricola: totalAgricola, florestal: totalFlorestal, total: totalGeral, provincia: selectedProvince });
       } catch (error) {
         console.error('Erro ao buscar total:', error);
         setTotalProdutores(523450); // Fallback
@@ -357,7 +444,7 @@ const Dashboard = () => {
     };
 
     fetchTotal();
-  }, [buildEndpoint]);
+  }, [selectedProvince]);
 
   // Buscar total de pecuária com todos os filtros
   useEffect(() => {
@@ -864,9 +951,7 @@ const registrosPorAtividade = useMemo(() => {
                     value={selectedProvince}
                     onChange={setSelectedProvince}
                     options={provincias}
-                    className="min-w-48"
                   />
-                  <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                 </div>
               </div>
               {/* Filtros  */}
@@ -953,8 +1038,14 @@ const registrosPorAtividade = useMemo(() => {
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Aprovados</p>
-                <p className="text-3xl font-bold text-green-600 mt-1">{formatNumber(dadosFiltrados.totalAprovados)}</p>
+                <p className="text-sm font-medium text-gray-600">
+                  {(selectedEstado?.value || selectedEstado) === 'pendentes' ? 'Pendentes' : 'Aprovados'}
+                </p>
+                <p className={`text-3xl font-bold mt-1 ${
+                  (selectedEstado?.value || selectedEstado) === 'pendentes' ? 'text-yellow-600' : 'text-green-600'
+                }`}>
+                  {formatNumber(dadosFiltrados.totalAprovados)}
+                </p>
                 <div className="flex items-center mt-2">
                   <span className="text-sm text-gray-500">
                     {(selectedEstado?.value || selectedEstado) === 'pendentes'
@@ -963,8 +1054,12 @@ const registrosPorAtividade = useMemo(() => {
                   </span>
                 </div>
               </div>
-              <div className="p-3 bg-green-50 rounded-lg">
-                <CheckCircle className="h-8 w-8 text-green-500" />
+              <div className={`p-3 rounded-lg ${
+                (selectedEstado?.value || selectedEstado) === 'pendentes' ? 'bg-yellow-50' : 'bg-green-50'
+              }`}>
+                <CheckCircle className={`h-8 w-8 ${
+                  (selectedEstado?.value || selectedEstado) === 'pendentes' ? 'text-yellow-500' : 'text-green-500'
+                }`} />
               </div>
             </div>
           </div>

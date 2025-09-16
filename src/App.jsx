@@ -121,14 +121,14 @@ function App() {
             {/* Infraestrutura Agrícola */}
             <Route path="produtores/irrigacao" element={<IrrigacaoMenuAgricola />} />
             <Route path="produtores/silos-armazenamento" element={<MenuSilosAgricola />} />
-            <Route path="produtores/entrepostasMercado" element={<MenuEntrepostosMercadoAgricola />} />
+            <Route path="produtores/entrepostosMercado" element={<MenuEntrepostosMercadoAgricola />} />
             <Route path="produtores/apoio-agricola" element={<MenuApoioAgricolaAgricola />} />
             <Route path="programas" element={<GestaoProgramasBeneficiosMenu />} />
             <Route path="incentivos" element={<IncentivoMenu />} />
            
             
             {/* Validação e Certificado */}
-            <Route path="workflow" element={<ValidarCerficacao />} />
+            <Route path="workflow" element={<ValidacoesCerificadosMenu />} />
             
             {/* Passe (Certificados) */}
             <Route path="certificados" element={<CertificadosGestao />} />
@@ -158,7 +158,7 @@ function App() {
              {/* Silos e Centro de Armazenamento */}
             <Route path="produtores/silos-armazenamento" element={<MenuSilosFlorestal />} />
             {/* Entrepostas e Mercado */}
-            <Route path="produtores/entrepostasMercado" element={<MenuEntrepostosMercadoFlorestal />} />
+            <Route path="produtores/entrepostosMercado" element={<MenuEntrepostosMercadoFlorestal />} />
             {/* Empresas de Apoio Agrícola */}
             <Route path="produtores/apoio-agricola" element={<MenuApoioAgricolaFlorestal />} />
             <Route path="programas" element={<GestaoProgramasBeneficiosMenu />} />

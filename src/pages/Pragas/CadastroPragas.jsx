@@ -42,7 +42,7 @@ const CadastroPragas = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [ Touched , setTouched] = useState({});
+  const [Touched, setTouched] = useState({});
   const [uploadedFiles, setUploadedFiles] = useState({});
   const [toastMessage, setToastMessage] = useState(null);
   const [municipiosOptions, setMunicipiosOptions] = useState([]);
@@ -117,7 +117,7 @@ const CadastroPragas = () => {
     { label: 'Finalização', icon: FileText }
   ];
 
-  
+
 
   const showToast = (severity, summary, detail, duration = 3000) => {
     setToastMessage({ severity, summary, detail, visible: true });
@@ -408,10 +408,14 @@ const CadastroPragas = () => {
 
               <div>
                 <CustomInput
-                  type="number"
+                  type="tel"
                   label="Telefone"
                   value={formData.telefone}
-                  onChange={(value) => handleInputChange('telefone', value)}
+                  onChange={(value) => {
+                    // Permite apenas números e limita a 9 dígitos
+                    const onlyNumbers = value.replace(/\D/g, '').slice(0, 9);
+                    handleInputChange('telefone', onlyNumbers);
+                  }}
                   required
                   errorMessage={errors.telefone}
                   placeholder="Ex: 923456789"
@@ -1112,34 +1116,34 @@ const CadastroPragas = () => {
 
                   {(formData.aplicouTratamento === true || formData.aplicouTratamento?.value === true) && (
                     <>
-                     <div className='grid grid-cols-1 md:grid-cols-2 gap-6 md:col-span-2'>
-                       <div>
-                        <CustomInput
-                          type="text"
-                          label="Tipo de Tratamento Usado"
-                          value={formData.tipoTratamento}
-                          onChange={(value) => handleInputChange('tipoTratamento', value)}
-                          placeholder="Ex: Medicamento, vacina, etc."
-                          iconStart={<Activity size={18} />}
-                        />
-                      </div>
+                      <div className='grid grid-cols-1 md:grid-cols-2 gap-6 md:col-span-2'>
+                        <div>
+                          <CustomInput
+                            type="text"
+                            label="Tipo de Tratamento Usado"
+                            value={formData.tipoTratamento}
+                            onChange={(value) => handleInputChange('tipoTratamento', value)}
+                            placeholder="Ex: Medicamento, vacina, etc."
+                            iconStart={<Activity size={18} />}
+                          />
+                        </div>
 
-                      <div>
-                        <CustomInput
-                          type="select"
-                          label="Resultado do Tratamento"
-                          value={formData.resultadoTratamento}
-                          options={[
-                            { label: 'Eficaz', value: 'Eficaz' },
-                            { label: 'Parcial', value: 'Parcial' },
-                            { label: 'Sem efeito', value: 'Sem efeito' }
-                          ]}
-                          onChange={(value) => handleInputChange('resultadoTratamento', value)}
-                          placeholder="Selecione"
-                          iconStart={<CheckCircle size={18} />}
-                        />
+                        <div>
+                          <CustomInput
+                            type="select"
+                            label="Resultado do Tratamento"
+                            value={formData.resultadoTratamento}
+                            options={[
+                              { label: 'Eficaz', value: 'Eficaz' },
+                              { label: 'Parcial', value: 'Parcial' },
+                              { label: 'Sem efeito', value: 'Sem efeito' }
+                            ]}
+                            onChange={(value) => handleInputChange('resultadoTratamento', value)}
+                            placeholder="Selecione"
+                            iconStart={<CheckCircle size={18} />}
+                          />
+                        </div>
                       </div>
-                     </div>
                     </>
                   )}
 

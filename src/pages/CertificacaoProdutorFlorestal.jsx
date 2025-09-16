@@ -180,10 +180,10 @@ const CertificacaoProdutorFlorestal = () => {
 
   // Tipos de licença com preços
   const tiposLicencaOptions = [
-    { label: 'Licença de Exploração Florestal', value: 'EXPLORACAO_FLORESTAL' , preco: 77000 },
+    { label: 'Licença de Exploração Florestal', value: 'EXPLORACAO_FLORESTAL', preco: 77000 },
     { label: 'Licença de Plantio Florestal', value: 'PLANTIO_FLORESTAL', preco: 150000 },
-    { label: 'Licença de Manejo Florestal', value: 'MANEJO_FLORESTAL' , preco: 12000},
-    { label: 'Licença de Reflorestamento', value: 'REFLORESTAMENTO' , preco: 32000 },
+    { label: 'Licença de Manejo Florestal', value: 'MANEJO_FLORESTAL', preco: 12000 },
+    { label: 'Licença de Reflorestamento', value: 'REFLORESTAMENTO', preco: 32000 },
     { label: 'Licença de exploração de Madeira em toro', value: 'MADEIRA_TORO', preco: 50000 },
     { label: 'Licença de exploração de lenha', value: 'LENHA', preco: 15000 },
     { label: 'Licença de exploração de carvão vegetal', value: 'CARVAO', preco: 20000 },
@@ -238,7 +238,7 @@ const CertificacaoProdutorFlorestal = () => {
   const handleInputChange = (field, value) => {
     setTouched(prev => ({ ...prev, [field]: true }));
     setFormData(prev => ({ ...prev, [field]: value }));
-    
+
     if (errors[field]) {
       setErrors(prev => {
         const newErrors = { ...prev };
@@ -432,7 +432,7 @@ const CertificacaoProdutorFlorestal = () => {
   // Função para calcular o total da fatura
   const calcularTotalFatura = () => {
     if (!Array.isArray(formData.tiposLicenca)) return 0;
-    
+
     return formData.tiposLicenca.reduce((total, tipoLicenca) => {
       // Se tipoLicenca é um objeto, pegar o value, senão usar direto
       const tipoValue = typeof tipoLicenca === 'object' ? tipoLicenca.value : tipoLicenca;
@@ -488,11 +488,10 @@ const CertificacaoProdutorFlorestal = () => {
             <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <button
-                  className={`p-6 rounded-xl border-2 transition-all text-center hover:shadow-lg ${
-                    tipoSelecionado === 'produtor'
+                  className={`p-6 rounded-xl border-2 transition-all text-center hover:shadow-lg ${tipoSelecionado === 'produtor'
                       ? 'border-green-500 bg-green-50 text-green-700'
                       : 'border-gray-200 hover:border-green-300'
-                  }`}
+                    }`}
                   onClick={() => setTipoSelecionado('produtor')}
                 >
                   <User size={32} className="mx-auto mb-3" />
@@ -500,11 +499,10 @@ const CertificacaoProdutorFlorestal = () => {
                 </button>
 
                 <button
-                  className={`p-6 rounded-xl border-2 transition-all text-center hover:shadow-lg ${
-                    tipoSelecionado === 'empresa'
+                  className={`p-6 rounded-xl border-2 transition-all text-center hover:shadow-lg ${tipoSelecionado === 'empresa'
                       ? 'border-blue-500 bg-blue-50 text-blue-700'
                       : 'border-gray-200 hover:border-blue-300'
-                  }`}
+                    }`}
                   onClick={() => setTipoSelecionado('empresa')}
                 >
                   <Factory size={32} className="mx-auto mb-3" />
@@ -512,11 +510,10 @@ const CertificacaoProdutorFlorestal = () => {
                 </button>
 
                 <button
-                  className={`p-6 rounded-xl border-2 transition-all text-center hover:shadow-lg ${
-                    tipoSelecionado === 'cooperativa'
+                  className={`p-6 rounded-xl border-2 transition-all text-center hover:shadow-lg ${tipoSelecionado === 'cooperativa'
                       ? 'border-purple-500 bg-purple-50 text-purple-700'
                       : 'border-gray-200 hover:border-purple-300'
-                  }`}
+                    }`}
                   onClick={() => setTipoSelecionado('cooperativa')}
                 >
                   <UsersIcon size={32} className="mx-auto mb-3" />
@@ -524,11 +521,10 @@ const CertificacaoProdutorFlorestal = () => {
                 </button>
 
                 <button
-                  className={`p-6 rounded-xl border-2 transition-all text-center hover:shadow-lg ${
-                    tipoSelecionado === 'associacao'
+                  className={`p-6 rounded-xl border-2 transition-all text-center hover:shadow-lg ${tipoSelecionado === 'associacao'
                       ? 'border-amber-500 bg-amber-50 text-amber-700'
                       : 'border-gray-200 hover:border-amber-300'
-                  }`}
+                    }`}
                   onClick={() => setTipoSelecionado('associacao')}
                 >
                   <Building2 size={32} className="mx-auto mb-3" />
@@ -645,7 +641,7 @@ const CertificacaoProdutorFlorestal = () => {
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                         <div><strong>Nome:</strong> {
-                          tipoSelecionado === 'produtor' 
+                          tipoSelecionado === 'produtor'
                             ? produtorSelecionado?.nome_do_Produtor
                             : entidadeSelecionada?.nomeEntidade
                         }</div>
@@ -676,7 +672,7 @@ const CertificacaoProdutorFlorestal = () => {
                 </h3>
               </div>
               <p className="text-gray-600">
-                {tipoSelecionado === 'produtor' 
+                {tipoSelecionado === 'produtor'
                   ? 'Complete ou verifique as informações pessoais do produtor florestal.'
                   : 'Dados do representante legal da entidade.'
                 }
@@ -713,7 +709,11 @@ const CertificacaoProdutorFlorestal = () => {
                   type="tel"
                   label="Contacto Telefónico"
                   value={formData.telefone}
-                  onChange={(value) => handleInputChange('telefone', value)}
+                  onChange={(value) => {
+                    // Permite apenas números e limita a 9 dígitos
+                    const onlyNumbers = value.replace(/\D/g, '').slice(0, 9);
+                    handleInputChange('telefone', onlyNumbers);
+                  }}
                   required
                   errorMessage={errors.telefone}
                   placeholder="Ex: 923456789"
@@ -1304,7 +1304,7 @@ const CertificacaoProdutorFlorestal = () => {
 
             <div className="bg-white rounded-2xl border border-gray-200 p-6">
               <h4 className="text-lg font-semibold text-gray-800 mb-6">Documentos Necessários</h4>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {documentosNecessarios.map((documento, index) => (
                   <div key={index} className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
@@ -1513,7 +1513,7 @@ const CertificacaoProdutorFlorestal = () => {
     }
   };
 
-   const handleSubmit = async (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
 

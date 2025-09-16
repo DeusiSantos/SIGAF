@@ -342,55 +342,87 @@ const CadastroProdutor = () => {
   const consultarBI = async (biValue) => {
     if (!biValue || biValue.length < 9) return;
 
+    // Evitar múltiplas consultas simultâneas
+    if (consultingBI) {
+      console.log('⏸️ Consulta já em andamento, ignorando nova solicitação');
+      return;
+    }
+
     setConsultingBI(true);
+
+    // LIMPAR dados anteriores ANTES de fazer nova consulta
+    console.log('🧹 Limpando dados anteriores antes da nova consulta');
+    setBiData(null);
+    setFormData(prev => ({
+      ...prev,
+      nomeProdutor: '',
+      nomeDoMeioProdutor: '',
+      sobrenomeProdutor: '',
+      dataNascimento: '',
+      lugarNascimento: '',
+      estadoCivil: '',
+      sexoProdutor: '',
+    }));
 
     try {
       const username = 'minagrif';
       const password = 'Nz#$20!23Mg';
-
-      // Codificar credenciais em base64 para Basic Auth
       const credentials = btoa(`${username}:${password}`);
 
+      console.log(`🔍 Consultando BI: ${biValue}`);
+
       const response = await axios.get(`https://api.gov.ao/bi/v1/getBI`, {
-        params: {
-          bi: biValue
-        },
+        params: { bi: biValue },
         headers: {
           'Authorization': `Basic ${credentials}`,
           'Content-Type': 'application/json',
         },
       });
 
-      console.log('📊 Resposta completa da API BI:', response);
-      console.log('📋 Dados retornados da API BI:', response.data);
-      console.log('🔍 Status da resposta:', response.status);
+      console.log('📊 Status da resposta:', response.status);
+      console.log('📋 Code da resposta:', response.data?.code);
 
       const data = response.data;
 
-      // Função consultarBI - correção do mapeamento
-      // Função consultarBI - correção do mapeamento
-      // Função consultarBI - correção do mapeamento incluindo lugar de nascimento
       if (response.status === 200 && data.code === 200 && data.data) {
         const biInfo = data.data;
 
-        console.log('✅ Dados do BI processados:', biInfo);
+        // LOG detalhado dos dados recebidos para debug
+        console.log('📋 Dados recebidos da API:', {
+          first_name: biInfo.first_name,
+          last_name: biInfo.last_name,
+          gender_name: biInfo.gender_name,
+          marital_status_name: biInfo.marital_status_name,
+          birth_province_name: biInfo.birth_province_name,
+          birth_date: biInfo.birth_date
+        });
+
+        // Validar e limpar dados antes de processar
+        const nomeProdutor = (biInfo.first_name || '').trim();
+        const sobrenomeProdutor = (biInfo.last_name || '').trim();
+
+        if (!nomeProdutor && !sobrenomeProdutor) {
+          showToast('warn', 'Dados incompletos', 'Os dados do BI não contêm nome válido.');
+          return;
+        }
+
         setBiData(biInfo);
 
         // Mapear sexo para os valores do formulário
         let sexoMapeado = '';
         if (biInfo.gender_name) {
-          const sexo = biInfo.gender_name.toLowerCase();
-          if (sexo.includes('masculino') || sexo.includes('male') || sexo.includes('m')) {
+          const sexo = biInfo.gender_name.toLowerCase().trim();
+          if (sexo.includes('masculino') || sexo.includes('male') || sexo === 'm') {
             sexoMapeado = 'MASCULINO';
-          } else if (sexo.includes('feminino') || sexo.includes('female') || sexo.includes('f')) {
+          } else if (sexo.includes('feminino') || sexo.includes('female') || sexo === 'f') {
             sexoMapeado = 'FEMININO';
           }
         }
 
-        // Mapear estado civil para os valores do formulário
+        // Mapear estado civil
         let estadoCivilMapeado = '';
         if (biInfo.marital_status_name) {
-          const estadoCivil = biInfo.marital_status_name.toLowerCase();
+          const estadoCivil = biInfo.marital_status_name.toLowerCase().trim();
           if (estadoCivil.includes('solteiro')) {
             estadoCivilMapeado = 'SOLTEIRO';
           } else if (estadoCivil.includes('casado')) {
@@ -406,83 +438,103 @@ const CadastroProdutor = () => {
           }
         }
 
-        // Mapear lugar de nascimento (província) para o formato correto
+        // Mapear lugar de nascimento
         let lugarNascimentoMapeado = '';
         if (biInfo.birth_province_name) {
-          // Buscar a província correspondente no JSON de províncias
-          const provinciaEncontrada = provinciasData.find(provincia => {
-            const nomeProvinciaAPI = biInfo.birth_province_name.toLowerCase().trim();
-            const nomeProvinciaJSON = provincia.nome.toLowerCase().trim();
+          const nomeProvinciaAPI = biInfo.birth_province_name.toLowerCase().trim();
 
-            // Verificar correspondência exata ou parcial
-            return nomeProvinciaJSON.includes(nomeProvinciaAPI) ||
-              nomeProvinciaAPI.includes(nomeProvinciaJSON) ||
-              nomeProvinciaJSON === nomeProvinciaAPI;
+          const provinciaEncontrada = provinciasData.find(provincia => {
+            const nomeProvinciaJSON = provincia.nome.toLowerCase().trim();
+            return nomeProvinciaJSON === nomeProvinciaAPI ||
+              nomeProvinciaJSON.includes(nomeProvinciaAPI) ||
+              nomeProvinciaAPI.includes(nomeProvinciaJSON);
           });
 
-          if (provinciaEncontrada) {
-            lugarNascimentoMapeado = {
-              label: provinciaEncontrada.nome,
-              value: provinciaEncontrada.nome
-            };
-          } else {
-            // Se não encontrou correspondência exata, usar o valor da API mesmo assim
-            lugarNascimentoMapeado = {
-              label: biInfo.birth_province_name,
-              value: biInfo.birth_province_name
-            };
+          lugarNascimentoMapeado = provinciaEncontrada
+            ? { label: provinciaEncontrada.nome, value: provinciaEncontrada.nome }
+            : { label: biInfo.birth_province_name, value: biInfo.birth_province_name };
+        }
+
+        // Formatar data de nascimento
+        let dataNascimentoFormatada = '';
+        if (biInfo.birth_date) {
+          try {
+            dataNascimentoFormatada = new Date(biInfo.birth_date).toISOString().split('T')[0];
+          } catch (error) {
+            console.warn('⚠️ Erro ao formatar data de nascimento:', error);
           }
         }
 
-        // Preencher automaticamente os campos do formulário
+        // LOG dos dados que serão inseridos no formulário
+        console.log('✅ Dados processados para inserção:', {
+          nomeProdutor,
+          sobrenomeProdutor,
+          sexoMapeado,
+          estadoCivilMapeado,
+          dataNascimentoFormatada,
+          lugarNascimento: lugarNascimentoMapeado
+        });
+
+        // ATUALIZAR formulário com dados limpos e validados
         setFormData(prev => ({
           ...prev,
-          nomeProdutor: biInfo.first_name || '',
-          nomeDoMeioProdutor: '',
-          sobrenomeProdutor: biInfo.last_name || '',
-          dataNascimento: biInfo.birth_date ? new Date(biInfo.birth_date).toISOString().split('T')[0] : '',
+          nomeProdutor,
+          nomeDoMeioProdutor: '', // Sempre vazio - não vem da API
+          sobrenomeProdutor,
+          dataNascimento: dataNascimentoFormatada,
           lugarNascimento: lugarNascimentoMapeado,
-          estadoCivil: estadoCivilMapeado ? {
-            label: getEstadoCivilLabel(estadoCivilMapeado),
-            value: estadoCivilMapeado
-          } : '',
-          sexoProdutor: sexoMapeado ? {
-            label: sexoMapeado === 'MASCULINO' ? 'MASCULINO' : 'FEMENINO',
-            value: sexoMapeado
-          } : '',
+          estadoCivil: estadoCivilMapeado
+            ? { label: getEstadoCivilLabel(estadoCivilMapeado), value: estadoCivilMapeado }
+            : '',
+          sexoProdutor: sexoMapeado
+            ? { label: sexoMapeado, value: sexoMapeado }
+            : '',
         }));
 
         showToast('success', 'BI Consultado', 'Dados do produtor preenchidos automaticamente!');
-      }
-      else {
-        console.log('⚠️ BI não encontrado ou resposta inválida:', data);
+
+      } else {
+        console.log('⚠️ BI não encontrado ou resposta inválida:', {
+          status: response.status,
+          code: data.code,
+          message: data.message
+        });
+
         setBiData(null);
+
         if (data.code === 404) {
           showToast('warn', 'BI não encontrado', 'Não foi possível encontrar dados para este BI. Preencha manualmente.');
         } else {
-          showToast('warn', 'BI inválido', 'Este BI não retornou dados válidos. Verifique o número.');
+          showToast('warn', 'BI inválido', `Este BI não retornou dados válidos. Código: ${data.code}`);
         }
       }
+
     } catch (error) {
       console.error('❌ Erro ao consultar BI:', error);
-      console.error('📄 Detalhes do erro:', {
-        message: error.message,
-        status: error.response?.status,
-        data: error.response?.data,
-        headers: error.response?.headers
-      });
-
       setBiData(null);
 
+      // Tratamento de erros mais específico
       if (error.response) {
-        console.error('🚫 Erro de resposta do servidor:', error.response.status, error.response.data);
-        showToast('error', 'Erro do servidor', `Erro ${error.response.status}: ${error.response.data?.message || 'Erro na consulta do BI'}`);
+        const { status, data } = error.response;
+        console.error(`🚫 Erro HTTP ${status}:`, data);
+
+        if (status === 401) {
+          showToast('error', 'Erro de Autenticação', 'Credenciais inválidas para consulta do BI.');
+        } else if (status === 403) {
+          showToast('error', 'Acesso Negado', 'Sem permissão para consultar este BI.');
+        } else if (status === 404) {
+          showToast('warn', 'BI não encontrado', 'Este número de BI não foi encontrado na base de dados.');
+        } else if (status >= 500) {
+          showToast('error', 'Erro do Servidor', 'Servidor da consulta de BI indisponível. Tente novamente mais tarde.');
+        } else {
+          showToast('error', 'Erro na Consulta', `Erro ${status}: ${data?.message || 'Erro desconhecido'}`);
+        }
       } else if (error.request) {
-        console.error('🌐 Erro de rede - sem resposta:', error.request);
-        showToast('error', 'Erro de conexão', 'Não foi possível conectar ao servidor. Verifique sua conexão.');
+        console.error('🌐 Erro de rede:', error.request);
+        showToast('error', 'Erro de Conexão', 'Não foi possível conectar ao servidor. Verifique sua conexão.');
       } else {
         console.error('⚙️ Erro na configuração:', error.message);
-        showToast('error', 'Erro na consulta', 'Erro ao consultar BI. Tente novamente.');
+        showToast('error', 'Erro Interno', 'Erro interno na consulta do BI. Tente novamente.');
       }
     } finally {
       setConsultingBI(false);
@@ -773,7 +825,7 @@ const CadastroProdutor = () => {
         if (shouldShowDocumentNumber() && !formData.numeroDocumento) {
           newErrors.numeroDocumento = 'Campo obrigatório';
         }
-       
+
 
         // Validação do nome do documento "Outro"
         if (shouldShowDocumentName() && !formData.nomeOutroDocumento) {
@@ -781,7 +833,7 @@ const CadastroProdutor = () => {
         }
 
         if (!formData.telefoneProdutor) newErrors.telefoneProdutor = 'Campo obrigatório';
-        
+
         if (!formData.dataNascimento) newErrors.dataNascimento = 'Campo obrigatório';
         if (formData.dataNascimento && calculateAge(formData.dataNascimento) < 18) {
           newErrors.dataNascimento = 'Produtor deve ter pelo menos 18 anos';
@@ -1181,7 +1233,7 @@ const CadastroProdutor = () => {
                 iconStart={<User size={18} />}
               />
 
-             
+
 
               {/* <CustomInput
                 type="text"
@@ -1232,7 +1284,7 @@ const CadastroProdutor = () => {
                 />
               )}
 
-               {/* Exemplo de campo multiselect pré-preenchido */}
+              {/* Exemplo de campo multiselect pré-preenchido */}
               <CustomInput
                 type="multiselect"
                 label="Idiomas Falados"
@@ -1567,9 +1619,6 @@ const CadastroProdutor = () => {
                 </div>
                 <h3 className="text-xl font-bold text-gray-800">Composição do Agregado Familiar</h3>
               </div>
-              <p className="text-gray-600">
-                Grupo de pessoas que pernoitam no mesmo alojamento, partilham refeições e reconhecem uma mesma pessoa como chefe.
-              </p>
             </div>
 
             {errors.distribuicaoMembros && (
@@ -2549,7 +2598,7 @@ const CadastroProdutor = () => {
                         />
                         <CustomInput
                           type="select"
-                          label="Objetivo da Produção"
+                          label="Objectivo da Produção"
                           value={formData.objetivoOvinos}
                           options={[
                             { label: 'Carne', value: 'CARNE' },

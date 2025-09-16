@@ -413,7 +413,7 @@ const CertificacaoProdutor = () => {
       setFormData(prev => ({
         ...prev,
         nomeCompleto: nomeCompleto,
-        bi: produtor.beneficiary_id_number || '',
+        bi: produtor.confirmar_documento || '',
         telefone: produtor.beneficiary_phone_number || '',
         provincia: produtor.provincia || '',
         municipio: produtor.municipio || '',
@@ -467,7 +467,7 @@ const CertificacaoProdutor = () => {
     ].filter(Boolean).join(' ');
 
     return {
-      label: `${nomeCompleto} - ${p.beneficiary_id_number}`,
+      label: `${nomeCompleto} - ${p.confirmar_documento}`,
       value: p._id.toString()
     };
   });

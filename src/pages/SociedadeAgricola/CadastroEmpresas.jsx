@@ -876,6 +876,7 @@ const CadastroEmpresas = () => {
                 errorMessage={errors.Telefone}
                 placeholder="Ex: 923456789"
                 iconStart={<Phone size={18} />}
+                maxLength={9}
               />
 
               <CustomInput
@@ -1212,6 +1213,7 @@ const CadastroEmpresas = () => {
                     onChange={(value) => handleInputChange('TelefoneSecretarioOuGerente', value)}
                     placeholder="Ex: 923456789"
                     iconStart={<Phone size={18} />}
+                    mazLength={9}
                   />
 
                   <CustomInput

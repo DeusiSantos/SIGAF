@@ -191,7 +191,7 @@ const mapApiDataToProdutor = (apiData) => {
         sobrenomeProdutor: apiData.sobrenome_produtor || '',
         nome: apiData.beneficiary_name || `${apiData.nome_produtor || ''} ${apiData.nome_meio_produtor || ''} ${apiData.sobrenome_produtor || ''}`.trim(),
         genero: apiData.beneficiary_gender === 'm' ? 'MASCULINO' : 'FEMININO',
-        numeroBI: apiData.beneficiary_id_number || 'N/A',
+        numeroBI: apiData.confirmar_documento || 'N/A',
         telefone: apiData.beneficiary_phone_number || 'N/A',
         dataNascimento: apiData.beneficiary_date_of_birth || '1990-01-01',
         lugarNascimento: apiData.lugar_nascimento || '',

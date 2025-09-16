@@ -552,7 +552,7 @@ const GestaoSilos = () => {
 
                             <button
                                 onClick={() => showToast('info', 'Função', 'Exportar dados dos silos')}
-                                className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
+                                className="inline-flex items-center px-4 py-2 bg-white text-yellow-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
                             >
                                 <Download className="w-5 h-5 mr-2" />
                                 Exportar
@@ -699,7 +699,7 @@ const GestaoSilos = () => {
                                         <div className="flex items-center justify-center space-x-1">
                                             <button
                                                 onClick={() => handleViewEscola(silo.id)}
-                                                className="p-2 hover:bg-blue-100 text-blue-600 hover:text-blue-800 rounded-full transition-colors"
+                                                className="p-2 hover:bg-yellow-100 text-yellow-600 hover:text-yellow-800 rounded-full transition-colors"
                                                 title="Visualizar"
                                             >
                                                 <Eye className="w-5 h-5" />
