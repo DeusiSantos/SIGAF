@@ -489,8 +489,8 @@ const CertificacaoProdutorFlorestal = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <button
                   className={`p-6 rounded-xl border-2 transition-all text-center hover:shadow-lg ${tipoSelecionado === 'produtor'
-                      ? 'border-green-500 bg-green-50 text-green-700'
-                      : 'border-gray-200 hover:border-green-300'
+                    ? 'border-green-500 bg-green-50 text-green-700'
+                    : 'border-gray-200 hover:border-green-300'
                     }`}
                   onClick={() => setTipoSelecionado('produtor')}
                 >
@@ -500,8 +500,8 @@ const CertificacaoProdutorFlorestal = () => {
 
                 <button
                   className={`p-6 rounded-xl border-2 transition-all text-center hover:shadow-lg ${tipoSelecionado === 'empresa'
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
-                      : 'border-gray-200 hover:border-blue-300'
+                    ? 'border-blue-500 bg-blue-50 text-blue-700'
+                    : 'border-gray-200 hover:border-blue-300'
                     }`}
                   onClick={() => setTipoSelecionado('empresa')}
                 >
@@ -511,8 +511,8 @@ const CertificacaoProdutorFlorestal = () => {
 
                 <button
                   className={`p-6 rounded-xl border-2 transition-all text-center hover:shadow-lg ${tipoSelecionado === 'cooperativa'
-                      ? 'border-purple-500 bg-purple-50 text-purple-700'
-                      : 'border-gray-200 hover:border-purple-300'
+                    ? 'border-purple-500 bg-purple-50 text-purple-700'
+                    : 'border-gray-200 hover:border-purple-300'
                     }`}
                   onClick={() => setTipoSelecionado('cooperativa')}
                 >
@@ -522,8 +522,8 @@ const CertificacaoProdutorFlorestal = () => {
 
                 <button
                   className={`p-6 rounded-xl border-2 transition-all text-center hover:shadow-lg ${tipoSelecionado === 'associacao'
-                      ? 'border-amber-500 bg-amber-50 text-amber-700'
-                      : 'border-gray-200 hover:border-amber-300'
+                    ? 'border-amber-500 bg-amber-50 text-amber-700'
+                    : 'border-gray-200 hover:border-amber-300'
                     }`}
                   onClick={() => setTipoSelecionado('associacao')}
                 >
@@ -1513,47 +1513,220 @@ const CertificacaoProdutorFlorestal = () => {
     }
   };
 
-  const handleSubmit = async (event) => {
+const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
 
     try {
       if (!validateCurrentStep()) {
         setLoading(false);
-        showToast('error', 'Validação', 'Por favor, corrija os erros antes de gerar o certificado.');
+        showToast('error', 'Validação', 'Por favor, corrija os erros antes de enviar os dados.');
         return;
       }
 
-      // Importar a função de geração de certificado florestal
-      const { gerarCertificadoFlorestal } = await import('../pages/public/CertificadoFlorestalGenerator');
+      console.log("📊 Dados do formulário atual:", formData);
+      console.log("📊 Áreas florestais:", areasFlorestais);
+      console.log("📊 Espécies autorizadas:", especiesAutorizadas);
+      console.log("📊 Histórico exploração:", historicoExploracoes);
 
-      const dadosCertificado = {
-        dadosProdutor: {
-          ...formData,
-          provincia: getDisplayValue(formData.provincia),
-          municipio: getDisplayValue(formData.municipio),
-          tipoLicenca: getDisplayValue(formData.tipoLicenca),
-          numeroProcesso: formData.numeroProcesso || `CERT-FLORESTAL-${Date.now()}`,
-        },
-        areasFlorestais,
-        especiesAutorizadas,
-        historicoExploracoes,
-        produtorOriginal: produtorSelecionado
-      };
+      // Preparar FormData
+      const formDataToSend = new FormData();
 
-      console.log("📄 Gerando certificado florestal com dados:", dadosCertificado);
+      // Dados básicos - OBRIGATÓRIOS
+      const nomeCompleto = tipoSelecionado === 'produtor' ? formData.nomeCompleto : formData.nomeEntidade;
+      formDataToSend.append('NomeCompleto', nomeCompleto || 'Nome não informado');
+      formDataToSend.append('NumBIOuNIF', formData.bi || 'BI não informado');
+      formDataToSend.append('Telefone', formData.telefone || 'Telefone não informado');
 
-      const resultado = await gerarCertificadoFlorestal(dadosCertificado);
+      // CAMPOS OBRIGATÓRIOS - garantir que não sejam vazios
+      const provincia = getDisplayValue(formData.provincia);
+      const municipio = getDisplayValue(formData.municipio);
+      const comuna = formData.comuna;
 
-      console.log("✅ Certificado florestal gerado:", resultado);
+      console.log("📍 Localização:", { provincia, municipio, comuna });
+
+      formDataToSend.append('Provincia', provincia || 'Luanda');
+      formDataToSend.append('Municipio', municipio || 'Luanda');
+      formDataToSend.append('Comuna', comuna || 'Ingombota');
+
+      // Arrays - preparar estruturas
+      const tiposLicencaArray = formData.tiposLicenca ? formData.tiposLicenca.map(tipo => 
+        typeof tipo === 'object' ? tipo.value : tipo
+      ) : ['EXPLORACAO_FLORESTAL']; // Valor padrão
+
+      const areasFlorestalArray = areasFlorestais.length > 0 ? areasFlorestais.map(area => ({
+        nomeArea: area.nomeArea || 'Área não especificada',
+        areaHectares: parseFloat(area.areaHectares) || 0,
+        localizacao: area.localizacao || 'Localização não especificada',
+        coordenadasGPS: area.coordenadasGPS || '0,0',
+        tipoFloresta: area.tipoFloresta || 'NATIVA',
+        observacoes: area.observacoes || ''
+      })) : [{
+        nomeArea: 'Área Principal',
+        areaHectares: 1,
+        localizacao: `${provincia}-${municipio}`,
+        coordenadasGPS: '0,0',
+        tipoFloresta: 'NATIVA',
+        observacoes: 'Área padrão'
+      }];
+
+      const especiesAutorizadasArray = especiesAutorizadas.length > 0 ? especiesAutorizadas.map(especie => ({
+        especie: especie.especie || 'MAFUMEIRA',
+        nomeCientifico: especie.nomeCientifico || 'Não especificado',
+        volumeAutorizado: parseFloat(especie.volumeAutorizado) || 0,
+        unidade: especie.unidade || 'm³',
+        observacoes: especie.observacoes || ''
+      })) : [{
+        especie: 'MAFUMEIRA',
+        nomeCientifico: 'Não especificado',
+        volumeAutorizado: 10,
+        unidade: 'm³',
+        observacoes: 'Espécie padrão'
+      }];
+
+      const historicoExploracaoArray = historicoExploracoes.length > 0 ? historicoExploracoes.map(historico => ({
+        ano: parseInt(historico.ano) || new Date().getFullYear(),
+        especie: historico.especie || 'MAFUMEIRA',
+        volumeExplorado: parseFloat(historico.volumeExplorado) || 0,
+        areaExplorada: parseFloat(historico.areaExplorada) || 0,
+        observacoes: historico.observacoes || ''
+      })) : [];
+
+      // Enviar arrays de forma estruturada (não como JSON string)
+      formDataToSend.append('TipoDeLicencaFlorestal', JSON.stringify(tiposLicencaArray));
+
+      // Áreas Florestais - enviar cada campo individualmente
+      areasFlorestalArray.forEach((area, index) => {
+        formDataToSend.append(`AreaFlorestalLicenciadas[${index}].nomeArea`, area.nomeArea);
+        formDataToSend.append(`AreaFlorestalLicenciadas[${index}].areaHectares`, area.areaHectares.toString());
+        formDataToSend.append(`AreaFlorestalLicenciadas[${index}].localizacao`, area.localizacao);
+        formDataToSend.append(`AreaFlorestalLicenciadas[${index}].coordenadasGPS`, area.coordenadasGPS);
+        formDataToSend.append(`AreaFlorestalLicenciadas[${index}].tipoFloresta`, area.tipoFloresta);
+        formDataToSend.append(`AreaFlorestalLicenciadas[${index}].observacoes`, area.observacoes);
+      });
+
+      // Espécies Autorizadas - enviar cada campo individualmente
+      especiesAutorizadasArray.forEach((especie, index) => {
+        formDataToSend.append(`EspecieciesFlorestaisAutorizadas[${index}].especie`, especie.especie);
+        formDataToSend.append(`EspecieciesFlorestaisAutorizadas[${index}].nomeCientifico`, especie.nomeCientifico);
+        formDataToSend.append(`EspecieciesFlorestaisAutorizadas[${index}].volumeAutorizado`, especie.volumeAutorizado.toString());
+        formDataToSend.append(`EspecieciesFlorestaisAutorizadas[${index}].unidade`, especie.unidade);
+        formDataToSend.append(`EspecieciesFlorestaisAutorizadas[${index}].observacoes`, especie.observacoes);
+      });
+
+      // Histórico de Exploração - enviar cada campo individualmente
+      historicoExploracaoArray.forEach((historico, index) => {
+        formDataToSend.append(`HistoricoDeExploracao[${index}].ano`, historico.ano.toString());
+        formDataToSend.append(`HistoricoDeExploracao[${index}].especie`, historico.especie);
+        formDataToSend.append(`HistoricoDeExploracao[${index}].volumeExplorado`, historico.volumeExplorado.toString());
+        formDataToSend.append(`HistoricoDeExploracao[${index}].areaExplorada`, historico.areaExplorada.toString());
+        formDataToSend.append(`HistoricoDeExploracao[${index}].observacoes`, historico.observacoes);
+      });
+
+      // Total de custos
+      formDataToSend.append('TotalDeCustos', calcularTotalFatura());
+
+      // Documentos binários - strings vazias por enquanto
+      const documentosCampos = [
+        'IdentificacaoDoRequerente',
+        'ComprovativoDeRegistoDaEmpresaOuAssociacao', 
+        'DeclaracaoDasAutoridadesTradicionaisDaAdministracaoMunicipal',
+        'DeclaracaoDeNaoDevedorFiscal',
+        'ContratoDeParceria',
+        'DeclaracaoDeSujeicaoLeisVigentesTribunaisNacionais',
+        'ProvaDeCapacidadeFinanceira',
+        'CroquisDeLocalizacaoDaArea',
+        'MemoriaDescritivaDaAreaDeExploracao',
+        'PlanoDeExploracaoFlorestal',
+        'LicencaAmbientalEstudoDeImpactoAmbiental',
+        'RelatorioDeAtividadeDesenvolvida'
+      ];
+
+      documentosCampos.forEach(campo => {
+        formDataToSend.append(campo, '');
+      });
+
+      // DATAS - FORMATO CORRETO (YYYY-MM-DD)
+      const hoje = new Date();
+      const validadeInicio = formData.validadeInicio ? 
+        new Date(formData.validadeInicio).toISOString().split('T')[0] : 
+        hoje.toISOString().split('T')[0];
+        
+      const validadeFim = formData.validadeFim ? 
+        new Date(formData.validadeFim).toISOString().split('T')[0] : 
+        new Date(hoje.getFullYear() + 1, hoje.getMonth(), hoje.getDate()).toISOString().split('T')[0];
+
+      console.log("📅 Datas formatadas:", { validadeInicio, validadeFim });
+
+      formDataToSend.append('ValidadeDe', validadeInicio);
+      formDataToSend.append('ValidadeAte', validadeFim);
+
+      // Informações técnicas - todos os campos preenchidos
+      formDataToSend.append('NomeDoTecnicoResponsavel', formData.tecnicoResponsavel || 'Técnico DNF');
+      formDataToSend.append('Cargo', formData.cargoTecnico || 'Técnico Florestal Superior');
+      formDataToSend.append('CondicoesEspeciais', formData.condicoesEspeciais || 'Nenhuma condição especial');
+      formDataToSend.append('Observacoes', formData.observacoes || 'Certificação processada automaticamente');
+
+      // IDs das entidades - ENVIAR APENAS UM DOS DOIS
+      if (tipoSelecionado === 'produtor' && produtorSelecionado && produtorSelecionado._id) {
+        // Caso seja produtor florestal individual
+        formDataToSend.append('ProdutorFlorestalId', produtorSelecionado._id.toString());
+        console.log("📋 Enviando ProdutorFlorestalId:", produtorSelecionado._id);
+      } else if (['empresa', 'cooperativa', 'associacao'].includes(tipoSelecionado) && entidadeSelecionada && entidadeSelecionada.id) {
+        // Caso seja empresa, cooperativa ou associação
+        formDataToSend.append('OrganizacaoId', entidadeSelecionada.id.toString());
+        console.log("📋 Enviando OrganizacaoId:", entidadeSelecionada.id);
+      } else {
+        // Caso não tenha nenhuma entidade selecionada, enviar um ID padrão baseado no tipo
+        if (tipoSelecionado === 'produtor') {
+          formDataToSend.append('ProdutorFlorestalId', '0');
+          console.log("📋 Enviando ProdutorFlorestalId padrão: 0");
+        } else {
+          formDataToSend.append('OrganizacaoId', '0');
+          console.log("📋 Enviando OrganizacaoId padrão: 0");
+        }
+      }
+
+      // Debug completo - mostrar todos os campos
+      console.log("📤 FormData completo sendo enviado:");
+      for (let [key, value] of formDataToSend.entries()) {
+        console.log(`${key}: ${value}`);
+      }
+
+      // Fazer requisição
+      const response = await fetch('https://mwangobrainsa-001-site2.mtempurl.com/api/certificaoDoProdutorFlorestal', {
+        method: 'POST',
+        body: formDataToSend,
+      });
+
+      const responseText = await response.text();
+      console.log("📨 Resposta completa da API:", responseText);
+      
+      let resultado;
+      try {
+        resultado = JSON.parse(responseText);
+      } catch (e) {
+        resultado = { error: responseText };
+      }
+
+      if (!response.ok) {
+        console.error("❌ Erro detalhado da API:", {
+          status: response.status,
+          statusText: response.statusText,
+          body: resultado
+        });
+        throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}. Detalhes: ${JSON.stringify(resultado)}`);
+      }
+
+      console.log("✅ Certificado florestal enviado com sucesso:", resultado);
 
       setLoading(false);
-      showToast('success', 'Sucesso', 'Certificado de Licença Florestal gerado com sucesso!');
+      showToast('success', 'Sucesso', 'Certificado de Licença Florestal enviado com sucesso para aprovação!');
 
     } catch (error) {
       setLoading(false);
-      console.error('Erro ao gerar certificado florestal:', error);
-      showToast('error', 'Erro', `Erro ao gerar certificado: ${error.message}`);
+      console.error('Erro ao enviar certificado florestal:', error);
+      showToast('error', 'Erro', `Erro ao enviar certificado: ${error.message}`);
     }
   };
 
