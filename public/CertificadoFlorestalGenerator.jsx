@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Image, Page, Text, View, Document, StyleSheet, pdf } from '@react-pdf/renderer';
 import QRCode from 'react-qr-code';
-import { renderToStaticMarkup } from 'react-dom/server';
+//import { renderToStaticMarkup } from 'react-dom/server';
 import emblema from '../../assets/emblema.png';
 import logo from '../../assets/RNPA-removebg.png';
-import api from '../../services/api';
+//import api from '../../services/api';
 
 // Estilos para o certificado florestal oficial
 const styles = StyleSheet.create({
@@ -521,7 +521,7 @@ const qrCodeToDataURL = async (value, size = 200) => {
 
     // Gerar QR code usando uma biblioteca simples
     // Para simplificar, vamos usar uma abordagem básica
-    const qrSize = Math.floor(size / 25); // 25x25 módulos
+    //const qrSize = Math.floor(size / 25); // 25x25 módulos
     const moduleSize = Math.floor(size / 25);
     
     // Fundo branco

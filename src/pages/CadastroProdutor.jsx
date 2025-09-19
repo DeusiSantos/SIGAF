@@ -147,10 +147,10 @@ const CadastroProdutor = () => {
   // Estado inicial simplificado
   const initialState = {
     // Seção A: Identificação do Inquiridor
-    codigoInquiridor: '',
-    nomeInquiridor: '',
+    codigo_inquiridor: '',
+    nome_inquiridor: '',
     nomeDoMeioInquiridor: '',
-    sobrenomeInquiridor: '',
+   sobrenome_inquiridor: '',
     dataRegisto: new Date().toISOString().split('T')[0],
 
     // Seção B: Identificação Geográfica
@@ -585,15 +585,15 @@ const CadastroProdutor = () => {
 
   const handleInputChange = (field, value) => {
     // Lógica especial para código do inquiridor
-    if (field === 'codigoInquiridor') {
+    if (field === 'codigo_inquiridor') {
       const inquiridor = inquiridoresData.find(inq => inq.codigo === (value?.value || value));
       if (inquiridor) {
         setFormData(prev => ({
           ...prev,
-          codigoInquiridor: value,
-          nomeInquiridor: inquiridor.nomeCompleto,
+          codigo_inquiridor: value,
+          nome_inquiridor: inquiridor.nomeCompleto,
           nomeDoMeioInquiridor: inquiridor.nomeDoMeio,
-          sobrenomeInquiridor: inquiridor.sobrenome
+         sobrenome_inquiridor: inquiridor.sobrenome
         }));
       }
       return;
@@ -789,7 +789,7 @@ const CadastroProdutor = () => {
 
     switch (activeIndex) {
       case 0: // Inquiridor
-        if (!formData.codigoInquiridor) newErrors.codigoInquiridor = 'Campo obrigatório';
+        if (!formData.codigo_inquiridor) newErrors.codigo_inquiridor = 'Campo obrigatório';
 
         console.log('❌ Erros encontrados:', newErrors);
         break;
@@ -923,14 +923,14 @@ const CadastroProdutor = () => {
               <CustomInput
                 type="select"
                 label="Código do Inquiridor"
-                value={formData.codigoInquiridor}
+                value={formData.codigo_inquiridor}
                 options={inquiridoresData.map(inq => ({
                   label: `${inq.codigo} - ${inq.nomeCompleto}`,
                   value: inq.codigo
                 }))}
-                onChange={(value) => handleInputChange('codigoInquiridor', value)}
+                onChange={(value) => handleInputChange('codigo_inquiridor', value)}
                 required
-                errorMessage={errors.codigoInquiridor}
+                errorMessage={errors.codigo_inquiridor}
                 placeholder="Selecione o inquiridor"
                 iconStart={<CreditCard size={18} />}
               />
@@ -938,7 +938,7 @@ const CadastroProdutor = () => {
               <CustomInput
                 type="text"
                 label="Nome do Inquiridor"
-                value={formData.nomeInquiridor}
+                value={formData.nome_inquiridor}
                 disabled={true}
                 placeholder="Preenchido automaticamente"
                 iconStart={<User size={18} />}
@@ -947,7 +947,7 @@ const CadastroProdutor = () => {
               <CustomInput
                 type="text"
                 label="Sobrenome"
-                value={formData.sobrenomeInquiridor}
+                value={formData.sobrenome_inquiridor}
                 disabled={true}
                 placeholder="Preenchido automaticamente"
                 iconStart={<User size={18} />}
@@ -3377,196 +3377,206 @@ const CadastroProdutor = () => {
       // Criar o objeto de dados mapeado CORRETAMENTE para a API
       const apiData = {
         // Seção A: Identificação do Inquiridor
-        CodigoInquiridor: formData.codigoInquiridor?.value || formData.codigoInquiridor || '',
-        NomeInquiridor: formData.nomeInquiridor || '',
-        NomeMeio: formData.nomeDoMeioInquiridor || '',
-        SobrenomeInquiridor: formData.sobrenomeInquiridor || '',
-        RegistrationDate: formatDateForAPI(formData.dataRegisto), // ✅ Data formatada
+        codigo_inquiridor: formData.codigo_inquiridor?.value || formData.codigo_inquiridor || '',
+        nome_inquiridor: formData.nome_inquiridor || '',
+        nome_meio: formData.nomeDoMeioInquiridor || '',
+        sobrenome_inquiridor: formData.sobrenome_inquiridor || '',
+        registration_date: formatDateForAPI(formData.dataRegisto),
 
         // Seção B: Identificação Geográfica
         Provincia: formData.provincia?.value || formData.provincia || '',
         Municipio: formData.municipio?.value || formData.municipio || '',
-        Comuna: formData.comuna || '',
-        GeoLevel4: formData.comuna || '',
-        GeoLevel5: formData.bairroAldeia || '',
-        GeoLevel6: formData.nomeSecao || '',
-        GPSCoordinates: `${formData.latitudeGPS || ''},${formData.longitudeGPS || ''}`,
+        comuna: formData.comuna || '',
+        geo_level_4: formData.bairroAldeia || '',
+        geo_level_5: formData.nomeSecao || '',
+        geo_level_6: formData.localResidencia?.value || formData.localResidencia || '',
+        gps_coordinates: `${formData.latitudeGPS || ''},${formData.longitudeGPS || ''},${formData.altitudeGPS || ''},${formData.precisaoGPS || ''}`,
 
-        // Seção C: Consentimento
-        Permissao: 'Sim',
+        // Seção C: Consentimento e Biometria
+        permissao: 'Sim',
+        beneficiary_biometrics: '', // Será preenchido com o arquivo
+        beneficiary_photo: '', // Será preenchido com o arquivo
 
         // Seção D: Membro já registrado
-        MembroRegistrado: 'Não',
-        CodigoFamiliar: '',
+        membro_registrado: 'Não',
+        codigo_familiar: '',
 
         // Seção E: Identificação do Produtor
-        NomeProdutor: formData.nomeProdutor || '',
-        NomeMeioProdutor: formData.nomeDoMeioProdutor || '',
-        SobrenomeProdutor: formData.sobrenomeProdutor || '',
-        BeneficiaryName: `${formData.nomeProdutor || ''} ${formData.sobrenomeProdutor || ''}`.trim(),
+        nome_produtor: formData.nomeProdutor || '',
+        nome_meio_produtor: formData.nomeDoMeioProdutor || '',
+        sobrenome_produtor: formData.sobrenomeProdutor || '',
+        beneficiary_name: `${formData.nomeProdutor || ''} ${formData.nomeDoMeioProdutor || ''} ${formData.sobrenomeProdutor || ''}`.trim().replace(/\s+/g, ' '),
 
         // ECA/Organização
-        E4FazesParteDeUmaCooper: formData.tipoOrganizacao?.value === 'COOPERATIVA' ? 'Sim' : 'Não',
-        TipoOrganizacao: formData.tipoOrganizacao?.value || formData.tipoOrganizacao || '',
-        EspecificarOrganizacao: formData.outroTipoOrganizacao || '',
+        E_4_Fazes_parte_de_uma_cooper: formData.tipoOrganizacao?.value === 'COOPERATIVA' ? 'Sim' : 'Não',
+        posicao_eca: formData.posicaoECA?.value || formData.posicaoECA || '',
+        tipo_organizacao: formData.tipoOrganizacao?.value || formData.tipoOrganizacao || '',
+        especificar_organizacao: formData.outroTipoOrganizacao || '',
 
         // Dados pessoais
-        BeneficiaryGender: formData.sexoProdutor?.value || formData.sexoProdutor || '',
-        TipoDocumento: formData.tipoDocumento?.value || formData.tipoDocumento || '',
-        ConfirmarDocumento: formData.numeroDocumento || '',
-        BeneficiaryPhoneNumber: formData.telefoneProdutor || '',
-        ConfirmarTelefone: formData.confirmarTelefoneProdutor || formData.telefoneProdutor || '',
-        TelefoneProprio: formData.telefonePropriedade ? 'Sim' : 'Não',
-        DonoNumero: formData.proprietarioTelefone || '',
-        BeneficiaryDateOfBirth: formatDateForAPI(formData.dataNascimento), // ✅ Data formatada corretamente
-        LugarNascimento: formData.lugarNascimento?.value || formData.lugarNascimento || '',
-        EstadoCivil: formData.estadoCivil?.value || formData.estadoCivil || '',
-        NivelEscolaridade: formData.nivelEscolaridade?.value || formData.nivelEscolaridade || '',
-        Outro: formData.outroNivelEscolaridade || '',
-        Gravida: formData.gravidez ? 'Sim' : 'Não',
-        PossuiDeficiencia: formData.deficiencia ? 'Sim' : 'Não',
-        TipoDeficiencia: formData.tipoDeficiencia?.value || formData.tipoDeficiencia || '',
+        beneficiary_gender: formData.sexoProdutor?.value || formData.sexoProdutor || '',
+        tipo_documento: formData.tipoDocumento?.value || formData.tipoDocumento || '',
+        confirmar_documento: formData.numeroDocumento || '',
+        foto_documento: '', // Será preenchido com o arquivo
+        beneficiary_phone_number: formData.telefoneProdutor || '',
+        confirmar_telefone: formData.confirmarTelefoneProdutor || formData.telefoneProdutor || '',
+        telefone_proprio: formData.telefonePropriedade ? 'Sim' : 'Não',
+        dono_numero: formData.proprietarioTelefone || '',
+        beneficiary_date_of_birth: formatDateForAPI(formData.dataNascimento),
+        lugar_nascimento: formData.lugarNascimento?.value || formData.lugarNascimento || '',
+        estado_civil: formData.estadoCivil?.value || formData.estadoCivil || '',
+        nivel_escolaridade: formData.nivelEscolaridade?.value || formData.nivelEscolaridade || '',
+        outro: formData.outroNivelEscolaridade || '',
+        gravida: formData.gravidez ? 'Sim' : 'Não',
+        possui_deficiencia: formData.deficiencia ? 'Sim' : 'Não',
+        tipo_deficiencia: formData.tipoDeficiencia?.value || formData.tipoDeficiencia || '',
 
         // Seção F: Composição do Agregado Familiar
-        ChefeFamiliar: formData.chefeAgregado ? 'Sim' : 'Não',
-        NomeChefe: formData.nomeChefeAgregado || '',
-        NomeMeioChefe: formData.nomeDoMeioChefe || '',
-        SobreNomeChefe: formData.sobrenomeChefe || '',
-        SexoChefe: formData.sexoChefe?.value || formData.sexoChefe || '',
-        TipoDocChefe: '',
-        NumDocChefe: '',
-        ConfirmarDocChefe: '',
-        NumTelChefe: '',
-        ConfirmarTelChefe: '',
-        RelacaoChefe: formData.relacaoChefe?.value || formData.relacaoChefe || '',
-        TotalAgregado: formData.totalMembros?.toString() || '1',
-        Feminino_0_6: formData.femininoIdade0a6?.toString() || '0',
-        Masculino_0_6: formData.masculinoIdade0a6?.toString() || '0',
-        Feminino_7_18: formData.femininoIdade7a18?.toString() || '0',
-        Masculino_7_18: formData.masculinoIdade7a18?.toString() || '0',
-        Feminino_19_60: formData.femininoIdade19a60?.toString() || '0',
-        Masculino_19_60: formData.masculinoIdade19a60?.toString() || '0',
-        Feminino_61_mais: formData.femininoIdade61mais?.toString() || '0',
-        Masculino_61_mais: formData.masculinoIdade61mais?.toString() || '0',
+        chefe_familiar: formData.chefeAgregado ? 'Sim' : 'Não',
+        nome_chefe: formData.nomeChefeAgregado || '',
+        nome_meio_chefe: formData.nomeDoMeioChefe || '',
+        sobrenome_chefe: formData.sobrenomeChefe || '',
+        sexo_chefe: formData.sexoChefe?.value || formData.sexoChefe || '',
+        tipo_doc_chefe: '',
+        num_doc_chefe: '',
+        confirmar_doc_chefe: '',
+        num_tel_chefe: '',
+        confirmar_tel_chefe: '',
+        relacao_chefe: formData.relacaoChefe?.value || formData.relacaoChefe || '',
+        total_agregado: formData.totalMembros?.toString() || '1',
+        feminino_0_6: formData.femininoIdade0a6?.toString() || '0',
+        masculino_0_6: formData.masculinoIdade0a6?.toString() || '0',
+        feminino_7_18: formData.femininoIdade7a18?.toString() || '0',
+        masculino_7_18: formData.masculinoIdade7a18?.toString() || '0',
+        feminino_19_60: formData.femininoIdade19a60?.toString() || '0',
+        masculino_19_60: formData.masculinoIdade19a60?.toString() || '0',
+        feminino_61_mais: formData.femininoIdade61mais?.toString() || '0',
+        masculino_61_mais: formData.masculinoIdade61mais?.toString() || '0',
 
         // Seção G: Ativos e Atividades
-        AtividadesProdutor: Array.isArray(formData.tiposAtividades)
+        atividades_produtor: Array.isArray(formData.tiposAtividades)
           ? formData.tiposAtividades.map(item => item.value || item).join(',')
           : formData.tiposAtividades || '',
-        OutraAtividade: formData.outroTipoAtividade || '',
+        outra_atividade: formData.outroTipoAtividade || '',
 
         // Informações sobre terras
-        AcessoTerra: formData.acessoTerras ? 'Sim' : 'Não',
-        EProprietario: formData.proprietarioTerra ? 'Sim' : 'Não',
-        TituloTerra: formData.tituloConcessao ? 'Sim' : 'Não',
-        TipoDocTerra: formData.tipoTitulo?.value || formData.tipoTitulo || '',
-        AreaTotal: formData.areaTotalCampos?.toString() || '0',
-        AreaExplorada: formData.areaExplorada?.toString() || '0',
-        AreaAgricola: formData.areaAgricola?.toString() || '0',
-        AreaPecuaria: formData.areaPecuaria?.toString() || '0',
-        AreaFlorestal: formData.areaFlorestal?.toString() || '0',
-        TecnologiaAgricola: formData.tecnologiaAgricola?.value || formData.tecnologiaAgricola || '',
+        acesso_terra: formData.acessoTerras ? 'Sim' : 'Não',
+        e_proprietario: formData.proprietarioTerra ? 'Sim' : 'Não',
+        titulo_terra: formData.tituloConcessao ? 'Sim' : 'Não',
+        tipo_doc_terra: formData.tipoTitulo?.value || formData.tipoTitulo || '',
+        area_total: formData.areaTotalCampos?.toString() || '0',
+        area_explorada: formData.areaExplorada?.toString() || '0',
+        area_agricola: formData.areaAgricola?.toString() || '0',
+        area_pecuaria: formData.areaPecuaria?.toString() || '0',
+        area_florestal: formData.areaFlorestal?.toString() || '0',
+        tecnologia_agricola: formData.tecnologiaAgricola?.value || formData.tecnologiaAgricola || '',
 
         // Culturas
-        CulturasImportantes: Array.isArray(formData.culturasPrincipais)
+        culturas_importantes: Array.isArray(formData.culturasPrincipais)
           ? formData.culturasPrincipais.map(item => item.value || item).join(',')
           : formData.culturasPrincipais || '',
-        OutraCultura: formData.outraCultura || '',
-        ProducaoSacos: formData.producaoSacos50kg?.toString() || '0',
-        TipoSemanteira: formData.tipoSementeira?.value || formData.tipoSementeira || '',
-        UsoFertilizante: formData.usoFertilizantes ? 'Sim' : 'Não',
-        PreparacaoTerra: formData.preparacaoTerra?.value || formData.preparacaoTerra || '',
+        outra_cultura: formData.outraCultura || '',
+        producao_sacos: formData.producaoSacos50kg?.toString() || '0',
+        tipo_semanteira: formData.tipoSementeira?.value || formData.tipoSementeira || '',
+        uso_fertilizante: formData.usoFertilizantes ? 'Sim' : 'Não',
+        preparacao_terra: formData.preparacaoTerra?.value || formData.preparacaoTerra || '',
 
         // Irrigação
-        AcessoIrrigacao: formData.acessoIrrigacao ? 'Sim' : 'Não',
-        SistemaIrrigacao: formData.sistemaIrrigacao?.value || formData.sistemaIrrigacao || '',
-        EspecificarIrrigacao: formData.outroSistemaIrrigacao || '',
-        DistanciaAgua: formData.distanciaFonteAgua?.toString() || '0',
+        acesso_irrigacao: formData.acessoIrrigacao ? 'Sim' : 'Não',
+        sistema_irrigacao: formData.sistemaIrrigacao?.value || formData.sistemaIrrigacao || '',
+        especificar_irrigacao: formData.outroSistemaIrrigacao || '',
+        distancia_agua: formData.distanciaFonteAgua?.toString() || '0',
 
         // Amanhos culturais
-        AmanhosCulturais: formData.amanhosCulturais ? 'Sim' : 'Não',
-        TiposAmanhos: Array.isArray(formData.tipoAmanhos)
+        amanhos_culturais: formData.amanhosCulturais ? 'Sim' : 'Não',
+        tipos_amanhos: Array.isArray(formData.tipoAmanhos)
           ? formData.tipoAmanhos.map(item => item.value || item).join(',')
           : formData.tipoAmanhos || '',
-        EspecificarAmanhos: formData.outroTipoAmanho || '',
+        especificar_amanhos: formData.outroTipoAmanho || '',
 
         // Instrumentos agrícolas
-        AcessoInsumoaAgricolas: formData.acessoInstrumentos ? 'Sim' : 'Não',
-        FonteInsumos: Array.isArray(formData.fonteInstrumentos)
+        acesso_insumoa_agricolas: formData.acessoInstrumentos ? 'Sim' : 'Não',
+        fonte_insumos: Array.isArray(formData.fonteInstrumentos)
           ? formData.fonteInstrumentos.map(item => item.value || item).join(',')
           : formData.fonteInstrumentos || '',
-        EspecificarFonte: formData.outraFonteInstrumento || '',
+        especificar_fonte: formData.outraFonteInstrumento || '',
+        foto_superficie: '', // Será preenchido com o arquivo
 
         // Seção H: Pecuária
-        TiposCriacao: Array.isArray(formData.tiposCriacao)
+        tipos_criacao: Array.isArray(formData.tiposCriacao)
           ? formData.tiposCriacao.map(item => item.value || item).join(',')
           : formData.tiposCriacao || '',
-        OutraCriacao: formData.outroTipoCriacao || '',
+        outra_criacao: formData.outroTipoCriacao || '',
 
         // Avicultura
-        SistemaAvicultura: formData.sistemaAvicultura?.value || formData.sistemaAvicultura || '',
-        ObjetivoAvicultura: formData.objetivoAvicultura?.value || formData.objetivoAvicultura || '',
-        OutroObjAvicultura: formData.outroObjetivoAvicultura || '',
-        NumeroAves: formData.numeroAves?.toString() || '0',
+        sistema_avicultura: formData.sistemaAvicultura?.value || formData.sistemaAvicultura || '',
+        objetivo_avicultura: formData.objetivoAvicultura?.value || formData.objetivoAvicultura || '',
+        outro_obj_avicultura: formData.outroObjetivoAvicultura || '',
+        numero_aves: formData.numeroAves?.toString() || '0',
 
         // Pecuária geral
-        TipoPecuaria: formData.sistemaBovinocultura?.value || formData.sistemaBovinocultura || '',
-        ManejoPecuaria: formData.tipoBovinocultura?.value || formData.tipoBovinocultura || '',
-        NumeroCabras: formData.numeroCabras?.toString() || '0',
-        NumeroVacas: formData.numeroVacas?.toString() || '0',
-        NumeroOvelhas: formData.numeroOvelhas?.toString() || '0',
-        ObjetivoProducao: formData.objetivoBovinos?.value || formData.objetivoBovinos || '',
-        EspecificarObjetivoProducao: formData.outroObjetivoBovinos || '',
+        tipo_pecuaria: formData.sistemaBovinocultura?.value || formData.sistemaBovinocultura || '',
+        manejo_pecuaria: formData.tipoBovinocultura?.value || formData.tipoBovinocultura || '',
+        numero_cabras: formData.numeroCabras?.toString() || '0',
+        numero_vacas: formData.numeroVacas?.toString() || '0',
+        numero_ovelhas: formData.numeroOvelhas?.toString() || '0',
+        objetivo_producao: formData.objetivoBovinos?.value || formData.objetivoBovinos || '',
+        especificar_objetivo_producao: formData.outroObjetivoBovinos || '',
 
         // Suinocultura
-        NumeroPorcos: formData.numeroPorcos?.toString() || '0',
-        ObjetivoSuinocultura: formData.objetivoSuinos?.value || formData.objetivoSuinos || '',
-        EspecificarObjetivoSuino: formData.outroObjetivoSuinos || '',
+        numero_porcos: formData.numeroPorcos?.toString() || '0',
+        objetivo_suinocultura: formData.objetivoSuinos?.value || formData.objetivoSuinos || '',
+        especificar_objetivo_suino: formData.outroObjetivoSuinos || '',
 
         // Aquicultura
-        TipoAquicultura: formData.tipoPiscicultura?.value || formData.tipoPiscicultura || '',
-        ObjetivoAquicultura: formData.objetivoPiscicultura?.value || formData.objetivoPiscicultura || '',
-        EspecificarObjetivoAquic: formData.outroObjetivoPiscicultura || '',
-        NumeroPeixes: formData.numeroPeixes?.toString() || '0',
+        tipo_aquicultura: formData.tipoPiscicultura?.value || formData.tipoPiscicultura || '',
+        objetivo_aquicultura: formData.objetivoPiscicultura?.value || formData.objetivoPiscicultura || '',
+        especificar_objetivo_aquic: formData.outroObjetivoPiscicultura || '',
+        numero_peixes: formData.numeroPeixes?.toString() || '0',
 
         // Cunicultura
-        NumeroCoelhos: formData.numeroCoelhos?.toString() || '0',
-        ObjetivoCoelho: formData.objetivoCoelhos?.value || formData.objetivoCoelhos || '',
-        EspecificarObjetivoCoelhos: formData.outroObjetivoCoelhos || '',
+        numero_coelhos: formData.numeroCoelhos?.toString() || '0',
+        objetivo_coelho: formData.objetivoCoelhos?.value || formData.objetivoCoelhos || '',
+        especificar_objetivo_coelhos: formData.outroObjetivoCoelhos || '',
 
         // Aspectos gerais pecuária
-        AcessoRacao: formData.acessoRacao ? 'Sim' : 'Não',
-        ConhecimentoDoencas: formData.conhecimentoDoencas ? 'Sim' : 'Não',
+        acesso_racao: formData.acessoRacao ? 'Sim' : 'Não',
+        conhecimento_doencas: formData.conhecimentoDoencas ? 'Sim' : 'Não',
 
         // Seção I: Crédito & Bens
-        CreditoBeneficio: formData.beneficiadoCredito ? 'Sim' : 'Não',
-        FonteCredito: Array.isArray(formData.fontesCredito)
+        credito_beneficio: formData.beneficiadoCredito ? 'Sim' : 'Não',
+        fonte_credito: Array.isArray(formData.fontesCredito)
           ? formData.fontesCredito.map(item => item.value || item).join(',')
           : formData.fontesCredito || '',
-        EspecificarCredito: formData.outraFonteCredito || '',
+        especificar_credito: formData.outraFonteCredito || '',
 
-        BensFamiliares: Array.isArray(formData.bensPatrimonio)
+        bens_familiares: Array.isArray(formData.bensPatrimonio)
           ? formData.bensPatrimonio.map(item => item.value || item).join(',')
           : formData.bensPatrimonio || '',
-        EspecificarBem: formData.outroBemPatrimonio || '',
+        especificar_bem: formData.outroBemPatrimonio || '',
 
         // Seção J: Pacotes de Assistência
-        TipoApoio: formData.tipoApoio || '',
-        ObservacoesGerais: formData.observacoesGerais || '',
-        TipoPatec: formData.tipoPacote?.value || formData.tipoPacote || '',
-        EspecificarPatec: formData.outroTipoPacote || '',
+        tipo_apoio: formData.tipoApoio || '',
+        observacoes_gerais: formData.observacoesGerais || '',
+        foto_observacao: '', // Será preenchido com o arquivo
+        tipo_patec: formData.tipoPacote?.value || formData.tipoPacote || '',
+        especificar_patec: formData.outroTipoPacote || '',
 
         // Campos adicionais da especificação
-        H3OProdutorJBeneficiouD: 'Não',
-        H31TiposDeCrditos: '',
-        EspecificaOutroTipItoQueOBeneficiou: '',
-        Estado: '1'
+        H_3_O_produtor_j_beneficiou_d: formData.beneficiadoCredito ? 'Sim' : 'Não',
+        H3_1_Tipos_de_cr_ditos: Array.isArray(formData.fontesCredito)
+          ? formData.fontesCredito.map(item => item.value || item).join(',')
+          : formData.fontesCredito || '',
+        Especifica_outro_tip_ito_que_o_beneficiou: formData.outraFonteCredito || '',
+
+        // Arquivos (serão preenchidos no FormData)
+        fotos_animais: '' // Será preenchido com o arquivo
       };
 
       console.log('📋 Dados mapeados para enviar:', apiData);
       console.log('📅 Datas formatadas:', {
-        RegistrationDate: apiData.RegistrationDate,
-        BeneficiaryDateOfBirth: apiData.BeneficiaryDateOfBirth
+        registration_date: apiData.registration_date,
+        beneficiary_date_of_birth: apiData.beneficiary_date_of_birth
       });
 
       // Criar FormData para enviar arquivos
@@ -3581,15 +3591,15 @@ const CadastroProdutor = () => {
 
       // Adicionar arquivos se existirem
       if (uploadedFiles.fotoBiometrica) {
-        formDataToSend.append('BeneficiaryBiometrics', uploadedFiles.fotoBiometrica);
+        formDataToSend.append('beneficiary_biometrics', uploadedFiles.fotoBiometrica);
       }
 
       if (uploadedFiles.fotoNaoBiometrica) {
-        formDataToSend.append('BeneficiaryPhoto', uploadedFiles.fotoNaoBiometrica);
+        formDataToSend.append('beneficiary_photo', uploadedFiles.fotoNaoBiometrica);
       }
 
       if (uploadedFiles.documentoFrente) {
-        formDataToSend.append('FotoDocumento', uploadedFiles.documentoFrente);
+        formDataToSend.append('foto_documento', uploadedFiles.documentoFrente);
       }
 
       if (uploadedFiles.documentoVerso) {
@@ -3597,15 +3607,15 @@ const CadastroProdutor = () => {
       }
 
       if (uploadedFiles.superficieCultivada) {
-        formDataToSend.append('FotoSuperficie', uploadedFiles.superficieCultivada);
+        formDataToSend.append('foto_superficie', uploadedFiles.superficieCultivada);
       }
 
       if (uploadedFiles.fotosAnimais) {
-        formDataToSend.append('FotosAnimais', uploadedFiles.fotosAnimais);
+        formDataToSend.append('fotos_animais', uploadedFiles.fotosAnimais);
       }
 
       if (uploadedFiles.fotoObservacao) {
-        formDataToSend.append('FotoObservacao', uploadedFiles.fotoObservacao);
+        formDataToSend.append('foto_observacao', uploadedFiles.fotoObservacao);
       }
 
       // Log para debug dos dados enviados
