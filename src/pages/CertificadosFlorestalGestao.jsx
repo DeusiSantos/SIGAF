@@ -698,7 +698,7 @@ const CertificadosFlorestalGestao = () => {
                                                         textSize="text-lg"
                                                     />
                                                     <div className="ml-4">
-                                                        <div className="text-sm font-semibold text-gray-900 break-words whitespace-pre-line max-w-[290px]">
+                                                        <div className="text-sm text-start font-semibold text-gray-900  whitespace-pre-line max-w-[290px]">
                                                             {certificado.produtor.nome}
                                                         </div>
                                                         <div className="flex items-center text-xs text-gray-600 mt-1">
@@ -714,7 +714,7 @@ const CertificadosFlorestalGestao = () => {
                                             </td>
 
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="space-y-2">
+                                                <div className="space-y-2 text-start">
                                                     <div className="flex items-center text-sm font-medium text-gray-900">
                                                         <Award className="w-4 h-4 mr-2 text-green-500" />
                                                         {certificado.numeroProcesso}
@@ -732,7 +732,7 @@ const CertificadosFlorestalGestao = () => {
                                                 </div>
                                             </td>
 
-                                            <td className="px-6 py-4 whitespace-nowrap">
+                                            <td className="px-6 py-4 whitespace-nowrap text-start">
                                                 <div className="space-y-1">
                                                     <div className="flex items-center text-xs text-gray-700">
                                                         <Mountain className="w-3.5 h-3.5 mr-1 text-green-500" />
