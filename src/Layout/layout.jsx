@@ -140,7 +140,6 @@ const rnpaRoutes = {
           { text: 'Hidrografia', icon: MapPin, path: '/GerenciaRNPA/painel-monitoramento/hidrografia' }
         ]
       },
-      { text: 'Validação e Certificado', icon: Shield, path: '/GerenciaRNPA/gestao-florestal/workflow' },
       { text: 'Programas e Benefícios', icon: Award, path: '/GerenciaRNPA/gestao-florestal/programas' },
       { text: 'Incentivos', icon: TrendingUp, path: '/GerenciaRNPA/gestao-florestal/incentivos' },
       { text: 'Certificação Florestal', icon: File, path: '/GerenciaRNPA/gestao-florestal/certificacaoFlorestal' },
