@@ -45,13 +45,8 @@ const rnpaRoutes = {
       path: '/GerenciaRNPA/gestao-florestal',
       submenu: true
     },
-    
-    {
-      text: 'Painel e Monitoramento',
-      icon: TrendingUp,
-      path: '/GerenciaRNPA/painel-monitoramento',
-      submenu: true
-    },
+
+
     // {
     //   text: 'Entidades Associativas',
     //   icon: Building2,
@@ -80,7 +75,7 @@ const rnpaRoutes = {
           { text: 'Associação', path: '/GerenciaRNPA/gestao-agricultores/produtores/associacao' }
         ]
       },
-       {
+      {
         text: 'Infraestrutura',
         icon: Sprout,
         path: '/GerenciaRNPA/gestao-florestal/produtoresFlorestais',
@@ -90,6 +85,18 @@ const rnpaRoutes = {
           { text: 'Silos e Centro de Armazenamento', icon: Archive, path: '/GerenciaRNPA/gestao-agricultores/produtores/silos-armazenamento' },
           { text: 'Entrepostos e Mercado', icon: Building2, path: '/GerenciaRNPA/gestao-agricultores/produtores/entrepostosMercado' },
           { text: 'Empresas de Apoio Agrícola', icon: Tractor, path: '/GerenciaRNPA/gestao-agricultores/produtores/apoio-agricola' }
+        ]
+      },
+
+      {
+        text: 'Painel e Monitoramento',
+        icon: TrendingUp,
+        path: '/GerenciaRNPA/painel-monitoramento',
+        hasDropdown: true,
+        dropdownItems: [
+          { text: 'Controle de Pragas', icon: ShieldAlert, path: '/GerenciaRNPA/painel-monitoramento/indicadores' },
+          { text: 'Meteorologia', icon: Globe, path: '/GerenciaRNPA/painel-monitoramento/meteorologia' },
+          { text: 'Hidrografia', icon: MapPin, path: '/GerenciaRNPA/painel-monitoramento/hidrografia' }
         ]
       },
       { text: 'Validação e Certificado', icon: Shield, path: '/GerenciaRNPA/gestao-agricultores/workflow' },
@@ -120,6 +127,17 @@ const rnpaRoutes = {
           { text: 'Silos e Centro de Armazenamento', icon: Archive, path: '/GerenciaRNPA/gestao-florestal/produtores/silos-armazenamento' },
           { text: 'Entrepostos e Mercado', icon: Building2, path: '/GerenciaRNPA/gestao-florestal/produtores/entrepostosMercado' },
           { text: 'Empresas de Apoio Agrícola', icon: Tractor, path: '/GerenciaRNPA/gestao-florestal/produtores/apoio-agricola' }
+        ]
+      },
+      {
+        text: 'Painel e Monitoramento',
+        icon: TrendingUp,
+        path: '/GerenciaRNPA/painel-monitoramento',
+        hasDropdown: true,
+        dropdownItems: [
+          { text: 'Controle de Pragas', icon: ShieldAlert, path: '/GerenciaRNPA/painel-monitoramento/indicadores' },
+          { text: 'Meteorologia', icon: Globe, path: '/GerenciaRNPA/painel-monitoramento/meteorologia' },
+          { text: 'Hidrografia', icon: MapPin, path: '/GerenciaRNPA/painel-monitoramento/hidrografia' }
         ]
       },
       { text: 'Validação e Certificado', icon: Shield, path: '/GerenciaRNPA/gestao-florestal/workflow' },
@@ -168,8 +186,8 @@ const DropdownMenuItem = ({ item, isActive, onItemClick, onDropdownClick }) => {
       <button
         onClick={handleMainClick}
         className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 ${isActive
-            ? 'text-blue-600 bg-blue-50 font-semibold shadow-sm'
-            : 'text-gray-600 hover:bg-blue-50 hover:text-blue-600'
+          ? 'text-blue-600 bg-blue-50 font-semibold shadow-sm'
+          : 'text-gray-600 hover:bg-blue-50 hover:text-blue-600'
           }`}
       >
         <div className="flex items-center min-w-0">
