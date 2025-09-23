@@ -176,8 +176,8 @@ const mapApiDataToProdutor = (apiData) => {
         sobrenomeInquiridor: apiData.sobrenome_inquiridor,
 
         // Localização
-        provincia: apiData.Provincia?.toUpperCase() || 'N/A',
-        municipio: apiData.Municipio || 'N/A',
+        provincia: apiData.provincia?.toUpperCase() || 'N/A',
+        municipio: apiData.municipio || 'N/A',
         comuna: apiData.comuna || '',
         geoLevel4: apiData.geo_level_4 || 'N/A',
         geoLevel5: apiData.geo_level_5 || 'N/A',
@@ -1495,15 +1495,15 @@ const VisualizarProdutor = () => {
                                 label="Sobrenome"
                                 value={
                                     isEditing
-                                        ? `${formData.nomeMeioProdutor ? formData.nomeMeioProdutor + ' ' : ''}${formData.sobrenomeProdutor || ''}`.trim()
-                                        : `${formData.nomeMeioProdutor ? formData.nomeMeioProdutor + ' ' : ''}${formData.sobrenomeProdutor || ''}`.trim()
+                                        ? `${formData.sobrenomeProdutor || ''}`.trim()
+                                        : `${formData.sobrenomeProdutor || ''}`.trim()
                                 }
                                 onChange={(value) => {
                                     // Ao editar, separa nome do meio e sobrenome
                                     const partes = value.split(' ');
                                     const nomeMeio = partes.length > 1 ? partes.slice(0, -1).join(' ') : '';
                                     const sobrenome = partes.length > 0 ? partes[partes.length - 1] : '';
-                                    updateFormData('nomeMeioProdutor', nomeMeio);
+
                                     updateFormData('sobrenomeProdutor', sobrenome);
                                 }}
                                 disabled={!isEditing}
@@ -1613,10 +1613,19 @@ const VisualizarProdutor = () => {
 
                             {(formData.possuiDeficiencia === true || formData.possuiDeficiencia?.value === true) && (
                                 <CustomInput
-                                    type="text"
+                                    type="select"
                                     label="Tipo de Deficiência"
                                     value={formData.tipoDeficiencia}
                                     onChange={(value) => updateFormData('tipoDeficiencia', value)}
+                                    options={[
+                                        { label: 'Motora', value: 'MOTORA' },
+                                        { label: 'Visual', value: 'VISUAL' },
+                                        { label: 'Auditiva', value: 'AUDITIVA' },
+                                        { label: 'Mental', value: 'MENTAL' },
+                                        { label: 'Doença crónica', value: 'DOENCA_CRONICA' },
+                                        { label: 'Múltiplas deficiências', value: 'MULTIPLAS' },
+                                        { label: 'Outro', value: 'OUTRO' }
+                                    ]}
                                     disabled={!isEditing}
                                     iconStart={<AlertCircle size={18} />}
                                 />

@@ -69,6 +69,7 @@ import EmpresasMenuFlorestal from './pages/SociedadeAgricola/EmpresasMenuFlorest
 import CooperativaMenuFlorestal from './pages/SociedadeAgricola/CooperativaMenuFlorestal';
 import AssociacaoMenuFlorestal from './pages/SociedadeAgricola/AssociacaoMenuFlorestal';
 import ValidacoesCerificadosFlorestaisMenu from './Layout/other/ValidacoesCerificadosFlorestaisMenu';
+import VisualizarCertificadosFlorestal from './pages/public/VisualizarCertificadosFlorestal';
 
 function App() {
   return (
@@ -96,6 +97,7 @@ function App() {
           <Route path="incentivos/visualizar/:id" element={<VisualizarIncentivo />} />
           <Route path="produtores-florestais/visualizar/:id" element={<VisualizarProdutorFlorestal />} />
           <Route path="gestao-empresas/visualizar-empresa/:id" element={<VisualizarAssociacaoRural />} />
+          <Route path="certificados-florestais/visualizar/:produtorId" element={<VisualizarCertificadosFlorestal   />} />
 
           {/* Rotas de gestão escolar (mantidas) */}
           <Route path="gestao-escolar/produtores" element={<h1 className="text-2xl font-semibold">Lista de Produtores</h1>} />

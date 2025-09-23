@@ -141,21 +141,13 @@ const VisualizarCertificadosFlorestal = () => {
 
         return (
             <div className={`${size} rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold ${textSize} shadow-sm`}>
-                {getInitials(produtor?.nome)}
+                {getInitials(produtor?.nome_do_Produtor)}
             </div>
         );
     };
 
     // Verificar se produtorId existe
-    useEffect(() => {
-        if (!produtorId) {
-            console.error('ProdutorId não encontrado na URL!');
-            showToast('error', 'Erro', 'ID do produtor não encontrado na URL');
-            setTimeout(() => {
-                navigate('/GerenciaRNPA/certificados');
-            }, 3000);
-        }
-    }, [produtorId, navigate]);
+
 
     // Buscar dados do produtor
     useEffect(() => {
@@ -168,7 +160,7 @@ const VisualizarCertificadosFlorestal = () => {
             try {
                 console.log('🔍 Buscando produtor:', produtorId);
                 setLoadingProdutor(true);
-                const response = await api.get(`/formulario/${produtorId}`);
+                const response = await api.get(`/produtorFlorestal/${produtorId}`);
                 console.log('✅ Dados do produtor:', response.data);
                 setProdutor(response.data);
             } catch (error) {
@@ -195,59 +187,63 @@ const VisualizarCertificadosFlorestal = () => {
                 setLoadingCertificados(true);
 
                 // Buscar certificados específicos do produtor
-                const response = await api.get(`/certificaoDoProdutor/produtores/${produtorId}`);
+                const response = await api.get(`/certificaoDoProdutorFlorestal/produtoresFlorestais/${produtorId}`);
                 console.log('✅ Certificados da API:', response.data);
 
                 // Mapear os certificados para o formato esperado
-                const certificadosMapeados = Array.isArray(response.data) ? response.data.map(certificado => {
-                    const getStatusCertificado = (validoDe, validoAte) => {
-                        const hoje = new Date();
-                        const dataInicio = new Date(validoDe);
-                        const dataFim = new Date(validoAte);
-                        if (hoje < dataInicio) return 'AGUARDANDO_VIGENCIA';
-                        if (hoje > dataFim) return 'EXPIRADO';
-                        const diasParaVencer = Math.ceil((dataFim - hoje) / (1000 * 60 * 60 * 24));
-                        if (diasParaVencer <= 30 && diasParaVencer > 0) return 'PROXIMO_VENCIMENTO';
-                        return 'ATIVO';
-                    };
+                const certificadosMapeados = Array.isArray(response.data)
+                    ? response.data.map(certificado => {
+                        // Função para calcular status
+                        const getStatusCertificado = (validoDe, validoAte) => {
+                            const hoje = new Date();
+                            const dataInicio = validoDe ? new Date(validoDe) : null;
+                            const dataFim = validoAte ? new Date(validoAte) : null;
 
-                    let finalidadeCertificado = [];
+                            if (!dataInicio || !dataFim) return 'DATA_INVALIDA';
 
-                    const valor = certificado.finalidadeDoCertificado;
+                            if (hoje < dataInicio) return 'AGUARDANDO_VIGENCIA';
+                            if (hoje > dataFim) return 'EXPIRADO';
 
-                    if (Array.isArray(valor)) {
-                        finalidadeCertificado = valor;
-                    } else if (typeof valor === 'string' && valor.trim() !== '') {
-                        if (valor.includes('-')) {
+                            const diasParaVencer = Math.ceil((dataFim - hoje) / (1000 * 60 * 60 * 24));
+                            if (diasParaVencer <= 30 && diasParaVencer > 0) return 'PROXIMO_VENCIMENTO';
+
+                            return 'ATIVO';
+                        };
+
+                        // Normalizar finalidade
+                        let finalidadeCertificado = [];
+                        const valor = certificado.finalidadeDoCertificado;
+
+                        if (Array.isArray(valor)) {
+                            finalidadeCertificado = valor;
+                        } else if (typeof valor === 'string' && valor.trim() !== '') {
                             finalidadeCertificado = valor
                                 .split('-')
                                 .map(f => f.trim().replace(/-/g, ' '))
                                 .filter(Boolean);
-                        } else {
-                            finalidadeCertificado = [valor.trim().replace(/-/g, ' ')];
                         }
-                    }
 
+                        return {
+                            id: certificado.id ? String(certificado.id) : null,
+                            numeroProcesso: certificado.numeroDoProcesso || `PROC-${certificado.id || 'N/A'}`,
+                            nomeDaPropriedade: certificado.nomeDaPropriedade || 'Propriedade sem nome',
+                            atividadePrincipal: certificado.atividadePrincipal || 'Não informado',
+                            areaTotalExplorada: parseFloat(certificado.areaTotalExplorada) || 0,
+                            tecnicoResponsavel: certificado.nomeDoTecnicoResponsavel || 'Não informado',
+                            validoDe: certificado.validoDe ? certificado.validoDe.split('T')[0] : '',
+                            validoAte: certificado.validoAte ? certificado.validoAte.split('T')[0] : '',
+                            statusCertificado: getStatusCertificado(certificado.validoDe, certificado.validoAte),
+                            finalidadeCertificado,
+                            observacoesTecnicas: certificado.observacoesTecnicas || 'Nenhuma observação',
+                            coordenadasGPS: certificado.coordenadasGPS || '',
+                            latitude: certificado.latitude || '',
+                            longitude: certificado.longitude || '',
+                            // Guarda os dados crus (originais)
+                            dadosOriginais: certificado
+                        };
+                    })
+                    : [];
 
-                    return {
-                        id: certificado.id?.toString(),
-                        numeroProcesso: certificado.numeroDoProcesso || `PROC-${certificado.id}`,
-                        nomeDaPropriedade: certificado.nomeDaPropriedade || 'Propriedade sem nome',
-                        atividadePrincipal: certificado.atividadePrincipal || 'Não informado',
-                        areaTotalExplorada: parseFloat(certificado.areaTotalExplorada) || 0,
-                        tecnicoResponsavel: certificado.nomeDoTecnicoResponsavel || 'Não informado',
-                        validoDe: certificado.validoDe ? certificado.validoDe.split('T')[0] : '',
-                        validoAte: certificado.validoAte ? certificado.validoAte.split('T')[0] : '',
-                        statusCertificado: getStatusCertificado(certificado.validoDe, certificado.validoAte),
-                        finalidadeCertificado,
-                        observacoesTecnicas: certificado.observacoesTecnicas || 'Nenhuma observação',
-                        coordenadasGPS: certificado.coordenadasGPS || '',
-                        latitude: certificado.latitude || '',
-                        longitude: certificado.longitude || '',
-                        // Dados originais para gerar certificado
-                        dadosOriginais: certificado
-                    };
-                }) : [];
 
                 setCertificadosProdutor(certificadosMapeados);
                 console.log('📋 Certificados processados:', certificadosMapeados);
@@ -534,7 +530,7 @@ const VisualizarCertificadosFlorestal = () => {
                                 <ArrowLeft className="w-5 h-5 text-gray-600" />
                             </button>
                             <div>
-                                <h1 className="text-xl font-semibold text-gray-900">Certificados do Produtor</h1>
+                                <h1 className="text-xl font-semibold text-gray-900">Certificados do Produtor Florestal</h1>
                                 <p className="text-sm text-gray-500">Visualização e gestão de certificados</p>
                             </div>
                         </div>
@@ -587,33 +583,29 @@ const VisualizarCertificadosFlorestal = () => {
                         <div className="flex items-start">
                             <ProdutorAvatar
                                 produtor={{
-                                    id: produtorId, 
+                                    id: produtorId,
                                     nome: produtor.beneficiary_name ||
-                                        `${produtor.nome_produtor || ''} ${produtor.sobrenome_produtor || ''}`.trim()
+                                        `${produtor.nome_do_Produtor || ''} ${produtor.nome_do_Produtor || ''}`.trim()
                                 }}
-                                size="w-20 h-20"  
+                                size="w-20 h-20"
                                 textSize="text-lg"
                             />
                             <div className="ml-6 flex-1">
                                 <h2 className="text-2xl font-bold text-gray-900">
-                                    {produtor.beneficiary_name || `${produtor.nome_produtor || ''} ${produtor.sobrenome_produtor || ''}`.trim()}
+                                    {produtor.nome_do_Produtor || `${produtor.nome_do_Produtor || ''} ${produtor.nome_do_Produtor || ''}`.trim()}
                                 </h2>
                                 <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                     <div className="flex items-center text-gray-600">
                                         <IdCard className="w-4 h-4 mr-2 text-blue-500" />
-                                        <span className="text-sm">BI: {produtor.beneficiary_id_number || 'N/A'}</span>
+                                        <span className="text-sm">BI: {produtor.bI_NIF || 'N/A'}</span>
                                     </div>
                                     <div className="flex items-center text-gray-600">
                                         <Phone className="w-4 h-4 mr-2 text-blue-500" />
-                                        <span className="text-sm">{produtor.beneficiary_phone_number || 'N/A'}</span>
+                                        <span className="text-sm">{produtor.contacto || 'N/A'}</span>
                                     </div>
                                     <div className="flex items-center text-gray-600">
                                         <MapPin className="w-4 h-4 mr-2 text-blue-500" />
                                         <span className="text-sm">{produtor.municipio || 'N/A'}, {produtor.provincia?.toUpperCase() || 'N/A'}</span>
-                                    </div>
-                                    <div className="flex items-center text-gray-600">
-                                        <User className="w-4 h-4 mr-2 text-blue-500" />
-                                        <span className="text-sm">Código: {produtor.codigo_inquiridor || 'N/A'}</span>
                                     </div>
                                 </div>
                                 <div className="mt-4 flex flex-wrap gap-2">
@@ -732,7 +724,10 @@ const VisualizarCertificadosFlorestal = () => {
                     ) : (
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             {certificadosProdutor.map((certificado) => (
-                                <div key={certificado.id} className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 overflow-hidden">
+                                <div
+                                    key={certificado.id}
+                                    className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 overflow-hidden"
+                                >
                                     {/* Header do Card */}
                                     <div className="p-6 border-b border-gray-100">
                                         <div className="flex items-start justify-between">
@@ -741,13 +736,19 @@ const VisualizarCertificadosFlorestal = () => {
                                                     <Award className="w-6 h-6" />
                                                 </div>
                                                 <div className="ml-4">
-                                                    <h4 className="text-lg font-semibold text-gray-900">{certificado.numeroProcesso}</h4>
+                                                    <h4 className="text-lg font-semibold text-gray-900">
+                                                        {certificado.numeroProcesso}
+                                                    </h4>
                                                     <p className="text-sm text-gray-600 mt-1">ID: {certificado.id}</p>
-                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border mt-2 ${getStatusColor(certificado.statusCertificado)}`}>
+                                                    <span
+                                                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border mt-2 ${getStatusColor(certificado.statusCertificado)}`}
+                                                    >
                                                         {getStatusLabel(certificado.statusCertificado)}
                                                     </span>
                                                 </div>
                                             </div>
+
+                                            {/* Checkbox Seleção */}
                                             <div className="flex items-center space-x-2">
                                                 <label className="flex items-center cursor-pointer">
                                                     <input
@@ -764,45 +765,27 @@ const VisualizarCertificadosFlorestal = () => {
 
                                     {/* Conteúdo do Card */}
                                     <div className="p-6 space-y-4">
-                                        {/* Propriedade */}
-                                        <div>
-                                            <h5 className="text-sm font-medium text-gray-700 mb-2 flex items-center">
-                                                <MapPin className="w-4 h-4 mr-1 text-green-500" />
-                                                Propriedade
-                                            </h5>
-                                            <p className="text-sm text-gray-900 font-medium">
-                                                {certificado.nomeDaPropriedade || 'Nome não informado'}
-                                            </p>
-                                            <div className="mt-1 flex items-center text-xs text-gray-600">
-                                                <Tractor className="w-3.5 h-3.5 mr-1" />
-                                                {certificado.atividadePrincipal}
-                                                {certificado.areaTotalExplorada > 0 && ` • ${certificado.areaTotalExplorada} ha`}
-                                            </div>
-                                        </div>
-
                                         {/* Técnico e Vigência */}
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             <div>
                                                 <h5 className="text-sm font-medium text-gray-700 mb-1 flex items-center">
-                                                    <User className="w-4 h-4 mr-1 text-blue-500" />
-                                                    Técnico
+                                                    <User className="w-4 h-4 mr-1 text-blue-500" /> Técnico
                                                 </h5>
                                                 <p className="text-sm text-gray-900">{certificado.tecnicoResponsavel}</p>
                                             </div>
                                             <div>
                                                 <h5 className="text-sm font-medium text-gray-700 mb-1 flex items-center">
-                                                    <Calendar className="w-4 h-4 mr-1 text-blue-500" />
-                                                    Vigência
+                                                    <Calendar className="w-4 h-4 mr-1 text-blue-500" /> Vigência
                                                 </h5>
                                                 <p className="text-sm text-gray-900">
                                                     {formatDate(certificado.validoDe)} - {formatDate(certificado.validoAte)}
                                                 </p>
-                                                {certificado.statusCertificado === 'PROXIMO_VENCIMENTO' && (
+                                                {certificado.statusCertificado === "PROXIMO_VENCIMENTO" && (
                                                     <p className="text-xs text-yellow-600 font-medium mt-1">
                                                         Vence em {getDaysToExpiry(certificado.validoAte)} dias
                                                     </p>
                                                 )}
-                                                {certificado.statusCertificado === 'EXPIRADO' && (
+                                                {certificado.statusCertificado === "EXPIRADO" && (
                                                     <p className="text-xs text-red-600 font-medium mt-1">
                                                         Expirado há {Math.abs(getDaysToExpiry(certificado.validoAte))} dias
                                                     </p>
@@ -810,17 +793,19 @@ const VisualizarCertificadosFlorestal = () => {
                                             </div>
                                         </div>
 
-                                       {/* Finalidades */}
+                                        {/* Finalidades */}
                                         {certificado.finalidadeCertificado.length > 0 && (
                                             <div>
                                                 <h5 className="text-sm font-medium text-gray-700 mb-2 flex items-center">
-                                                    <FileText className="w-4 h-4 mr-1 text-green-500" />
-                                                    Finalidades
+                                                    <FileText className="w-4 h-4 mr-1 text-green-500" /> Finalidades
                                                 </h5>
                                                 <div className="flex flex-wrap gap-1">
                                                     {certificado.finalidadeCertificado.slice(0, 3).map((finalidade, index) => (
-                                                        <span key={index} className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-green-50 text-green-700 border border-green-200">
-                                                            {finalidade.replace(/[-_]/g, ' ').toUpperCase()}
+                                                        <span
+                                                            key={index}
+                                                            className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-green-50 text-green-700 border border-green-200"
+                                                        >
+                                                            {finalidade.replace(/[-_]/g, " ").toUpperCase()}
                                                         </span>
                                                     ))}
                                                     {certificado.finalidadeCertificado.length > 3 && (
@@ -832,7 +817,6 @@ const VisualizarCertificadosFlorestal = () => {
                                             </div>
                                         )}
 
-
                                         {/* Históricos */}
                                         <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-100">
                                             <div className="text-center">
@@ -843,7 +827,7 @@ const VisualizarCertificadosFlorestal = () => {
                                             </div>
                                             <div className="text-center">
                                                 <div className="text-lg font-semibold text-gray-900">
-                                                    {certificado.dadosOriginais?.historicoDeProduaooPecuarias?.length || 0}
+                                                    {certificado.dadosOriginais?.historicoDeProducaoPecuarias?.length || 0}
                                                 </div>
                                                 <div className="text-xs text-gray-500">Pecuária</div>
                                             </div>
@@ -851,22 +835,22 @@ const VisualizarCertificadosFlorestal = () => {
                                                 <div className="text-lg font-semibold text-gray-900">
                                                     {certificado.dadosOriginais?.historicoDeVistorias?.length || 0}
                                                 </div>
-                                                <div className="text-xs text-gray-500">Vistorías</div>
+                                                <div className="text-xs text-gray-500">Vistorias</div>
                                             </div>
                                         </div>
 
                                         {/* Observações */}
-                                        {certificado.observacoesTecnicas && certificado.observacoesTecnicas !== 'Nenhuma observação' && (
-                                            <div className="pt-4 border-t border-gray-100">
-                                                <h5 className="text-sm font-medium text-gray-700 mb-2 flex items-center">
-                                                    <Info className="w-4 h-4 mr-1 text-green-500" />
-                                                    Observações
-                                                </h5>
-                                                <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-                                                    {certificado.observacoesTecnicas}
-                                                </p>
-                                            </div>
-                                        )}
+                                        {certificado.observacoesTecnicas &&
+                                            certificado.observacoesTecnicas !== "Nenhuma observação" && (
+                                                <div className="pt-4 border-t border-gray-100">
+                                                    <h5 className="text-sm font-medium text-gray-700 mb-2 flex items-center">
+                                                        <Info className="w-4 h-4 mr-1 text-green-500" /> Observações
+                                                    </h5>
+                                                    <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+                                                        {certificado.observacoesTecnicas}
+                                                    </p>
+                                                </div>
+                                            )}
 
                                         {/* Botão de Download Individual */}
                                         <div className="pt-4 border-t border-gray-100">
@@ -874,19 +858,17 @@ const VisualizarCertificadosFlorestal = () => {
                                                 onClick={() => handleDownloadCertificado(certificado)}
                                                 disabled={gerandoCertificado === certificado.id}
                                                 className={`w-full inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors ${gerandoCertificado === certificado.id
-                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                                    : 'bg-green-600 hover:bg-green-700 text-white shadow-sm hover:shadow-md'
+                                                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                                        : "bg-green-600 hover:bg-green-700 text-white shadow-sm hover:shadow-md"
                                                     }`}
                                             >
                                                 {gerandoCertificado === certificado.id ? (
                                                     <>
-                                                        <Clock className="w-4 h-4 mr-2 animate-spin" />
-                                                        Gerando Certificado...
+                                                        <Clock className="w-4 h-4 mr-2 animate-spin" /> Gerando Certificado...
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <Download className="w-4 h-4 mr-2" />
-                                                        Baixar Certificado
+                                                        <Download className="w-4 h-4 mr-2" /> Baixar Certificado
                                                     </>
                                                 )}
                                             </button>
@@ -895,6 +877,7 @@ const VisualizarCertificadosFlorestal = () => {
                                 </div>
                             ))}
                         </div>
+
                     )}
                 </div>
 

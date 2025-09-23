@@ -188,8 +188,8 @@ const AtribuicaoIncentivos = () => {
       console.log('produtoresSelecionados:', produtoresSelecionados);
 
       // Requisição com Axios
-      {/* const response = await axios.post(
-        'https://mwangobrainsa-001-site4.mtempurl.com/api/distribuicaoDeIncentivo',
+      const response = await axios.post(
+        'https://mwangobrainsa-001-site2.mtempurl.com/api/distribuicaoDeIncentivo',
         payload,
         {
           headers: {
@@ -203,7 +203,7 @@ const AtribuicaoIncentivos = () => {
         'success',
         'Sucesso',
         `Incentivo "${incentivoSelecionado.nomeDoIncentivo}" atribuído com sucesso a ${produtoresSelecionados.length} produtores!`
-      ); */}
+      ); 
 
       // Resetar formulário
       setProdutoresSelecionados([]);
