@@ -912,7 +912,6 @@ const VisualizarProdutor = () => {
 
         return {
             id: parseInt(id),
-            id: parseInt(id),
             provincia: getSelectStringValue(formData.provincia),
             municipio: getSelectStringValue(formData.municipio) || '',
             comuna: convertValue(formData.comuna) || '',

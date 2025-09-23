@@ -276,7 +276,7 @@ const GestaoAssociacaoAgricola = () => {
                     <MoreVertical className="w-5 h-5 text-gray-600" />
                 </button>
 
-                {isOpen && (
+                {/*isOpen && (
                     <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg z-[999] ring-1 ring-black ring-opacity-5">
                         <div className="py-1">
                             {actionItems.map((item, index) => (
@@ -294,7 +294,7 @@ const GestaoAssociacaoAgricola = () => {
                             ))}
                         </div>
                     </div>
-                )}
+                )*/}
             </div>
         );
     };
@@ -404,7 +404,7 @@ const GestaoAssociacaoAgricola = () => {
                             <Factory className="w-6 h-6 text-blue-600" />
                         </div>
                         <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-500">Total de Empresas</p>
+                            <p className="text-sm font-medium text-gray-500">Total de Associacões</p>
                             <p className="text-2xl font-bold text-gray-900">{empresas.length}</p>
                         </div>
                     </div>
@@ -416,7 +416,7 @@ const GestaoAssociacaoAgricola = () => {
                             <CheckCircle className="w-6 h-6 text-green-600" />
                         </div>
                         <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-500">Empresas Activas</p>
+                            <p className="text-sm font-medium text-gray-500">Associacões Activas</p>
                             <p className="text-2xl font-bold text-gray-900">
                                 {empresas.filter(c => c.estado === 'Ativo').length}
                             </p>
@@ -424,13 +424,13 @@ const GestaoAssociacaoAgricola = () => {
                     </div>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-md p-6">
+               {/* <div className="bg-white rounded-xl shadow-md p-6">
                     <div className="flex items-center">
                         <div className="p-3 bg-purple-100 rounded-full">
                             <Building className="w-6 h-6 text-purple-600" />
                         </div>
                         <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-500">Empresas Agrícolas</p>
+                            <p className="text-sm font-medium text-gray-500">Associacões Agrícolas</p>
                             <p className="text-2xl font-bold text-gray-900">
                                 {empresas.filter(e => e.tipoDeEntidade === 'EmpresaAgricola').length}
                             </p>
@@ -444,23 +444,23 @@ const GestaoAssociacaoAgricola = () => {
                             <Users className="w-6 h-6 text-yellow-600" />
                         </div>
                         <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-500">Cooperativas</p>
+                            <p className="text-sm font-medium text-gray-500">Associacão</p>
                             <p className="text-2xl font-bold text-gray-900">
                                 {empresas.filter(e => e.tipoDeEntidade === 'CooperativaAgricola').length}
                             </p>
                         </div>
                     </div>
-                </div>
+                </div>*/ }
             </div>
 
-            <div className="w-full bg-white rounded-xl shadow-md overflow-visible z-10">
+            <div className="w-full  bg-white rounded-xl shadow-md overflow-visible z-10">
                 {/* Cabeçalho */}
-                <div className="bg-gradient-to-r from-blue-700 to-blue-500 p-6 text-white">
+                <div className="bg-gradient-to-r from-blue-700 to-blue-500 p-6 text-white rounded-t-xl">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
                         <div>
                             <h1 className="text-2xl font-bold">Gestão de Associões Agrícolas</h1>
                         </div>
-                        <div className="flex gap-4">
+                        {/*<div className="flex gap-4">
                             <button
                                 onClick={() => navigate('/GerenciaRNPA/cadastro-empresas')}
                                 className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
@@ -475,7 +475,7 @@ const GestaoAssociacaoAgricola = () => {
                                 <Download className="w-5 h-5 mr-2" />
                                 Exportar
                             </button>
-                        </div>
+                        </div>   */}
                     </div>
                 </div>
 
@@ -535,10 +535,10 @@ const GestaoAssociacaoAgricola = () => {
                         <div>
                             <CustomInput
                                 type="select"
-                                placeholder="Status"
+                                placeholder="Estado da Associação"
                                 value={selectedStatus ? { label: selectedStatus, value: selectedStatus } : null}
                                 options={[
-                                    { label: 'Todos os Status', value: '' },
+                                    { label: 'Todos os estados', value: '' },
                                     { label: 'Ativo', value: 'Ativo' },
                                     { label: 'Inativo', value: 'Inativo' }
                                 ]}
@@ -638,7 +638,7 @@ const GestaoAssociacaoAgricola = () => {
                                             >
                                                 <Trash2 className="w-5 h-5" />
                                             </button>
-                                            <ActionMenu escola={empresa} />
+                                          
                                         </div>
                                     </td>
                                 </tr>

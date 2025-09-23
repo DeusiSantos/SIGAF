@@ -717,7 +717,7 @@ const ProdutoresGestao = () => {
                         <div>
                             <h1 className="text-2xl font-bold">Gestão de Produtores</h1>
                         </div>
-                        <div className="flex gap-4">
+                        {/*<div className="flex gap-4">
                             <button
                                 onClick={() => showToast('info', 'Função', 'Exportar dados dos produtores')}
                                 className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
@@ -725,7 +725,7 @@ const ProdutoresGestao = () => {
                                 <Download className="w-5 h-5 mr-2" />
                                 Exportar
                             </button>
-                        </div>
+                        </div>*/ }
                     </div>
                 </div>
 
