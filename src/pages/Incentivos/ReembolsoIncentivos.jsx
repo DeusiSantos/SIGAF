@@ -606,8 +606,8 @@ const ReembolsoIncentivos = () => {
                           <h4 className="font-semibold text-gray-800 text-sm">{incentivo.nomeIncentivo}</h4>
                           <div className="flex space-x-1">
                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${incentivo.statusIncentivo === 'Ativo' ? 'bg-green-100 text-green-700' :
-                                incentivo.statusIncentivo === 'Erro' ? 'bg-red-100 text-red-700' :
-                                  'bg-gray-100 text-gray-700'
+                              incentivo.statusIncentivo === 'Erro' ? 'bg-red-100 text-red-700' :
+                                'bg-gray-100 text-gray-700'
                               }`}>
                               {incentivo.statusIncentivo}
                             </span>
@@ -637,8 +637,8 @@ const ReembolsoIncentivos = () => {
                           <p className='flex justify-between'>
                             <span className="font-medium">Prioridade:</span>
                             <span className={`font-medium ${incentivo.prioridadeEntrega === 'ALTA' ? 'text-red-600' :
-                                incentivo.prioridadeEntrega === 'NORMAL' ? 'text-yellow-600' :
-                                  'text-green-600'
+                              incentivo.prioridadeEntrega === 'NORMAL' ? 'text-yellow-600' :
+                                'text-green-600'
                               }`}>
                               {incentivo.prioridadeEntrega}
                             </span>
@@ -662,7 +662,7 @@ const ReembolsoIncentivos = () => {
                   <CreditCard className="w-5 h-5 mr-2 text-green-600" />
                   Histórico de Reembolsos
                   {loadingReembolsosModal && <Loader className="w-4 h-4 ml-2 animate-spin" />}
-                 
+
                 </h3>
 
                 <div className="space-y-3 max-h-60 overflow-y-auto">
@@ -682,8 +682,8 @@ const ReembolsoIncentivos = () => {
                         <div className="flex justify-between items-start mb-2">
                           <h4 className="font-semibold text-gray-800 text-sm">{reembolso.descricao}</h4>
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${reembolso.status === 'Processado' ? 'bg-green-100 text-green-700' :
-                              reembolso.status === 'Aprovado' ? 'bg-blue-100 text-blue-700' :
-                                'bg-yellow-100 text-yellow-700'
+                            reembolso.status === 'Aprovado' ? 'bg-blue-100 text-blue-700' :
+                              'bg-yellow-100 text-yellow-700'
                             }`}>
                             {reembolso.status}
                           </span>
@@ -726,7 +726,7 @@ const ReembolsoIncentivos = () => {
           <div className="bg-gray-50 px-6 py-4 border-t">
             <div className="flex justify-between items-center">
               <div className="text-sm text-gray-500">
-                
+
                 <Clock className="inline-block mr-1" />
                 Dados dos incentivos atualizados em tempo real
               </div>
@@ -1167,14 +1167,17 @@ const ReembolsoIncentivos = () => {
                               </span>
                             </div>
 
-                            {incentivo.quantidadeOriginal && (
-                              <div className="flex justify-between">
-                                <span className="text-gray-500">Quantidade:</span>
-                                <span className="font-medium text-gray-700">
-                                  {incentivo.quantidadeOriginal} {incentivo.unidade}
-                                </span>
-                              </div>
-                            )}
+                            {incentivo.tipo === 'PRODUTO' ? (
+                              incentivo.quantidadeOriginal && (
+                                <div className="flex justify-between">
+                                  <span className="text-gray-500">Quantidade:</span>
+                                  <span className="font-medium text-gray-700">
+                                    {incentivo.quantidadeOriginal} {incentivo.unidade}
+                                  </span>
+                                </div>
+                              )
+                            ) : null}
+
 
                             <div className="flex justify-between">
                               <span className="text-gray-500">% Reembolsável:</span>
