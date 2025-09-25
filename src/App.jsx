@@ -70,6 +70,8 @@ import CooperativaMenuFlorestal from './pages/SociedadeAgricola/CooperativaMenuF
 import AssociacaoMenuFlorestal from './pages/SociedadeAgricola/AssociacaoMenuFlorestal';
 import ValidacoesCerificadosFlorestaisMenu from './Layout/other/ValidacoesCerificadosFlorestaisMenu';
 import VisualizarCertificadosFlorestal from './pages/public/VisualizarCertificadosFlorestal';
+import MenuInfraestruturaAgricola from './pages/infraestruturaAgricola/MenuInfraestruturaAgricola';
+import VisualizarInfraestrutura from './pages/InfraEstrutura/VisualizarInfraestrutura';
 
 function App() {
   return (
@@ -84,7 +86,7 @@ function App() {
           {/* =================================== */}
           {/* ROTAS GERAIS DO SISTEMA (mantidas) */}
           {/* =================================== */}
-          
+
           {/* Rotas dos produtores (já existentes) */}
           <Route path="produtores/visualizar/:id" element={<VisualizarProdutor />} />
           <Route path="praga/visualizar/:id" element={<VisualizarPraga />} />
@@ -97,7 +99,8 @@ function App() {
           <Route path="incentivos/visualizar/:id" element={<VisualizarIncentivo />} />
           <Route path="produtores-florestais/visualizar/:id" element={<VisualizarProdutorFlorestal />} />
           <Route path="gestao-empresas/visualizar-empresa/:id" element={<VisualizarAssociacaoRural />} />
-          <Route path="certificados-florestais/visualizar/:produtorId" element={<VisualizarCertificadosFlorestal   />} />
+          <Route path="certificados-florestais/visualizar/:produtorId" element={<VisualizarCertificadosFlorestal />} />
+          <Route path="infraestruturas/visualizar/:id" element={<VisualizarInfraestrutura />} />
 
           {/* Rotas de gestão escolar (mantidas) */}
           <Route path="gestao-escolar/produtores" element={<h1 className="text-2xl font-semibold">Lista de Produtores</h1>} />
@@ -121,23 +124,25 @@ function App() {
             <Route path="produtores/empresa" element={<EmpresasMenu />} />
             <Route path="produtores/cooperativa" element={<CooperativaMenuAgricola />} />
             <Route path="produtores/associacao" element={<AssociacaoMenuAgricola />} />
-            {/* Infraestrutura Agrícola */}
+            {/* Infraestrutura Agrícola */}/GerenciaRNPA/gestao-agricultores
             <Route path="produtores/irrigacao" element={<IrrigacaoMenuAgricola />} />
             <Route path="produtores/silos-armazenamento" element={<MenuSilosAgricola />} />
             <Route path="produtores/entrepostosMercado" element={<MenuEntrepostosMercadoAgricola />} />
             <Route path="produtores/apoio-agricola" element={<MenuApoioAgricolaAgricola />} />
+            <Route path="produtores/infraestrutura-agricola" element={<MenuInfraestruturaAgricola />} />
             <Route path="programas" element={<GestaoProgramasBeneficiosMenu />} />
-             <Route path="programas-beneficios/visualizar/:id" element={<VisualizarProjeto />} />
+            <Route path="programas-beneficios/visualizar/:id" element={<VisualizarProjeto />} />
+            <Route path="AmostrasDeSolo" element={<AmostrasDeSoloMenu />} />
 
             <Route path="incentivos" element={<IncentivoMenu />} />
-           
-            
+
+
             {/* Validação e Certificado */}
             <Route path="workflow" element={<ValidacoesCerificadosMenu />} />
-            
+
             {/* Passe (Certificados) */}
             <Route path="certificados" element={<CertificadosGestao />} />
-            
+
             {/* Outras rotas existentes */}
             <Route path="registo-individual" element={<h1 className="text-2xl font-semibold">Registo Individual de Produtor</h1>} />
             <Route path="registo-familiar" element={<h1 className="text-2xl font-semibold">Registo de Agregado Familiar</h1>} />
@@ -151,16 +156,16 @@ function App() {
           {/* ======================================= */}
           <Route path="gestao-florestal">
             <Route index element={<GestaoProdutoresFlorestaisMenu />} />
-            
+
             {/* Produtores (com dropdown para Pessoal, Empresa, Cooperativa, Associação) */}
             <Route path="produtores" element={<GestaoProdutoresFlorestaisMenu />} />
             <Route path="produtores/pessoal" element={<GestaoProdutoresFlorestaisMenu />} />
             <Route path="produtores/empresa" element={<EmpresasMenuFlorestal />} />
             <Route path="produtores/cooperativa" element={<CooperativaMenuFlorestal />} />
             <Route path="produtores/associacao" element={<AssociacaoMenuFlorestal />} />
-             {/* Irrigação */}
+            {/* Irrigação */}
             <Route path="produtores/irrigacao" element={<IrrigacaoMenuFlorestal />} />
-             {/* Silos e Centro de Armazenamento */}
+            {/* Silos e Centro de Armazenamento */}
             <Route path="produtores/silos-armazenamento" element={<MenuSilosFlorestal />} />
             {/* Entrepostas e Mercado */}
             <Route path="produtores/entrepostosMercado" element={<MenuEntrepostosMercadoFlorestal />} />
@@ -168,20 +173,20 @@ function App() {
             <Route path="produtores/apoio-agricola" element={<MenuApoioAgricolaFlorestal />} />
             <Route path="programas" element={<GestaoProgramasBeneficiosMenu />} />
             <Route path="incentivos" element={<IncentivoMenu />} />
-            
+
             {/* Validação e Certificado */}
             <Route path="workflow" element={<ValidarCerficacao />} />
-            
-            
+
+
             {/* Passe (Certificados) */}
             <Route path="certificados" element={<CertificadosGestao />} />
-            
+
             {/* Certificação Florestal */}
             <Route path="certificacaoFlorestal" element={<ValidacoesCerificadosFlorestaisMenu />} />
-            
+
             {/* Visualizar Produtor Florestal */}
             <Route path="visualizarprodutorflorestal/:id" element={<VisualizarProdutorFlorestal />} />
-            
+
             {/* Outras rotas existentes */}
             <Route path="licencas" element={<LicencaMenu />} />
             <Route path="fiscalizacao" element={<GestaoFiscalizacao />} />
@@ -204,20 +209,19 @@ function App() {
           {/* ======================================= */}
           <Route path="gestao-infraestrutura">
             <Route index element={<MenuApoioFlorestal />} />
-            
+
             {/* Irrigação */}
             <Route path="Irrigacao" element={<IrrigacaoMenu />} />
-             {/* Silos e Centro de Armazenamento */}
+            {/* Silos e Centro de Armazenamento */}
             <Route path="silos-armazenamento" element={<MenuSilos />} />
-            
-            {/* Ciclos e Centro de Armazenamento + Entrepostas e Mercado */}
-            <Route path="AmostrasDeSolo" element={<AmostrasDeSoloMenu />} />
 
-            {/* Entrepostas e Mercado */ }
+            {/* Ciclos e Centro de Armazenamento + Entrepostas e Mercado */}
+
+            {/* Entrepostas e Mercado */}
             <Route path="entrepostasMercado" element={<MenuEntrepostosMercado />} />
             {/* Empresas de Apoio Agrícola */}
             <Route path="apoio-agricola" element={<MenuApoioFlorestal />} />
-            
+
             {/* Rotas adicionais */}
             <Route path="teste-amostras" element={<TesteAmostrasSolo />} />
           </Route>
@@ -227,18 +231,18 @@ function App() {
           {/* ======================================= */}
           <Route path="painel-monitoramento">
             <Route index element={<ControlePragasMenu />} />
-            
+
             {/* Controle de Pragas, Meteorologia, Hidrografia */}
             <Route path="indicadores" element={<ControlePragasMenu />} />
             <Route path="controle-pragas" element={<ControlePragasMenu />} />
             <Route path="meteorologia" element={<ControlePragasMenu />} />
             <Route path="hidrografia" element={<ControlePragasMenu />} />
-            
+
             {/* Outras rotas existentes */}
             <Route path="mapa" element={<h1 className="text-2xl font-semibold">Mapa Interactivo com Cobertura Territorial</h1>} />
             <Route path="relatorios" element={<h1 className="text-2xl font-semibold">Exportação de Relatórios Excel/PDF</h1>} />
             <Route path="provincias" element={<h1 className="text-2xl font-semibold">Análise por Província</h1>} />
-            
+
             {/* Cadastro de Pragas */}
             <Route path="cadastro-pragas" element={<CadastroPragas />} />
           </Route>
@@ -287,11 +291,11 @@ function App() {
             <Route path="acompanhamento" element={<h1 className="text-2xl font-semibold">Acompanhamento de Beneficiários</h1>} />
           </Route> */}
 
-          {/* ======================================= */}  
+          {/* ======================================= */}
           {/* ROTAS ADICIONAIS (mantidas) */}
 
 
-          
+
           {/* ======================================= */}
 
           {/* Gestão de Agentes de Campo */}

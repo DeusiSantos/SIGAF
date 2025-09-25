@@ -14,7 +14,7 @@ import TesteAmostrasSolo from '../../pages/InfraEstrutura/TesteAmostrasSolo';
 import GestaoTestesSolo from '../../pages/InfraEstrutura/GestaoTestesSolo';
 
 const AmostrasDeSoloMenu = () => {
-    const [activeSection, setActiveSection] = useState('cadastro');
+    const [activeSection, setActiveSection] = useState('gestao');
 
     const menuItems = [
          {

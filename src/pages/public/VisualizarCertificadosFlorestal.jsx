@@ -27,6 +27,7 @@ import api from '../../services/api';
 // CORREÇÃO: Importar a função correta, não o componente
 import { gerarCertificadoValidacao } from './CertificadoGeneratorBaixar';
 import axios from 'axios';
+import CertificadoFlorestalGenerator from './CertificadoFlorestalGenerator';
 
 const VisualizarCertificadosFlorestal = () => {
     const { produtorId } = useParams();
@@ -264,55 +265,118 @@ const VisualizarCertificadosFlorestal = () => {
         fetchCertificados();
     }, [produtorId]);
 
+    const formatarDataISO = (data) => {
+        if (!data) return null;
+        try { return new Date(data).toISOString(); } catch { return null; }
+    };
+
     // CORREÇÃO: Função para gerar e baixar certificado
+    // Função para gerar e baixar certificado
     const handleDownloadCertificado = async (certificado) => {
         try {
             setGerandoCertificado(certificado.id);
             console.log('🎯 Gerando certificado:', certificado);
 
-            // Mapear dados para o formato esperado pelo gerador de certificado
-            const dadosParaCertificado = {
-                dadosProdutor: {
-                    nomeCompleto: produtor?.beneficiary_name ||
-                        `${produtor?.nome_produtor || ''} ${produtor?.sobrenome_produtor || ''}`.trim(),
-                    bi: produtor?.beneficiary_id_number || 'N/A',
-                    telefone: produtor?.beneficiary_phone_number || 'N/A',
-                    municipio: produtor?.municipio || 'N/A',
-                    provincia: produtor?.provincia || 'N/A',
-                    numeroProcesso: certificado.numeroProcesso,
-                    nomePropriedade: certificado.nomeDaPropriedade,
-                    areaTotalExplorada: certificado.areaTotalExplorada,
-                    atividadePrincipal: certificado.atividadePrincipal,
-                    tecnicoResponsavel: certificado.tecnicoResponsavel,
-                    observacoesTecnicas: certificado.observacoesTecnicas,
-                    validadeInicio: certificado.validoDe,
-                    validadeFim: certificado.validoAte,
-                    latitude: certificado.latitude,
-                    longitude: certificado.longitude,
-                    finalidadeCertificado: certificado.finalidadeCertificado
-                },
-                producaoAgricola: certificado.dadosOriginais?.historicoDeProducaoAgricolas || [],
-                producaoPecuaria: certificado.dadosOriginais?.historicoDeProduaooPecuarias || [],
-                vistorias: certificado.dadosOriginais?.historicoDeVistorias || [],
-                produtorOriginal: {
-                    _id: produtorId
+            // Buscar dados completos do certificado da API
+            const responseCertificado = await api.get(`/certificaoDoProdutorFlorestal/${certificado.id}`);
+            const dadosCompletos = responseCertificado.data;
+            
+            console.log('📋 Dados completos do certificado:', dadosCompletos);
+
+            // Processar tipoDeLicencaFlorestal que vem como string JSON dentro de array
+            let tiposLicenca = [];
+            if (dadosCompletos.tipoDeLicencaFlorestal && Array.isArray(dadosCompletos.tipoDeLicencaFlorestal)) {
+                try {
+                    const tiposString = dadosCompletos.tipoDeLicencaFlorestal[0];
+                    if (tiposString) {
+                        tiposLicenca = JSON.parse(tiposString);
+                    }
+                } catch (e) {
+                    console.warn('Erro ao processar tipos de licença:', e);
+                    tiposLicenca = dadosCompletos.tipoDeLicencaFlorestal;
                 }
+            }
+
+            // Montar dados no formato esperado pelo gerador
+            const dadosParaCertificado = {
+                // Dados do produtor
+                nomeCompleto: dadosCompletos.nomeCompleto || produtor?.nome_do_Produtor || 'N/A',
+                nomeEntidade: dadosCompletos.nomeCompleto || produtor?.nome_do_Produtor || 'N/A',
+                numBIOuNIF: dadosCompletos.numBIOuNIF || produtor?.bI_NIF || 'N/A',
+                telefone: dadosCompletos.telefone || produtor?.contacto || 'N/A',
+                provincia: dadosCompletos.provincia || produtor?.provincia || 'N/A',
+                municipio: dadosCompletos.municipio || produtor?.municipio || 'N/A',
+                comuna: dadosCompletos.comuna || produtor?.comuna || 'N/A',
+                
+                // Dados da licença
+                numeroProcesso: certificado.numeroProcesso || `PROC-${certificado.id}`,
+                numeroLicencaExploracao: certificado.numeroProcesso || `LIC-${certificado.id}`,
+                tiposLicenca: tiposLicenca,
+                totalDeCustos: dadosCompletos.totalDeCustos || 0,
+                
+                // Áreas florestais
+                areasFlorestais: dadosCompletos.areaFlorestalLicenciadas || [],
+                
+                // Espécies autorizadas
+                especiesAutorizadas: (dadosCompletos.especieciesFlorestaisAutorizadas || []).map(especie => ({
+                    especie: especie.nomeCientifico || especie.nomeComum || 'Espécie não informada',
+                    nomeComum: especie.nomeComum || '',
+                    nomeCientifico: especie.nomeCientifico || '',
+                    volumeAutorizado: especie.volumeAutorizado || 0,
+                    unidade: especie.unidade || 'm³',
+                    observacoes: especie.observacoes || ''
+                })),
+                
+                // Histórico
+                historicoExploracoes: dadosCompletos.historicoDeExploracao || [],
+                
+                // Validade
+                validadeInicio: dadosCompletos.validadeDe,
+                validadeFim: dadosCompletos.validadeAte,
+                validoDe: dadosCompletos.validadeDe,
+                validoAte: dadosCompletos.validadeAte,
+                
+                // Técnico responsável
+                tecnicoResponsavel: dadosCompletos.nomeDoTecnicoResponsavel || 'Não informado',
+                nomeDoTecnicoResponsavel: dadosCompletos.nomeDoTecnicoResponsavel || 'Não informado',
+                cargo: dadosCompletos.cargo || 'Técnico Florestal',
+                cargoTecnico: dadosCompletos.cargo || 'Técnico Florestal',
+                
+                // Condições e observações
+                condicoesEspeciais: dadosCompletos.condicoesEspeciais || '',
+                observacoes: dadosCompletos.observacoes || certificado.observacoesTecnicas || '',
+                
+                // IDs
+                produtorFlorestalId: dadosCompletos.produtorFlorestalId || produtorId,
+                organizacaoId: dadosCompletos.organizacaoId || null,
+                
+                // Anexos
+                attachmentCertificadoFlorestals: dadosCompletos.attachmentCertificadoFlorestals || []
             };
 
             console.log('📊 Dados preparados para certificado:', dadosParaCertificado);
 
-            // CORREÇÃO: Chamar a função correta, não o componente
-            const resultado = await gerarCertificadoValidacao(dadosParaCertificado);
+            // Importar e chamar a função geradora correta
+            const { gerarCertificadoFlorestal } = await import('./CertificadoFlorestalGenerator');
+            
+            // Chamar a função de geração
+            const resultado = await gerarCertificadoFlorestal({
+                dadosProdutor: dadosParaCertificado,
+                areasFlorestais: dadosParaCertificado.areasFlorestais,
+                especiesAutorizadas: dadosParaCertificado.especiesAutorizadas,
+                historicoExploracoes: dadosParaCertificado.historicoExploracoes,
+                tipoSelecionado: 'Produtor Florestal'
+            });
 
-            if (resultado.success) {
-                showToast('success', 'Sucesso', resultado.message);
+            if (resultado && resultado.success) {
+                showToast('success', 'Sucesso', resultado.message || 'Certificado gerado com sucesso!');
             } else {
-                throw new Error(resultado.message || 'Erro desconhecido');
+                throw new Error(resultado?.message || 'Erro desconhecido ao gerar certificado');
             }
 
         } catch (error) {
             console.error('❌ Erro ao gerar certificado:', error);
-            showToast('error', 'Erro', `Erro ao gerar certificado: ${error.message}`);
+            showToast('error', 'Erro', `Erro ao gerar certificado: ${error.message || error}`);
         } finally {
             setGerandoCertificado(null);
         }
@@ -778,7 +842,7 @@ const VisualizarCertificadosFlorestal = () => {
                                                     <Calendar className="w-4 h-4 mr-1 text-blue-500" /> Vigência
                                                 </h5>
                                                 <p className="text-sm text-gray-900">
-                                                    {formatDate(certificado.validoDe)} - {formatDate(certificado.validoAte)}
+                                                    {formatDate(certificado.validadeDe)} - {formatDate(certificado.validadeAte)}
                                                 </p>
                                                 {certificado.statusCertificado === "PROXIMO_VENCIMENTO" && (
                                                     <p className="text-xs text-yellow-600 font-medium mt-1">
@@ -817,27 +881,7 @@ const VisualizarCertificadosFlorestal = () => {
                                             </div>
                                         )}
 
-                                        {/* Históricos */}
-                                        <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-100">
-                                            <div className="text-center">
-                                                <div className="text-lg font-semibold text-gray-900">
-                                                    {certificado.dadosOriginais?.historicoDeProducaoAgricolas?.length || 0}
-                                                </div>
-                                                <div className="text-xs text-gray-500">Agrícola</div>
-                                            </div>
-                                            <div className="text-center">
-                                                <div className="text-lg font-semibold text-gray-900">
-                                                    {certificado.dadosOriginais?.historicoDeProducaoPecuarias?.length || 0}
-                                                </div>
-                                                <div className="text-xs text-gray-500">Pecuária</div>
-                                            </div>
-                                            <div className="text-center">
-                                                <div className="text-lg font-semibold text-gray-900">
-                                                    {certificado.dadosOriginais?.historicoDeVistorias?.length || 0}
-                                                </div>
-                                                <div className="text-xs text-gray-500">Vistorias</div>
-                                            </div>
-                                        </div>
+
 
                                         {/* Observações */}
                                         {certificado.observacoesTecnicas &&
@@ -858,8 +902,8 @@ const VisualizarCertificadosFlorestal = () => {
                                                 onClick={() => handleDownloadCertificado(certificado)}
                                                 disabled={gerandoCertificado === certificado.id}
                                                 className={`w-full inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors ${gerandoCertificado === certificado.id
-                                                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                                        : "bg-green-600 hover:bg-green-700 text-white shadow-sm hover:shadow-md"
+                                                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                                    : "bg-green-600 hover:bg-green-700 text-white shadow-sm hover:shadow-md"
                                                     }`}
                                             >
                                                 {gerandoCertificado === certificado.id ? (

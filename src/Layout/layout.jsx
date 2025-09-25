@@ -13,7 +13,8 @@ import {
   Scale,
   Gavel,
   Factory,
-  Landmark
+  Landmark,
+  TestTube
 } from 'lucide-react';
 
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
@@ -84,7 +85,8 @@ const rnpaRoutes = {
           { text: 'Irrigação', icon: Sprout, path: '/GerenciaRNPA/gestao-agricultores/produtores/irrigacao' },
           { text: 'Silos e Centro de Armazenamento', icon: Archive, path: '/GerenciaRNPA/gestao-agricultores/produtores/silos-armazenamento' },
           { text: 'Entrepostos e Mercado', icon: Building2, path: '/GerenciaRNPA/gestao-agricultores/produtores/entrepostosMercado' },
-          { text: 'Empresas de Apoio Agrícola', icon: Tractor, path: '/GerenciaRNPA/gestao-agricultores/produtores/apoio-agricola' }
+          { text: 'Infraestrutura Apoio Agrícola', icon: Tractor, path: '/GerenciaRNPA/gestao-agricultores/produtores/infraestrutura-agricola' },
+          { text: 'Empresas de Apoio Agrícola', icon: Tractor, path: '/GerenciaRNPA/gestao-agricultores/produtores/apoio-agricola' },
         ]
       },
 
@@ -101,7 +103,9 @@ const rnpaRoutes = {
       },
       { text: 'Validação e Certificado', icon: Shield, path: '/GerenciaRNPA/gestao-agricultores/workflow' },
       { text: 'Programas e Benefícios', icon: Award, path: '/GerenciaRNPA/gestao-agricultores/programas' },
-      { text: 'Incentivos', icon: TrendingUp, path: '/GerenciaRNPA/gestao-agricultores/incentivos' }
+      { text: 'Incentivos', icon: TrendingUp, path: '/GerenciaRNPA/gestao-agricultores/incentivos' },
+      { text: 'Amostra de Solo', icon: TestTube, path: '/GerenciaRNPA/gestao-agricultores/AmostrasDeSolo' }
+
     ],
 
     'Produtores Florestais': [
@@ -143,7 +147,9 @@ const rnpaRoutes = {
       { text: 'Programas e Benefícios', icon: Award, path: '/GerenciaRNPA/gestao-florestal/programas' },
       { text: 'Incentivos', icon: TrendingUp, path: '/GerenciaRNPA/gestao-florestal/incentivos' },
       { text: 'Certificação Florestal', icon: File, path: '/GerenciaRNPA/gestao-florestal/certificacaoFlorestal' },
-      { text: 'Transgreções', icon: Gavel, path: '/GerenciaRNPA/sancoes' }
+      { text: 'Transgreções', icon: Gavel, path: '/GerenciaRNPA/sancoes' },
+      { text: 'Amostra de Solo', icon: TestTube, path: '/GerenciaRNPA/gestao-agricultores/AmostrasDeSolo' }
+
     ],
 
     'Painel e Monitoramento': [
