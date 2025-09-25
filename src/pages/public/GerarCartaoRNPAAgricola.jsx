@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import html2canvas from 'html2canvas';
-import QRCode from 'qrcode'; // 👈 IMPORTAÇÃO ADICIONADA
+import QRCode from 'qrcode'; // Biblioteca para gerar QR Codes
 import {
     ArrowLeft,
     Download,

@@ -176,8 +176,8 @@ const mapApiDataToProdutor = (apiData) => {
         sobrenomeInquiridor: apiData.sobrenome_inquiridor,
 
         // Localização
-        provincia: apiData.provincia?.toUpperCase() || 'N/A',
-        municipio: apiData.municipio || 'N/A',
+        provincia: apiData.Provincia?.toUpperCase() || 'N/A',
+        municipio: apiData.Municipio || 'N/A',
         comuna: apiData.comuna || '',
         geoLevel4: apiData.geo_level_4 || 'N/A',
         geoLevel5: apiData.geo_level_5 || 'N/A',
@@ -895,7 +895,6 @@ const VisualizarProdutor = () => {
     };
 
     // Função para salvar dados
-    // Função para salvar dados
     const prepareDataForAPI = (formData) => {
         const convertValue = (value) => {
             if (value === null || value === undefined) return '';
@@ -913,58 +912,48 @@ const VisualizarProdutor = () => {
 
         return {
             id: parseInt(id),
-            codigo_inquiridor: '', // tens de preencher de acordo com teu sistema
-            nome_inquiridor: convertValue(formData.nome) || '',
-            nome_meio: convertValue(formData.nomeMeioProdutor) || '',
-            sobrenome_inquiridor: convertValue(formData.sobrenomeProdutor) || '',
-            registration_date: new Date().toISOString().split('T')[0], // YYYY-MM-DD
             provincia: getSelectStringValue(formData.provincia),
             municipio: getSelectStringValue(formData.municipio) || '',
             comuna: convertValue(formData.comuna) || '',
-            geo_level_4: convertValue(formData.geoLevel4) || '',
-            geo_level_5: convertValue(formData.geoLevel5) || '',
-            geo_level_6: convertValue(formData.geoLevel6) || '',
-            gps_coordinates: formData.coordenadasGPS
-                ? `${formData.coordenadasGPS.lat} ${formData.coordenadasGPS.lng}`
-                : '',
+            geoLevel4: convertValue(formData.geoLevel4) || '',
+            geoLevel5: convertValue(formData.geoLevel5) || '',
+            geoLevel6: convertValue(formData.geoLevel6) || '',
+            gpsCoordinates: formData.coordenadasGPS ? `${formData.coordenadasGPS.lat} ${formData.coordenadasGPS.lng}` : '',
             permissao: 'sim',
-            membro_registrado: 'nao',
-            codigo_familiar: '',
-            nome_produtor: convertValue(formData.nome) || '',
-            nome_meio_produtor: convertValue(formData.nomeMeioProdutor) || '',
-            sobrenome_produtor: convertValue(formData.sobrenomeProdutor) || '',
-            beneficiary_name: `${formData.nome || ''} ${formData.nomeMeioProdutor || ''} ${formData.sobrenomeProdutor || ''}`.trim(),
-            e_4_Fazes_parte_de_uma_cooper: '', // precisa mapear conforme regras
-            posicao_eca: '',
-            tipo_organizacao: '',
-            especificar_organizacao: '',
-            beneficiary_gender: convertValue(formData.genero) === 'MASCULINO' ? 'm' : 'f',
-            tipo_documento: 'bilhete_identidade',
-            confirmar_documento: convertValue(formData.numeroBI) || '',
-            beneficiary_phone_number: convertValue(formData.telefone) || '',
-            confirmar_telefone: convertValue(formData.telefone) || '',
-            telefone_proprio: 'sim',
-            dono_numero: '',
-            beneficiary_date_of_birth: convertValue(formData.dataNascimento) || '1990-01-01',
-            lugar_nascimento: convertValue(formData.lugarNascimento) || '',
-            estado_civil: convertValue(formData.estadoCivil) || 'solteiro',
-            nivel_escolaridade: convertValue(formData.nivelEscolaridade) || 'primario',
+            membroRegistrado: 'nao',
+            codigoFamiliar: '',
+            nomeProdutor: convertValue(formData.nome) || '',
+            nomeMeioProdutor: convertValue(formData.nomeMeioProdutor) || '',
+            sobrenomeProdutor: convertValue(formData.sobrenomeProdutor) || '',
+            beneficiaryName: `${formData.nome || ''} ${formData.nomeMeioProdutor || ''} ${formData.sobrenomeProdutor || ''}`.trim(),
+            beneficiaryIdNumber: convertValue(formData.numeroBI) || '',
+            tipoDocumento: 'bilhete_identidade',
+            confirmarDocumento: convertValue(formData.numeroBI) || '',
+            beneficiaryGender: convertValue(formData.genero) === 'MASCULINO' ? 'm' : 'f',
+            beneficiaryPhoneNumber: convertValue(formData.telefone) || '',
+            confirmarTelefone: convertValue(formData.telefone) || '',
+            telefoneProprio: 'sim',
+            donoNumero: '',
+            beneficiaryDateOfBirth: convertValue(formData.dataNascimento) || '1990-01-01',
+            lugarNascimento: convertValue(formData.lugarNascimento) || '',
+            estadoCivil: convertValue(formData.estadoCivil) || 'solteiro',
+            nivelEscolaridade: convertValue(formData.nivelEscolaridade) || 'primario',
             outro: '',
             gravida: formData.gravida ? 'sim' : 'nao',
-            possui_deficiencia: formData.possuiDeficiencia ? 'sim' : 'nao',
-            tipo_deficiencia: convertValue(formData.tipoDeficiencia) || '',
-            chefe_familiar: formData.chefeAgregado ? 'sim' : 'nao',
-            nome_chefe: convertValue(formData.nomeChefe) || '',
-            nome_meio_chefe: convertValue(formData.nomeMeioChefe) || '',
-            sobrenome_chefe: convertValue(formData.sobrenomeChefe) || '',
-            sexo_chefe: convertValue(formData.sexoChefe) === 'MASCULINO' ? 'm' : 'f',
-            tipo_doc_chefe: '',
-            num_doc_chefe: '',
-            confirmar_doc_chefe: '',
-            num_tel_chefe: '',
-            confirmar_tel_chefe: '',
-            relacao_chefe: '',
-            total_agregado: (formData.totalAgregado || 1).toString(),
+            possuiDeficiencia: formData.possuiDeficiencia ? 'sim' : 'nao',
+            tipoDeficiencia: convertValue(formData.tipoDeficiencia) || '',
+            chefeFamiliar: formData.chefeAgregado ? 'sim' : 'nao',
+            nomeChefe: convertValue(formData.nomeChefe) || '',
+            nomeMeioChefe: convertValue(formData.nomeMeioChefe) || '',
+            sobreNomeChefe: convertValue(formData.sobrenomeChefe) || '',
+            sexoChefe: convertValue(formData.sexoChefe) === 'MASCULINO' ? 'm' : 'f',
+            tipoDocChefe: '',
+            numDocChefe: '',
+            confirmarDocChefe: '',
+            numTelChefe: '',
+            confirmarTelChefe: '',
+            relacaoChefe: '',
+            totalAgregado: (formData.totalAgregado || 1).toString(),
             feminino_0_6: (formData.feminino0a6 || 0).toString(),
             masculino_0_6: (formData.masculino0a6 || 0).toString(),
             feminino_7_18: (formData.feminino7a18 || 0).toString(),
@@ -973,74 +962,73 @@ const VisualizarProdutor = () => {
             masculino_19_60: (formData.masculino19a60 || 0).toString(),
             feminino_61_mais: (formData.feminino61mais || 0).toString(),
             masculino_61_mais: (formData.masculino61mais || 0).toString(),
-            atividades_produtor: convertValue(formData.atividadesProdutor) || '',
-            outra_atividade: '',
-            acesso_terra: formData.acessoTerra ? 'sim' : 'nao',
-            e_proprietario: formData.proprietarioTerra ? 'sim' : 'nao',
-            titulo_terra: formData.tituloTerra ? 'sim' : 'nao',
-            tipo_doc_terra: '',
-            area_total: (formData.areaTotalCampos || 0).toString(),
-            area_explorada: (formData.areaExplorada || 0).toString(),
-            area_agricola: (formData.areaAgricola || 0).toString(),
-            area_pecuaria: (formData.areaPecuaria || 0).toString(),
-            area_florestal: (formData.areaFlorestal || 0).toString(),
-            tecnologia_agricola: convertValue(formData.tecnologiaAgricola) || '',
-            culturas_importantes: convertValue(formData.culturasImportantes) || '',
-            outra_cultura: convertValue(formData.outraCultura) || '',
-            producao_sacos: (formData.producaoSacos || 0).toString(),
-            tipo_semanteira: convertValue(formData.tipoSementeira) || '',
-            uso_fertilizante: formData.usoFertilizantes ? 'sim' : 'nao',
-            preparacao_terra: convertValue(formData.preparacaoTerra) || '',
-            acesso_irrigacao: formData.acessoIrrigacao ? 'sim' : 'nao',
-            sistema_irrigacao: convertValue(formData.sistemaIrrigacao) || '',
-            especificar_irrigacao: '',
-            distancia_agua: '0',
-            amanhos_culturais: '',
-            tipos_amanhos: '',
-            especificar_amanhos: '',
-            acesso_insumoa_agricolas: '',
-            fonte_insumos: '',
-            especificar_fonte: '',
-            tipos_criacao: convertValue(formData.tiposCriacao) || '',
-            outra_criacao: '',
-            sistema_avicultura: '',
-            objetivo_avicultura: '',
-            outro_obj_avicultura: '',
-            numero_aves: (formData.numeroAves || 0).toString(),
-            tipo_pecuaria: '',
-            manejo_pecuaria: '',
-            numero_cabras: (formData.numeroCabras || 0).toString(),
-            numero_vacas: (formData.numeroVacas || 0).toString(),
-            numero_ovelhas: (formData.numeroOvelhas || 0).toString(),
-            objetivo_producao: '',
-            especificar_objetivo_producao: '',
-            numero_porcos: (formData.numeroPorcos || 0).toString(),
-            objetivo_suinocultura: '',
-            especificar_objetivo_suino: '',
-            tipo_aquicultura: '',
-            objetivo_aquicultura: '',
-            especificar_objetivo_aquic: '',
-            numero_peixes: (formData.numeroPeixes || 0).toString(),
-            numero_coelhos: (formData.numeroCoelhos || 0).toString(),
-            objetivo_coelho: '',
-            especificar_objetivo_coelhos: '',
-            acesso_racao: formData.acessoRacao ? 'sim' : 'nao',
-            conhecimento_doencas: formData.conhecimentoDoencas ? 'sim' : 'nao',
-            credito_beneficio: formData.creditoBeneficio ? 'sim' : 'nao',
-            fonte_credito: '',
-            especificar_credito: '',
-            bens_familiares: convertValue(formData.bensFamiliares) || '',
-            especificar_bem: '',
-            tipo_apoio: convertValue(formData.tipoApoio) || '',
-            observacoes_gerais: convertValue(formData.observacoesGerais) || '',
-            tipo_patec: '',
-            especificar_patec: '',
-            h_3_O_produtor_j_beneficiou_d: '',
-            h3_1_Tipos_de_cr_ditos: '',
-            especifica_outro_tip_ito_que_o_beneficiou: ''
+            atividadesProdutor: convertValue(formData.atividadesProdutor) || '',
+            outraAtividade: '',
+            acessoTerra: formData.acessoTerra ? 'sim' : 'nao',
+            eProprietario: formData.proprietarioTerra ? 'sim' : 'nao',
+            tituloTerra: formData.tituloTerra ? 'sim' : 'nao',
+            tipoDocTerra: '',
+            areaTotal: (formData.areaTotalCampos || 0).toString(),
+            areaExplorada: (formData.areaExplorada || 0).toString(),
+            areaAgricola: (formData.areaAgricola || 0).toString(),
+            areaPecuaria: (formData.areaPecuaria || 0).toString(),
+            areaFlorestal: (formData.areaFlorestal || 0).toString(),
+            tecnologiaAgricola: convertValue(formData.tecnologiaAgricola) || '',
+            culturasImportantes: convertValue(formData.culturasImportantes) || '',
+            outraCultura: convertValue(formData.outraCultura) || '',
+            producaoSacos: (formData.producaoSacos || 0).toString(),
+            tipoSemanteira: convertValue(formData.tipoSementeira) || '',
+            usoFertilizante: formData.usoFertilizantes ? 'sim' : 'nao',
+            preparacaoTerra: convertValue(formData.preparacaoTerra) || '',
+            acessoIrrigacao: formData.acessoIrrigacao ? 'sim' : 'nao',
+            sistemaIrrigacao: convertValue(formData.sistemaIrrigacao) || '',
+            especificarIrrigacao: '',
+            distanciaAgua: '0',
+            amanhosCulturais: '',
+            tiposAmanhos: '',
+            especificarAmanhos: '',
+            acessoInsumoaAgricolas: '',
+            fonteInsumos: '',
+            especificarFonte: '',
+            tiposCriacao: convertValue(formData.tiposCriacao) || '',
+            outraCriacao: '',
+            sistemaAvicultura: '',
+            objetivoAvicultura: '',
+            outroObjAvicultura: '',
+            numeroAves: (formData.numeroAves || 0).toString(),
+            tipoPecuaria: '',
+            manejoPecuaria: '',
+            numeroCabras: (formData.numeroCabras || 0).toString(),
+            numeroVacas: (formData.numeroVacas || 0).toString(),
+            numeroOvelhas: (formData.numeroOvelhas || 0).toString(),
+            objetivoProducao: '',
+            especificarObjetivoProducao: '',
+            numeroPorcos: (formData.numeroPorcos || 0).toString(),
+            objetivoSuinocultura: '',
+            especificarObjetivoSuino: '',
+            tipoAquicultura: '',
+            objetivoAquicultura: '',
+            especificarObjetivoAquic: '',
+            numeroPeixes: (formData.numeroPeixes || 0).toString(),
+            numeroCoelhos: (formData.numeroCoelhos || 0).toString(),
+            objetivoCoelho: '',
+            especificarObjetivoCoelhos: '',
+            acessoRacao: formData.acessoRacao ? 'sim' : 'nao',
+            conhecimentoDoencas: formData.conhecimentoDoencas ? 'sim' : 'nao',
+            creditoBeneficio: formData.creditoBeneficio ? 'sim' : 'nao',
+            fonteCredito: '',
+            especificarCredito: '',
+            bensFamiliares: convertValue(formData.bensFamiliares) || '',
+            especificarBem: '',
+            tipoApoio: convertValue(formData.tipoApoio) || '',
+            observacoesGerais: convertValue(formData.observacoesGerais) || '',
+            tipoPatec: '',
+            especificarPatec: '',
+            h3OProdutorJBeneficiouD: '',
+            h31TiposDeCrditos: '',
+            especificaOutroTipItoQueOBeneficiou: ''
         };
     };
-
 
     const handleSave = async () => {
         try {
@@ -1495,15 +1483,15 @@ const VisualizarProdutor = () => {
                                 label="Sobrenome"
                                 value={
                                     isEditing
-                                        ? `${formData.sobrenomeProdutor || ''}`.trim()
-                                        : `${formData.sobrenomeProdutor || ''}`.trim()
+                                        ? `${formData.nomeMeioProdutor ? formData.nomeMeioProdutor + ' ' : ''}${formData.sobrenomeProdutor || ''}`.trim()
+                                        : `${formData.nomeMeioProdutor ? formData.nomeMeioProdutor + ' ' : ''}${formData.sobrenomeProdutor || ''}`.trim()
                                 }
                                 onChange={(value) => {
                                     // Ao editar, separa nome do meio e sobrenome
                                     const partes = value.split(' ');
                                     const nomeMeio = partes.length > 1 ? partes.slice(0, -1).join(' ') : '';
                                     const sobrenome = partes.length > 0 ? partes[partes.length - 1] : '';
-
+                                    updateFormData('nomeMeioProdutor', nomeMeio);
                                     updateFormData('sobrenomeProdutor', sobrenome);
                                 }}
                                 disabled={!isEditing}
@@ -1613,19 +1601,10 @@ const VisualizarProdutor = () => {
 
                             {(formData.possuiDeficiencia === true || formData.possuiDeficiencia?.value === true) && (
                                 <CustomInput
-                                    type="select"
+                                    type="text"
                                     label="Tipo de Deficiência"
                                     value={formData.tipoDeficiencia}
                                     onChange={(value) => updateFormData('tipoDeficiencia', value)}
-                                    options={[
-                                        { label: 'Motora', value: 'MOTORA' },
-                                        { label: 'Visual', value: 'VISUAL' },
-                                        { label: 'Auditiva', value: 'AUDITIVA' },
-                                        { label: 'Mental', value: 'MENTAL' },
-                                        { label: 'Doença crónica', value: 'DOENCA_CRONICA' },
-                                        { label: 'Múltiplas deficiências', value: 'MULTIPLAS' },
-                                        { label: 'Outro', value: 'OUTRO' }
-                                    ]}
                                     disabled={!isEditing}
                                     iconStart={<AlertCircle size={18} />}
                                 />

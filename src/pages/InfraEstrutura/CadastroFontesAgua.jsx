@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import CustomInput from '../../components/CustomInput';
 import provinciasData from '../../components/Provincias.json';
+import axios from "axios";
 
 // Configuração do ícone do Leaflet
 const defaultIcon = L.icon({
@@ -42,6 +43,11 @@ const MapClickHandler = ({ onLocationSelect }) => {
         }
     });
     return null;
+}
+
+const showToast = (severity, summary, detail, duration = 3000) => {
+    setToastMessage({ severity, summary, detail, visible: true });
+    setTimeout(() => setToastMessage(null), duration);
 }
 
 // Componente de Mapa
@@ -87,12 +93,11 @@ const MapaGPS = ({ latitude, longitude, onLocationSelect }) => {
     );
 };
 
-
-
 const CadastroFontesAgua = () => {
     const [activeIndex, setActiveIndex] = useState(0);
     const [saving, setSaving] = useState(false);
     const [municipiosOptions, setMunicipiosOptions] = useState([]);
+    const [uploadedFiles, setUploadedFiles] = useState({});
 
     // Estado inicial
     const initialState = {
@@ -193,24 +198,132 @@ const CadastroFontesAgua = () => {
         setFormData(prev => ({ ...prev, provincia: value, municipio: '' }));
     };
 
+    const handleFileUpload = (fieldName, file) => {
+        setUploadedFiles(prev => ({ ...prev, [fieldName]: file }));
+        setFormData(prev => ({ ...prev, [fieldName]: file }));
+    };
+
+
+
     const handleSave = async () => {
         setSaving(true);
 
         try {
-            // Simular envio para API
-            console.log('Dados da fonte de água:', formData);
+            const form = new FormData();
 
-            // Simular delay da API
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            // Campos básicos
+            form.append("Data_de_Registo", formData.dataRegistro);
+            form.append("Equipe_tecnica", formData.equipeTecnica || "");
 
-            alert('Fonte de água registrada com sucesso!');
+            // Localização
+            form.append("Provincia", formData.provincia?.value || formData.provincia || "");
+            form.append("Municipio", formData.municipio?.value || formData.municipio || "");
+            form.append("Aldeia", formData.aldeia || "");
 
-            // Reset do formulário
+            // Identificação da fonte
+            form.append("Tipo", formData.tipoFonte?.value || formData.tipoFonte || "");
+            form.append("Nome_Local_se_aplicavel", formData.nomeLocal || "");
+            form.append("Coordenadas_GPS", `${formData.latitude || ""},${formData.longitude || ""}`);
+            form.append("Distancia_em_relacao_parcelas_dos_produtores", formData.distanciaParcelas || "");
+
+            // Disponibilidade hídrica
+            form.append("Vazao_estimada_se_rio_vala", formData.vazaoEstimada || "");
+            form.append("Profundidade_media_se_lago_lagoa", formData.profundidadeMedia || "");
+            form.append("Volume_util_estimado", formData.volumeUtil || "");
+            form.append("Variacao_sazonal_periodo_de_cheia_seca", formData.variacaoSazonal || "");
+
+            // Qualidade da água
+            form.append("Aspecto_visual", formData.aspectoVisual?.value || formData.aspectoVisual || "");
+
+            // Arrays - converter para string
+            const contaminacoes = Array.isArray(formData.contaminacoes)
+                ? formData.contaminacoes.map(c => c.value || c).join(",")
+                : "";
+            form.append("Possiveis_contaminacoes", contaminacoes);
+
+            form.append(
+                "Recomendacoes_para_uso_na_irrigacao",
+                formData.recomendadaIrrigacao?.value || formData.recomendadaIrrigacao || ""
+            );
+
+            // Infraestrutura
+            form.append("Barragens_ou_represas", formData.temBarragens?.value || formData.temBarragens || "");
+            form.append("Bombas_ou_canais_proximos", formData.bombasCanais || "");
+            form.append("Estado_de_conservacao", formData.estadoConservacao?.value || formData.estadoConservacao || "");
+
+            // Potencial para irrigação
+            form.append("Area_irrigavel_estimada_ha", formData.areaIrrigavel || "");
+
+            const culturasRecomendadas = Array.isArray(formData.culturasRecomendadas)
+                ? formData.culturasRecomendadas.map(c => c.value || c).join(",")
+                : "";
+            form.append("Culturas_recomendadas", culturasRecomendadas);
+
+            form.append("Tipo_de_irrigacao_viavel", formData.tipoIrrigacao?.value || formData.tipoIrrigacao || "");
+
+            const desafios = Array.isArray(formData.desafios)
+                ? formData.desafios.map(d => d.value || d).join(",")
+                : "";
+            form.append("Desafios", desafios);
+
+            // Recomendações
+            const acoesImediatas = Array.isArray(formData.acoesImediatas)
+                ? formData.acoesImediatas.map(a => a.value || a).join(",")
+                : "";
+            form.append("Acoes_imediatas", acoesImediatas);
+
+            const intervencoesMedioLongo = Array.isArray(formData.intervencoesMedioLongo)
+                ? formData.intervencoesMedioLongo.map(i => i.value || i).join(",")
+                : "";
+            form.append("Intervencoes_a_medio_longo_prazo", intervencoesMedioLongo);
+
+            const parceriasSugeridas = Array.isArray(formData.parceriasSugeridas)
+                ? formData.parceriasSugeridas.map(p => p.value || p).join(",")
+                : "";
+            form.append("Parcerias_sugeridas", parceriasSugeridas);
+
+            // Anexos
+            if (formData.fotografias && formData.fotografias instanceof File) {
+                form.append("Fotografias_da_fonte_de_agua", formData.fotografias);
+            } else {
+                form.append("Fotografias_da_fonte_de_agua", "");
+            }
+
+            form.append("Croqui_ou_mapa_da_localizacao", `${formData.croquiLatitude || ""},${formData.croquiLongitude || ""}`);
+            form.append("Registros_de_entrevistas_com_produtores_locais", formData.entrevistasLocais || "");
+            form.append("Observacoes_Finais", formData.observacoesFinais || "");
+
+            console.log("=== DADOS ENVIADOS PARA API (axios) ===");
+            for (let [key, value] of form.entries()) {
+                console.log(`${key}:`, value instanceof File ? `[File: ${value.name}]` : value);
+            }
+
+            // 🚀 Chamada com axios
+            const response = await axios.post(
+                "https://mwangobrainsa-001-site2.mtempurl.com/api/irrigacao",
+                form,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data"
+                    }
+                }
+            );
+
+            console.log("=== RESPOSTA DA API ===", response.data);
+
+            alert("Fonte de água registrada com sucesso!");
             setFormData(initialState);
             setActiveIndex(0);
+
         } catch (error) {
-            console.error('Erro ao salvar:', error);
-            alert('Erro ao registrar fonte de água. Tente novamente.');
+            console.group("❌ Erro ao salvar");
+            if (axios.isAxiosError(error)) {
+                console.error("Mensagem de erro:", error.response?.data || error.message);
+            } else {
+                console.error("Erro inesperado:", error);
+            }
+            console.groupEnd();
+            alert(`Erro ao registrar fonte de água: ${error.message}`);
         } finally {
             setSaving(false);
         }
@@ -251,15 +364,6 @@ const CadastroFontesAgua = () => {
                                 iconStart={<Users size={18} />}
                             />
                         </div>
-
-                        <CustomInput
-                            type="textarea"
-                            label="Informações Gerais"
-                            value={formData.informacoesGerais}
-                            onChange={(value) => handleInputChange('informacoesGerais', value)}
-                            placeholder="Informações gerais sobre o registro"
-                            rows={3}
-                        />
                     </div>
                 );
 
@@ -281,7 +385,7 @@ const CadastroFontesAgua = () => {
                         <div className="space-y-8">
                             {/* Localização */}
                             <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold mb-4">Localização</h4>
+                                <h4 className="text-lg font-semibold  mb-10">Localização</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <CustomInput
                                         type="select"
@@ -320,7 +424,7 @@ const CadastroFontesAgua = () => {
 
                             {/* Identificação da Fonte */}
                             <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold mb-4">Identificação da Fonte de Água</h4>
+                                <h4 className="text-lg font-semibold mb-10">Identificação da Fonte de Água</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                     <CustomInput
                                         type="select"
@@ -443,30 +547,27 @@ const CadastroFontesAgua = () => {
                         <div className="space-y-8">
                             {/* Disponibilidade Hídrica */}
                             <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold mb-4">2.1. Disponibilidade Hídrica</h4>
+                                <h4 className="text-lg font-semibold mb-10"> Disponibilidade Hídrica</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-
                                     <CustomInput
                                         type="number"
                                         label="Vazão estimada (se rio/vala)"
-                                        value={formData.volumeUtil}
-                                        onChange={(value) => handleInputChange('volumeUtil', value)}
+                                        value={formData.vazaoEstimada}
+                                        onChange={(value) => handleInputChange('vazaoEstimada', value)}
                                         placeholder="Ex: 1000"
                                         step="any"
                                     />
                                     <CustomInput
                                         type="select"
                                         label="Unidade de vazão"
-                                        value={formData.aspectoVisual}
+                                        value={formData.unidadeVazao}
                                         options={[
                                             { label: "m³/s", value: "m³/s" },
                                             { label: "litros/s", value: "litros/s" },
-
                                         ]}
                                         onChange={(value) => handleInputChange('unidadeVazao', value)}
                                         iconStart={<Eye size={18} />}
                                     />
-
 
                                     <CustomInput
                                         type="number"
@@ -500,7 +601,7 @@ const CadastroFontesAgua = () => {
 
                             {/* Qualidade da Água */}
                             <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold mb-4">2.2. Qualidade da Água</h4>
+                                <h4 className="text-lg font-semibold mb-10"> Qualidade da Água</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <CustomInput
                                         type="select"
@@ -548,7 +649,7 @@ const CadastroFontesAgua = () => {
 
                             {/* Infraestrutura Existente */}
                             <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold mb-4">2.3. Infraestrutura Existente</h4>
+                                <h4 className="text-lg font-semibold mb-10"> Infraestrutura Existente</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <CustomInput
                                         type="select"
@@ -696,7 +797,7 @@ const CadastroFontesAgua = () => {
                         <div className="space-y-8">
                             {/* Recomendações */}
                             <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold mb-4">4. Recomendações</h4>
+                                <h4 className="text-lg font-semibold mb-10"> Recomendações</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <CustomInput
                                         type="multiselect"
@@ -754,7 +855,7 @@ const CadastroFontesAgua = () => {
 
                             {/* Anexos */}
                             <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold mb-4">5. Anexos</h4>
+                                <h4 className="text-lg font-semibold mb-10">Anexos</h4>
                                 <div className="space-y-6">
                                     {/* Upload de Fotografias */}
                                     <div>
@@ -765,23 +866,18 @@ const CadastroFontesAgua = () => {
                                             <input
                                                 type="file"
                                                 className="hidden"
+                                                id="fotografias"
+                                                onChange={(e) => handleFileUpload('fotografias', e.target.files[0])}
                                                 accept="image/*"
-                                                multiple
-                                                onChange={(e) => handleInputChange('fotografias', e.target.files)}
-                                                id="fotografias-upload"
                                             />
                                             <label
-                                                htmlFor="fotografias-upload"
-                                                className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${formData.fotografias
-                                                    ? 'bg-green-50 border-green-300 hover:bg-green-100'
-                                                    : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                                                    }`}
+                                                htmlFor="fotografias"
+                                                className="cursor-pointer border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-cyan-400 transition-colors block"
                                             >
-                                                <Camera className={`w-8 h-8 mb-3 ${formData.fotografias ? 'text-green-500' : 'text-gray-400'}`} />
-                                                <p className={`text-sm font-medium ${formData.fotografias ? 'text-green-600' : 'text-gray-500'}`}>
-                                                    {formData.fotografias ? `${formData.fotografias.length} foto(s) carregada(s)` : 'Carregar fotografias'}
+                                                <Camera className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                                                <p className="text-sm text-gray-600">
+                                                    {formData.fotografias ? formData.fotografias.name : 'Clique para selecionar fotografias'}
                                                 </p>
-                                                <p className="text-xs text-gray-400 mt-1">Máximo 10MB por arquivo</p>
                                             </label>
                                         </div>
                                     </div>

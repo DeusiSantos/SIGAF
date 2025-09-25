@@ -20,7 +20,7 @@ const AssociacaoMenuAgricola = () => {
             id: 'cadastro',
             title: 'Cadastrar ',
             icon: UserPlus,
-            description: 'Nova Empresa',
+            description: 'Nova Associação',
             color: 'blue'
         },
     ];

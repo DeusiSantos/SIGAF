@@ -1773,7 +1773,7 @@ const CadastroAssociacaoAgricola = () => {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200">
           {/* Header */}
           <div className="text-center mb-8 p-8 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-emerald-50">
-            <h1 className="text-4xl font-bold mb-3 text-gray-800">Cadastro de Associações Agricolas</h1>
+            <h1 className="text-4xl font-bold mb-3 text-gray-800">Cadastro de Associações </h1>
           </div>
 
           {/* Stepper */}
