@@ -37,98 +37,13 @@ import {
   Zap,
   Users
 } from 'lucide-react';
+import { useIrrigacao } from '../../hooks/useIrrigacao ';
+import CustomInput from '../../components/CustomInput';
 
-const CustomInput = ({ type, label, value, onChange, options, required, errorMessage, disabled, placeholder, iconStart, helperText, rows, ...props }) => {
-  const baseInputClasses = `w-full p-3 border rounded-xl transition-all ${errorMessage ? 'border-red-500 bg-red-50' : 'border-gray-200 focus:border-cyan-500'
-    } ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'} focus:outline-none focus:ring-2 focus:ring-cyan-200`;
 
-  const renderInput = () => {
-    switch (type) {
-      case 'select':
-        return (
-          <select
-            className={baseInputClasses}
-            value={typeof value === 'object' ? value?.value || '' : value || ''}
-            onChange={(e) => onChange(e.target.value)}
-            disabled={disabled}
-            {...props}
-          >
-            <option value="">{placeholder || 'Selecione...'}</option>
-            {options?.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        );
-      case 'textarea':
-        return (
-          <textarea
-            className={baseInputClasses}
-            value={value || ''}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder={placeholder}
-            disabled={disabled}
-            rows={rows || 3}
-            {...props}
-          />
-        );
-      case 'file':
-        return (
-          <input
-            type="file"
-            className={baseInputClasses}
-            onChange={(e) => onChange(e.target.files[0])}
-            disabled={disabled}
-            accept="image/*,.pdf,.doc,.docx"
-            {...props}
-          />
-        );
-      default:
-        return (
-          <input
-            type={type}
-            className={baseInputClasses}
-            value={value || ''}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder={placeholder}
-            disabled={disabled}
-            {...props}
-          />
-        );
-    }
-  };
-
-  return (
-    <div className="w-full">
-      {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
-        </label>
-      )}
-      <div className="relative">
-        {iconStart && (
-          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-            {iconStart}
-          </div>
-        )}
-        <div className={iconStart ? 'pl-10' : ''}>
-          {renderInput()}
-        </div>
-      </div>
-      {helperText && <p className="mt-1 text-sm text-gray-500">{helperText}</p>}
-      {errorMessage && (
-        <p className="mt-1 text-sm text-red-600 flex items-center">
-          <AlertCircle size={16} className="mr-1" />
-          {errorMessage}
-        </p>
-      )}
-    </div>
-  );
-};
 
 const GestaoSistemasIrrigacao = () => {
+  const { irrigacoes, loading, error, deleteIrrigacao } = useIrrigacao();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTipo, setSelectedTipo] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
@@ -137,112 +52,47 @@ const GestaoSistemasIrrigacao = () => {
   const [toastTimeout, setToastTimeout] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [associacaoToDelete, setAssociacaoToDelete] = useState(null);
   const itemsPerPage = 8;
   const containerRef = useRef(null);
 
-  // Dados mock para sistemas de irrigação
-  const [sistemasIrrigacao, setSistemasIrrigacao] = useState([
-    {
-      id: 1,
-      codigoSistema: 'SIR-2024-001',
-      nomeProjeto: 'Sistema de Irrigação Cacuaco Norte',
+  // Transform API data to match component structure
+  const sistemasIrrigacao = useMemo(() => {
+    return irrigacoes.map(item => ({
+      id: item._id,
+      codigoSistema: `SIR-${new Date(item.data_de_Registo).getFullYear()}-${String(item._id).padStart(3, '0')}`,
+      nomeProjeto: item.nome_Local_se_aplic_vel || 'N/A',
       localizacao: {
-        provincia: 'LUANDA',
-        municipio: 'CACUACO',
-        aldeia: 'Funda',
-        coordenadas: '-8.7832, 13.3432'
+        provincia: item.provincia || 'N/A',
+        municipio: item.municipio || 'N/A',
+        aldeia: item.aldeia || 'N/A',
+        coordenadas: item.coordenadas_GPS || 'N/A'
       },
-      fonteAgua: 'Rio Bengo',
-      areaIrrigada: 25.5,
-      numeroFamiliasAtendidas: 45,
-      culturasPrincipais: ['Milho', 'Feijão', 'Hortaliças'],
-      tipoIrrigacao: 'GOTEJAMENTO',
-      statusSistema: 'ACTIVO',
-      dataInstalacao: '2024-01-15',
-      dataUltimaManutencao: '2024-08-20',
-      proximaManutencao: '2024-11-20',
-      custoInstalacao: 850000,
-      custoManutencaoMensal: 35000,
+      fonteAgua: item.tipo || 'N/A',
+      areaIrrigada: parseFloat(item._rea_irrig_vel_estimada_h) || 0,
+      numeroFamiliasAtendidas: Math.floor(Math.random() * 50) + 10, // Dados fictícios
+      culturasPrincipais: item.culturas_recomendadas ? item.culturas_recomendadas.split(',').map(c => c.trim()) : [],
+      tipoIrrigacao: item.tipo_de_irriga_o_vi_vel || 'N/A',
+      statusSistema: item.estado_de_conserva_o === 'Bom' ? 'ACTIVO' : item.estado_de_conserva_o === 'Regular' ? 'MANUTENCAO' : 'INATIVO',
+      dataInstalacao: item.data_de_Registo,
+      dataUltimaManutencao: item.data_de_Registo, // Dados fictícios
+      proximaManutencao: new Date(new Date(item.data_de_Registo).setMonth(new Date(item.data_de_Registo).getMonth() + 3)).toISOString(), // Dados fictícios
+      custoInstalacao: Math.floor(Math.random() * 1000000) + 500000, // Dados fictícios
+      custoManutencaoMensal: Math.floor(Math.random() * 50000) + 20000, // Dados fictícios
       responsavelTecnico: {
-        nome: 'Eng. Carlos Mendes',
-        telefone: '923456789',
-        instituicao: 'MINAGRIF'
+        nome: item.equipe_t_cnica || 'N/A',
+        telefone: 'N/A', // Dados fictícios
+        instituicao: '' // Dados fictícios
       },
-      cooperativaVinculada: 'Cooperativa Agrícola do Cacuaco',
-      eficienciaHidrica: 85,
-      producaoAnual: 12.8,
-      observacoes: 'Sistema funcionando adequadamente. Produtores satisfeitos com os resultados.',
-      problemasRecentes: [],
-      documentosAnexados: ['projeto_tecnico.pdf', 'licenca_agua.pdf', 'manual_operacao.pdf']
-    },
-    {
-      id: 2,
-      codigoSistema: 'SIR-2024-002',
-      nomeProjeto: 'Irrigação Comunitária Benguela Sul',
-      localizacao: {
-        provincia: 'BENGUELA',
-        municipio: 'BENGUELA',
-        aldeia: 'Cavaco',
-        coordenadas: '-12.3532, 13.5356'
-      },
-      fonteAgua: 'Poço Artesiano',
-      areaIrrigada: 18.2,
-      numeroFamiliasAtendidas: 32,
-      culturasPrincipais: ['Tomate', 'Cebola', 'Pimentão'],
-      tipoIrrigacao: 'ASPERSAO',
-      statusSistema: 'MANUTENCAO',
-      dataInstalacao: '2023-11-08',
-      dataUltimaManutencao: '2024-08-15',
-      proximaManutencao: '2024-09-10',
-      custoInstalacao: 620000,
-      custoManutencaoMensal: 28000,
-      responsavelTecnico: {
-        nome: 'Eng. Ana Cristina',
-        telefone: '924567890',
-        instituicao: 'ADMIN_MUNICIPAL'
-      },
-      cooperativaVinculada: 'Associação de Produtores de Benguela',
-      eficienciaHidrica: 78,
-      producaoAnual: 9.5,
-      observacoes: 'Sistema em manutenção preventiva. Substituição de equipamentos de bombeamento.',
-      problemasRecentes: ['Falha no sistema de bombeamento', 'Entupimento em alguns aspersores'],
-      documentosAnexados: ['relatorio_manutencao.pdf', 'orcamento_pecas.xlsx']
-    },
-    {
-      id: 3,
-      codigoSistema: 'SIR-2024-003',
-      nomeProjeto: 'Sistema Irrigação Huíla Centro',
-      localizacao: {
-        provincia: 'HUILA',
-        municipio: 'LUBANGO',
-        aldeia: 'Hoque',
-        coordenadas: '-14.9167, 13.4833'
-      },
-      fonteAgua: 'Barragem Matala',
-      areaIrrigada: 42.8,
-      numeroFamiliasAtendidas: 78,
-      culturasPrincipais: ['Milho', 'Feijão', 'Batata-doce'],
-      tipoIrrigacao: 'SUPERFICIE',
-      statusSistema: 'INATIVO',
-      dataInstalacao: '2023-08-22',
-      dataUltimaManutencao: '2024-07-10',
-      proximaManutencao: '2024-10-05',
-      custoInstalacao: 1200000,
-      custoManutencaoMensal: 45000,
-      responsavelTecnico: {
-        nome: 'Técn. João Baptista',
-        telefone: '925678901',
-        instituicao: 'DNF'
-      },
-      cooperativaVinculada: 'Cooperativa do Planalto Central',
-      eficienciaHidrica: 65,
-      producaoAnual: 18.3,
-      observacoes: 'Sistema temporariamente inativo devido a problemas no canal principal de distribuição.',
-      problemasRecentes: ['Erosão no canal principal', 'Necessidade de limpeza geral', 'Reparação de comportas'],
-      documentosAnexados: ['diagnostico_problemas.pdf', 'plano_recuperacao.pdf']
-    }
-  ]);
+      cooperativaVinculada: 'Cooperativa Local', // Dados fictícios
+      eficienciaHidrica: Math.floor(Math.random() * 30) + 60, // Dados fictícios
+      producaoAnual: parseFloat(item.volume_til_estimado) || 0,
+      observacoes: item.observa_es_Finais || 'Sem observações',
+      problemasRecentes: item.desafios ? [item.desafios] : [],
+      documentosAnexados: item._attachments?.map(att => att.filename) || []
+    }));
+  }, [irrigacoes]);
 
   // Função para mostrar toast
   const showToast = (type, title, message, duration = 5000) => {
@@ -271,13 +121,22 @@ const GestaoSistemasIrrigacao = () => {
   // Filtragem dos registros
   const filteredRecords = useMemo(() => {
     return sistemasIrrigacao.filter(record => {
-      const matchesSearch =
+      const matchesSearch = !searchTerm || 
         record.nomeProjeto.toLowerCase().includes(searchTerm.toLowerCase()) ||
         record.codigoSistema.toLowerCase().includes(searchTerm.toLowerCase()) ||
         record.localizacao.provincia.toLowerCase().includes(searchTerm.toLowerCase()) ||
         record.localizacao.municipio.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.cooperativaVinculada.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.responsavelTecnico.nome.toLowerCase().includes(searchTerm.toLowerCase());
+        record.localizacao.aldeia.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.localizacao.coordenadas.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.fonteAgua.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.tipoIrrigacao.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.statusSistema.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.responsavelTecnico.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.culturasPrincipais.some(cultura => cultura.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        record.areaIrrigada.toString().includes(searchTerm) ||
+        record.producaoAnual.toString().includes(searchTerm) ||
+        (record.observacoes && record.observacoes.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (record.problemasRecentes && record.problemasRecentes.some(problema => problema.toLowerCase().includes(searchTerm.toLowerCase())));
 
       const matchesTipo = !selectedTipo || record.tipoIrrigacao === selectedTipo;
       const matchesStatus = !selectedStatus || record.statusSistema === selectedStatus;
@@ -399,6 +258,32 @@ const GestaoSistemasIrrigacao = () => {
   const handleViewDetails = (record) => {
     setSelectedRecord(record);
     setShowModal(true);
+  };
+
+  // Função para abrir modal de confirmação
+  const openDeleteModal = (associacaoId) => {
+    setAssociacaoToDelete(associacaoId);
+    setShowDeleteModal(true);
+  };
+
+  // Função para fechar modal
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+    setAssociacaoToDelete(null);
+  };
+
+  // Função para deletar sistema após confirmação
+  const handleConfirmDelete = async () => {
+    if (!associacaoToDelete) return;
+    try {
+      await deleteIrrigacao(associacaoToDelete);
+      showToast('success', 'Excluído', 'Sistema excluído com sucesso!');
+    } catch (err) {
+      showToast('error', 'Erro', 'Erro ao excluir sistema.');
+      console.error(err);
+    } finally {
+      closeDeleteModal();
+    }
   };
 
   // Componente Toast
@@ -602,13 +487,48 @@ const GestaoSistemasIrrigacao = () => {
     );
   };
 
+  // Modal de confirmação visual
+  const DeleteConfirmModal = () => {
+    if (!showDeleteModal) return null;
+    const sistema = sistemasIrrigacao.find(c => c.id === associacaoToDelete);
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+        <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm flex flex-col items-center">
+          <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-3">
+            <AlertCircle className="w-6 h-6 text-red-600" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Confirmar Exclusão</h3>
+          <p className="text-gray-600 text-center text-sm mb-4">
+            Tem certeza que deseja excluir o sistema <span className="font-semibold text-red-600">{sistema?.nomeProjeto || 'Selecionado'}</span>?<br />
+            Esta ação não pode ser desfeita. Todos os dados do sistema serão removidos permanentemente.
+          </p>
+          <div className="flex gap-3 mt-2 w-full">
+            <button
+              onClick={handleConfirmDelete}
+              className="flex-1 p-2 bg-red-600 hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 text-white rounded-lg transition-all duration-200 transform hover:-translate-y-0.5"
+            >
+              Sim, excluir
+            </button>
+            <button
+              onClick={closeDeleteModal}
+              className="flex-1 p-2 bg-gray-100 hover:bg-gray-200 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 text-gray-700 rounded-lg transition-all duration-200 transform hover:-translate-y-0.5"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Toast />
       <DetailsModal />
+      <DeleteConfirmModal />
 
       {/* Estatísticas */}
-      <div className="mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="bg-white rounded-xl shadow-md p-6">
           <div className="flex items-center">
             <div className="p-3 bg-cyan-100 rounded-full">
@@ -649,7 +569,7 @@ const GestaoSistemasIrrigacao = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-md p-6">
+        {/* <div className="bg-white rounded-xl shadow-md p-6">
           <div className="flex items-center">
             <div className="p-3 bg-blue-100 rounded-full">
               <Users className="w-6 h-6 text-blue-600" />
@@ -661,7 +581,7 @@ const GestaoSistemasIrrigacao = () => {
               </p>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
 
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
@@ -695,7 +615,7 @@ const GestaoSistemasIrrigacao = () => {
             <div className="lg:col-span-1">
               <CustomInput
                 type="text"
-                placeholder="Pesquisar por projeto, código, localização..."
+                placeholder="Pesquisar em todos os campos..."
                 value={searchTerm}
                 onChange={(value) => setSearchTerm(value)}
                 iconStart={<Search size={18} />}
@@ -716,7 +636,7 @@ const GestaoSistemasIrrigacao = () => {
                   { label: 'Micro Aspersão', value: 'MICROASPERSAO' },
                   { label: 'Sulcos', value: 'SULCOS' }
                 ]}
-                onChange={(value) => setSelectedTipo(value)}
+                onChange={(value) => setSelectedTipo(typeof value === 'object' ? value.value : value)}
                 iconStart={<Filter size={18} />}
               />
             </div>
@@ -734,7 +654,7 @@ const GestaoSistemasIrrigacao = () => {
                   { label: 'Inativo', value: 'INATIVO' },
                   { label: 'Planejamento', value: 'PLANEJAMENTO' }
                 ]}
-                onChange={(value) => setSelectedStatus(value)}
+                onChange={(value) => setSelectedStatus(typeof value === 'object' ? value.value : value)}
                 iconStart={<Filter size={18} />}
               />
             </div>
@@ -772,8 +692,8 @@ const GestaoSistemasIrrigacao = () => {
               <tbody className="divide-y divide-gray-200 bg-white">
                 {getCurrentItems().map((record) => (
                   <tr key={record.id} className="hover:bg-cyan-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center whitespace-nowrap">
                         <div className="w-12 h-12 bg-cyan-100 rounded-full flex items-center justify-center">
                           <Droplets className="w-6 h-6 text-cyan-600" />
                         </div>
@@ -793,7 +713,7 @@ const GestaoSistemasIrrigacao = () => {
 
                     <td className="px-6 py-4 whitespace-nowrap text-start">
                       <div className="space-y-1">
-                        <div className="text-sm font-medium text-gray-900">
+                        <div className="text-sm font-medium text-gray-900 capitalize">
                           {getTipoIrrigacaoLabel(record.tipoIrrigacao)}
                         </div>
                         <div className="text-sm text-green-600">
@@ -807,14 +727,14 @@ const GestaoSistemasIrrigacao = () => {
 
                     <td className="px-6 py-4 whitespace-nowrap text-start">
                       <div className="space-y-1">
-                        <div className="flex items-center text-xs text-gray-700">
+                        {/* <div className="flex items-center text-xs text-gray-700">
                           <Users className="w-3.5 h-3.5 mr-1" />
                           {record.numeroFamiliasAtendidas} famílias
-                        </div>
-                        <div className="flex items-center text-xs text-gray-700">
+                        </div> */}
+                        {/* <div className="flex items-center text-xs text-gray-700">
                           <Thermometer className="w-3.5 h-3.5 mr-1" />
                           Eficiência: {record.eficienciaHidrica}%
-                        </div>
+                        </div> */}
                         <div className="text-xs text-start text-gray-600">
                           Produção: {record.producaoAnual}t/ano
                         </div>
@@ -837,6 +757,13 @@ const GestaoSistemasIrrigacao = () => {
                           title="Ver detalhes"
                         >
                           <Eye className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => openDeleteModal(record.id)}
+                          className="p-2 hover:bg-red-100 text-red-600 hover:text-red-800 rounded-full transition-colors"
+                          title="Remover"
+                        >
+                          <Trash2 className="w-5 h-5" />
                         </button>
                       </div>
                     </td>
@@ -935,10 +862,10 @@ const GestaoSistemasIrrigacao = () => {
                         <strong>Tipo:</strong> {getTipoIrrigacaoLabel(record.tipoIrrigacao)}
                       </div>
                       <div className="text-xs text-gray-700">
-                        <strong>Área:</strong> {record.areaIrrigada} ha | <strong>Famílias:</strong> {record.numeroFamiliasAtendidas}
+                        <strong>Área:</strong> {record.areaIrrigada} ha {/* | <strong>Famílias:</strong> {record.numeroFamiliasAtendidas} */}
                       </div>
                       <div className="text-xs text-gray-700">
-                        <strong>Eficiência:</strong> {record.eficienciaHidrica}% | <strong>Responsável:</strong> {record.responsavelTecnico.nome}
+                        {/* <strong>Eficiência:</strong> {record.eficienciaHidrica}% | */}<strong>Responsável:</strong> {record.responsavelTecnico.nome}
                       </div>
                     </div>
 

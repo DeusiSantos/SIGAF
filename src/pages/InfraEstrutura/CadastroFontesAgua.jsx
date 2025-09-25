@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import CustomInput from '../../components/CustomInput';
 import provinciasData from '../../components/Provincias.json';
+import { useIrrigacao } from '../../hooks/useIrrigacao ';
 
 // Configuração do ícone do Leaflet
 const defaultIcon = L.icon({
@@ -90,10 +91,11 @@ const MapaGPS = ({ latitude, longitude, onLocationSelect }) => {
 
 
 const CadastroFontesAgua = () => {
+    const { createIrrigacao } = useIrrigacao();
     const [activeIndex, setActiveIndex] = useState(0);
     const [saving, setSaving] = useState(false);
     const [municipiosOptions, setMunicipiosOptions] = useState([]);
-
+    const [uploadedFiles, setUploadedFiles] = useState({});
     // Estado inicial
     const initialState = {
         // Informações Gerais
@@ -164,6 +166,16 @@ const CadastroFontesAgua = () => {
         { label: 'Recomendações', icon: Droplets }
     ];
 
+    {/*function fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            if (!file) return resolve('');
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result.split(',')[1]); // só o base64 puro
+            reader.onerror = error => reject(error);
+        });
+    */}
+
     const handleInputChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
@@ -193,24 +205,70 @@ const CadastroFontesAgua = () => {
         setFormData(prev => ({ ...prev, provincia: value, municipio: '' }));
     };
 
+    const handleFileUpload = (fieldName, file) => {
+        setUploadedFiles(prev => ({ ...prev, [fieldName]: file }));
+        setFormData(prev => ({ ...prev, [fieldName]: file }));
+    };
+
+
     const handleSave = async () => {
         setSaving(true);
 
         try {
-            // Simular envio para API
-            console.log('Dados da fonte de água:', formData);
+            const form = new FormData();
 
-            // Simular delay da API
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            form.append('Data_de_Registo', formData.dataRegistro);
+            form.append('Equipe_t_cnica', formData.equipeTecnica || '');
+            form.append('Provincia', formData.provincia?.value || formData.provincia || '');
+            form.append('Municipio', formData.municipio?.value || formData.municipio || '');
+            form.append('Aldeia', formData.aldeia || '');
+            form.append('Tipo', formData.tipoFonte?.value || formData.tipoFonte || '');
+            form.append('Nome_Local_se_aplic_vel', formData.nomeLocal || '');
+            form.append('Coordenadas_GPS', `${formData.latitude || ''},${formData.longitude || ''}`);
+            form.append('Dist_ncia_em_rela_o_celas_dos_produtores', formData.distanciaParcelas || '');
+            form.append('Vaz_o_estimada_se_rio_vala', formData.vazaoEstimada || '');
+            form.append('Profundidade_m_dia_se_lago_lagoa', formData.profundidadeMedia || '');
+            form.append('Volume_til_estimado', formData.volumeUtil || '');
+            form.append('Varia_o_sazonal_per_odo_de_cheia_seca', formData.variacaoSazonal || '');
+            form.append('Aspecto_visual', formData.aspectoVisual?.value || formData.aspectoVisual || '');
+            form.append('Poss_veis_contamina_es', Array.isArray(formData.contaminacoes) ? formData.contaminacoes.map(c => c.value || c).join(',') : '');
+            form.append('Recomenda_es_para_uso_na_irriga_o', formData.recomendadaIrrigacao?.value || formData.recomendadaIrrigacao || '');
+            form.append('Barragens_ou_represas', formData.temBarragens?.value || formData.temBarragens || '');
+            form.append('Bombas_ou_canais_pr_ximos', formData.bombasCanais || '');
+            form.append('Estado_de_conserva_o', formData.estadoConservacao?.value || formData.estadoConservacao || '');
+            form.append('_rea_irrig_vel_estimada_h', formData.areaIrrigavel || '');
+            form.append('Culturas_recomendadas', Array.isArray(formData.culturasRecomendadas) ? formData.culturasRecomendadas.map(c => c.value || c).join(',') : '');
+            form.append('Tipo_de_irriga_o_vi_vel', formData.tipoIrrigacao?.value || formData.tipoIrrigacao || '');
+            form.append('Desafios', Array.isArray(formData.desafios) ? formData.desafios.map(d => d.value || d).join(',') : '');
+            form.append('Ac_es_imediatas', Array.isArray(formData.acoesImediatas) ? formData.acoesImediatas.map(a => a.value || a).join(',') : '');
+            form.append('Interven_es_a_m_dio_longo_prazo', Array.isArray(formData.intervencoesMedioLongo) ? formData.intervencoesMedioLongo.map(i => i.value || i).join(',') : '');
+            form.append('Parcerias_sugeridas', Array.isArray(formData.parceriasSugeridas) ? formData.parceriasSugeridas.map(p => p.value || p).join(',') : '');
+            // Foto: envie o arquivo diretamente
+            if (formData.fotografias) {
+                form.append('Fotografias_da_fonte_de_gua', formData.fotografias);
+            } else {
+                form.append('Fotografias_da_fonte_de_gua', '');
+            }
+            form.append('Croqui_ou_mapa_da_localiza_o', `${formData.croquiLatitude || ''},${formData.croquiLongitude || ''}`);
+            form.append('Registros_de_entrevi_om_produtores_locais', formData.entrevistasLocais || '');
+            form.append('Observa_es_Finais', formData.observacoesFinais || '');
+
+            console.log('=== DADOS ENVIADOS PARA API ===');
+            console.log(form);
+
+            // Envie o FormData para a API
+            await createIrrigacao(form);
 
             alert('Fonte de água registrada com sucesso!');
-
-            // Reset do formulário
             setFormData(initialState);
             setActiveIndex(0);
         } catch (error) {
-            console.error('Erro ao salvar:', error);
-            alert('Erro ao registrar fonte de água. Tente novamente.');
+            console.group('❌ Erro ao salvar');
+            console.error('Mensagem de erro:', error.message);
+            console.error('Stack completo:', error.stack);
+            console.error('Objeto de erro:', error);
+            console.groupEnd();
+            alert('Erro ao registrar fonte de água. Verifique o console para mais detalhes.');
         } finally {
             setSaving(false);
         }
@@ -252,14 +310,14 @@ const CadastroFontesAgua = () => {
                             />
                         </div>
 
-                        <CustomInput
+                        {/* <CustomInput
                             type="textarea"
                             label="Informações Gerais"
                             value={formData.informacoesGerais}
                             onChange={(value) => handleInputChange('informacoesGerais', value)}
                             placeholder="Informações gerais sobre o registro"
                             rows={3}
-                        />
+                        />  */}
                     </div>
                 );
 
@@ -281,7 +339,7 @@ const CadastroFontesAgua = () => {
                         <div className="space-y-8">
                             {/* Localização */}
                             <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold mb-4">Localização</h4>
+                                <h4 className="text-lg font-semibold  mb-10">Localização</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <CustomInput
                                         type="select"
@@ -320,7 +378,7 @@ const CadastroFontesAgua = () => {
 
                             {/* Identificação da Fonte */}
                             <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold mb-4">Identificação da Fonte de Água</h4>
+                                <h4 className="text-lg font-semibold mb-10">Identificação da Fonte de Água</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                     <CustomInput
                                         type="select"
@@ -443,7 +501,7 @@ const CadastroFontesAgua = () => {
                         <div className="space-y-8">
                             {/* Disponibilidade Hídrica */}
                             <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold mb-4">2.1. Disponibilidade Hídrica</h4>
+                                <h4 className="text-lg font-semibold mb-10"> Disponibilidade Hídrica</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
 
                                     <CustomInput
@@ -500,7 +558,7 @@ const CadastroFontesAgua = () => {
 
                             {/* Qualidade da Água */}
                             <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold mb-4">2.2. Qualidade da Água</h4>
+                                <h4 className="text-lg font-semibold mb-10"> Qualidade da Água</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <CustomInput
                                         type="select"
@@ -548,7 +606,7 @@ const CadastroFontesAgua = () => {
 
                             {/* Infraestrutura Existente */}
                             <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold mb-4">2.3. Infraestrutura Existente</h4>
+                                <h4 className="text-lg font-semibold mb-10"> Infraestrutura Existente</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <CustomInput
                                         type="select"
@@ -696,7 +754,7 @@ const CadastroFontesAgua = () => {
                         <div className="space-y-8">
                             {/* Recomendações */}
                             <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold mb-4">4. Recomendações</h4>
+                                <h4 className="text-lg font-semibold mb-10"> Recomendações</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <CustomInput
                                         type="multiselect"
@@ -754,7 +812,7 @@ const CadastroFontesAgua = () => {
 
                             {/* Anexos */}
                             <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold mb-4">5. Anexos</h4>
+                                <h4 className="text-lg font-semibold mb-10">Anexos</h4>
                                 <div className="space-y-6">
                                     {/* Upload de Fotografias */}
                                     <div>
@@ -765,89 +823,83 @@ const CadastroFontesAgua = () => {
                                             <input
                                                 type="file"
                                                 className="hidden"
+                                                id="fotografias"
+                                                onChange={(e) => handleFileUpload('fotografias', e.target.files[0])}
                                                 accept="image/*"
-                                                multiple
-                                                onChange={(e) => handleInputChange('fotografias', e.target.files)}
-                                                id="fotografias-upload"
                                             />
                                             <label
-                                                htmlFor="fotografias-upload"
-                                                className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${formData.fotografias
-                                                    ? 'bg-green-50 border-green-300 hover:bg-green-100'
-                                                    : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                                                    }`}
+                                                htmlFor="fotografias"
+                                                className="cursor-pointer border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-cyan-400 transition-colors"
                                             >
-                                                <Camera className={`w-8 h-8 mb-3 ${formData.fotografias ? 'text-green-500' : 'text-gray-400'}`} />
-                                                <p className={`text-sm font-medium ${formData.fotografias ? 'text-green-600' : 'text-gray-500'}`}>
-                                                    {formData.fotografias ? `${formData.fotografias.length} foto(s) carregada(s)` : 'Carregar fotografias'}
+                                                <Camera className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                                                <p className="text-sm text-gray-600">
+                                                    {formData.fotografias ? formData.fotografias.name : 'Clique para selecionar fotografias'}
                                                 </p>
-                                                <p className="text-xs text-gray-400 mt-1">Máximo 10MB por arquivo</p>
                                             </label>
+                                            {/* Croqui ou mapa da localização */}
+                                            <div className="bg-gray-50 rounded-xl p-6">
+                                                <h5 className="text-md font-semibold mb-4">Croqui ou mapa da localização</h5>
+                                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                                                    <CustomInput
+                                                        type="number"
+                                                        label="Latitude"
+                                                        value={formData.croquiLatitude}
+                                                        onChange={(value) => handleInputChange('croquiLatitude', value)}
+                                                        step="any"
+                                                        placeholder="Ex: -8.838333"
+                                                    />
+                                                    <CustomInput
+                                                        type="number"
+                                                        label="Longitude"
+                                                        value={formData.croquiLongitude}
+                                                        onChange={(value) => handleInputChange('croquiLongitude', value)}
+                                                        step="any"
+                                                        placeholder="Ex: 13.234444"
+                                                    />
+                                                    <CustomInput
+                                                        type="number"
+                                                        label="Altitude (m)"
+                                                        value={formData.croquiAltitude}
+                                                        onChange={(value) => handleInputChange('croquiAltitude', value)}
+                                                        placeholder="Ex: 1628"
+                                                    />
+                                                    <CustomInput
+                                                        type="number"
+                                                        label="Precisão (m)"
+                                                        value={formData.croquiPrecisao}
+                                                        onChange={(value) => handleInputChange('croquiPrecisao', value)}
+                                                        placeholder="Ex: 3"
+                                                    />
+                                                </div>
+                                                <MapaGPS
+                                                    latitude={formData.croquiLatitude}
+                                                    longitude={formData.croquiLongitude}
+                                                    onLocationSelect={(lat, lng) => {
+                                                        handleInputChange('croquiLatitude', lat);
+                                                        handleInputChange('croquiLongitude', lng);
+                                                    }}
+                                                />
+                                            </div>
+
+                                            <CustomInput
+                                                type="textarea"
+                                                label="Registros de entrevistas com produtores locais"
+                                                value={formData.entrevistasLocais}
+                                                onChange={(value) => handleInputChange('entrevistasLocais', value)}
+                                                placeholder="Registre as principais informações obtidas em entrevistas com produtores locais"
+                                                rows={4}
+                                            />
+
+                                            <CustomInput
+                                                type="textarea"
+                                                label="Observações Finais"
+                                                value={formData.observacoesFinais}
+                                                onChange={(value) => handleInputChange('observacoesFinais', value)}
+                                                placeholder="Observações finais sobre a fonte de água e potencial para irrigação"
+                                                rows={4}
+                                            />
                                         </div>
                                     </div>
-
-                                    {/* Croqui ou mapa da localização */}
-                                    <div className="bg-gray-50 rounded-xl p-6">
-                                        <h5 className="text-md font-semibold mb-4">Croqui ou mapa da localização</h5>
-                                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                                            <CustomInput
-                                                type="number"
-                                                label="Latitude"
-                                                value={formData.croquiLatitude}
-                                                onChange={(value) => handleInputChange('croquiLatitude', value)}
-                                                step="any"
-                                                placeholder="Ex: -8.838333"
-                                            />
-                                            <CustomInput
-                                                type="number"
-                                                label="Longitude"
-                                                value={formData.croquiLongitude}
-                                                onChange={(value) => handleInputChange('croquiLongitude', value)}
-                                                step="any"
-                                                placeholder="Ex: 13.234444"
-                                            />
-                                            <CustomInput
-                                                type="number"
-                                                label="Altitude (m)"
-                                                value={formData.croquiAltitude}
-                                                onChange={(value) => handleInputChange('croquiAltitude', value)}
-                                                placeholder="Ex: 1628"
-                                            />
-                                            <CustomInput
-                                                type="number"
-                                                label="Precisão (m)"
-                                                value={formData.croquiPrecisao}
-                                                onChange={(value) => handleInputChange('croquiPrecisao', value)}
-                                                placeholder="Ex: 3"
-                                            />
-                                        </div>
-                                        <MapaGPS
-                                            latitude={formData.croquiLatitude}
-                                            longitude={formData.croquiLongitude}
-                                            onLocationSelect={(lat, lng) => {
-                                                handleInputChange('croquiLatitude', lat);
-                                                handleInputChange('croquiLongitude', lng);
-                                            }}
-                                        />
-                                    </div>
-
-                                    <CustomInput
-                                        type="textarea"
-                                        label="Registros de entrevistas com produtores locais"
-                                        value={formData.entrevistasLocais}
-                                        onChange={(value) => handleInputChange('entrevistasLocais', value)}
-                                        placeholder="Registre as principais informações obtidas em entrevistas com produtores locais"
-                                        rows={4}
-                                    />
-
-                                    <CustomInput
-                                        type="textarea"
-                                        label="Observações Finais"
-                                        value={formData.observacoesFinais}
-                                        onChange={(value) => handleInputChange('observacoesFinais', value)}
-                                        placeholder="Observações finais sobre a fonte de água e potencial para irrigação"
-                                        rows={4}
-                                    />
                                 </div>
                             </div>
                         </div>
@@ -856,6 +908,7 @@ const CadastroFontesAgua = () => {
 
             default:
                 return null;
+
         }
     };
 
@@ -962,5 +1015,7 @@ const CadastroFontesAgua = () => {
         </div>
     );
 };
+
+
 
 export default CadastroFontesAgua;
