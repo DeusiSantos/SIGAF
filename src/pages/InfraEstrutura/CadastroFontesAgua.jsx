@@ -309,15 +309,6 @@ const CadastroFontesAgua = () => {
                                 iconStart={<Users size={18} />}
                             />
                         </div>
-
-                        {/* <CustomInput
-                            type="textarea"
-                            label="Informações Gerais"
-                            value={formData.informacoesGerais}
-                            onChange={(value) => handleInputChange('informacoesGerais', value)}
-                            placeholder="Informações gerais sobre o registro"
-                            rows={3}
-                        />  */}
                     </div>
                 );
 

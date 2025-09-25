@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   User,
   Building,
@@ -56,6 +57,7 @@ const GestaoSistemasIrrigacao = () => {
   const [associacaoToDelete, setAssociacaoToDelete] = useState(null);
   const itemsPerPage = 8;
   const containerRef = useRef(null);
+  const navigate = useNavigate();
 
   // Transform API data to match component structure
   const sistemasIrrigacao = useMemo(() => {
@@ -121,7 +123,7 @@ const GestaoSistemasIrrigacao = () => {
   // Filtragem dos registros
   const filteredRecords = useMemo(() => {
     return sistemasIrrigacao.filter(record => {
-      const matchesSearch = !searchTerm || 
+      const matchesSearch = !searchTerm ||
         record.nomeProjeto.toLowerCase().includes(searchTerm.toLowerCase()) ||
         record.codigoSistema.toLowerCase().includes(searchTerm.toLowerCase()) ||
         record.localizacao.provincia.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -255,9 +257,8 @@ const GestaoSistemasIrrigacao = () => {
   };
 
   // Ver detalhes do registro
-  const handleViewDetails = (record) => {
-    setSelectedRecord(record);
-    setShowModal(true);
+  const handleViewDetails = (irrigacao) => {
+    navigate(`/GerenciaRNPA/gestao-infraestrutura/irrigacao/visualizar/${irrigacao.id}`);
   };
 
   // Função para abrir modal de confirmação
@@ -594,7 +595,7 @@ const GestaoSistemasIrrigacao = () => {
             </div>
 
             <div className="flex gap-4">
-              
+
 
               <button
                 onClick={handleExportData}
@@ -681,9 +682,7 @@ const GestaoSistemasIrrigacao = () => {
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                     Performance
                   </th>
-                  <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                    Estado
-                  </th>
+                  
                   <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                     Acções
                   </th>
@@ -698,8 +697,10 @@ const GestaoSistemasIrrigacao = () => {
                           <Droplets className="w-6 h-6 text-cyan-600" />
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-semibold text-gray-900">{record.nomeProjeto}</div>
-                          <div className="flex items-center text-xs text-gray-600 mt-1">
+                          <div className="text-sm font-semibold text-gray-900 capitalize">
+                            {record.nomeProjeto.replace(/[-_]/g, ' ')}
+                          </div>
+                          <div className="flex items-center text-xs text-gray-600 mt-1 capitalize">
                             <MapPin className="w-3.5 h-3.5 mr-1" />
                             {record.localizacao.municipio}, {record.localizacao.provincia}
                           </div>
@@ -719,7 +720,7 @@ const GestaoSistemasIrrigacao = () => {
                         <div className="text-sm text-green-600">
                           {record.areaIrrigada} hectares
                         </div>
-                        <div className="text-xs text-gray-600">
+                        <div className="text-xs text-gray-600 capitalize">
                           Fonte: {record.fonteAgua}
                         </div>
                       </div>
@@ -736,18 +737,12 @@ const GestaoSistemasIrrigacao = () => {
                           Eficiência: {record.eficienciaHidrica}%
                         </div> */}
                         <div className="text-xs text-start text-gray-600">
-                          Produção: {record.producaoAnual}t/ano
+                          Produção: {record.producaoAnual}T/Ano
                         </div>
                       </div>
                     </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center justify-center">
-                        <span className={`px-3 py-1.5 rounded-full text-xs font-medium border ${getStatusColor(record.statusSistema)}`}>
-                          {getStatusLabel(record.statusSistema)}
-                        </span>
-                      </div>
-                    </td>
+                   
 
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center justify-center space-x-1">

@@ -70,6 +70,7 @@ import CooperativaMenuFlorestal from './pages/SociedadeAgricola/CooperativaMenuF
 import AssociacaoMenuFlorestal from './pages/SociedadeAgricola/AssociacaoMenuFlorestal';
 import ValidacoesCerificadosFlorestaisMenu from './Layout/other/ValidacoesCerificadosFlorestaisMenu';
 import VisualizarCertificadosFlorestal from './pages/public/VisualizarCertificadosFlorestal';
+import VisualizarIrrigacao from './pages/InfraEstrutura/VisualizarIrrigacao';
 
 function App() {
   return (
@@ -207,6 +208,7 @@ function App() {
             
             {/* Irrigação */}
             <Route path="Irrigacao" element={<IrrigacaoMenu />} />
+            <Route path="irrigacao/visualizar/:id" element={<VisualizarIrrigacao />} />
              {/* Silos e Centro de Armazenamento */}
             <Route path="silos-armazenamento" element={<MenuSilos />} />
             
