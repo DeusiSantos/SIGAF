@@ -26,7 +26,8 @@ import {
     Download,
     SquarePen,
     Save,
-    AlertCircle
+    AlertCircle,
+    Camera
 } from 'lucide-react';
 import CustomInput from '../../components/CustomInput';
 import { useIrrigacao } from '../../hooks/useIrrigacao .jsx';
@@ -42,9 +43,13 @@ const VisualizarIrrigacao = () => {
     const [showCancelModal, setShowCancelModal] = useState(false);
     const [originalData, setOriginalData] = useState(null);
     const [municipiosOptions, setMunicipiosOptions] = useState([]);
-    const [fotografiaUrl, setFotografiaUrl] = useState(null);
-    const [novaFotografia, setNovaFotografia] = useState(null);
     const [toastMessage, setToastMessage] = useState(null);
+
+    // Estados para upload de imagem - seguindo padrão do VisualizarProdutor
+    const [imagemUrlFotografia, setImagemUrlFotografia] = useState('');
+    const [uploadingFotografia, setUploadingFotografia] = useState(false);
+    const [novaFotografia, setNovaFotografia] = useState(null);
+    const [previewFotografia, setPreviewFotografia] = useState('');
 
     const steps = [
         { label: 'Informações Gerais', icon: FileText },
@@ -102,16 +107,8 @@ const VisualizarIrrigacao = () => {
                     };
                     setSistemaIrrigacao(sistemaFormatado);
 
-                    // Load photo
-                    try {
-                        const foto = await fetchFotografiaDeFonteDeAgua(id);
-                    
-                            setFotografiaUrl(foto.url);
-                        
-                    } catch (error) {
-                        console.log('Nenhuma foto encontrada');
-                        console.error('Erro ao carregar foto:', error);
-                    }
+                    // Load photo - usando URL direta da API
+                    setImagemUrlFotografia(`https://mwangobrainsa-001-site2.mtempurl.com/api/irrigacao/${id}/fotografiaDeFonteDeAgua`);
                 } catch (error) {
                     console.error('Erro ao carregar sistema:', error);
                 }
@@ -121,14 +118,7 @@ const VisualizarIrrigacao = () => {
         loadSistema();
     }, [id]);
 
-    {/*const formatDate = (dateString) => {
-        if (!dateString) return 'N/A';
-        try {
-            return new Date(dateString).toLocaleDateString('pt-BR');
-        } catch {
-            return 'N/A';
-        }
-    */};
+
 
     // Configuração do ícone do Leaflet
     const defaultIcon = L.icon({
@@ -194,14 +184,6 @@ const VisualizarIrrigacao = () => {
         );
     };
 
-    {/*const formatCurrency = (value) => {
-        return new Intl.NumberFormat('pt-AO', {
-            style: 'currency',
-            currency: 'AOA',
-            minimumFractionDigits: 0
-        }).format(value);
-    */};
-
     const getStatusLabel = (status) => {
         const labels = {
             'bom': 'Bom',
@@ -209,6 +191,56 @@ const VisualizarIrrigacao = () => {
             'ruim': 'Ruim'
         };
         return labels[status] || status;
+    };
+
+    // Função para mostrar toast
+    const showToast = (type, message) => {
+        setToastMessage({ type, message });
+        setTimeout(() => setToastMessage(null), 5000);
+    };
+
+    // Funções para upload de imagem - seguindo padrão do VisualizarProdutor
+    const uploadFotografia = async (file) => {
+        if (!file) {
+            showToast('error', 'Selecione uma foto primeiro');
+            return;
+        }
+
+        setUploadingFotografia(true);
+        try {
+            const formData = new FormData();
+            formData.append('novaImagem', file); // Corrigido para usar 'novaImagem'
+            
+            await updateFotografiaDeFonteDeAgua(sistemaIrrigacao.id, formData);
+            
+            showToast('success', 'Fotografia atualizada com sucesso!');
+            const url = URL.createObjectURL(file);
+            setImagemUrlFotografia(url);
+            setNovaFotografia(null);
+            setPreviewFotografia('');
+        } catch (error) {
+            console.error('Erro ao fazer upload da fotografia:', error);
+            showToast('error', 'Erro ao atualizar fotografia');
+        } finally {
+            setUploadingFotografia(false);
+        }
+    };
+
+    // Handler para mudança de arquivo - seguindo padrão do VisualizarProdutor
+    const handleFotografiaChange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            setNovaFotografia(file);
+            const reader = new FileReader();
+            reader.onload = (e) => setPreviewFotografia(e.target.result);
+            reader.readAsDataURL(file);
+        }
+    };
+
+    // Função para cancelar upload - seguindo padrão do VisualizarProdutor
+    const cancelarFotografia = () => {
+        setNovaFotografia(null);
+        setPreviewFotografia('');
     };
 
     const handleEdit = () => {
@@ -247,6 +279,7 @@ const VisualizarIrrigacao = () => {
         setShowCancelModal(false);
         setOriginalData(null);
         setNovaFotografia(null);
+        setPreviewFotografia('');
     };
 
     const handleSave = async () => {
@@ -287,17 +320,10 @@ const VisualizarIrrigacao = () => {
 
             await updateIrrigacao(sistemaIrrigacao.id, apiData);
 
-            // Handle photo update if there's a new image
-            if (novaFotografia) {
-                const formData = new FormData();
-                formData.append('fotografiaDeFonteDeAgua', novaFotografia);
-                 console.log('Enviando arquivo:', novaFotografia); 
-                await updateFotografiaDeFonteDeAgua(sistemaIrrigacao.id, formData);
-                setNovaFotografia(null);
-            }
-
             setIsEditing(false);
             setOriginalData(null);
+            setNovaFotografia(null);
+            setPreviewFotografia('');
             setToastMessage({ type: 'success', message: 'Sistema atualizado com sucesso!' });
             setTimeout(() => setToastMessage(null), 3000);
         } catch (error) {
@@ -456,9 +482,6 @@ const VisualizarIrrigacao = () => {
                                         onChange={(value) => handleInputChange('distanciaParcelas', value)}
                                         disabled={!isEditing}
                                     />
-
-
-
                                 </div>
 
                                 {/* Coordenadas GPS */}
@@ -506,10 +529,6 @@ const VisualizarIrrigacao = () => {
                                             onChange={(value) => handleInputChange('precisao', value)}
                                             disabled={!isEditing}
                                         />
-
-
-
-
                                     </div>
                                     {isEditing && (
                                         <div className="mt-4">
@@ -647,7 +666,8 @@ const VisualizarIrrigacao = () => {
                                             )
                                         }
                                         disabled={!isEditing}
-                                    />             <CustomInput
+                                    />
+                                    <CustomInput
                                         type={isEditing ? "select" : "text"}
                                         label="Recomendações para uso na irrigação"
                                         value={isEditing ? { label: sistemaIrrigacao.recomendadaIrrigacao, value: sistemaIrrigacao.recomendadaIrrigacao } : sistemaIrrigacao.recomendadaIrrigacao.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
@@ -857,47 +877,53 @@ const VisualizarIrrigacao = () => {
                                 </div>
                             </div>
 
-                            {/* Anexos */}
+                            {/* Anexos - Sistema de upload seguindo padrão do VisualizarProdutor */}
                             <div className="bg-white rounded-2xl border border-gray-200 p-6">
                                 <h4 className="text-lg font-semibold mb-10">Anexos</h4>
                                 <div className="space-y-6">
                                     {/* Fotografia da Fonte de Água */}
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Fotografias da fonte de água</label>
-                                       
-                                            <div className="mb-4">
-                                                <img
-                                                    src={`https://mwangobrainsa-001-site2.mtempurl.com/api/irrigacao/${id}/fotografiaDeFonteDeAgua`}
-                                                    alt="Fonte de Água"
-                                                    className="w-full max-w-md h-64 object-cover rounded-lg border"
-                                                />
+                                    <div className="bg-gray-50 rounded-lg p-4">
+                                        <h3 className="text-sm font-medium text-gray-700 mb-2">Fotografia da fonte de água</h3>
+                                        {imagemUrlFotografia ? (
+                                            <img
+                                                src={previewFotografia || imagemUrlFotografia}
+                                                alt="Fonte de Água"
+                                                className="w-full h-auto rounded-lg max-h-96 object-cover"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+                                                <Camera className="w-12 h-12 text-gray-400" />
                                             </div>
-                                        
+                                        )}
+
                                         {isEditing && (
-                                            <div className="relative">
+                                            <label className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors mt-2 inline-block">
                                                 <input
-                                                    className="hidden"
-                                                    id="fotografias"
-                                                    accept="image/*"
                                                     type="file"
-                                                    onChange={(e) => setNovaFotografia(e.target.files[0])}
+                                                    accept="image/*"
+                                                    onChange={handleFotografiaChange}
+                                                    className="hidden"
                                                 />
-                                                <label
-                                                    htmlFor="fotografias"
-                                                    className="cursor-pointer border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-cyan-400 transition-colors block"
+                                                Alterar Foto
+                                            </label>
+                                        )}
+
+                                        {isEditing && novaFotografia && (
+                                            <div className="flex gap-2 mt-3">
+                                                <button
+                                                    onClick={() => uploadFotografia(novaFotografia)}
+                                                    disabled={uploadingFotografia}
+                                                    className="flex-1 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded text-sm transition-colors disabled:bg-green-300"
                                                 >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-camera w-8 h-8 mx-auto mb-2 text-gray-400">
-                                                        <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path>
-                                                        <circle cx="12" cy="13" r="3"></circle>
-                                                    </svg>
-                                                    {/* Só mostra o texto se NÃO houver foto selecionada */}
-                                                    {!novaFotografia && (
-                                                        <p className="text-sm text-gray-600">Clique para selecionar fotografias</p>
-                                                    )}
-                                                    {novaFotografia && (
-                                                        <p className="text-sm text-green-600 mt-2">Foto selecionada: {novaFotografia.name}</p>
-                                                    )}
-                                                </label>
+                                                    {uploadingFotografia ? 'Enviando...' : 'Confirmar Upload'}
+                                                </button>
+                                                <button
+                                                    onClick={cancelarFotografia}
+                                                    disabled={uploadingFotografia}
+                                                    className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded text-sm transition-colors"
+                                                >
+                                                    Cancelar
+                                                </button>
                                             </div>
                                         )}
                                     </div>
@@ -1034,6 +1060,27 @@ const VisualizarIrrigacao = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
+            {/* Toast Message */}
+            {toastMessage && (
+                <div className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${toastMessage.type === 'success' ? 'bg-green-100 border-l-4 border-green-500 text-green-700' :
+                    toastMessage.type === 'error' ? 'bg-red-100 border-l-4 border-red-500 text-red-700' :
+                        'bg-blue-100 border-l-4 border-blue-500 text-blue-700'
+                    }`}>
+                    <div className="flex items-center">
+                        {toastMessage.type === 'success' && <CheckCircle className="w-5 h-5 mr-2" />}
+                        {toastMessage.type === 'error' && <AlertCircle className="w-5 h-5 mr-2" />}
+                        {toastMessage.type === 'info' && <Info className="w-5 h-5 mr-2" />}
+                        <p>{toastMessage.message}</p>
+                        <button
+                            onClick={() => setToastMessage(null)}
+                            className="ml-4 text-gray-500 hover:text-gray-700"
+                        >
+                            <X className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/* Header */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white rounded-lg shadow p-6 mb-6 border">
@@ -1219,22 +1266,6 @@ const VisualizarIrrigacao = () => {
                                 Não
                             </button>
                         </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Toast */}
-            {toastMessage && (
-                <div className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
-                    toastMessage.type === 'success' ? 'bg-green-50 border-l-4 border-green-500 text-green-700' : 'bg-red-50 border-l-4 border-red-500 text-red-700'
-                }`}>
-                    <div className="flex items-center">
-                        {toastMessage.type === 'success' ? (
-                            <CheckCircle className="w-5 h-5 mr-3" />
-                        ) : (
-                            <AlertCircle className="w-5 h-5 mr-3" />
-                        )}
-                        <p className="font-medium">{toastMessage.message}</p>
                     </div>
                 </div>
             )}
