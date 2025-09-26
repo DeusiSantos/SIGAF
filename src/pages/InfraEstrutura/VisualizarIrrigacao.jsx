@@ -30,16 +30,21 @@ import {
 } from 'lucide-react';
 import CustomInput from '../../components/CustomInput';
 import { useIrrigacao } from '../../hooks/useIrrigacao .jsx';
+import provinciasData from '../../components/Provincias.json';
 
 const VisualizarIrrigacao = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { fetchIrrigacaoById, updateIrrigacao, updateFotografiaDeFonteDeAgua, loading } = useIrrigacao();
+    const { fetchIrrigacaoById, updateIrrigacao, updateFotografiaDeFonteDeAgua, fetchFotografiaDeFonteDeAgua, loading } = useIrrigacao();
     const [activeIndex, setActiveIndex] = useState(0);
     const [sistemaIrrigacao, setSistemaIrrigacao] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [showCancelModal, setShowCancelModal] = useState(false);
     const [originalData, setOriginalData] = useState(null);
+    const [municipiosOptions, setMunicipiosOptions] = useState([]);
+    const [fotografiaUrl, setFotografiaUrl] = useState(null);
+    const [novaFotografia, setNovaFotografia] = useState(null);
+    const [toastMessage, setToastMessage] = useState(null);
 
     const steps = [
         { label: 'Informações Gerais', icon: FileText },
@@ -69,7 +74,7 @@ const VisualizarIrrigacao = () => {
                         numeroFamiliasAtendidas: Math.floor(Math.random() * 50) + 10,
                         culturasPrincipais: sistema.culturas_recomendadas ? sistema.culturas_recomendadas.split(',').map(c => c.trim()) : [],
                         tipoIrrigacao: sistema.tipo_de_irriga_o_vi_vel || 'N/A',
-                        statusSistema: sistema.estado_de_conserva_o === 'bom' ? 'ACTIVO' : sistema.estado_de_conserva_o === 'regular' ? 'MANUTENCAO' : 'INATIVO',
+                        statusSistema: sistema.estado_de_conserva_o || 'ruim',
                         dataInstalacao: sistema.data_de_Registo,
                         responsavelTecnico: {
                             nome: sistema.equipe_t_cnica || 'N/A',
@@ -96,6 +101,17 @@ const VisualizarIrrigacao = () => {
                         parcerias: sistema.parcerias_sugeridas || 'N/A'
                     };
                     setSistemaIrrigacao(sistemaFormatado);
+
+                    // Load photo
+                    try {
+                        const foto = await fetchFotografiaDeFonteDeAgua(id);
+                        if (foto && foto.url) {
+                            setFotografiaUrl(foto.url);
+                        }
+                    } catch (error) {
+                        console.log('Nenhuma foto encontrada');
+                        console.error('Erro ao carregar foto:', error);
+                    }
                 } catch (error) {
                     console.error('Erro ao carregar sistema:', error);
                 }
@@ -105,14 +121,14 @@ const VisualizarIrrigacao = () => {
         loadSistema();
     }, [id]);
 
-    const formatDate = (dateString) => {
+    {/*const formatDate = (dateString) => {
         if (!dateString) return 'N/A';
         try {
             return new Date(dateString).toLocaleDateString('pt-BR');
         } catch {
             return 'N/A';
         }
-    };
+    */};
 
     // Configuração do ícone do Leaflet
     const defaultIcon = L.icon({
@@ -138,7 +154,7 @@ const VisualizarIrrigacao = () => {
     // Componente de Mapa
     const MapaGPS = ({ latitude, longitude, onLocationSelect }) => {
         const hasCoordinates = latitude && longitude && !isNaN(latitude) && !isNaN(longitude);
-        const center = hasCoordinates ? [parseFloat(latitude), parseFloat(longitude)] : [-8.838333, 13.234444];
+        const center = hasCoordinates ? [parseFloat(latitude), parseFloat(longitude)] : [-8.838333, 13.234444]; 
 
         useEffect(() => {
             delete L.Icon.Default.prototype._getIconUrl;
@@ -178,26 +194,46 @@ const VisualizarIrrigacao = () => {
         );
     };
 
-    const formatCurrency = (value) => {
+    {/*const formatCurrency = (value) => {
         return new Intl.NumberFormat('pt-AO', {
             style: 'currency',
             currency: 'AOA',
             minimumFractionDigits: 0
         }).format(value);
-    };
+    */};
 
     const getStatusLabel = (status) => {
         const labels = {
-            'ACTIVO': 'Activo',
-            'MANUTENCAO': 'Manutenção',
-            'INATIVO': 'Inativo',
-            'PLANEJAMENTO': 'Planejamento'
+            'bom': 'Bom',
+            'regular': 'Regular',
+            'ruim': 'Ruim'
         };
         return labels[status] || status;
     };
 
     const handleEdit = () => {
         setOriginalData({ ...sistemaIrrigacao });
+
+        // Load municipalities for current province when editing starts
+        if (sistemaIrrigacao.localizacao.provincia) {
+            const provinciaSelected = provinciasData.find(
+                p => p.nome.toUpperCase() === sistemaIrrigacao.localizacao.provincia.toUpperCase()
+            );
+            if (provinciaSelected) {
+                try {
+                    const municipiosArray = JSON.parse(provinciaSelected.municipios);
+                    const municipios = municipiosArray.map(mun => ({
+                        label: mun,
+                        value: mun
+                    }));
+                    setMunicipiosOptions(municipios);
+                } catch (error) {
+                    console.error("Erro ao processar municípios:", error);
+                    setMunicipiosOptions([]);
+                }
+            }
+        }
+
         setIsEditing(true);
     };
 
@@ -210,6 +246,7 @@ const VisualizarIrrigacao = () => {
         setIsEditing(false);
         setShowCancelModal(false);
         setOriginalData(null);
+        setNovaFotografia(null);
     };
 
     const handleSave = async () => {
@@ -235,7 +272,7 @@ const VisualizarIrrigacao = () => {
                 recomenda_es_para_uso_na_irriga_o: sistemaIrrigacao.recomendadaIrrigacao,
                 barragens_ou_represas: sistemaIrrigacao.temBarragens,
                 bombas_ou_canais_pr_ximos: sistemaIrrigacao.bombasCanais,
-                estado_de_conserva_o: sistemaIrrigacao.statusSistema === 'ACTIVO' ? 'bom' : sistemaIrrigacao.statusSistema === 'MANUTENCAO' ? 'regular' : 'ruim',
+                estado_de_conserva_o: sistemaIrrigacao.statusSistema,
                 _rea_irrig_vel_estimada_h: sistemaIrrigacao.areaIrrigada.toString(),
                 culturas_recomendadas: sistemaIrrigacao.culturasPrincipais.join(', '),
                 tipo_de_irriga_o_vi_vel: sistemaIrrigacao.tipoIrrigacao,
@@ -249,24 +286,54 @@ const VisualizarIrrigacao = () => {
             };
 
             await updateIrrigacao(sistemaIrrigacao.id, apiData);
-            
+
             // Handle photo update if there's a new image
-            if (sistemaIrrigacao.novaImagem) {
+            if (novaFotografia) {
                 const formData = new FormData();
-                formData.append('fotografiaDeFonteDeAgua', sistemaIrrigacao.novaImagem);
+                formData.append('fotografiaDeFonteDeAgua', novaFotografia);
+                 console.log('Enviando arquivo:', novaFotografia); 
                 await updateFotografiaDeFonteDeAgua(sistemaIrrigacao.id, formData);
+                setNovaFotografia(null);
             }
-            
+
             setIsEditing(false);
             setOriginalData(null);
+            setToastMessage({ type: 'success', message: 'Sistema atualizado com sucesso!' });
+            setTimeout(() => setToastMessage(null), 3000);
         } catch (error) {
             console.error('Erro ao salvar:', error);
-            // Keep editing mode on error
+            setToastMessage({ type: 'error', message: 'Erro ao salvar sistema.' });
+            setTimeout(() => setToastMessage(null), 3000);
         }
     };
 
     const handleInputChange = (field, value) => {
         setSistemaIrrigacao(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleProvinciaChange = (value) => {
+        const provinciaValue = value?.value || value;
+        const provinciaSelected = provinciasData.find(
+            p => p.nome.toUpperCase() === provinciaValue?.toUpperCase()
+        );
+
+        if (provinciaSelected) {
+            try {
+                const municipiosArray = JSON.parse(provinciaSelected.municipios);
+                const municipios = municipiosArray.map(mun => ({
+                    label: mun,
+                    value: mun
+                }));
+                setMunicipiosOptions(municipios);
+            } catch (error) {
+                console.error("Erro ao processar municípios:", error);
+                setMunicipiosOptions([]);
+            }
+        } else {
+            setMunicipiosOptions([]);
+        }
+
+        handleInputChange('localizacao', { ...sistemaIrrigacao.localizacao, provincia: provinciaValue, municipio: '' });
     };
 
     const renderStepContent = (index) => {
@@ -329,18 +396,20 @@ const VisualizarIrrigacao = () => {
                                 <h4 className="text-lg font-semibold mb-10">Localização</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <CustomInput
-                                        type="text"
+                                        type={isEditing ? "select" : "text"}
                                         label="Província"
-                                        value={sistemaIrrigacao.localizacao.provincia}
-                                        onChange={(value) => handleInputChange('localizacao', { ...sistemaIrrigacao.localizacao, provincia: value })}
+                                        value={isEditing ? { label: sistemaIrrigacao.localizacao.provincia, value: sistemaIrrigacao.localizacao.provincia } : sistemaIrrigacao.localizacao.provincia}
+                                        options={isEditing ? provinciasData.map(p => ({ label: p.nome, value: p.nome })) : undefined}
+                                        onChange={isEditing ? handleProvinciaChange : (value) => handleInputChange('localizacao', { ...sistemaIrrigacao.localizacao, provincia: value })}
                                         disabled={!isEditing}
                                         iconStart={<MapPin size={18} />}
                                     />
                                     <CustomInput
-                                        type="text"
+                                        type={isEditing ? "select" : "text"}
                                         label="Município"
-                                        value={sistemaIrrigacao.localizacao.municipio}
-                                        onChange={(value) => handleInputChange('localizacao', { ...sistemaIrrigacao.localizacao, municipio: value })}
+                                        value={isEditing ? { label: sistemaIrrigacao.localizacao.municipio, value: sistemaIrrigacao.localizacao.municipio } : sistemaIrrigacao.localizacao.municipio}
+                                        options={isEditing ? municipiosOptions : undefined}
+                                        onChange={(value) => handleInputChange('localizacao', { ...sistemaIrrigacao.localizacao, municipio: typeof value === 'object' ? value.value : value })}
                                         disabled={!isEditing}
                                     />
                                     <CustomInput
@@ -358,10 +427,17 @@ const VisualizarIrrigacao = () => {
                                 <h4 className="text-lg font-semibold mb-10">Identificação da Fonte de Água</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                     <CustomInput
-                                        type="text"
+                                        type={isEditing ? "select" : "text"}
                                         label="Tipo"
-                                        value={sistemaIrrigacao.fonteAgua}
-                                        onChange={(value) => handleInputChange('fonteAgua', value)}
+                                        value={isEditing ? { label: sistemaIrrigacao.fonteAgua, value: sistemaIrrigacao.fonteAgua } : sistemaIrrigacao.fonteAgua.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                        options={isEditing ? [
+                                            { label: "Rio", value: "rio" },
+                                            { label: "Vala", value: "vala" },
+                                            { label: "Lago", value: "lago" },
+                                            { label: "Lagoa", value: "lagoa" },
+                                            { label: "Outro", value: "outro" }
+                                        ] : undefined}
+                                        onChange={(value) => handleInputChange('fonteAgua', typeof value === 'object' ? value.value : value)}
                                         disabled={!isEditing}
                                         iconStart={<Droplets size={18} />}
                                     />
@@ -431,7 +507,7 @@ const VisualizarIrrigacao = () => {
                                             disabled={!isEditing}
                                         />
 
-                                       
+
 
 
                                     </div>
@@ -488,10 +564,14 @@ const VisualizarIrrigacao = () => {
                                         step="any"
                                     />
                                     <CustomInput
-                                        type="text"
+                                        type={isEditing ? "select" : "text"}
                                         label="Unidade de vazão"
-                                        value={sistemaIrrigacao.unidadeVazao || 'litros/s'}
-                                        onChange={(value) => handleInputChange('unidadeVazao', value)}
+                                        value={isEditing ? { label: sistemaIrrigacao.unidadeVazao || 'litros/s', value: sistemaIrrigacao.unidadeVazao || 'litros/s' } : (sistemaIrrigacao.unidadeVazao || 'litros/s').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                        options={isEditing ? [
+                                            { label: "m³/s", value: "m³/s" },
+                                            { label: "litros/s", value: "litros/s" }
+                                        ] : undefined}
+                                        onChange={(value) => handleInputChange('unidadeVazao', typeof value === 'object' ? value.value : value)}
                                         disabled={!isEditing}
                                     />
                                     <CustomInput
@@ -526,24 +606,56 @@ const VisualizarIrrigacao = () => {
                                 <h4 className="text-lg font-semibold mb-10">Qualidade da Água</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <CustomInput
-                                        type="text"
+                                        type={isEditing ? "select" : "text"}
                                         label="Aspecto visual"
-                                        value={sistemaIrrigacao.aspectoVisual}
-                                        onChange={(value) => handleInputChange('aspectoVisual', value)}
+                                        value={isEditing ? { label: sistemaIrrigacao.aspectoVisual, value: sistemaIrrigacao.aspectoVisual } : sistemaIrrigacao.aspectoVisual.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                        options={isEditing ? [
+                                            { label: "Limpa", value: "limpa" },
+                                            { label: "Turva", value: "turva" },
+                                            { label: "Com sedimentos", value: "com_sedimentos" }
+                                        ] : undefined}
+                                        onChange={(value) => handleInputChange('aspectoVisual', typeof value === 'object' ? value.value : value)}
                                         disabled={!isEditing}
                                     />
                                     <CustomInput
-                                        type="text"
+                                        type={isEditing ? "multiselect" : "text"}
                                         label="Possíveis contaminações"
-                                        value={sistemaIrrigacao.contaminacoes}
-                                        onChange={(value) => handleInputChange('contaminacoes', value)}
+                                        value={
+                                            isEditing
+                                                ? (sistemaIrrigacao.contaminacoes && sistemaIrrigacao.contaminacoes !== 'N/A'
+                                                    ? sistemaIrrigacao.contaminacoes.split(',').map(c => ({
+                                                        label: c.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                                                        value: c.trim()
+                                                    }))
+                                                    : [])
+                                                : (sistemaIrrigacao.contaminacoes || '').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+                                        }
+                                        options={isEditing ? [
+                                            { label: "Agricultura", value: "agricultura" },
+                                            { label: "Esgoto", value: "esgoto" },
+                                            { label: "Industrial", value: "industrial" },
+                                            { label: "Doméstica", value: "domestica" },
+                                            { label: "Pecuária", value: "pecuaria" },
+                                            { label: "Outras", value: "outras" }
+                                        ] : undefined}
+                                        onChange={(value) =>
+                                            handleInputChange(
+                                                'contaminacoes',
+                                                Array.isArray(value)
+                                                    ? value.map(v => v.value).join(', ')
+                                                    : value
+                                            )
+                                        }
                                         disabled={!isEditing}
-                                    />
-                                    <CustomInput
-                                        type="text"
+                                    />             <CustomInput
+                                        type={isEditing ? "select" : "text"}
                                         label="Recomendações para uso na irrigação"
-                                        value={sistemaIrrigacao.recomendadaIrrigacao}
-                                        onChange={(value) => handleInputChange('recomendadaIrrigacao', value)}
+                                        value={isEditing ? { label: sistemaIrrigacao.recomendadaIrrigacao, value: sistemaIrrigacao.recomendadaIrrigacao } : sistemaIrrigacao.recomendadaIrrigacao.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                        options={isEditing ? [
+                                            { label: "Sim", value: "sim" },
+                                            { label: "Não", value: "nao" }
+                                        ] : undefined}
+                                        onChange={(value) => handleInputChange('recomendadaIrrigacao', typeof value === 'object' ? value.value : value)}
                                         disabled={!isEditing}
                                     />
                                 </div>
@@ -554,10 +666,14 @@ const VisualizarIrrigacao = () => {
                                 <h4 className="text-lg font-semibold mb-10">Infraestrutura Existente</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <CustomInput
-                                        type="text"
+                                        type={isEditing ? "select" : "text"}
                                         label="Barragens ou represas"
-                                        value={sistemaIrrigacao.temBarragens}
-                                        onChange={(value) => handleInputChange('temBarragens', value)}
+                                        value={isEditing ? { label: sistemaIrrigacao.temBarragens, value: sistemaIrrigacao.temBarragens } : sistemaIrrigacao.temBarragens.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                        options={isEditing ? [
+                                            { label: "Sim", value: "sim" },
+                                            { label: "Não", value: "nao" }
+                                        ] : undefined}
+                                        onChange={(value) => handleInputChange('temBarragens', typeof value === 'object' ? value.value : value)}
                                         disabled={!isEditing}
                                     />
                                     <CustomInput
@@ -568,10 +684,15 @@ const VisualizarIrrigacao = () => {
                                         disabled={!isEditing}
                                     />
                                     <CustomInput
-                                        type="text"
+                                        type={isEditing ? "select" : "text"}
                                         label="Estado de conservação"
-                                        value={getStatusLabel(sistemaIrrigacao.statusSistema)}
-                                        onChange={(value) => handleInputChange('statusSistema', value)}
+                                        value={isEditing ? { label: getStatusLabel(sistemaIrrigacao.statusSistema), value: sistemaIrrigacao.statusSistema } : getStatusLabel(sistemaIrrigacao.statusSistema)}
+                                        options={isEditing ? [
+                                            { label: "Bom", value: "bom" },
+                                            { label: "Regular", value: "regular" },
+                                            { label: "Ruim", value: "ruim" }
+                                        ] : undefined}
+                                        onChange={(value) => handleInputChange('statusSistema', typeof value === 'object' ? value.value : value)}
                                         disabled={!isEditing}
                                     />
                                 </div>
@@ -607,25 +728,56 @@ const VisualizarIrrigacao = () => {
                                     step="any"
                                 />
                                 <CustomInput
-                                    type="text"
+                                    type={isEditing ? "multiselect" : "text"}
                                     label="Culturas recomendadas"
-                                    value={sistemaIrrigacao.culturasPrincipais.join(', ')}
-                                    onChange={(value) => handleInputChange('culturasPrincipais', value.split(',').map(c => c.trim()))}
+                                    value={isEditing ? sistemaIrrigacao.culturasPrincipais : sistemaIrrigacao.culturasPrincipais.map(c => c.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())).join(', ')}
+                                    options={isEditing ? [
+                                        { label: "Milho", value: "milho" },
+                                        { label: "Feijão", value: "feijao" },
+                                        { label: "Arroz", value: "arroz" },
+                                        { label: "Batata-doce", value: "batata_doce" },
+                                        { label: "Mandioca", value: "mandioca" },
+                                        { label: "Tomate", value: "tomate" },
+                                        { label: "Cebola", value: "cebola" },
+                                        { label: "Couve", value: "couve" },
+                                        { label: "Alface", value: "alface" },
+                                        { label: "Pimentão", value: "pimentao" },
+                                        { label: "Hortícolas em geral", value: "horticolas" },
+                                        { label: "Outras", value: "outras" }
+                                    ] : undefined}
+                                    onChange={(value) => handleInputChange('culturasPrincipais', Array.isArray(value) ? value : value.split(',').map(c => c.trim()))}
                                     disabled={!isEditing}
                                 />
                                 <CustomInput
-                                    type="text"
+                                    type={isEditing ? "select" : "text"}
                                     label="Tipo de irrigação viável"
-                                    value={sistemaIrrigacao.tipoIrrigacao}
-                                    onChange={(value) => handleInputChange('tipoIrrigacao', value)}
+                                    value={isEditing ? { label: sistemaIrrigacao.tipoIrrigacao, value: sistemaIrrigacao.tipoIrrigacao } : sistemaIrrigacao.tipoIrrigacao.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                    options={isEditing ? [
+                                        { label: "Gotejo", value: "gotejo" },
+                                        { label: "Aspersão", value: "aspersao" },
+                                        { label: "Superfície (gravidade)", value: "superficie" },
+                                        { label: "Micro aspersão", value: "micro_aspersao" },
+                                        { label: "Sulcos", value: "sulcos" }
+                                    ] : undefined}
+                                    onChange={(value) => handleInputChange('tipoIrrigacao', typeof value === 'object' ? value.value : value)}
                                     disabled={!isEditing}
                                     iconStart={<Droplets size={18} />}
                                 />
                                 <CustomInput
-                                    type="text"
+                                    type={isEditing ? "multiselect" : "text"}
                                     label="Desafios"
-                                    value={sistemaIrrigacao.problemasRecentes.join(', ') || 'N/A'}
-                                    onChange={(value) => handleInputChange('problemasRecentes', value.split(',').map(c => c.trim()))}
+                                    value={isEditing ? sistemaIrrigacao.problemasRecentes : sistemaIrrigacao.problemasRecentes.map(p => p.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())).join(', ') || 'N/A'}
+                                    options={isEditing ? [
+                                        { label: "Distância das parcelas", value: "distancia" },
+                                        { label: "Topografia desfavorável", value: "topografia" },
+                                        { label: "Custo de bombeamento", value: "custo_bombeamento" },
+                                        { label: "Variação sazonal", value: "variacao_sazonal" },
+                                        { label: "Qualidade da água", value: "qualidade_agua" },
+                                        { label: "Falta de infraestrutura", value: "falta_infraestrutura" },
+                                        { label: "Questões ambientais", value: "questoes_ambientais" },
+                                        { label: "Conflitos pelo uso da água", value: "conflitos_uso" }
+                                    ] : undefined}
+                                    onChange={(value) => handleInputChange('problemasRecentes', Array.isArray(value) ? value : value.split(',').map(c => c.trim()))}
                                     disabled={!isEditing}
                                 />
                             </div>
@@ -654,28 +806,53 @@ const VisualizarIrrigacao = () => {
                                 <h4 className="text-lg font-semibold mb-10">Recomendações</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <CustomInput
-                                        type="textarea"
+                                        type={isEditing ? "select" : "textarea"}
                                         label="Ações imediatas"
-                                        value={sistemaIrrigacao.acoesImediatas}
-                                        onChange={(value) => handleInputChange('acoesImediatas', value)}
+                                        value={isEditing ? { label: sistemaIrrigacao.acoesImediatas, value: sistemaIrrigacao.acoesImediatas } : sistemaIrrigacao.acoesImediatas.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                        options={isEditing ? [
+                                            { label: "Limpeza da vala", value: "limpeza_vala" },
+                                            { label: "Construção de pequena represa", value: "construcao_represa" },
+                                            { label: "Instalação de sistema de captação", value: "sistema_captacao" },
+                                            { label: "Limpeza da margem", value: "limpeza_margem" },
+                                            { label: "Teste de qualidade da água", value: "teste_qualidade" },
+                                            { label: "Mapeamento detalhado", value: "mapeamento_detalhado" }
+                                        ] : undefined}
+                                        onChange={(value) => handleInputChange('acoesImediatas', typeof value === 'object' ? value.value : value)}
                                         disabled={!isEditing}
-                                        rows={3}
+                                        rows={isEditing ? undefined : 3}
                                     />
                                     <CustomInput
-                                        type="textarea"
+                                        type={isEditing ? "select" : "textarea"}
                                         label="Intervenções a médio/longo prazo"
-                                        value={sistemaIrrigacao.intervencoes}
-                                        onChange={(value) => handleInputChange('intervencoes', value)}
+                                        value={isEditing ? { label: sistemaIrrigacao.intervencoes, value: sistemaIrrigacao.intervencoes } : sistemaIrrigacao.intervencoes.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                        options={isEditing ? [
+                                            { label: "Instalação de bombas solares", value: "bombas_solares" },
+                                            { label: "Construção de sistema de distribuição", value: "sistema_distribuicao" },
+                                            { label: "Implementação de tecnologias de irrigação", value: "tecnologias_irrigacao" },
+                                            { label: "Capacitação de produtores", value: "capacitacao_produtores" },
+                                            { label: "Estudos de viabilidade", value: "estudos_viabilidade" },
+                                            { label: "Parcerias com setor privado", value: "parcerias_privadas" }
+                                        ] : undefined}
+                                        onChange={(value) => handleInputChange('intervencoes', typeof value === 'object' ? value.value : value)}
                                         disabled={!isEditing}
-                                        rows={3}
+                                        rows={isEditing ? undefined : 3}
                                     />
                                     <CustomInput
-                                        type="textarea"
+                                        type={isEditing ? "select" : "textarea"}
                                         label="Parcerias sugeridas"
-                                        value={sistemaIrrigacao.parcerias}
-                                        onChange={(value) => handleInputChange('parcerias', value)}
+                                        value={isEditing ? { label: sistemaIrrigacao.parcerias, value: sistemaIrrigacao.parcerias } : sistemaIrrigacao.parcerias.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                        options={isEditing ? [
+                                            { label: "Governo local", value: "governo_local" },
+                                            { label: "ONGs", value: "ongs" },
+                                            { label: "Setor privado", value: "setor_privado" },
+                                            { label: "Cooperativas agrícolas", value: "cooperativas" },
+                                            { label: "Universidades/Institutos", value: "universidades" },
+                                            { label: "Organizações internacionais", value: "organizacoes_internacionais" },
+                                            { label: "Ministério da Agricultura", value: "minagri" }
+                                        ] : undefined}
+                                        onChange={(value) => handleInputChange('parcerias', typeof value === 'object' ? value.value : value)}
                                         disabled={!isEditing}
-                                        rows={3}
+                                        rows={isEditing ? undefined : 3}
                                     />
                                 </div>
                             </div>
@@ -684,8 +861,51 @@ const VisualizarIrrigacao = () => {
                             <div className="bg-white rounded-2xl border border-gray-200 p-6">
                                 <h4 className="text-lg font-semibold mb-10">Anexos</h4>
                                 <div className="space-y-6">
+                                    {/* Fotografia da Fonte de Água */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Fotografias da fonte de água</label>
+                                        {fotografiaUrl && (
+                                            <div className="mb-4">
+                                                <img
+                                                    src={fotografiaUrl}
+                                                    alt="Fonte de Água"
+                                                    className="w-full max-w-md h-64 object-cover rounded-lg border"
+                                                />
+                                            </div>
+                                        )}
+                                        {isEditing && (
+                                            <div className="relative">
+                                                <input
+                                                    className="hidden"
+                                                    id="fotografias"
+                                                    accept="image/*"
+                                                    type="file"
+                                                    onChange={(e) => setNovaFotografia(e.target.files[0])}
+                                                />
+                                                <label
+                                                    htmlFor="fotografias"
+                                                    className="cursor-pointer border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-cyan-400 transition-colors block"
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-camera w-8 h-8 mx-auto mb-2 text-gray-400">
+                                                        <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path>
+                                                        <circle cx="12" cy="13" r="3"></circle>
+                                                    </svg>
+                                                    {/* Só mostra o texto se NÃO houver foto selecionada */}
+                                                    {!novaFotografia && (
+                                                        <p className="text-sm text-gray-600">Clique para selecionar fotografias</p>
+                                                    )}
+                                                    {novaFotografia && (
+                                                        <p className="text-sm text-green-600 mt-2">Foto selecionada: {novaFotografia.name}</p>
+                                                    )}
+                                                </label>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Outros Documentos */}
                                     {sistemaIrrigacao.documentosAnexados?.length > 0 ? (
                                         <div className="space-y-3">
+                                            <h5 className="text-md font-semibold">Outros Documentos</h5>
                                             {sistemaIrrigacao.documentosAnexados.map((doc, index) => (
                                                 <div key={index} className="flex items-center p-3 bg-gray-50 rounded-lg">
                                                     <Upload className="w-5 h-5 text-gray-500 mr-3" />
@@ -693,12 +913,7 @@ const VisualizarIrrigacao = () => {
                                                 </div>
                                             ))}
                                         </div>
-                                    ) : (
-                                        <div className="text-center py-8 text-gray-500">
-                                            <Upload className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                                            <p>Nenhum documento anexado</p>
-                                        </div>
-                                    )}
+                                    ) : null}
 
                                     {/* Croqui ou mapa da localização */}
                                     <div className="bg-gray-50 rounded-xl p-6">
@@ -743,6 +958,24 @@ const VisualizarIrrigacao = () => {
                                                 disabled={!isEditing}
                                             />
                                         </div>
+                                        {isEditing && (
+                                            <div className="mt-4">
+                                                <MapaGPS
+                                                    latitude={sistemaIrrigacao.localizacao.coordenadas.split(',')[0]?.trim()}
+                                                    longitude={sistemaIrrigacao.localizacao.coordenadas.split(',')[1]?.trim()}
+                                                    onLocationSelect={(lat, lng) => {
+                                                        const newCoords = `${lat}, ${lng}`;
+                                                        handleInputChange('localizacao', { ...sistemaIrrigacao.localizacao, coordenadas: newCoords });
+                                                    }}
+                                                />
+                                                <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+                                                    <p className="text-sm text-blue-600 flex items-center">
+                                                        <Info size={16} className="mr-2" />
+                                                        Clique no mapa para selecionar uma localização automaticamente
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <CustomInput
@@ -805,69 +1038,79 @@ const VisualizarIrrigacao = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white rounded-lg shadow p-6 mb-6 border">
                     <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-2">
-                            <button onClick={() => navigate(-1)} className="p-2 rounded hover:bg-gray-100 text-gray-600">
-                                <ArrowLeft className="w-5 h-5" />
-                            </button>
+                        <div className="flex items-center justify-between gap-2 mb-2">
+
                             <div className='flex flex-col'>
-                                <h2 className="text-2xl font-bold text-gray-900">
-                                    Detalhes do Sistema de Irrigação
-                                </h2>
-                                <div className="text-gray-600">Código: {sistemaIrrigacao.codigoSistema || '--'}
+                                <div className="flex items-center gap-3">
+                                    <div className="flex  rounded-full top-0">
+                                        <button onClick={() => navigate(-1)} className="p-2 rounded hover:bg-gray-100 text-gray-600">
+                                            <ArrowLeft className="w-5 h-5" />
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <h2 className="text-2xl font-bold text-gray-900">
+                                            Detalhes do Sistema de Irrigação
+                                        </h2>
+                                        <div className="text-gray-600">Código: {sistemaIrrigacao.codigoSistema || '--'}
+                                        </div>
+                                        <div className="flex gap-2 flex-wrap items-center mt-2">
+                                            <span
+                                                className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border 
+                                    ${sistemaIrrigacao.statusSistema === 'bom' ? 'bg-green-50 text-green-700 border-green-200' : ''}
+                                    ${sistemaIrrigacao.statusSistema === 'ruim' ? 'bg-red-100 text-red-700 border-red-300' : ''}
+                                    ${sistemaIrrigacao.statusSistema === 'regular' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' : ''}
+                                                    `}
+                                            >
+                                                {sistemaIrrigacao.statusSistema === 'bom' && <CheckCircle className="w-4 h-4 mr-1 text-green-600" />}
+                                                {sistemaIrrigacao.statusSistema === 'ruim' && <X className="w-4 h-4 mr-1 text-red-400" />}
+                                                {sistemaIrrigacao.statusSistema === 'regular' && <AlertTriangle className="w-4 h-4 mr-1 text-yellow-600" />}
+                                                {getStatusLabel(sistemaIrrigacao.statusSistema)}
+                                            </span>
+                                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border border-blue-200 bg-white text-blue-700">
+                                                <Droplets className="w-4 h-4 mr-1" /> Sistema de Irrigação
+                                            </span>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
-                            <div className="flex gap-2 flex-wrap items-center mt-2">
-                                <span
-                                    className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border 
-                                    ${sistemaIrrigacao.statusSistema === 'ACTIVO' ? 'bg-green-50 text-green-700 border-green-200' : ''}
-                                    ${sistemaIrrigacao.statusSistema === 'INATIVO' ? 'bg-gray-100 text-gray-500 border-gray-300' : ''}
-                                    ${sistemaIrrigacao.statusSistema === 'MANUTENCAO' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' : ''}
-                                                    `}
-                                >
-                                    {sistemaIrrigacao.statusSistema === 'ACTIVO' && <CheckCircle className="w-4 h-4 mr-1 text-green-600" />}
-                                    {sistemaIrrigacao.statusSistema === 'INATIVO' && <X className="w-4 h-4 mr-1 text-gray-400" />}
-                                    {sistemaIrrigacao.statusSistema === 'MANUTENCAO' && <AlertTriangle className="w-4 h-4 mr-1 text-yellow-600" />}
-                                    {getStatusLabel(sistemaIrrigacao.statusSistema)}
-                                </span>
-                                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border border-blue-200 bg-white text-blue-700">
-                                    <Droplets className="w-4 h-4 mr-1" /> Sistema de Irrigação
-                                </span>
+                            {/*  */}
+                            <div className="flex flex-col md:flex-row items-center gap-3 md:gap-4 mt-4 md:mt-0">
+                                {isEditing ? (
+                                    <div className="flex gap-3 w-full" key="editando">
+                                        <button
+                                            onClick={handleCancel}
+                                            className="flex items-center gap-2 px-6 py-3 rounded-lg border border-gray-300 bg-white text-gray-700 font-semibold hover:bg-gray-100 transition-colors text-base"
+                                        >
+                                            <X className="w-5 h-5" /> Cancelar
+                                        </button>
+
+                                        <button
+                                            onClick={handleSave}
+                                            className="flex items-center gap-2 px-6 py-3 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 transition-colors text-base"
+                                        >
+                                            <Save className="w-5 h-5" /> Salvar
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="flex gap-3 w-full" key="visualizando">
+                                        <button
+                                            onClick={handleEdit}
+                                            className="flex h-[45px] items-center gap-2 px-6 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors text-base"
+                                        >
+                                            <SquarePen className="w-5 h-5" /> Editar
+                                        </button>
+                                        <button
+                                            className="flex h-[45px]  items-center gap-2 px-6 py-3 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 transition-colors text-base"
+                                        >
+                                            <Download className="w-5 h-5" /> Relatório
+                                        </button>
+                                    </div>
+                                )}
                             </div>
+
                         </div>
-                          {/*  */}
-                    <div className="flex flex-col md:flex-row items-center gap-3 md:gap-4 mt-4 md:mt-0">
-                        {isEditing ? (
-                            <div className="flex gap-3 w-full" key="editando">
-                                <button
-                                    onClick={handleCancel}
-                                    className="flex items-center gap-2 px-6 py-3 rounded-lg border border-gray-300 bg-white text-gray-700 font-semibold hover:bg-gray-100 transition-colors text-base"
-                                >
-                                    <X className="w-5 h-5" /> Cancelar
-                                </button>
-                               
-                                <button
-                                    onClick={handleSave}
-                                    className="flex items-center gap-2 px-6 py-3 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 transition-colors text-base"
-                                >
-                                    <Save className="w-5 h-5" /> Salvar
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="flex gap-3 w-full" key="visualizando">
-                                <button
-                                    onClick={handleEdit}
-                                    className="flex h-[45px] items-center gap-2 px-6 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors text-base"
-                                >
-                                    <SquarePen className="w-5 h-5" /> Editar
-                                </button>
-                                <button
-                                    className="flex h-[45px]  items-center gap-2 px-6 py-3 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 transition-colors text-base"
-                                >
-                                    <Download className="w-5 h-5" /> Relatório
-                                </button>
-                            </div>
-                        )}
-                    </div>
+
                     </div>
                 </div>
 
@@ -980,6 +1223,21 @@ const VisualizarIrrigacao = () => {
                 </div>
             )}
 
+            {/* Toast */}
+            {toastMessage && (
+                <div className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+                    toastMessage.type === 'success' ? 'bg-green-50 border-l-4 border-green-500 text-green-700' : 'bg-red-50 border-l-4 border-red-500 text-red-700'
+                }`}>
+                    <div className="flex items-center">
+                        {toastMessage.type === 'success' ? (
+                            <CheckCircle className="w-5 h-5 mr-3" />
+                        ) : (
+                            <AlertCircle className="w-5 h-5 mr-3" />
+                        )}
+                        <p className="font-medium">{toastMessage.message}</p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

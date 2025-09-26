@@ -80,8 +80,7 @@ export const useIrrigacao = () => {
     setLoading(true);
     try {
       const response = await api.delete(`/irrigacao/${id}`);
-      await fetchIrrigacoes(); // Atualiza lista
-      return response.data;
+      await fetchIrrigacoes(); 
     } catch (err) {
       setError(err.response?.data?.message || err.message);
       throw err;
@@ -109,7 +108,9 @@ export const useIrrigacao = () => {
     setLoading(true);
     try {
       const response = await api.patch(`/irrigacao/${id}/fotografiaDeFonteDeAgua`, formData, {
-       
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
       });
       return response.data;
     } catch (err) {
