@@ -200,6 +200,7 @@ const CadastroFontesAgua = () => {
 
     const handleFileUpload = (fieldName, file) => {
         setUploadedFiles(prev => ({ ...prev, [fieldName]: file }));
+        
         setFormData(prev => ({ ...prev, [fieldName]: file }));
     };
 

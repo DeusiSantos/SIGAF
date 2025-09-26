@@ -105,9 +105,9 @@ const VisualizarIrrigacao = () => {
                     // Load photo
                     try {
                         const foto = await fetchFotografiaDeFonteDeAgua(id);
-                        if (foto && foto.url) {
+                    
                             setFotografiaUrl(foto.url);
-                        }
+                        
                     } catch (error) {
                         console.log('Nenhuma foto encontrada');
                         console.error('Erro ao carregar foto:', error);
@@ -864,15 +864,15 @@ const VisualizarIrrigacao = () => {
                                     {/* Fotografia da Fonte de Água */}
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">Fotografias da fonte de água</label>
-                                        {fotografiaUrl && (
+                                       
                                             <div className="mb-4">
                                                 <img
-                                                    src={fotografiaUrl}
+                                                    src={`https://mwangobrainsa-001-site2.mtempurl.com/api/irrigacao/${id}/fotografiaDeFonteDeAgua`}
                                                     alt="Fonte de Água"
                                                     className="w-full max-w-md h-64 object-cover rounded-lg border"
                                                 />
                                             </div>
-                                        )}
+                                        
                                         {isEditing && (
                                             <div className="relative">
                                                 <input
