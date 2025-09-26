@@ -42,7 +42,8 @@ import {
     UserCheck,
     Calendar as CalendarIcon,
     MapIcon,
-    BookOpen
+    BookOpen,
+    ImageIcon
 } from 'lucide-react';
 import api from '../../services/api';
 //import { RefreshCw } from 'lucide-react';
@@ -109,6 +110,112 @@ const VisualizarIncentivo = () => {
         { label: 'Suspenso', value: 'SUSPENSO' },
         { label: 'Expirado', value: 'EXPIRADO' }
     ];
+
+    const ProdutorAvatar = ({
+        produtor,
+        size = "w-16 h-16",
+        textSize = "text-lg",
+        showLoadingSpinner = true
+    }) => {
+        const [imageUrl, setImageUrl] = useState(null);
+        const [imageLoading, setImageLoading] = useState(true);
+        const [imageError, setImageError] = useState(false);
+
+        // Gerar iniciais do nome como fallback
+        const getInitials = (nome) => {
+            if (!nome) return 'P';
+            return nome.split(' ')
+                .map(n => n[0])
+                .join('')
+                .slice(0, 2)
+                .toUpperCase();
+        };
+
+        useEffect(() => {
+            const fetchProdutorPhoto = async () => {
+                if (!produtor?.id) {
+                    setImageLoading(false);
+                    setImageError(true);
+                    return;
+                }
+
+                try {
+                    setImageLoading(true);
+                    setImageError(false);
+
+                    const response = await axios.get(
+                        `https://mwangobrainsa-001-site2.mtempurl.com/api/formulario/${produtor.id}/foto-beneficiary`,
+                        {
+                            responseType: 'blob',
+                            timeout: 10000, // 10 segundos de timeout
+                            headers: {
+                                'Accept': 'image/*'
+                            }
+                        }
+                    );
+
+                    if (response.data && response.data.size > 0) {
+                        const url = URL.createObjectURL(response.data);
+                        setImageUrl(url);
+                        setImageError(false);
+                    } else {
+                        setImageError(true);
+                    }
+
+                } catch (error) {
+                    console.error('Erro ao carregar foto do produtor:', error);
+                    setImageError(true);
+                } finally {
+                    setImageLoading(false);
+                }
+            };
+
+            fetchProdutorPhoto();
+
+            // Cleanup: revogar URL do blob quando componente for desmontado
+            return () => {
+                if (imageUrl) {
+                    URL.revokeObjectURL(imageUrl);
+                }
+            };
+        }, [produtor?.id]);
+
+        // Se está carregando, mostrar spinner ou placeholder
+        if (imageLoading && showLoadingSpinner) {
+            return (
+                <div className={`${size} rounded-full bg-gray-200 flex items-center justify-center shadow-sm animate-pulse`}>
+                    <ImageIcon className="w-6 h-6 text-gray-400" />
+                </div>
+            );
+        }
+
+        // Se a imagem carregou com sucesso, mostrar a foto
+        if (imageUrl && !imageError) {
+            return (
+                <div className={`${size} rounded-full overflow-hidden shadow-sm border-2 border-white`}>
+                    <img
+                        src={imageUrl}
+                        alt={`Foto de ${produtor.nome}`}
+                        className="w-full h-full object-cover"
+                        onError={() => {
+                            setImageError(true);
+                            if (imageUrl) {
+                                URL.revokeObjectURL(imageUrl);
+                            }
+                            setImageUrl(null);
+                        }}
+                    />
+                </div>
+            );
+        }
+
+        // Fallback: mostrar iniciais com gradient
+        return (
+            <div className={`${size} rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold ${textSize} shadow-sm`}>
+                {getInitials(produtor?.nome)}
+            </div>
+        );
+    };
 
     // ✅ BUSCAR DADOS DO INCENTIVO COM AXIOS
     const fetchIncentivo = async () => {
@@ -313,7 +420,7 @@ const VisualizarIncentivo = () => {
         navigate('/GerenciaRNPA/programas-beneficios/incentivos');
     };
 
-  {/*   const handleStatusChange = async (value) => {
+    {/*   const handleStatusChange = async (value) => {
         const novoStatus = value?.value || value;
         const statusLabel = value?.label || value;
 
@@ -431,9 +538,9 @@ const VisualizarIncentivo = () => {
     }, [produtores, sortConfig]);
 
     const filteredProdutores = sortedProdutores.filter(produtor =>
-        produtor.beneficiaryName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        produtor.beneficiaryIdNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        produtor.beneficiaryPhoneNumber?.includes(searchTerm) ||
+        produtor.beneficiary_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        produtor.beneficiary_id_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        produtor.confirmar_telefone?.includes(searchTerm) ||
         produtor.provincia?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         produtor.municipio?.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -449,13 +556,13 @@ const VisualizarIncentivo = () => {
     const getGenderIcon = (gender) => {
         return gender === 'm' ? '👨' : '👩';
     };
-    
+
 
     const formatGender = (gender) => {
         return gender === 'm' ? 'Masculino' : 'Feminino';
     };
 
-    const formatEstadoCivil = (estado) => {
+    const formatestado_civil = (estado) => {
         const estados = {
             'solteiro': 'Solteiro(a)',
             'casado': 'Casado(a)',
@@ -466,7 +573,7 @@ const VisualizarIncentivo = () => {
         return estados[estado] || estado;
     };
 
-    const formatNivelEscolaridade = (nivel) => {
+    const formatnivel_escolaridade = (nivel) => {
         const niveis = {
             'superior': 'Ensino Superior',
             'secundario': 'Ensino Secundário',
@@ -984,12 +1091,12 @@ const VisualizarIncentivo = () => {
                                                     </div>
                                                 </th>
                                                 <th
-                                                    onClick={() => handleSort('beneficiaryName')}
+                                                    onClick={() => handleSort('beneficiary_name')}
                                                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                                                 >
                                                     <div className="flex items-center gap-2">
                                                         Nome Completo
-                                                        {sortConfig.key === 'beneficiaryName' && (
+                                                        {sortConfig.key === 'nome_produtor' && (
                                                             <span>{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
                                                         )}
                                                     </div>
@@ -1022,31 +1129,36 @@ const VisualizarIncentivo = () => {
                                                     </td>
                                                     <td className="px-6 py-4 whitespace w-[420px]">
                                                         <div className="flex items-center">
-                                                            <div className="flex-shrink-0 h-10 w-10">
-                                                                <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center text-sm font-medium text-gray-700">
-                                                                    {getGenderIcon(produtor.beneficiaryGender)}
+                                                             <div className="h-20 w-20 rounded-full bg-gray-300 flex items-center justify-center text-sm font-medium text-gray-700">
+                                                                    {<ProdutorAvatar
+                                                                        produtor={produtor}
+                                                                        size="w-20 h-20"
+                                                                        textSize="text-lg"
+                                                                    />}
                                                                 </div>
+                                                            <div className="flex-shrink-0 h-10 w-10">
+                                                               
                                                             </div>
                                                             <div className="ml-4">
                                                                 <div className="text-sm font-medium text-gray-900 ">
-                                                                    {produtor.beneficiaryName || `${produtor.nomeProdutor} ${produtor.sobrenomeProdutor}`}
+                                                                    {produtor.beneficiary_name || `${produtor.nomeProdutor} ${produtor.sobrenomeProdutor}`}
                                                                 </div>
                                                                 <div className="text-sm text-gray-500">
-                                                                    {formatGender(produtor.beneficiaryGender)}
+                                                                    {formatGender(produtor.beneficiary_gender)}
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap">
-                                                        <div className="text-sm text-gray-900">{produtor.beneficiaryIdNumber}</div>
+                                                        <div className="text-sm text-gray-900">{produtor.beneficiary_id_number}</div>
                                                         <div className="text-sm text-gray-500 capitalize">{produtor.tipoDocumento?.replace('_', ' ')}</div>
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap">
                                                         <div className="flex items-center text-sm text-gray-900">
                                                             <Phone className="w-4 h-4 mr-2 text-gray-400" />
-                                                            {produtor.beneficiaryPhoneNumber}
+                                                            {produtor.confirmar_telefone}
                                                         </div>
-                                                        {produtor.telefoneProprio === 'sim' && (
+                                                        {produtor.telefone_proprio === 'sim' && (
                                                             <div className="text-xs text-green-600">✓ Próprio</div>
                                                         )}
                                                     </td>
@@ -1063,14 +1175,14 @@ const VisualizarIncentivo = () => {
                                                         <div className="text-sm text-gray-900">
                                                             <div className="flex items-center mb-1">
                                                                 <CalendarIcon className="w-4 h-4 mr-2 text-gray-400" />
-                                                                {formatDate(produtor.beneficiaryDateOfBirth)}
+                                                                {formatDate(produtor.beneficiary_date_of_birth)}
                                                             </div>
                                                             <div className="flex items-center mb-1">
                                                                 <BookOpen className="w-4 h-4 mr-2 text-gray-400" />
-                                                                <span className="text-xs">{formatNivelEscolaridade(produtor.nivelEscolaridade)}</span>
+                                                                <span className="text-xs">{formatnivel_escolaridade(produtor.nivel_escolaridade)}</span>
                                                             </div>
                                                             <div className="text-xs text-gray-500">
-                                                                {formatEstadoCivil(produtor.estadoCivil)}
+                                                                {formatestado_civil(produtor.estado_civil)}
                                                             </div>
                                                         </div>
                                                     </td>
@@ -1086,7 +1198,7 @@ const VisualizarIncentivo = () => {
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                         <button
-                                                            onClick={() => showToast('info', `Visualizar detalhes do produtor ${produtor.beneficiaryName}`)}
+                                                            onClick={() => showToast('info', `Visualizar detalhes do produtor ${produtor.beneficiary_name}`)}
                                                             className="text-blue-600 hover:text-blue-900 flex items-center"
                                                         >
                                                             <Eye className="w-4 h-4 mr-1" />

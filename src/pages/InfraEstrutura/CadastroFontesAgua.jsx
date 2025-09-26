@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import CustomInput from '../../components/CustomInput';
 import provinciasData from '../../components/Provincias.json';
-import { useIrrigacao } from '../../hooks/useIrrigacao ';
+import axios from "axios";
 
 // Configuração do ícone do Leaflet
 const defaultIcon = L.icon({
@@ -43,6 +43,11 @@ const MapClickHandler = ({ onLocationSelect }) => {
         }
     });
     return null;
+}
+
+const showToast = (severity, summary, detail, duration = 3000) => {
+    setToastMessage({ severity, summary, detail, visible: true });
+    setTimeout(() => setToastMessage(null), duration);
 }
 
 // Componente de Mapa
@@ -88,14 +93,12 @@ const MapaGPS = ({ latitude, longitude, onLocationSelect }) => {
     );
 };
 
-
-
 const CadastroFontesAgua = () => {
-    const { createIrrigacao } = useIrrigacao();
     const [activeIndex, setActiveIndex] = useState(0);
     const [saving, setSaving] = useState(false);
     const [municipiosOptions, setMunicipiosOptions] = useState([]);
     const [uploadedFiles, setUploadedFiles] = useState({});
+
     // Estado inicial
     const initialState = {
         // Informações Gerais
@@ -166,16 +169,6 @@ const CadastroFontesAgua = () => {
         { label: 'Recomendações', icon: Droplets }
     ];
 
-    {/*function fileToBase64(file) {
-        return new Promise((resolve, reject) => {
-            if (!file) return resolve('');
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result.split(',')[1]); // só o base64 puro
-            reader.onerror = error => reject(error);
-        });
-    */}
-
     const handleInputChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
@@ -211,64 +204,126 @@ const CadastroFontesAgua = () => {
     };
 
 
+
     const handleSave = async () => {
         setSaving(true);
 
         try {
             const form = new FormData();
 
-            form.append('Data_de_Registo', formData.dataRegistro);
-            form.append('Equipe_t_cnica', formData.equipeTecnica || '');
-            form.append('Provincia', formData.provincia?.value || formData.provincia || '');
-            form.append('Municipio', formData.municipio?.value || formData.municipio || '');
-            form.append('Aldeia', formData.aldeia || '');
-            form.append('Tipo', formData.tipoFonte?.value || formData.tipoFonte || '');
-            form.append('Nome_Local_se_aplic_vel', formData.nomeLocal || '');
-            form.append('Coordenadas_GPS', `${formData.latitude || ''},${formData.longitude || ''}`);
-            form.append('Dist_ncia_em_rela_o_celas_dos_produtores', formData.distanciaParcelas || '');
-            form.append('Vaz_o_estimada_se_rio_vala', formData.vazaoEstimada || '');
-            form.append('Profundidade_m_dia_se_lago_lagoa', formData.profundidadeMedia || '');
-            form.append('Volume_til_estimado', formData.volumeUtil || '');
-            form.append('Varia_o_sazonal_per_odo_de_cheia_seca', formData.variacaoSazonal || '');
-            form.append('Aspecto_visual', formData.aspectoVisual?.value || formData.aspectoVisual || '');
-            form.append('Poss_veis_contamina_es', Array.isArray(formData.contaminacoes) ? formData.contaminacoes.map(c => c.value || c).join(',') : '');
-            form.append('Recomenda_es_para_uso_na_irriga_o', formData.recomendadaIrrigacao?.value || formData.recomendadaIrrigacao || '');
-            form.append('Barragens_ou_represas', formData.temBarragens?.value || formData.temBarragens || '');
-            form.append('Bombas_ou_canais_pr_ximos', formData.bombasCanais || '');
-            form.append('Estado_de_conserva_o', formData.estadoConservacao?.value || formData.estadoConservacao || '');
-            form.append('_rea_irrig_vel_estimada_h', formData.areaIrrigavel || '');
-            form.append('Culturas_recomendadas', Array.isArray(formData.culturasRecomendadas) ? formData.culturasRecomendadas.map(c => c.value || c).join(',') : '');
-            form.append('Tipo_de_irriga_o_vi_vel', formData.tipoIrrigacao?.value || formData.tipoIrrigacao || '');
-            form.append('Desafios', Array.isArray(formData.desafios) ? formData.desafios.map(d => d.value || d).join(',') : '');
-            form.append('Ac_es_imediatas', Array.isArray(formData.acoesImediatas) ? formData.acoesImediatas.map(a => a.value || a).join(',') : '');
-            form.append('Interven_es_a_m_dio_longo_prazo', Array.isArray(formData.intervencoesMedioLongo) ? formData.intervencoesMedioLongo.map(i => i.value || i).join(',') : '');
-            form.append('Parcerias_sugeridas', Array.isArray(formData.parceriasSugeridas) ? formData.parceriasSugeridas.map(p => p.value || p).join(',') : '');
-            // Foto: envie o arquivo diretamente
-            if (formData.fotografias) {
-                form.append('Fotografias_da_fonte_de_gua', formData.fotografias);
+            // Campos básicos
+            form.append("Data_de_Registo", formData.dataRegistro);
+            form.append("Equipe_tecnica", formData.equipeTecnica || "");
+
+            // Localização
+            form.append("Provincia", formData.provincia?.value || formData.provincia || "");
+            form.append("Municipio", formData.municipio?.value || formData.municipio || "");
+            form.append("Aldeia", formData.aldeia || "");
+
+            // Identificação da fonte
+            form.append("Tipo", formData.tipoFonte?.value || formData.tipoFonte || "");
+            form.append("Nome_Local_se_aplicavel", formData.nomeLocal || "");
+            form.append("Coordenadas_GPS", `${formData.latitude || ""},${formData.longitude || ""}`);
+            form.append("Distancia_em_relacao_parcelas_dos_produtores", formData.distanciaParcelas || "");
+
+            // Disponibilidade hídrica
+            form.append("Vazao_estimada_se_rio_vala", formData.vazaoEstimada || "");
+            form.append("Profundidade_media_se_lago_lagoa", formData.profundidadeMedia || "");
+            form.append("Volume_util_estimado", formData.volumeUtil || "");
+            form.append("Variacao_sazonal_periodo_de_cheia_seca", formData.variacaoSazonal || "");
+
+            // Qualidade da água
+            form.append("Aspecto_visual", formData.aspectoVisual?.value || formData.aspectoVisual || "");
+
+            // Arrays - converter para string
+            const contaminacoes = Array.isArray(formData.contaminacoes)
+                ? formData.contaminacoes.map(c => c.value || c).join(",")
+                : "";
+            form.append("Possiveis_contaminacoes", contaminacoes);
+
+            form.append(
+                "Recomendacoes_para_uso_na_irrigacao",
+                formData.recomendadaIrrigacao?.value || formData.recomendadaIrrigacao || ""
+            );
+
+            // Infraestrutura
+            form.append("Barragens_ou_represas", formData.temBarragens?.value || formData.temBarragens || "");
+            form.append("Bombas_ou_canais_proximos", formData.bombasCanais || "");
+            form.append("Estado_de_conservacao", formData.estadoConservacao?.value || formData.estadoConservacao || "");
+
+            // Potencial para irrigação
+            form.append("Area_irrigavel_estimada_ha", formData.areaIrrigavel || "");
+
+            const culturasRecomendadas = Array.isArray(formData.culturasRecomendadas)
+                ? formData.culturasRecomendadas.map(c => c.value || c).join(",")
+                : "";
+            form.append("Culturas_recomendadas", culturasRecomendadas);
+
+            form.append("Tipo_de_irrigacao_viavel", formData.tipoIrrigacao?.value || formData.tipoIrrigacao || "");
+
+            const desafios = Array.isArray(formData.desafios)
+                ? formData.desafios.map(d => d.value || d).join(",")
+                : "";
+            form.append("Desafios", desafios);
+
+            // Recomendações
+            const acoesImediatas = Array.isArray(formData.acoesImediatas)
+                ? formData.acoesImediatas.map(a => a.value || a).join(",")
+                : "";
+            form.append("Acoes_imediatas", acoesImediatas);
+
+            const intervencoesMedioLongo = Array.isArray(formData.intervencoesMedioLongo)
+                ? formData.intervencoesMedioLongo.map(i => i.value || i).join(",")
+                : "";
+            form.append("Intervencoes_a_medio_longo_prazo", intervencoesMedioLongo);
+
+            const parceriasSugeridas = Array.isArray(formData.parceriasSugeridas)
+                ? formData.parceriasSugeridas.map(p => p.value || p).join(",")
+                : "";
+            form.append("Parcerias_sugeridas", parceriasSugeridas);
+
+            // Anexos
+            if (formData.fotografias && formData.fotografias instanceof File) {
+                form.append("Fotografias_da_fonte_de_agua", formData.fotografias);
             } else {
-                form.append('Fotografias_da_fonte_de_gua', '');
+                form.append("Fotografias_da_fonte_de_agua", "");
             }
-            form.append('Croqui_ou_mapa_da_localiza_o', `${formData.croquiLatitude || ''},${formData.croquiLongitude || ''}`);
-            form.append('Registros_de_entrevi_om_produtores_locais', formData.entrevistasLocais || '');
-            form.append('Observa_es_Finais', formData.observacoesFinais || '');
 
-            console.log('=== DADOS ENVIADOS PARA API ===');
-            console.log(form);
+            form.append("Croqui_ou_mapa_da_localizacao", `${formData.croquiLatitude || ""},${formData.croquiLongitude || ""}`);
+            form.append("Registros_de_entrevistas_com_produtores_locais", formData.entrevistasLocais || "");
+            form.append("Observacoes_Finais", formData.observacoesFinais || "");
 
-            // Envie o FormData para a API
-            await createIrrigacao(form);
+            console.log("=== DADOS ENVIADOS PARA API (axios) ===");
+            for (let [key, value] of form.entries()) {
+                console.log(`${key}:`, value instanceof File ? `[File: ${value.name}]` : value);
+            }
 
-            alert('Fonte de água registrada com sucesso!');
+            // 🚀 Chamada com axios
+            const response = await axios.post(
+                "https://mwangobrainsa-001-site2.mtempurl.com/api/irrigacao",
+                form,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data"
+                    }
+                }
+            );
+
+            console.log("=== RESPOSTA DA API ===", response.data);
+
+            alert("Fonte de água registrada com sucesso!");
             setFormData(initialState);
             setActiveIndex(0);
+
         } catch (error) {
-            console.group('❌ Erro ao salvar');
-            console.error('Mensagem de erro:', error.message);
-            console.error('Stack completo:', error.stack);
-            console.error('Objeto de erro:', error);
+            console.group("❌ Erro ao salvar");
+            if (axios.isAxiosError(error)) {
+                console.error("Mensagem de erro:", error.response?.data || error.message);
+            } else {
+                console.error("Erro inesperado:", error);
+            }
             console.groupEnd();
-            alert('Erro ao registrar fonte de água. Verifique o console para mais detalhes.');
+            alert(`Erro ao registrar fonte de água: ${error.message}`);
         } finally {
             setSaving(false);
         }
@@ -494,28 +549,25 @@ const CadastroFontesAgua = () => {
                             <div className="bg-white rounded-2xl border border-gray-200 p-6">
                                 <h4 className="text-lg font-semibold mb-10"> Disponibilidade Hídrica</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-
                                     <CustomInput
                                         type="number"
                                         label="Vazão estimada (se rio/vala)"
-                                        value={formData.volumeUtil}
-                                        onChange={(value) => handleInputChange('volumeUtil', value)}
+                                        value={formData.vazaoEstimada}
+                                        onChange={(value) => handleInputChange('vazaoEstimada', value)}
                                         placeholder="Ex: 1000"
                                         step="any"
                                     />
                                     <CustomInput
                                         type="select"
                                         label="Unidade de vazão"
-                                        value={formData.aspectoVisual}
+                                        value={formData.unidadeVazao}
                                         options={[
                                             { label: "m³/s", value: "m³/s" },
                                             { label: "litros/s", value: "litros/s" },
-
                                         ]}
                                         onChange={(value) => handleInputChange('unidadeVazao', value)}
                                         iconStart={<Eye size={18} />}
                                     />
-
 
                                     <CustomInput
                                         type="number"
@@ -820,77 +872,78 @@ const CadastroFontesAgua = () => {
                                             />
                                             <label
                                                 htmlFor="fotografias"
-                                                className="cursor-pointer border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-cyan-400 transition-colors"
+                                                className="cursor-pointer border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-cyan-400 transition-colors block"
                                             >
                                                 <Camera className="w-8 h-8 mx-auto mb-2 text-gray-400" />
                                                 <p className="text-sm text-gray-600">
                                                     {formData.fotografias ? formData.fotografias.name : 'Clique para selecionar fotografias'}
                                                 </p>
                                             </label>
-                                            {/* Croqui ou mapa da localização */}
-                                            <div className="bg-gray-50 rounded-xl p-6">
-                                                <h5 className="text-md font-semibold mb-4">Croqui ou mapa da localização</h5>
-                                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                                                    <CustomInput
-                                                        type="number"
-                                                        label="Latitude"
-                                                        value={formData.croquiLatitude}
-                                                        onChange={(value) => handleInputChange('croquiLatitude', value)}
-                                                        step="any"
-                                                        placeholder="Ex: -8.838333"
-                                                    />
-                                                    <CustomInput
-                                                        type="number"
-                                                        label="Longitude"
-                                                        value={formData.croquiLongitude}
-                                                        onChange={(value) => handleInputChange('croquiLongitude', value)}
-                                                        step="any"
-                                                        placeholder="Ex: 13.234444"
-                                                    />
-                                                    <CustomInput
-                                                        type="number"
-                                                        label="Altitude (m)"
-                                                        value={formData.croquiAltitude}
-                                                        onChange={(value) => handleInputChange('croquiAltitude', value)}
-                                                        placeholder="Ex: 1628"
-                                                    />
-                                                    <CustomInput
-                                                        type="number"
-                                                        label="Precisão (m)"
-                                                        value={formData.croquiPrecisao}
-                                                        onChange={(value) => handleInputChange('croquiPrecisao', value)}
-                                                        placeholder="Ex: 3"
-                                                    />
-                                                </div>
-                                                <MapaGPS
-                                                    latitude={formData.croquiLatitude}
-                                                    longitude={formData.croquiLongitude}
-                                                    onLocationSelect={(lat, lng) => {
-                                                        handleInputChange('croquiLatitude', lat);
-                                                        handleInputChange('croquiLongitude', lng);
-                                                    }}
-                                                />
-                                            </div>
-
-                                            <CustomInput
-                                                type="textarea"
-                                                label="Registros de entrevistas com produtores locais"
-                                                value={formData.entrevistasLocais}
-                                                onChange={(value) => handleInputChange('entrevistasLocais', value)}
-                                                placeholder="Registre as principais informações obtidas em entrevistas com produtores locais"
-                                                rows={4}
-                                            />
-
-                                            <CustomInput
-                                                type="textarea"
-                                                label="Observações Finais"
-                                                value={formData.observacoesFinais}
-                                                onChange={(value) => handleInputChange('observacoesFinais', value)}
-                                                placeholder="Observações finais sobre a fonte de água e potencial para irrigação"
-                                                rows={4}
-                                            />
                                         </div>
                                     </div>
+
+                                    {/* Croqui ou mapa da localização */}
+                                    <div className="bg-gray-50 rounded-xl p-6">
+                                        <h5 className="text-md font-semibold mb-4">Croqui ou mapa da localização</h5>
+                                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                                            <CustomInput
+                                                type="number"
+                                                label="Latitude"
+                                                value={formData.croquiLatitude}
+                                                onChange={(value) => handleInputChange('croquiLatitude', value)}
+                                                step="any"
+                                                placeholder="Ex: -8.838333"
+                                            />
+                                            <CustomInput
+                                                type="number"
+                                                label="Longitude"
+                                                value={formData.croquiLongitude}
+                                                onChange={(value) => handleInputChange('croquiLongitude', value)}
+                                                step="any"
+                                                placeholder="Ex: 13.234444"
+                                            />
+                                            <CustomInput
+                                                type="number"
+                                                label="Altitude (m)"
+                                                value={formData.croquiAltitude}
+                                                onChange={(value) => handleInputChange('croquiAltitude', value)}
+                                                placeholder="Ex: 1628"
+                                            />
+                                            <CustomInput
+                                                type="number"
+                                                label="Precisão (m)"
+                                                value={formData.croquiPrecisao}
+                                                onChange={(value) => handleInputChange('croquiPrecisao', value)}
+                                                placeholder="Ex: 3"
+                                            />
+                                        </div>
+                                        <MapaGPS
+                                            latitude={formData.croquiLatitude}
+                                            longitude={formData.croquiLongitude}
+                                            onLocationSelect={(lat, lng) => {
+                                                handleInputChange('croquiLatitude', lat);
+                                                handleInputChange('croquiLongitude', lng);
+                                            }}
+                                        />
+                                    </div>
+
+                                    <CustomInput
+                                        type="textarea"
+                                        label="Registros de entrevistas com produtores locais"
+                                        value={formData.entrevistasLocais}
+                                        onChange={(value) => handleInputChange('entrevistasLocais', value)}
+                                        placeholder="Registre as principais informações obtidas em entrevistas com produtores locais"
+                                        rows={4}
+                                    />
+
+                                    <CustomInput
+                                        type="textarea"
+                                        label="Observações Finais"
+                                        value={formData.observacoesFinais}
+                                        onChange={(value) => handleInputChange('observacoesFinais', value)}
+                                        placeholder="Observações finais sobre a fonte de água e potencial para irrigação"
+                                        rows={4}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -899,7 +952,6 @@ const CadastroFontesAgua = () => {
 
             default:
                 return null;
-
         }
     };
 
@@ -1006,7 +1058,5 @@ const CadastroFontesAgua = () => {
         </div>
     );
 };
-
-
 
 export default CadastroFontesAgua;

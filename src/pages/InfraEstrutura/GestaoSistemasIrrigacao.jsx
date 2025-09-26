@@ -51,8 +51,7 @@ const GestaoSistemasIrrigacao = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [toastMessage, setToastMessage] = useState(null);
   const [toastTimeout, setToastTimeout] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState(null);
+
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [associacaoToDelete, setAssociacaoToDelete] = useState(null);
   const itemsPerPage = 8;
@@ -331,162 +330,7 @@ const GestaoSistemasIrrigacao = () => {
     );
   };
 
-  // Modal de detalhes
-  const DetailsModal = () => {
-    if (!showModal || !selectedRecord) return null;
 
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-          <div className="sticky top-0 bg-white border-b p-6 flex justify-between items-center">
-            <h2 className="text-xl font-bold text-gray-900">
-              Detalhes do Sistema {selectedRecord.codigoSistema}
-            </h2>
-            <button
-              onClick={() => setShowModal(false)}
-              className="p-2 hover:bg-gray-100 rounded-full"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          <div className="p-6 space-y-6">
-            {/* Informações Gerais */}
-            <div className="bg-cyan-50 rounded-lg p-4">
-              <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
-                <Droplets className="w-5 h-5 mr-2 text-cyan-600" />
-                Informações Gerais
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div><strong>Nome do Projeto:</strong> {selectedRecord.nomeProjeto}</div>
-                <div><strong>Código:</strong> {selectedRecord.codigoSistema}</div>
-                <div><strong>Fonte de Água:</strong> {selectedRecord.fonteAgua}</div>
-                <div><strong>Tipo de Irrigação:</strong> {getTipoIrrigacaoLabel(selectedRecord.tipoIrrigacao)}</div>
-                <div><strong>Status:</strong>
-                  <span className={`ml-2 px-2 py-1 rounded-full text-xs ${getStatusColor(selectedRecord.statusSistema)}`}>
-                    {getStatusLabel(selectedRecord.statusSistema)}
-                  </span>
-                </div>
-                <div><strong>Data de Instalação:</strong> {formatDate(selectedRecord.dataInstalacao)}</div>
-              </div>
-            </div>
-
-            {/* Localização */}
-            <div className="bg-green-50 rounded-lg p-4">
-              <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
-                <MapPin className="w-5 h-5 mr-2 text-green-600" />
-                Localização
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div><strong>Província:</strong> {selectedRecord.localizacao.provincia}</div>
-                <div><strong>Município:</strong> {selectedRecord.localizacao.municipio}</div>
-                <div><strong>Aldeia:</strong> {selectedRecord.localizacao.aldeia}</div>
-                <div><strong>Coordenadas:</strong> {selectedRecord.localizacao.coordenadas}</div>
-              </div>
-            </div>
-
-            {/* Dados Técnicos */}
-            <div className="bg-blue-50 rounded-lg p-4">
-              <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
-                <Settings className="w-5 h-5 mr-2 text-blue-600" />
-                Dados Técnicos
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div><strong>Área Irrigada:</strong> {selectedRecord.areaIrrigada} hectares</div>
-                <div><strong>Famílias Atendidas:</strong> {selectedRecord.numeroFamiliasAtendidas}</div>
-                <div><strong>Eficiência Hídrica:</strong> {selectedRecord.eficienciaHidrica}%</div>
-                <div><strong>Produção Anual:</strong> {selectedRecord.producaoAnual} toneladas</div>
-                <div className="md:col-span-2">
-                  <strong>Culturas Principais:</strong> {selectedRecord.culturasPrincipais.join(', ')}
-                </div>
-              </div>
-            </div>
-
-            {/* Custos */}
-            <div className="bg-yellow-50 rounded-lg p-4">
-              <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
-                <DollarSign className="w-5 h-5 mr-2 text-yellow-600" />
-                Informações Financeiras
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div><strong>Custo de Instalação:</strong> {formatCurrency(selectedRecord.custoInstalacao)}</div>
-                <div><strong>Custo Mensal Manutenção:</strong> {formatCurrency(selectedRecord.custoManutencaoMensal)}</div>
-              </div>
-            </div>
-
-            {/* Responsável Técnico */}
-            <div className="bg-purple-50 rounded-lg p-4">
-              <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
-                <UserCheck className="w-5 h-5 mr-2 text-purple-600" />
-                Responsável Técnico
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div><strong>Nome:</strong> {selectedRecord.responsavelTecnico.nome}</div>
-                <div><strong>Telefone:</strong> {selectedRecord.responsavelTecnico.telefone}</div>
-                <div><strong>Instituição:</strong> {selectedRecord.responsavelTecnico.instituicao}</div>
-                <div><strong>Cooperativa:</strong> {selectedRecord.cooperativaVinculada}</div>
-              </div>
-            </div>
-
-            {/* Manutenção */}
-            <div className="bg-orange-50 rounded-lg p-4">
-              <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
-                <Wrench className="w-5 h-5 mr-2 text-orange-600" />
-                Manutenção
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div><strong>Última Manutenção:</strong> {formatDate(selectedRecord.dataUltimaManutencao)}</div>
-                <div><strong>Próxima Manutenção:</strong> {formatDate(selectedRecord.proximaManutencao)}</div>
-              </div>
-            </div>
-
-            {/* Problemas Recentes */}
-            {selectedRecord.problemasRecentes?.length > 0 && (
-              <div className="bg-red-50 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-2 flex items-center">
-                  <AlertTriangle className="w-5 h-5 mr-2 text-red-600" />
-                  Problemas Recentes
-                </h3>
-                <ul className="text-sm text-gray-700 list-disc list-inside">
-                  {selectedRecord.problemasRecentes.map((problema, index) => (
-                    <li key={index}>{problema}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Observações */}
-            {selectedRecord.observacoes && (
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-2 flex items-center">
-                  <FileText className="w-5 h-5 mr-2 text-gray-600" />
-                  Observações
-                </h3>
-                <p className="text-sm text-gray-700">{selectedRecord.observacoes}</p>
-              </div>
-            )}
-
-            {/* Documentos Anexados */}
-            {selectedRecord.documentosAnexados?.length > 0 && (
-              <div className="bg-indigo-50 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-2 flex items-center">
-                  <Upload className="w-5 h-5 mr-2 text-indigo-600" />
-                  Documentos Anexados
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {selectedRecord.documentosAnexados.map((doc, index) => (
-                    <span key={index} className="bg-white px-3 py-1 rounded-full text-xs border border-indigo-200">
-                      {doc}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  };
 
   // Modal de confirmação visual
   const DeleteConfirmModal = () => {
@@ -525,7 +369,6 @@ const GestaoSistemasIrrigacao = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Toast />
-      <DetailsModal />
       <DeleteConfirmModal />
 
       {/* Estatísticas */}
