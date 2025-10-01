@@ -31,7 +31,7 @@ import axios from 'axios';
 const VisualizarSilos = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { fetchSiloById, updateSilo } = useSilo();
+    const { fetchSiloById, updateSilo, fetchLicencaOperacao, fetchCertificacaoSanitaria, fetchDocumentoProprietario, fetchComprovanteEndereco, fetchFotoSilo } = useSilo();
     const [activeIndex, setActiveIndex] = useState(0);
     const [siloData, setSiloData] = useState(null);
     const [dataLoading, setDataLoading] = useState(true);
@@ -43,6 +43,7 @@ const VisualizarSilos = () => {
     const [consultingNif, setConsultingNif] = useState(false);
     const [nifData, setNifData] = useState(null);
     const [uploadedFiles, setUploadedFiles] = useState({});
+    const [documents, setDocuments] = useState({});
 
     const steps = [
         { label: 'Identificação', icon: Building },
@@ -54,6 +55,28 @@ const VisualizarSilos = () => {
         { label: 'Documentos', icon: FileText }
     ];
 
+    const loadDocuments = async (siloId) => {
+        try {
+            const [licenca, certificacao, documento, comprovante, foto] = await Promise.allSettled([
+                fetchLicencaOperacao(siloId),
+                fetchCertificacaoSanitaria(siloId),
+                fetchDocumentoProprietario(siloId),
+                fetchComprovanteEndereco(siloId),
+                fetchFotoSilo(siloId)
+            ]);
+
+            setDocuments({
+                licencaOperacao: licenca.status === 'fulfilled' ? licenca.value : null,
+                certificacaoSanitaria: certificacao.status === 'fulfilled' ? certificacao.value : null,
+                documentoProprietario: documento.status === 'fulfilled' ? documento.value : null,
+                comprovanteEndereco: comprovante.status === 'fulfilled' ? comprovante.value : null,
+                fotoSilo: foto.status === 'fulfilled' ? foto.value : null
+            });
+        } catch (error) {
+            console.error('Erro ao carregar documentos:', error);
+        }
+    };
+
     useEffect(() => {
         const loadSilo = async () => {
             if (id) {
@@ -61,6 +84,7 @@ const VisualizarSilos = () => {
                 try {
                     const silo = await fetchSiloById(id);
                     setSiloData(silo);
+                    await loadDocuments(id);
                 } catch (error) {
                     console.error('Erro ao carregar silo:', error);
                 } finally {
@@ -778,14 +802,14 @@ const VisualizarSilos = () => {
                                 <CustomInput
                                     type={isEditing ? "date" : "text"}
                                     label="Data da Licença"
-                                    value={isEditing ? siloData.dataDeLicenca?.split('T')[0] || '' : (siloData.dataDeLicenca ? new Date(siloData.dataDeLicenca).toLocaleDateString() : '')}
+                                    value={isEditing ? (typeof siloData.dataDeLicenca === 'string' ? siloData.dataDeLicenca.split('T')[0] : siloData.dataDeLicenca || '') : (siloData.dataDeLicenca ? new Date(siloData.dataDeLicenca).toLocaleDateString() : '')}
                                     disabled={!isEditing}
                                     onChange={(value) => handleInputChange('dataDeLicenca', value)}
                                 />
                                 <CustomInput
                                     type={isEditing ? "date" : "text"}
                                     label="Validade da Licença"
-                                    value={isEditing ? siloData.validadeDaLicenca?.split('T')[0] || '' : (siloData.validadeDaLicenca ? new Date(siloData.validadeDaLicenca).toLocaleDateString() : '')}
+                                    value={isEditing ? (typeof siloData.validadeDaLicenca === 'string' ? siloData.validadeDaLicenca.split('T')[0] : siloData.validadeDaLicenca || '') : (siloData.validadeDaLicenca ? new Date(siloData.validadeDaLicenca).toLocaleDateString() : '')}
                                     disabled={!isEditing}
                                     onChange={(value) => handleInputChange('validadeDaLicenca', value)}
                                 />
@@ -1000,31 +1024,132 @@ const VisualizarSilos = () => {
                             </div>
                         ) : (
                             <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                {siloData.attachmentSilos && siloData.attachmentSilos.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {/* Licença de Operação */}
                                     <div className="space-y-4">
-                                        {siloData.attachmentSilos.map((attachment, index) => (
-                                            <div key={index} className="flex items-center p-3 bg-gray-50 rounded-lg">
-                                                <FileText className="w-5 h-5 text-gray-500 mr-3" />
-                                                <div className="flex-1">
-                                                    <span className="text-sm text-gray-700">{attachment.fileName}</span>
-                                                    <p className="text-xs text-gray-500">{attachment.mimeType}</p>
-                                                </div>
-                                                {attachment.downloadUrl && (
-                                                    <a
-                                                        href={attachment.downloadUrl}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="text-blue-600 hover:text-blue-800 text-sm"
-                                                    >
-                                                        Download
-                                                    </a>
-                                                )}
+                                        <label className="block text-sm font-semibold text-gray-700">
+                                            Licença de Operação
+                                        </label>
+                                        <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+                                            <Shield className="w-5 h-5 text-gray-500 mr-3" />
+                                            <div className="flex-1">
+                                                <span className="text-sm text-gray-700">
+                                                    {documents.licencaOperacao ? 'Documento disponível' : 'Não anexado'}
+                                                </span>
                                             </div>
-                                        ))}
+                                            {documents.licencaOperacao && (
+                                                <a
+                                                    href={documents.licencaOperacao}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-600 hover:text-blue-800 text-sm"
+                                                >
+                                                    Download
+                                                </a>
+                                            )}
+                                        </div>
                                     </div>
-                                ) : (
-                                    <p className="text-gray-500 text-center py-8">Nenhum documento anexado</p>
-                                )}
+
+                                    {/* Certificação Sanitária */}
+                                    <div className="space-y-4">
+                                        <label className="block text-sm font-semibold text-gray-700">
+                                            Certificação Sanitária
+                                        </label>
+                                        <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+                                            <CheckCircle className="w-5 h-5 text-gray-500 mr-3" />
+                                            <div className="flex-1">
+                                                <span className="text-sm text-gray-700">
+                                                    {documents.certificacaoSanitaria ? 'Documento disponível' : 'Não anexado'}
+                                                </span>
+                                            </div>
+                                            {documents.certificacaoSanitaria && (
+                                                <a
+                                                    href={documents.certificacaoSanitaria}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-600 hover:text-blue-800 text-sm"
+                                                >
+                                                    Download
+                                                </a>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Documento do Proprietário */}
+                                    <div className="space-y-4">
+                                        <label className="block text-sm font-semibold text-gray-700">
+                                            Documento do Proprietário
+                                        </label>
+                                        <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+                                            <FileText className="w-5 h-5 text-gray-500 mr-3" />
+                                            <div className="flex-1">
+                                                <span className="text-sm text-gray-700">
+                                                    {documents.documentoProprietario ? 'Documento disponível' : 'Não anexado'}
+                                                </span>
+                                            </div>
+                                            {documents.documentoProprietario && (
+                                                <a
+                                                    href={documents.documentoProprietario}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-600 hover:text-blue-800 text-sm"
+                                                >
+                                                    Download
+                                                </a>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Comprovante de Endereço */}
+                                    <div className="space-y-4">
+                                        <label className="block text-sm font-semibold text-gray-700">
+                                            Comprovante de Endereço
+                                        </label>
+                                        <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+                                            <MapPin className="w-5 h-5 text-gray-500 mr-3" />
+                                            <div className="flex-1">
+                                                <span className="text-sm text-gray-700">
+                                                    {documents.comprovanteEndereco ? 'Documento disponível' : 'Não anexado'}
+                                                </span>
+                                            </div>
+                                            {documents.comprovanteEndereco && (
+                                                <a
+                                                    href={documents.comprovanteEndereco}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-600 hover:text-blue-800 text-sm"
+                                                >
+                                                    Download
+                                                </a>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Foto do Silo */}
+                                    <div className="space-y-4">
+                                        <label className="block text-sm font-semibold text-gray-700">
+                                            Fotos do Silo
+                                        </label>
+                                        <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+                                            <Building className="w-5 h-5 text-gray-500 mr-3" />
+                                            <div className="flex-1">
+                                                <span className="text-sm text-gray-700">
+                                                    {documents.fotoSilo ? 'Fotos disponíveis' : 'Não anexado'}
+                                                </span>
+                                            </div>
+                                            {documents.fotoSilo && (
+                                                <a
+                                                    href={documents.fotoSilo}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-600 hover:text-blue-800 text-sm"
+                                                >
+                                                    Download
+                                                </a>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -1103,7 +1228,7 @@ const VisualizarSilos = () => {
                                         <div className="text-gray-600">{siloData.nomeDoSilo || '--'}</div>
                                         <div className="flex gap-2 flex-wrap items-center mt-2">
                                             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border border-yellow-200 bg-yellow-50  text-yellow-700">
-                                                <Building className="w-4 h-4 mr-1" /> {siloData.tipoDeUnidade.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Silo'}
+                                                <Building className="w-4 h-4 mr-1" /> {formatDisplayValue(siloData.tipoDeUnidade) || 'Silo'}
                                             </span>
                                         </div>
                                     </div>

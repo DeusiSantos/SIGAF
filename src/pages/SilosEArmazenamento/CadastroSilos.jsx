@@ -317,11 +317,11 @@ const CadastroSilos = () => {
         ValidadeDaLicenca: formData.validadeLicenca ? new Date(formData.validadeLicenca).toISOString().split('T')[0] : '',
         OutrasAutorizacoes: formData.outrasAutorizacoes,
         ObservacoesGerais: formData.observacoes,
-        LicencaDeOperacaoFile: uploadedFiles.licencaDocumento,
-        CertificacaoSanitariaFile: uploadedFiles.certificacaoDocumento,
-        DocumentoDoProprietarioFile: uploadedFiles.documentoProprietario,
-        ComprovanteDeEnderecoFile: uploadedFiles.comprovanteEndereco,
-        FotoDoSiloFile: uploadedFiles.fotosSilo
+        LicencaDeOperacaoFile: uploadedFiles.LicencaDeOperacaoFile,
+        CertificacaoSanitariaFile: uploadedFiles.CertificacaoSanitariaFile,
+        DocumentoDoProprietarioFile: uploadedFiles.DocumentoDoProprietarioFile,
+        ComprovanteDeEnderecoFile: uploadedFiles.ComprovanteDeEnderecoFile,
+        FotoDoSiloFile: uploadedFiles.FotoDoSiloFile
       };
       // Adicione este console.log:
       console.log('Dados enviados para API:', siloData);
@@ -942,23 +942,23 @@ const CadastroSilos = () => {
                     type="file"
                     className="hidden"
                     accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                    onChange={(e) => handleFileUpload('licencaDocumento', e.target.files[0])}
+                    onChange={(e) => handleFileUpload('LicencaDeOperacaoFile', e.target.files[0])}
                     id="licenca-upload"
                   />
                   <label
                     htmlFor="licenca-upload"
                     className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-                      uploadedFiles.licencaDocumento
+                      uploadedFiles.LicencaDeOperacaoFile
                         ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
                         : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
                     }`}
                   >
-                    <Shield className={`w-8 h-8 mb-3 ${uploadedFiles.licencaDocumento ? 'text-blue-500' : 'text-gray-400'}`} />
-                    <p className={`text-sm font-medium ${uploadedFiles.licencaDocumento ? 'text-blue-600' : 'text-gray-500'}`}>
-                      {uploadedFiles.licencaDocumento ? 'Documento carregado' : 'Carregar Licença'}
+                    <Shield className={`w-8 h-8 mb-3 ${uploadedFiles.LicencaDeOperacaoFile ? 'text-blue-500' : 'text-gray-400'}`} />
+                    <p className={`text-sm font-medium ${uploadedFiles.LicencaDeOperacaoFile ? 'text-blue-600' : 'text-gray-500'}`}>
+                      {uploadedFiles.LicencaDeOperacaoFile ? 'Documento carregado' : 'Carregar Licença'}
                     </p>
-                    {uploadedFiles.licencaDocumento && (
-                      <p className="text-xs text-blue-500 mt-1">{uploadedFiles.licencaDocumento.name}</p>
+                    {uploadedFiles.LicencaDeOperacaoFile && (
+                      <p className="text-xs text-blue-500 mt-1">{uploadedFiles.LicencaDeOperacaoFile.name}</p>
                     )}
                   </label>
                 </div>
@@ -974,23 +974,23 @@ const CadastroSilos = () => {
                     type="file"
                     className="hidden"
                     accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                    onChange={(e) => handleFileUpload('certificacaoDocumento', e.target.files[0])}
+                    onChange={(e) => handleFileUpload('CertificacaoSanitariaFile', e.target.files[0])}
                     id="certificacao-upload"
                   />
                   <label
                     htmlFor="certificacao-upload"
                     className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-                      uploadedFiles.certificacaoDocumento
+                      uploadedFiles.CertificacaoSanitariaFile
                         ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
                         : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
                     }`}
                   >
-                    <CheckCircle className={`w-8 h-8 mb-3 ${uploadedFiles.certificacaoDocumento ? 'text-blue-500' : 'text-gray-400'}`} />
-                    <p className={`text-sm font-medium ${uploadedFiles.certificacaoDocumento ? 'text-blue-600' : 'text-gray-500'}`}>
-                      {uploadedFiles.certificacaoDocumento ? 'Documento carregado' : 'Carregar Certificação'}
+                    <CheckCircle className={`w-8 h-8 mb-3 ${uploadedFiles.CertificacaoSanitariaFile ? 'text-blue-500' : 'text-gray-400'}`} />
+                    <p className={`text-sm font-medium ${uploadedFiles.CertificacaoSanitariaFile ? 'text-blue-600' : 'text-gray-500'}`}>
+                      {uploadedFiles.CertificacaoSanitariaFile ? 'Documento carregado' : 'Carregar Certificação'}
                     </p>
-                    {uploadedFiles.certificacaoDocumento && (
-                      <p className="text-xs text-blue-500 mt-1">{uploadedFiles.certificacaoDocumento.name}</p>
+                    {uploadedFiles.CertificacaoSanitariaFile && (
+                      <p className="text-xs text-blue-500 mt-1">{uploadedFiles.CertificacaoSanitariaFile.name}</p>
                     )}
                   </label>
                 </div>
@@ -1006,23 +1006,23 @@ const CadastroSilos = () => {
                     type="file"
                     className="hidden"
                     accept=".pdf,.jpg,.jpeg,.png"
-                    onChange={(e) => handleFileUpload('documentoProprietario', e.target.files[0])}
+                    onChange={(e) => handleFileUpload('DocumentoDoProprietarioFile', e.target.files[0])}
                     id="proprietario-upload"
                   />
                   <label
                     htmlFor="proprietario-upload"
                     className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-                      uploadedFiles.documentoProprietario
+                      uploadedFiles.DocumentoDoProprietarioFile
                         ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
                         : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
                     }`}
                   >
-                    <CreditCard className={`w-8 h-8 mb-3 ${uploadedFiles.documentoProprietario ? 'text-blue-500' : 'text-gray-400'}`} />
-                    <p className={`text-sm font-medium ${uploadedFiles.documentoProprietario ? 'text-blue-600' : 'text-gray-500'}`}>
-                      {uploadedFiles.documentoProprietario ? 'Documento carregado' : 'Carregar Documento'}
+                    <CreditCard className={`w-8 h-8 mb-3 ${uploadedFiles.DocumentoDoProprietarioFile ? 'text-blue-500' : 'text-gray-400'}`} />
+                    <p className={`text-sm font-medium ${uploadedFiles.DocumentoDoProprietarioFile ? 'text-blue-600' : 'text-gray-500'}`}>
+                      {uploadedFiles.DocumentoDoProprietarioFile ? 'Documento carregado' : 'Carregar Documento'}
                     </p>
-                    {uploadedFiles.documentoProprietario && (
-                      <p className="text-xs text-blue-500 mt-1">{uploadedFiles.documentoProprietario.name}</p>
+                    {uploadedFiles.DocumentoDoProprietarioFile && (
+                      <p className="text-xs text-blue-500 mt-1">{uploadedFiles.DocumentoDoProprietarioFile.name}</p>
                     )}
                   </label>
                 </div>
@@ -1038,23 +1038,23 @@ const CadastroSilos = () => {
                     type="file"
                     className="hidden"
                     accept=".pdf,.jpg,.jpeg,.png"
-                    onChange={(e) => handleFileUpload('comprovanteEndereco', e.target.files[0])}
+                    onChange={(e) => handleFileUpload('ComprovanteDeEnderecoFile', e.target.files[0])}
                     id="endereco-upload"
                   />
                   <label
                     htmlFor="endereco-upload"
                     className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-                      uploadedFiles.comprovanteEndereco
+                      uploadedFiles.ComprovanteDeEnderecoFile
                         ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
                         : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
                     }`}
                   >
-                    <Home className={`w-8 h-8 mb-3 ${uploadedFiles.comprovanteEndereco ? 'text-blue-500' : 'text-gray-400'}`} />
-                    <p className={`text-sm font-medium ${uploadedFiles.comprovanteEndereco ? 'text-blue-600' : 'text-gray-500'}`}>
-                      {uploadedFiles.comprovanteEndereco ? 'Documento carregado' : 'Carregar Comprovante'}
+                    <Home className={`w-8 h-8 mb-3 ${uploadedFiles.ComprovanteDeEnderecoFile ? 'text-blue-500' : 'text-gray-400'}`} />
+                    <p className={`text-sm font-medium ${uploadedFiles.ComprovanteDeEnderecoFile ? 'text-blue-600' : 'text-gray-500'}`}>
+                      {uploadedFiles.ComprovanteDeEnderecoFile ? 'Documento carregado' : 'Carregar Comprovante'}
                     </p>
-                    {uploadedFiles.comprovanteEndereco && (
-                      <p className="text-xs text-blue-500 mt-1">{uploadedFiles.comprovanteEndereco.name}</p>
+                    {uploadedFiles.ComprovanteDeEnderecoFile && (
+                      <p className="text-xs text-blue-500 mt-1">{uploadedFiles.ComprovanteDeEnderecoFile.name}</p>
                     )}
                   </label>
                 </div>
@@ -1071,24 +1071,24 @@ const CadastroSilos = () => {
                     className="hidden"
                     accept=".jpg,.jpeg,.png"
                     multiple
-                    onChange={(e) => handleFileUpload('fotosSilo', e.target.files)}
+                    onChange={(e) => handleFileUpload('FotoDoSiloFile', e.target.files)}
                     id="fotos-upload"
                   />
                   <label
                     htmlFor="fotos-upload"
                     className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-                      uploadedFiles.fotosSilo
+                      uploadedFiles.FotoDoSiloFile
                         ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
                         : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
                     }`}
                   >
-                    <Camera className={`w-8 h-8 mb-3 ${uploadedFiles.fotosSilo ? 'text-blue-500' : 'text-gray-400'}`} />
-                    <p className={`text-sm font-medium ${uploadedFiles.fotosSilo ? 'text-blue-600' : 'text-gray-500'}`}>
-                      {uploadedFiles.fotosSilo ? 'Fotos carregadas' : 'Carregar Fotos'}
+                    <Camera className={`w-8 h-8 mb-3 ${uploadedFiles.FotoDoSiloFile ? 'text-blue-500' : 'text-gray-400'}`} />
+                    <p className={`text-sm font-medium ${uploadedFiles.FotoDoSiloFile ? 'text-blue-600' : 'text-gray-500'}`}>
+                      {uploadedFiles.FotoDoSiloFile ? 'Fotos carregadas' : 'Carregar Fotos'}
                     </p>
-                    {uploadedFiles.fotosSilo && (
+                    {uploadedFiles.FotoDoSiloFile && (
                       <p className="text-xs text-blue-500 mt-1">
-                        {uploadedFiles.fotosSilo.length} arquivo(s)
+                        {uploadedFiles.FotoDoSiloFile.length} arquivo(s)
                       </p>
                     )}
                   </label>
