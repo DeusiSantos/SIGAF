@@ -73,6 +73,7 @@ import VisualizarCertificadosFlorestal from './pages/public/VisualizarCertificad
 import MenuInfraestruturaAgricola from './pages/infraestruturaAgricola/MenuInfraestruturaAgricola';
 import VisualizarInfraestrutura from './pages/InfraEstrutura/VisualizarInfraestrutura';
 import VisualizarIrrigacao from './pages/InfraEstrutura/VisualizarIrrigacao';
+import VisualizarSilos from './pages/SilosEArmazenamento/VisualizarSilos';
 
 function App() {
   return (
@@ -218,6 +219,7 @@ function App() {
             <Route path="irrigacao/visualizar/:id" element={<VisualizarIrrigacao />} />
             {/* Silos e Centro de Armazenamento */}
             <Route path="silos-armazenamento" element={<MenuSilos />} />
+            <Route path="silos-armazenamento/visualizar/:id" element={<VisualizarSilos />} />
 
             {/* Ciclos e Centro de Armazenamento + Entrepostas e Mercado */}
 

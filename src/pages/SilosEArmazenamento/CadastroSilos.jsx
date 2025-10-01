@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useSilo } from '../../hooks/useSilo';
 import {
   User,
   Home,
@@ -60,6 +61,7 @@ const MapClickHandler = ({ onLocationSelect }) => {
 
 
 const CadastroSilos = () => {
+  const { createSilo, loading: siloLoading } = useSilo();
   const [activeIndex, setActiveIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -284,8 +286,47 @@ const CadastroSilos = () => {
     setLoading(true);
 
     try {
-      // Simular envio para API
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Mapear dados do formulário para a estrutura da API
+      const siloData = {
+        NomeDoSilo: formData.nomeSilo,
+        TipoDeUnidade: formData.tipoUnidade?.value || formData.tipoUnidade,
+        CodigoDeRegistro: formData.codigoRegistro,
+        Endereço: formData.endereco,
+        Provincia: formData.provincia?.value || formData.provincia,
+        Municipio: formData.municipio?.value || formData.municipio,
+        Latitude: formData.latitude,
+        Longitude: formData.longitude,
+        NomeDoProprietario: formData.nomeProprietario,
+        EmpresaDoProprietario: formData.entidade,
+        NifDoProprietario: formData.nifProprietario,
+        TelefoneDoProprietario: formData.telefoneProprietario,
+        EmailDoProprietario: formData.emailProprietario,
+        CapacidadeMaxima: parseFloat(formData.capacidadeTotal) || 0,
+        CapacidadeUtilizada: parseFloat(formData.capacidadeUtilizada) || 0,
+        NumeroDeUnidade: parseFloat(formData.numeroUnidades) || 0,
+        ProdutosArmazenados: formData.produtosArmazenados?.map(item => item.value) || [],
+        SistemaDeSecagem: formData.sistemaSeccagem ? 'true' : 'false',
+        SistemaDeVentilacao: formData.sistemaVentilacao ? 'true' : 'false',
+        ProtecaoContraPragas: formData.sistemaProtecaoPragas ? 'true' : 'false',
+        TipoDeEnergia: formData.tipoEnergia?.value || formData.tipoEnergia,
+        EstadoDasViasDeAcesso: formData.estadoVias?.value || formData.estadoVias,
+        EquipamentosDisponiveis: formData.equipamentosDisponiveis?.map(item => item.value) || [],
+        LicencaDeOperacao: formData.licencaOperacao ? 'true' : 'false',
+        CertificacaoSanitaria: formData.certificacaoSanitaria ? 'true' : 'false',
+        DataDeLicenca: formData.dataLicenca ? new Date(formData.dataLicenca).toISOString().split('T')[0] : '',
+        ValidadeDaLicenca: formData.validadeLicenca ? new Date(formData.validadeLicenca).toISOString().split('T')[0] : '',
+        OutrasAutorizacoes: formData.outrasAutorizacoes,
+        ObservacoesGerais: formData.observacoes,
+        LicencaDeOperacaoFile: uploadedFiles.licencaDocumento,
+        CertificacaoSanitariaFile: uploadedFiles.certificacaoDocumento,
+        DocumentoDoProprietarioFile: uploadedFiles.documentoProprietario,
+        ComprovanteDeEnderecoFile: uploadedFiles.comprovanteEndereco,
+        FotoDoSiloFile: uploadedFiles.fotosSilo
+      };
+      // Adicione este console.log:
+      console.log('Dados enviados para API:', siloData);
+
+      await createSilo(siloData);
       
       showToast('success', 'Sucesso', 'Silo registrado com sucesso!');
       
@@ -306,7 +347,7 @@ const CadastroSilos = () => {
 
   const renderStepContent = (index) => {
     switch (index) {
-      case 0: // Dados Básicos
+      case 0: // Identificação
         return (
           <div className="max-w-full mx-auto">
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 text-start rounded-2xl  p-6 mb-8 border border-blue-100">
@@ -1100,8 +1141,8 @@ const CadastroSilos = () => {
       <div className="mx-auto px-4 py-8">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200">
           {/* Header */}
-          <div className="text-center mb-8 p-8 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-emerald-50">
-            <h1 className="text-4xl font-bold mb-3 text-gray-800">Cadastro de Silos e Centros de Armazenamento</h1>
+          <div className="text-center mb-8 p-8 border-b border-gray-100 bg-gradient-to-r from-yellow-700 to-yellow-500 rounded-t-2xl ">
+            <h1 className="text-4xl font-bold mb-3 text-white">Cadastro de Silos e Centros de Armazenamento</h1>
           </div>
 
           {/* Stepper */}
@@ -1121,9 +1162,9 @@ const CadastroSilos = () => {
                 >
                   <div className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${
                     isActive 
-                      ? 'bg-blue-600 text-white' 
+                      ? 'bg-yellow-600 text-white shadow-lg' 
                       : isCompleted 
-                        ? 'bg-green-500 text-white'
+                        ? 'bg-yellow-500 text-white'
                         : 'bg-gray-200 text-gray-500'
                   }`}>
                     {isCompleted ? (
@@ -1133,7 +1174,7 @@ const CadastroSilos = () => {
                     )}
                   </div>
                   <span className={`text-sm text-center font-medium ${
-                    isActive ? 'text-blue-700' : isCompleted ? 'text-green-600' : 'text-gray-500'
+                    isActive ? 'text-yellow-700' : isCompleted ? 'text-yellow-600' : 'text-gray-500'
                   }`}>
                     {step.label}
                   </span>
@@ -1145,7 +1186,7 @@ const CadastroSilos = () => {
           {/* Progress Bar */}
           <div className="w-full bg-gray-200 h-2 mb-8 mx-8" style={{width: 'calc(100% - 4rem)'}}>
             <div 
-              className="bg-blue-600 h-2 transition-all duration-300 rounded-full" 
+              className="bg-yellow-600 h-2 transition-all duration-300 rounded-full" 
               style={{width: `${((activeIndex + 1) / steps.length) * 100}%`}}
             ></div>
           </div>
@@ -1174,14 +1215,14 @@ const CadastroSilos = () => {
                 <button
                   type="button"
                   onClick={handleSubmit}
-                  disabled={loading}
+                  disabled={loading || siloLoading}
                   className={`flex items-center px-8 py-3 rounded-lg font-medium transition-all ${
-                    loading
+                    (loading || siloLoading)
                       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       : 'bg-blue-600 text-white hover:bg-blue-700'
                   }`}
                 >
-                  {loading ? (
+                  {(loading || siloLoading) ? (
                     <>
                       <Loader size={20} className="animate-spin mr-2" />
                       Registrando...

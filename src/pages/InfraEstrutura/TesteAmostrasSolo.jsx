@@ -519,7 +519,7 @@ const TesteAmostrasSolo = () => {
                             </div>
                         </div>
                     </div>
-                );
+                )
 
             case 3: // Análises
                 return (

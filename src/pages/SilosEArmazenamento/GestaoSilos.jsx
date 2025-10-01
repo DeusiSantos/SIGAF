@@ -37,6 +37,7 @@ import {
 } from 'lucide-react';
 
 import CustomInput from '../../components/CustomInput';
+import { useSilo } from '../../hooks/useSilo';
 
 // Dados fictícios dos silos - estrutura baseada no formulário de cadastro
 const silosData = [
@@ -76,7 +77,7 @@ const silosData = [
         equipamentosDisponiveis: ["BALANCAS", "ESTEIRAS", "ELEVADORES"],
 
         // Situação Legal (Step 6)
-        licencaOperacao: true,
+        licencaDeOperacao: true,
         certificacaoSanitaria: true,
         dataLicenca: "2023-01-15",
         validadeLicenca: "2025-01-15",
@@ -123,7 +124,7 @@ const silosData = [
         equipamentosDisponiveis: ["BALANCAS", "LIMPEZA"],
 
         // Situação Legal (Step 6)
-        licencaOperacao: true,
+        licencaDeOperacao: true,
         certificacaoSanitaria: true,
         dataLicenca: "2023-03-20",
         validadeLicenca: "2025-03-20",
@@ -170,7 +171,7 @@ const silosData = [
         equipamentosDisponiveis: ["BALANCAS"],
 
         // Situação Legal (Step 6)
-        licencaOperacao: false,
+        licencaDeOperacao: false,
         certificacaoSanitaria: false,
         dataLicenca: null,
         validadeLicenca: null,
@@ -193,6 +194,10 @@ const administracoesEstaticas = [
 ];
 
 const GestaoSilos = () => {
+    const navigate = useNavigate();
+    const { silos: silosApi, deleteSilo } = useSilo();
+    const silos = silosApi.map(mapApiSilo);
+
     // Função para navegação de gestão de pessoal
     const handlePessoal = (cooperativaId) => {
         navigate(`/GerenciaRNPA/entidades-associativas/pessoal/${cooperativaId}`);
@@ -205,8 +210,7 @@ const GestaoSilos = () => {
     const handleRelatorios = (cooperativaId) => {
         navigate(`/GerenciaRNPA/entidades-associativas/relatorios/${cooperativaId}`);
     };
-    const navigate = useNavigate();
-    // const { associacoesRurais, deleteAssociacaoRural } = useAssociacaoRural();
+
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedRegion, setSelectedRegion] = useState('');
     const [selectedTipo, setSelectedTipo] = useState('');
@@ -219,7 +223,7 @@ const GestaoSilos = () => {
     const containerRef = useRef(null);
     // Estados para o modal de exclusão
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [associacaoToDelete, setAssociacaoToDelete] = useState(null);
+    const [silosDelete, setsilosDelete] = useState(null);
 
     // Ajustar altura do conteúdo
     useEffect(() => {
@@ -270,12 +274,13 @@ const GestaoSilos = () => {
 
 
     // Filtragem dos silos
-    const filteredSilos = silosData.filter(silo => {
-        const matchesSearch = silo.nomeSilo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            silo.nomeProprietario.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            silo.emailProprietario.toLowerCase().includes(searchTerm.toLowerCase());
+    const filteredSilos = silos.filter(silo => {
+        const matchesSearch = !searchTerm ||
+            silo.nomeDoSilo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            silo.nomeDoProprietario?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            silo.emailDoProprietario?.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesRegion = !selectedRegion || silo.provincia === selectedRegion;
-        const matchesTipo = !selectedTipo || silo.tipoUnidade === selectedTipo;
+        const matchesTipo = !selectedTipo || silo.tipoDeUnidade === selectedTipo;
         const matchesStatus = !selectedStatus || silo.status === selectedStatus;
 
         return matchesSearch && matchesRegion && matchesTipo && matchesStatus;
@@ -289,9 +294,9 @@ const GestaoSilos = () => {
         return filteredSilos.slice(startIndex, endIndex);
     };
 
-    // Navegação para visualizar associação rural
-    const handleViewEscola = (associacaoId) => {
-        navigate(`/GerenciaRNPA/entidades-associativas/visualizar-associacao/${associacaoId}`);
+    // Navegação para visualizar silo
+    const handleViewEscola = (siloId) => {
+        navigate(`/GerenciaRNPA/gestao-infraestrutura/silos-armazenamento/visualizar/${siloId}`);
     };
 
 
@@ -322,14 +327,14 @@ const GestaoSilos = () => {
     // };
 
     // Obter label do tipo de ensino
-    {/*const getTipoEnsinoLabel = (tipo) => {
+    /*const getTipoEnsinoLabel = (tipo) => {
         const tipos = {
             'GERAL': 'Ensino Geral',
             'TECNICO_PROFISSIONAL': 'Técnico-Profissional',
             'MISTO': 'Misto'
         };
         return tipos[tipo] || tipo;
-    */};
+    */
 
     // Componente Toast
     const Toast = () => {
@@ -415,25 +420,25 @@ const GestaoSilos = () => {
 
 
     // Extrair regiões únicas para o filtro
-    const uniqueRegions = [...new Set(silosData.map(silo => silo.provincia))].filter(Boolean);
+    const uniqueRegions = [...new Set(silos.map(silo => silo.provincia))].filter(Boolean);
 
     // Função para abrir modal de confirmação
     const openDeleteModal = (associacaoId) => {
-        setAssociacaoToDelete(associacaoId);
+        setsilosDelete(associacaoId);
         setShowDeleteModal(true);
     };
 
     // Função para fechar modal
     const closeDeleteModal = () => {
         setShowDeleteModal(false);
-        setAssociacaoToDelete(null);
+        setsilosDelete(null);
     };
 
-    // Função para deletar entreposto após confirmação
+    // Função para deletar silo após confirmação
     const handleConfirmDelete = async () => {
-        if (!associacaoToDelete) return;
+        if (!silosDelete) return;
         try {
-            // TODO: Implementar delete do entreposto
+            await deleteSilo(silosDelete);
             showToast('success', 'Excluído', 'Silo excluído com sucesso!');
         } catch (err) {
             showToast('error', 'Erro', 'Erro ao excluir silo.');
@@ -446,7 +451,7 @@ const GestaoSilos = () => {
     // Modal de confirmação visual
     const DeleteConfirmModal = () => {
         if (!showDeleteModal) return null;
-        const silo = silosData.find(c => c.id === associacaoToDelete);
+        const silo = silos.find(c => c.id === silosDelete);
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
                 <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm flex flex-col items-center">
@@ -455,7 +460,7 @@ const GestaoSilos = () => {
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Confirmar Exclusão</h3>
                     <p className="text-gray-600 text-center text-sm mb-4">
-                        Tem certeza que deseja excluir o silo <span className="font-semibold text-red-600">{silo?.nomeSilo || 'Selecionado'}</span>?<br />
+                        Tem certeza que deseja excluir o silo <span className="font-semibold text-red-600">{silo?.nomeDoSilo || 'Selecionado'}</span>?<br />
                         Esta ação não pode ser desfeita. Todos os dados do silo serão removidos permanentemente.
                     </p>
                     <div className="flex gap-3 mt-2 w-full">
@@ -491,7 +496,7 @@ const GestaoSilos = () => {
                         </div>
                         <div className="ml-4">
                             <p className="text-sm font-medium text-gray-500">Total de Silos</p>
-                            <p className="text-2xl font-bold text-gray-900">{silosData.length}</p>
+                            <p className="text-2xl font-bold text-gray-900">{silos.length}</p>
                         </div>
                     </div>
                 </div>
@@ -504,7 +509,7 @@ const GestaoSilos = () => {
                         <div className="ml-4">
                             <p className="text-sm font-medium text-gray-500">Silos Ativos</p>
                             <p className="text-2xl font-bold text-gray-900">
-                                {silosData.filter(c => c.status === 'ATIVO').length}
+                                {silos.filter(c => c.status === 'ATIVO').length}
                             </p>
                         </div>
                     </div>
@@ -518,7 +523,7 @@ const GestaoSilos = () => {
                         <div className="ml-4">
                             <p className="text-sm font-medium text-gray-500">Capacidade Total (t)</p>
                             <p className="text-2xl font-bold text-gray-900">
-                                {silosData.reduce((total, s) => total + s.capacidadeTotal, 0).toLocaleString()}
+                                {silos.reduce((total, s) => total + (parseInt(s.capacidadeMaxima) || 0), 0).toLocaleString()}
                             </p>
                         </div>
                     </div>
@@ -532,7 +537,7 @@ const GestaoSilos = () => {
                         <div className="ml-4">
                             <p className="text-sm font-medium text-gray-500">Capacidade Utilizada (t)</p>
                             <p className="text-2xl font-bold text-gray-900">
-                                {silosData.reduce((total, s) => total + s.capacidadeUtilizada, 0).toLocaleString()}
+                                {silos.reduce((total, s) => total + (parseInt(s.capacidadeUtilizada) || 0), 0).toLocaleString()}
                             </p>
                         </div>
                     </div>
@@ -648,13 +653,13 @@ const GestaoSilos = () => {
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-start">
                                             <div className="w-10 h-10 rounded-full bg-gradient-to-r from-yellow-600 to-yellow-500 flex items-center justify-center font-semibold text-sm">
-                                                <span className='text-white'> {silo.nomeSilo.split(' ').map(word => word[0]).join('').substring(0, 2).toUpperCase()}</span>
+                                                <span className='text-white'> {silo.nomeDoSilo?.split(' ').map(word => word[0]).join('').substring(0, 2).toUpperCase() || 'SI'}</span>
                                             </div>
                                             <div className="ml-4">
 
-                                                <div className="text-sm font-semibold text-gray-900 break-words whitespace-pre-line max-w-[290px]">{silo.nomeSilo}</div>
-                                                <div className="text-xs text-gray-500 mt-1">Código: {silo.codigoRegistro}</div>
-                                                <div className="text-xs text-gray-500">Prop.: {silo.nomeProprietario}</div>
+                                                <div className="text-sm font-semibold text-gray-900 break-words whitespace-pre-line max-w-[290px]">{silo.nomeDoSilo || 'N/A'}</div>
+                                                <div className="text-xs text-gray-500 mt-1">Código: {silo.codigoDeRegistro || 'N/A'}</div>
+                                                <div className="text-xs text-gray-500">Prop.: {silo.nomeDoProprietario || 'N/A'}</div>
                                             </div>
                                         </div>
                                     </td>
@@ -662,10 +667,13 @@ const GestaoSilos = () => {
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="space-y-2">
                                             <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">
-                                                {silo.tipoUnidade.replace(/[-_]/g, ' ')}
+                                                {silo.tipoDeUnidade?.replace(/[-_]/g, ' ') || 'N/A'}
                                             </div>
                                             <div className="text-xs text-gray-600">
-                                                {silo.produtosArmazenados.length} produtos
+                                                {Array.isArray(silo.produtosArmazenados) ? silo.produtosArmazenados.length : 0} produtos
+                                                <div className="text-xs text-gray-500 mt-1">
+                                                    {Array.isArray(silo.produtosArmazenados) ? silo.produtosArmazenados.join(', ') : 'N/A'}
+                                                </div>
                                             </div>
                                         </div>
                                     </td>
@@ -674,7 +682,7 @@ const GestaoSilos = () => {
                                         <div className="space-y-2">
                                             <div className="flex items-center text-xs text-gray-700">
                                                 <MapPin className="w-4 h-4 mr-2 text-blue-500" />
-                                                {silo.municipio}, {silo.provincia}
+                                                {silo.municipio || 'N/A'}, {silo.provincia || 'N/A'}
                                             </div>
 
                                         </div>
@@ -684,11 +692,11 @@ const GestaoSilos = () => {
                                         <div className="space-y-2">
                                             <div className="flex items-center text-xs text-gray-700">
                                                 <Package className="w-4 h-4 mr-2 text-blue-500" />
-                                                {silo.capacidadeTotal}t ({silo.numeroUnidades} unidades)
+                                                {silo.capacidadeMaxima || 0}t ({silo.numeroDeUnidade || 0} unidades)
                                             </div>
                                             <div className="flex items-center text-xs text-gray-700">
-                                                <CheckCircle className={`w-4 h-4 mr-2 ${silo.licencaOperacao ? 'text-green-500' : 'text-red-500'}`} />
-                                                Licença: {silo.licencaOperacao ? 'SIM' : 'NÃO'}
+                                                <CheckCircle className={`w-4 h-4 mr-2 ${silo.licencaDeOperacao ? 'text-green-500' : 'text-red-500'}`} />
+                                                Licença: {silo.licencaDeOperacao ? 'SIM' : 'NÃO'}
                                             </div>
                                         </div>
                                     </td>
@@ -783,31 +791,31 @@ const GestaoSilos = () => {
                                 <div className="flex-1 ml-4">
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <h3 className="text-sm font-semibold text-gray-900">{silo.nomeSilo}</h3>
-                                            <div className="text-xs text-gray-500 mt-1">Código: {silo.codigoRegistro}</div>
-                                            <div className="text-xs text-gray-500">Prop.: {silo.nomeProprietario}</div>
+                                            <h3 className="text-sm font-semibold text-gray-900">{silo.nomeDoSilo || 'N/A'}</h3>
+                                            <div className="text-xs text-gray-500 mt-1">Código: {silo.codigoDeRegistro || 'N/A'}</div>
+                                            <div className="text-xs text-gray-500">Prop.: {silo.nomeDoProprietario || 'N/A'}</div>
                                         </div>
                                         <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                            {silo.tipoUnidade.replace(/[-_]/g, ' ')}
+                                            {silo.tipoDeUnidade?.replace(/[-_]/g, ' ') || 'N/A'}
                                         </div>
                                     </div>
 
                                     <div className="mt-3 grid grid-cols-2 gap-2">
                                         <div className="flex items-center text-xs text-gray-700">
                                             <MapPin className="w-3.5 h-3.5 mr-1 text-blue-500" />
-                                            <span className="truncate">{silo.municipio}</span>
+                                            <span className="truncate">{silo.municipio || 'N/A'}</span>
                                         </div>
                                         <div className="flex items-center text-xs text-gray-700">
                                             <Package className="w-3.5 h-3.5 mr-1 text-blue-500" />
-                                            {silo.capacidadeTotal}t
+                                            {silo.capacidadeMaxima || 0}t
                                         </div>
                                         <div className="flex items-center text-xs text-gray-700">
                                             <Phone className="w-3.5 h-3.5 mr-1 text-blue-500" />
-                                            {silo.telefoneProprietario}
+                                            {silo.telefoneDoProprietario || 'N/A'}
                                         </div>
                                         <div className="flex items-center text-xs text-gray-700">
                                             <Activity className="w-3.5 h-3.5 mr-1 text-blue-500" />
-                                            {silo.numeroUnidades} unidades
+                                            {silo.numeroDeUnidade || 0} unidades
                                         </div>
                                     </div>
 
@@ -878,5 +886,27 @@ const GestaoSilos = () => {
         </div>
     );
 };
+
+function mapApiSilo(silo) {
+    return {
+        id: silo.id,
+        nomeDoSilo: silo.nomeDoSilo || silo.nomeSilo || '',
+        tipoDeUnidade: silo.tipoDeUnidade || silo.tipoUnidade || '',
+        codigoDeRegistro: silo.codigoDeRegistro || silo.codigoRegistro || '',
+        municipio: silo.municipio || '',
+        provincia: silo.provincia || '',
+        telefoneDoProprietario: silo.telefoneDoProprietario || silo.telefoneProprietario || '',
+        emailDoProprietario: silo.emailDoProprietario || silo.emailProprietario || '',
+        nomeDoProprietario: silo.nomeDoProprietario || silo.nomeProprietario || '',
+        capacidadeMaxima: Number(silo.capacidadeMaxima) || 0,
+        capacidadeUtilizada: Number(silo.capacidadeUtilizada) || 0,
+        numeroDeUnidade: Number(silo.numeroDeUnidade) || Number(silo.numeroUnidades) || 0,
+        produtosArmazenados: Array.isArray(silo.produtosArmazenados) ? silo.produtosArmazenados : [],
+        licencaDeOperacao: silo.licencaDeOperacao === true || silo.licencaDeOperacao === 'true',
+        certificacaoSanitaria: silo.certificacaoSanitaria === true || silo.certificacaoSanitaria === 'true',
+        // ...adicione outros campos conforme necessário
+        status: silo.status || '',
+    };
+}
 
 export default GestaoSilos;

@@ -2617,7 +2617,16 @@ const VisualizarProdutor = () => {
                                             )}
                                         </button>
                                         <button
-                                            onClick={handleSave}
+                                            onClick={() => {
+                                                // Validate age before saving
+                                                const age = formData.idade;
+                                                if (age && age < 18) {
+                                                    setToastMessage({ type: 'error', message: 'Produtor deve ter pelo menos 18 anos.' });
+                                                    setTimeout(() => setToastMessage(null), 5000);
+                                                    return;
+                                                }
+                                                handleSave();
+                                            }}
                                             disabled={loading}
                                             className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-green-300"
                                         >

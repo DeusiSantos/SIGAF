@@ -531,7 +531,7 @@ const VisualizarIrrigacao = () => {
                                         />
                                     </div>
                                     {isEditing && (
-                                        <div className="mt-4">
+                                        <div className="mt-4" key="map-editing">
                                             <MapaGPS
                                                 latitude={sistemaIrrigacao.localizacao.coordenadas.split(',')[0]?.trim()}
                                                 longitude={sistemaIrrigacao.localizacao.coordenadas.split(',')[1]?.trim()}
@@ -1123,37 +1123,43 @@ const VisualizarIrrigacao = () => {
                             </div>
                             {/*  */}
                             <div className="flex flex-col md:flex-row items-center gap-3 md:gap-4 mt-4 md:mt-0">
-                                {isEditing ? (
-                                    <div className="flex gap-3 w-full" key="editando">
-                                        <button
-                                            onClick={handleCancel}
-                                            className="flex items-center gap-2 px-6 py-3 rounded-lg border border-gray-300 bg-white text-gray-700 font-semibold hover:bg-gray-100 transition-colors text-base"
-                                        >
-                                            <X className="w-5 h-5" /> Cancelar
-                                        </button>
+                                <div className="flex gap-3 w-full">
+                                    {isEditing ? (
+                                        <React.Fragment key="editing-buttons">
+                                            <button
+                                                key="cancel-btn"
+                                                onClick={handleCancel}
+                                                className="flex items-center gap-2 px-6 py-3 rounded-lg border border-gray-300 bg-white text-gray-700 font-semibold hover:bg-gray-100 transition-colors text-base"
+                                            >
+                                                <X className="w-5 h-5" /> Cancelar
+                                            </button>
 
-                                        <button
-                                            onClick={handleSave}
-                                            className="flex items-center gap-2 px-6 py-3 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 transition-colors text-base"
-                                        >
-                                            <Save className="w-5 h-5" /> Salvar
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <div className="flex gap-3 w-full" key="visualizando">
-                                        <button
-                                            onClick={handleEdit}
-                                            className="flex h-[45px] items-center gap-2 px-6 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors text-base"
-                                        >
-                                            <SquarePen className="w-5 h-5" /> Editar
-                                        </button>
-                                        <button
-                                            className="flex h-[45px]  items-center gap-2 px-6 py-3 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 transition-colors text-base"
-                                        >
-                                            <Download className="w-5 h-5" /> Relatório
-                                        </button>
-                                    </div>
-                                )}
+                                            <button
+                                                key="save-btn"
+                                                onClick={handleSave}
+                                                className="flex items-center gap-2 px-6 py-3 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 transition-colors text-base"
+                                            >
+                                                <Save className="w-5 h-5" /> Salvar
+                                            </button>
+                                        </React.Fragment>
+                                    ) : (
+                                        <React.Fragment key="view-buttons">
+                                            <button
+                                                key="edit-btn"
+                                                onClick={handleEdit}
+                                                className="flex h-[45px] items-center gap-2 px-6 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors text-base"
+                                            >
+                                                <SquarePen className="w-5 h-5" /> Editar
+                                            </button>
+                                            <button
+                                                key="report-btn"
+                                                className="flex h-[45px]  items-center gap-2 px-6 py-3 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 transition-colors text-base"
+                                            >
+                                                <Download className="w-5 h-5" /> Relatório
+                                            </button>
+                                        </React.Fragment>
+                                    )}
+                                </div>
                             </div>
 
                         </div>
