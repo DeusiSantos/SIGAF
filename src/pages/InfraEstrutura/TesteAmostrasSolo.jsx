@@ -3,28 +3,18 @@ import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaf
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
-    Microscope,
     MapPin,
-    Settings,
-    Target,
-    FileText,
     ChevronRight,
     ChevronLeft,
     Info,
-    X,
     Camera,
-    Upload,
-    Users,
-    Eye,
-    AlertCircle,
-    CheckCircle,
-    Leaf,
-    Beaker,
     TestTube,
-    Activity
+    User,
+    CheckCircle,
+    Loader
 } from 'lucide-react';
-
 import CustomInput from '../../components/CustomInput';
+
 // Configuração do ícone do Leaflet
 const defaultIcon = L.icon({
     iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
@@ -34,7 +24,6 @@ const defaultIcon = L.icon({
     popupAnchor: [1, -34],
     shadowSize: [41, 41]
 });
-
 
 // Componente para capturar cliques no mapa
 const MapClickHandler = ({ onLocationSelect }) => {
@@ -63,22 +52,14 @@ const MapaGPS = ({ latitude, longitude, onLocationSelect }) => {
 
     return (
         <div className="w-full h-80 border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-            <MapContainer
-                center={center}
-                zoom={hasCoordinates ? 16 : 6}
-                className="w-full h-full"
-                key={`${latitude}-${longitude}`}
-            >
-                <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                />
+            <MapContainer center={center} zoom={hasCoordinates ? 16 : 6} className="w-full h-full" key={`${latitude}-${longitude}`}>
+                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; OpenStreetMap contributors' />
                 <MapClickHandler onLocationSelect={onLocationSelect} />
                 {hasCoordinates && (
                     <Marker position={center} icon={defaultIcon}>
                         <Popup>
                             <div className="text-center">
-                                <strong>Local da Amostra de Solo</strong><br />
+                                <strong>Local da Amostra</strong><br />
                                 Latitude: {latitude}°<br />
                                 Longitude: {longitude}°
                             </div>
@@ -93,821 +74,659 @@ const MapaGPS = ({ latitude, longitude, onLocationSelect }) => {
 const TesteAmostrasSolo = () => {
     const [activeIndex, setActiveIndex] = useState(0);
     const [saving, setSaving] = useState(false);
+    const [produtores, setProdutores] = useState([]);
+    const [loadingProdutores, setLoadingProdutores] = useState(false);
 
-    // Dados das províncias
     const provincias = [
-        { label: "Luanda", value: "LUANDA" },
+        { label: "Bengo", value: "BENGO" },
         { label: "Benguela", value: "BENGUELA" },
-        { label: "Huíla", value: "HUILA" },
+        { label: "Bié", value: "BIE" },
+        { label: "Cabinda", value: "CABINDA" },
         { label: "Cuando Cubango", value: "CUANDO_CUBANGO" },
-        { label: "Namibe", value: "NAMIBE" }
+        { label: "Cuanza Norte", value: "CUANZA_NORTE" },
+        { label: "Cuanza Sul", value: "CUANZA_SUL" },
+        { label: "Cunene", value: "CUNENE" },
+        { label: "Huambo", value: "HUAMBO" },
+        { label: "Huíla", value: "HUILA" },
+        { label: "Icolo e Bengo", value: "ICOLO_BENGO" },
+        { label: "Luanda", value: "LUANDA" },
+        { label: "Lunda Norte", value: "LUNDA_NORTE" },
+        { label: "Lunda Sul", value: "LUNDA_SUL" },
+        { label: "Malanje", value: "MALANJE" },
+        { label: "Moxico", value: "MOXICO" },
+        { label: "Moxico Leste", value: "MOXICO_LESTE" },
+        { label: "Namibe", value: "NAMIBE" },
+        { label: "Uíge", value: "UIGE" },
+        { label: "Zaire", value: "ZAIRE" }
     ];
 
-    // Estado inicial
-    const initialState = {
-        // Informações Gerais
-        dataColeta: new Date().toISOString().split('T')[0],
-        tecnicoResponsavel: '',
-        laboratorio: '',
-        numeroAmostra: '',
+    const culturas = [
+        { label: "Milho", value: "milho" },
+        { label: "Mandioca", value: "mandioca" },
+        { label: "Amendoim", value: "amendoim" },
+        { label: "Feijões", value: "feijoes" },
+        { label: "Batata-doce", value: "batata_doce" },
+        { label: "Banana", value: "banana" },
+        { label: "Massambala", value: "massambala" },
+        { label: "Massango", value: "massango" },
+        { label: "Café", value: "cafe" },
+        { label: "Cebola", value: "cebola" },
+        { label: "Tomate", value: "tomate" },
+        { label: "Couve", value: "couve" },
+        { label: "Batata Rena", value: "batata_rena" },
+        { label: "Trigo", value: "trigo" },
+        { label: "Arroz", value: "arroz" },
+        { label: "Soja", value: "soja" },
+        { label: "Outras", value: "outras" }
+    ];
 
+    const initialState = {
+        // Identificação do Produtor
+        pertenceProdutor: null,
+        produtorSelecionado: null,
+        
         // Localização
-        provincia: '',
+        provincia: null,
         municipio: '',
+        comuna: '',
         aldeia: '',
         latitude: '',
         longitude: '',
-        altitude: '',
-        precisao: '',
-
-        // Coleta da Amostra
-        profundidadeColeta: '',
-        metodocoleta: '',
-        culturaAtual: '',
+        
+        // Identificação da Mostra
+        identificacaoMostra: '',
+        profundidadeColeta: null,
+        metodoColeta: null,
+        
+        // Culturas
+        culturasAtuais: [],
+        culturasAtuaisOutra: '',
         culturaAnterior: '',
-        tipoSolo: '',
-        cor: '',
-        textura: '',
-        drenagem: '',
-
-        // Parâmetros Físicos
-        ph: '',
-        condutividadeEletrica: '',
-        materiaOrganica: '',
-        umidade: '',
-        densidade: '',
-        porosidade: '',
-
-        // Macronutrientes
-        nitrogenio: '',
-        fosforo: '',
-        potassio: '',
-        calcio: '',
-        magnesio: '',
-        enxofre: '',
-
-        // Micronutrientes
-        ferro: '',
-        manganes: '',
-        zinco: '',
-        cobre: '',
-        boro: '',
-        molibdenio: '',
-
-        // Análise Complementar
-        cationesTotais: '',
-        saturacaoBases: '',
-        capacidadeTrocaCationica: '',
-        relacaoCN: '',
-
-        // Recomendações
-        recomendacoesCalcario: '',
-        recomendacoesFertilizante: '',
-        culturasRecomendadas: [],
-        observacoes: '',
-
-        // Anexos
-        fotografias: null,
-        resultadosLaboratorio: null
+        
+        // Tipo de Solo
+        tipoSolo: null,
+        
+        // Características Visuais
+        corSolo: null,
+        textura: null,
+        drenagem: null,
+        
+        // Upload
+        fotografiaAmostra: null,
+        
+        // Observações e Responsáveis
+        observacoesGerais: '',
+        codigoTecnicoResponsavel: '',
+        codigoSupervisor: '',
+        dataColeta: new Date().toISOString().split('T')[0]
     };
 
     const [formData, setFormData] = useState(initialState);
 
-    const steps = [
-        { label: 'Informações Gerais', icon: FileText },
-        { label: 'Localização', icon: MapPin },
-        { label: 'Coleta da Amostra', icon: TestTube },
-        { label: 'Análises', icon: Beaker },
-        { label: 'Resultados', icon: Activity }
-    ];
+    // Buscar produtores da API
+    useEffect(() => {
+        const fetchProdutores = async () => {
+            setLoadingProdutores(true);
+            try {
+                const response = await fetch('https://mwangobrainsa-001-site2.mtempurl.com/api/formulario/all');
+                const data = await response.json();
+                setProdutores(data);
+            } catch (error) {
+                console.error('Erro ao buscar produtores:', error);
+                alert('Erro ao carregar lista de produtores');
+            } finally {
+                setLoadingProdutores(false);
+            }
+        };
+
+        fetchProdutores();
+    }, []);
+
+    // Determinar steps baseado na seleção
+    const getSteps = () => {
+        const baseSteps = [
+            { label: 'Identificação', icon: User }
+        ];
+
+        // Adicionar step de localização apenas se não pertencer a produtor
+        if (formData.pertenceProdutor?.value === 'nao') {
+            baseSteps.push({ label: 'Localização', icon: MapPin });
+        }
+
+        baseSteps.push(
+            { label: 'Coleta', icon: TestTube },
+            { label: 'Finalização', icon: CheckCircle }
+        );
+
+        return baseSteps;
+    };
+
+    const steps = getSteps();
 
     const handleInputChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }));
+
+        // Se mudar pertenceProdutor, resetar activeIndex se necessário
+        if (field === 'pertenceProdutor') {
+            if (activeIndex > 0) {
+                setActiveIndex(0);
+            }
+        }
+
+        // Se selecionar um produtor, preencher automaticamente os dados de localização
+        if (field === 'produtorSelecionado' && value) {
+            const produtor = produtores.find(p => p._id === parseInt(value.value));
+            if (produtor) {
+                // Extrair coordenadas GPS
+                const coords = produtor.gps_coordinates?.split(' ') || [];
+                
+                // Encontrar a província correspondente
+                const provinciaEncontrada = provincias.find(p => 
+                    p.value.toLowerCase() === produtor.provincia?.toLowerCase()
+                );
+                
+                setFormData(prev => ({
+                    ...prev,
+                    produtorSelecionado: value,
+                    provincia: provinciaEncontrada || null,
+                    municipio: produtor.municipio || '',
+                    comuna: produtor.comuna || '',
+                    aldeia: produtor.geo_level_4 || '',
+                    latitude: coords[0] || '',
+                    longitude: coords[1] || ''
+                }));
+            }
+        }
     };
 
     const handleSave = async () => {
         setSaving(true);
         try {
-            console.log('Dados do teste de solo:', formData);
+            console.log('Dados da coleta de solo:', formData);
             await new Promise(resolve => setTimeout(resolve, 2000));
-            alert('Teste de solo registrado com sucesso!');
+            alert('Coleta de amostra registrada com sucesso!');
             setFormData(initialState);
             setActiveIndex(0);
         } catch (error) {
             console.error('Erro ao salvar:', error);
-            alert('Erro ao registrar teste de solo. Tente novamente.');
+            alert('Erro ao registrar coleta. Tente novamente.');
         } finally {
             setSaving(false);
         }
     };
 
     const renderStepContent = (index) => {
-        switch (index) {
-            case 0: // Informações Gerais
-                return (
-                    <div className="max-w-full mx-auto">
-                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 mb-8 border border-blue-100">
-                            <div className="flex items-center space-x-3 mb-3">
-                                <div className="p-2 bg-blue-100 rounded-lg">
-                                    <FileText className="w-6 h-6 text-blue-600" />
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-800">Informações Gerais</h3>
+        const stepType = steps[index]?.label;
+
+        if (stepType === 'Identificação') {
+            return (
+                <div className="max-w-full mx-auto">
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 mb-8 border border-blue-100">
+                        <div className="flex items-center space-x-3 mb-3">
+                            <div className="p-2 bg-blue-100 rounded-lg">
+                                <User className="w-6 h-6 text-blue-600" />
                             </div>
-                            <p className="text-gray-600">
-                                Dados básicos sobre a coleta e análise da amostra de solo.
-                            </p>
+                            <h3 className="text-xl font-bold text-gray-800">Identificação do Produtor</h3>
                         </div>
+                        <p className="text-gray-600">Dados do produtor associado à amostra de solo.</p>
+                    </div>
+
+                    <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-6">
+                        <CustomInput
+                            type="select"
+                            label="Este solo pertence a um produtor?"
+                            value={formData.pertenceProdutor}
+                            options={[
+                                { label: "Sim", value: "sim" },
+                                { label: "Não", value: "nao" }
+                            ]}
+                            onChange={(value) => handleInputChange('pertenceProdutor', value)}
+                            required
+                        />
+
+                        {formData.pertenceProdutor?.value === 'sim' && (
+                            <div className="space-y-6">
+                                {loadingProdutores ? (
+                                    <div className="flex items-center justify-center py-8">
+                                        <Loader className="w-6 h-6 animate-spin text-cyan-600 mr-2" />
+                                        <span className="text-gray-600">Carregando produtores...</span>
+                                    </div>
+                                ) : (
+                                    <CustomInput
+                                        type="select"
+                                        label="Selecione o Produtor"
+                                        value={formData.produtorSelecionado}
+                                        options={produtores.map(p => ({
+                                            label: `${p.beneficiary_name} - ${p.beneficiary_id_number || 'Sem BI'} (${p.provincia || 'N/A'})`,
+                                            value: p._id.toString()
+                                        }))}
+                                        onChange={(value) => handleInputChange('produtorSelecionado', value)}
+                                        required
+                                    />
+                                )}
+
+                                {formData.produtorSelecionado && (
+                                    <div className="bg-green-50 rounded-xl p-4 border border-green-200">
+                                        <div className="flex items-center mb-2">
+                                            <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
+                                            <h4 className="font-semibold text-green-900">Dados do Produtor</h4>
+                                        </div>
+                                        {(() => {
+                                            const produtor = produtores.find(p => p._id === parseInt(formData.produtorSelecionado.value));
+                                            if (!produtor) return null;
+                                            return (
+                                                <div className="grid grid-cols-2 gap-3 text-sm mt-3">
+                                                    <div>
+                                                        <span className="font-medium text-gray-700">Nome:</span>
+                                                        <p className="text-gray-600">{produtor.beneficiary_name}</p>
+                                                    </div>
+                                                    <div>
+                                                        <span className="font-medium text-gray-700">BI:</span>
+                                                        <p className="text-gray-600">{produtor.beneficiary_id_number || 'N/A'}</p>
+                                                    </div>
+                                                    <div>
+                                                        <span className="font-medium text-gray-700">Província:</span>
+                                                        <p className="text-gray-600">{produtor.provincia || 'N/A'}</p>
+                                                    </div>
+                                                    <div>
+                                                        <span className="font-medium text-gray-700">Município:</span>
+                                                        <p className="text-gray-600">{produtor.municipio || 'N/A'}</p>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })()}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        <CustomInput
+                            type="text"
+                            label="Identificação da Mostra"
+                            value={formData.identificacaoMostra}
+                            onChange={(value) => handleInputChange('identificacaoMostra', value)}
+                            placeholder="Código ou nome da amostra"
+                            required
+                        />
+
+                        <CustomInput
+                            type="date"
+                            label="Data da Coleta"
+                            value={formData.dataColeta}
+                            onChange={(value) => handleInputChange('dataColeta', value)}
+                            required
+                        />
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <CustomInput
-                                type="date"
-                                label="Data da Coleta"
-                                value={formData.dataColeta}
-                                onChange={(value) => handleInputChange('dataColeta', value)}
+                                type="text"
+                                label="Código Técnico Responsável"
+                                value={formData.codigoTecnicoResponsavel}
+                                onChange={(value) => handleInputChange('codigoTecnicoResponsavel', value)}
+                                placeholder="Código do técnico"
                                 required
                             />
 
                             <CustomInput
                                 type="text"
-                                label="Técnico Responsável"
-                                value={formData.tecnicoResponsavel}
-                                onChange={(value) => handleInputChange('tecnicoResponsavel', value)}
-                                placeholder="Nome do técnico responsável"
-                                iconStart={<Users size={18} />}
-                                required
-                            />
-
-                            <CustomInput
-                                type="text"
-                                label="Laboratório de Análise"
-                                value={formData.laboratorio}
-                                onChange={(value) => handleInputChange('laboratorio', value)}
-                                placeholder="Nome do laboratório"
-                                iconStart={<Microscope size={18} />}
-                            />
-
-                            <CustomInput
-                                type="text"
-                                label="Número da Amostra"
-                                value={formData.numeroAmostra}
-                                onChange={(value) => handleInputChange('numeroAmostra', value)}
-                                placeholder="Código de identificação da amostra"
-                                iconStart={<TestTube size={18} />}
-                                required
+                                label="Código Supervisor"
+                                value={formData.codigoSupervisor}
+                                onChange={(value) => handleInputChange('codigoSupervisor', value)}
+                                placeholder="Código do supervisor"
                             />
                         </div>
                     </div>
-                );
-
-            case 1: // Localização
-                return (
-                    <div className="max-w-full mx-auto">
-                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 mb-8 border border-green-100">
-                            <div className="flex items-center space-x-3 mb-3">
-                                <div className="p-2 bg-green-100 rounded-lg">
-                                    <MapPin className="w-6 h-6 text-green-600" />
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-800">Localização da Amostra</h3>
-                            </div>
-                            <p className="text-gray-600">
-                                Localização geográfica onde foi coletada a amostra de solo.
-                            </p>
-                        </div>
-
-                        <div className="space-y-8">
-                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold mb-4">Localização Geográfica</h4>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <CustomInput
-                                        type="select"
-                                        label="Província"
-                                        value={formData.provincia}
-                                        options={provincias}
-                                        onChange={(value) => handleInputChange('provincia', value)}
-                                        required
-                                        iconStart={<MapPin size={18} />}
-                                    />
-
-                                    <CustomInput
-                                        type="text"
-                                        label="Município"
-                                        value={formData.municipio}
-                                        onChange={(value) => handleInputChange('municipio', value)}
-                                        required
-                                        placeholder="Nome do município"
-                                    />
-
-                                    <CustomInput
-                                        type="text"
-                                        label="Aldeia/Zona"
-                                        value={formData.aldeia}
-                                        onChange={(value) => handleInputChange('aldeia', value)}
-                                        required
-                                        placeholder="Nome da aldeia"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold mb-4 flex items-center">
-                                    <MapPin className="w-5 h-5 mr-2 text-blue-600" />
-                                    Coordenadas GPS
-                                </h4>
-                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                                    <CustomInput
-                                        type="number"
-                                        label="Latitude"
-                                        value={formData.latitude}
-                                        onChange={(value) => handleInputChange('latitude', value)}
-                                        step="any"
-                                        placeholder="Ex: -8.838333"
-                                    />
-                                    <CustomInput
-                                        type="number"
-                                        label="Longitude"
-                                        value={formData.longitude}
-                                        onChange={(value) => handleInputChange('longitude', value)}
-                                        step="any"
-                                        placeholder="Ex: 13.234444"
-                                    />
-                                    <CustomInput
-                                        type="number"
-                                        label="Altitude (m)"
-                                        value={formData.altitude}
-                                        onChange={(value) => handleInputChange('altitude', value)}
-                                        placeholder="Ex: 1628"
-                                    />
-                                    <CustomInput
-                                        type="number"
-                                        label="Precisão (m)"
-                                        value={formData.precisao}
-                                        onChange={(value) => handleInputChange('precisao', value)}
-                                        placeholder="Ex: 3"
-                                    />
-                                </div>
-                                <MapaGPS
-                                    latitude={formData.latitude}
-                                    longitude={formData.longitude}
-                                    onLocationSelect={(lat, lng) => {
-                                        handleInputChange('latitude', lat);
-                                        handleInputChange('longitude', lng);
-                                    }}
-                                />
-                                <div className="mt-3 p-3 bg-blue-50 rounded-lg">
-                                    <p className="text-sm text-blue-600 flex items-center">
-                                        <Info size={16} className="mr-2" />
-                                        Clique no mapa para selecionar a localização da coleta
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                );
-
-            case 2: // Coleta da Amostra
-                return (
-                    <div className="max-w-full mx-auto">
-                        <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-2xl p-6 mb-8 border border-orange-100">
-                            <div className="flex items-center space-x-3 mb-3">
-                                <div className="p-2 bg-orange-100 rounded-lg">
-                                    <TestTube className="w-6 h-6 text-orange-600" />
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-800">Coleta da Amostra</h3>
-                            </div>
-                            <p className="text-gray-600">
-                                Informações sobre o método e condições da coleta da amostra.
-                            </p>
-                        </div>
-
-                        <div className="space-y-8">
-                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold mb-4">Método de Coleta</h4>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <CustomInput
-                                        type="select"
-                                        label="Profundidade da Coleta"
-                                        value={formData.profundidadeColeta}
-                                        options={[
-                                            { label: "0-15 cm", value: "0-15" },
-                                            { label: "15-30 cm", value: "15-30" },
-                                            { label: "30-60 cm", value: "30-60" },
-                                            { label: "60-100 cm", value: "60-100" }
-                                        ]}
-                                        onChange={(value) => handleInputChange('profundidadeColeta', value)}
-                                        required
-                                    />
-
-                                    <CustomInput
-                                        type="select"
-                                        label="Método de Coleta"
-                                        value={formData.metodocoleta}
-                                        options={[
-                                            { label: "Tradagem", value: "tradagem" },
-                                            { label: "Perfil de solo", value: "perfil" },
-                                            { label: "Amostragem simples", value: "simples" },
-                                            { label: "Amostragem composta", value: "composta" }
-                                        ]}
-                                        onChange={(value) => handleInputChange('metodocoleta', value)}
-                                        required
-                                    />
-
-                                    <CustomInput
-                                        type="text"
-                                        label="Cultura Atual"
-                                        value={formData.culturaAtual}
-                                        onChange={(value) => handleInputChange('culturaAtual', value)}
-                                        placeholder="Ex: Milho, Feijão, etc."
-                                        iconStart={<Leaf size={18} />}
-                                    />
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                                    <CustomInput
-                                        type="text"
-                                        label="Cultura Anterior"
-                                        value={formData.culturaAnterior}
-                                        onChange={(value) => handleInputChange('culturaAnterior', value)}
-                                        placeholder="Última cultura plantada"
-                                    />
-
-                                    <CustomInput
-                                        type="select"
-                                        label="Tipo de Solo"
-                                        value={formData.tipoSolo}
-                                        options={[
-                                            { label: "Arenoso", value: "arenoso" },
-                                            { label: "Argiloso", value: "argiloso" },
-                                            { label: "Franco", value: "franco" },
-                                            { label: "Franco-arenoso", value: "franco-arenoso" },
-                                            { label: "Franco-argiloso", value: "franco-argiloso" }
-                                        ]}
-                                        onChange={(value) => handleInputChange('tipoSolo', value)}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold mb-4">Características Visuais</h4>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <CustomInput
-                                        type="select"
-                                        label="Cor do Solo"
-                                        value={formData.cor}
-                                        options={[
-                                            { label: "Escuro/Preto", value: "escuro" },
-                                            { label: "Marrom", value: "marrom" },
-                                            { label: "Vermelho", value: "vermelho" },
-                                            { label: "Amarelo", value: "amarelo" },
-                                            { label: "Cinza", value: "cinza" }
-                                        ]}
-                                        onChange={(value) => handleInputChange('cor', value)}
-                                    />
-
-                                    <CustomInput
-                                        type="select"
-                                        label="Textura"
-                                        value={formData.textura}
-                                        options={[
-                                            { label: "Muito fina", value: "muito-fina" },
-                                            { label: "Fina", value: "fina" },
-                                            { label: "Média", value: "media" },
-                                            { label: "Grosseira", value: "grosseira" }
-                                        ]}
-                                        onChange={(value) => handleInputChange('textura', value)}
-                                    />
-
-                                    <CustomInput
-                                        type="select"
-                                        label="Drenagem"
-                                        value={formData.drenagem}
-                                        options={[
-                                            { label: "Boa", value: "boa" },
-                                            { label: "Moderada", value: "moderada" },
-                                            { label: "Deficiente", value: "deficiente" },
-                                            { label: "Muito deficiente", value: "muito-deficiente" }
-                                        ]}
-                                        onChange={(value) => handleInputChange('drenagem', value)}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold mb-4">Upload da Foto da Amostra</h4>
-                                <div className="relative">
-                                    <input
-                                        type="file"
-                                        className="hidden"
-                                        accept="image/*"
-                                        multiple
-                                        onChange={(e) => handleInputChange('fotografias', e.target.files)}
-                                        id="fotografias-upload"
-                                    />
-                                    <label
-                                        htmlFor="fotografias-upload"
-                                        className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${formData.fotografias
-                                            ? 'bg-green-50 border-green-300 hover:bg-green-100'
-                                            : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                                            }`}
-                                    >
-                                        <Camera className={`w-8 h-8 mb-3 ${formData.fotografias ? 'text-green-500' : 'text-gray-400'}`} />
-                                        <p className={`text-sm font-medium ${formData.fotografias ? 'text-green-600' : 'text-gray-500'}`}>
-                                            {formData.fotografias ? `${formData.fotografias.length} foto(s) carregada(s)` : 'Carregar fotografias da amostra'}
-                                        </p>
-                                        <p className="text-xs text-gray-400 mt-1">Máximo 10MB por arquivo</p>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )
-
-            case 3: // Análises
-                return (
-                    <div className="max-w-full mx-auto">
-                        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-6 mb-8 border border-purple-100">
-                            <div className="flex items-center space-x-3 mb-3">
-                                <div className="p-2 bg-purple-100 rounded-lg">
-                                    <Beaker className="w-6 h-6 text-purple-600" />
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-800">Análises Laboratoriais</h3>
-                            </div>
-                            <p className="text-gray-600">
-                                Resultados das análises físico-químicas da amostra de solo.
-                            </p>
-                        </div>
-
-                        <div className="space-y-8">
-                            {/* Parâmetros Físicos */}
-                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold mb-4">Parâmetros Físicos</h4>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <CustomInput
-                                        type="number"
-                                        label="pH"
-                                        value={formData.ph}
-                                        onChange={(value) => handleInputChange('ph', value)}
-                                        placeholder="Ex: 6.5"
-                                        step="0.1"
-                                        helperText="Escala de 0 a 14"
-                                    />
-
-                                    <CustomInput
-                                        type="number"
-                                        label="Condutividade Elétrica (dS/m)"
-                                        value={formData.condutividadeEletrica}
-                                        onChange={(value) => handleInputChange('condutividadeEletrica', value)}
-                                        placeholder="Ex: 0.5"
-                                        step="0.01"
-                                    />
-
-                                    <CustomInput
-                                        type="number"
-                                        label="Matéria Orgânica (%)"
-                                        value={formData.materiaOrganica}
-                                        onChange={(value) => handleInputChange('materiaOrganica', value)}
-                                        placeholder="Ex: 3.2"
-                                        step="0.1"
-                                    />
-
-                                    <CustomInput
-                                        type="number"
-                                        label="Humidade (%)"
-                                        value={formData.umidade}
-                                        onChange={(value) => handleInputChange('umidade', value)}
-                                        placeholder="Ex: 15.5"
-                                        step="0.1"
-                                    />
-
-                                    <CustomInput
-                                        type="number"
-                                        label="Densidade (g/cm³)"
-                                        value={formData.densidade}
-                                        onChange={(value) => handleInputChange('densidade', value)}
-                                        placeholder="Ex: 1.3"
-                                        step="0.01"
-                                    />
-
-                                    <CustomInput
-                                        type="number"
-                                        label="Porosidade (%)"
-                                        value={formData.porosidade}
-                                        onChange={(value) => handleInputChange('porosidade', value)}
-                                        placeholder="Ex: 45"
-                                        step="0.1"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Macronutrientes */}
-                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold mb-4">Macronutrientes (mg/kg)</h4>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <CustomInput
-                                        type="number"
-                                        label="Nitrogênio (N)"
-                                        value={formData.nitrogenio}
-                                        onChange={(value) => handleInputChange('nitrogenio', value)}
-                                        placeholder="Ex: 120"
-                                        step="0.1"
-                                    />
-
-                                    <CustomInput
-                                        type="number"
-                                        label="Fósforo (P)"
-                                        value={formData.fosforo}
-                                        onChange={(value) => handleInputChange('fosforo', value)}
-                                        placeholder="Ex: 25"
-                                        step="0.1"
-                                    />
-
-                                    <CustomInput
-                                        type="number"
-                                        label="Potássio (K)"
-                                        value={formData.potassio}
-                                        onChange={(value) => handleInputChange('potassio', value)}
-                                        placeholder="Ex: 85"
-                                        step="0.1"
-                                    />
-
-                                    <CustomInput
-                                        type="number"
-                                        label="Cálcio (Ca)"
-                                        value={formData.calcio}
-                                        onChange={(value) => handleInputChange('calcio', value)}
-                                        placeholder="Ex: 150"
-                                        step="0.1"
-                                    />
-
-                                    <CustomInput
-                                        type="number"
-                                        label="Magnésio (Mg)"
-                                        value={formData.magnesio}
-                                        onChange={(value) => handleInputChange('magnesio', value)}
-                                        placeholder="Ex: 45"
-                                        step="0.1"
-                                    />
-
-                                    <CustomInput
-                                        type="number"
-                                        label="Enxofre (S)"
-                                        value={formData.enxofre}
-                                        onChange={(value) => handleInputChange('enxofre', value)}
-                                        placeholder="Ex: 12"
-                                        step="0.1"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Micronutrientes */}
-                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold mb-4">Micronutrientes (mg/kg)</h4>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <CustomInput
-                                        type="number"
-                                        label="Ferro (Fe)"
-                                        value={formData.ferro}
-                                        onChange={(value) => handleInputChange('ferro', value)}
-                                        placeholder="Ex: 25"
-                                        step="0.1"
-                                    />
-
-                                    <CustomInput
-                                        type="number"
-                                        label="Manganês (Mn)"
-                                        value={formData.manganes}
-                                        onChange={(value) => handleInputChange('manganes', value)}
-                                        placeholder="Ex: 8.5"
-                                        step="0.1"
-                                    />
-
-                                    <CustomInput
-                                        type="number"
-                                        label="Zinco (Zn)"
-                                        value={formData.zinco}
-                                        onChange={(value) => handleInputChange('zinco', value)}
-                                        placeholder="Ex: 2.1"
-                                        step="0.1"
-                                    />
-
-                                    <CustomInput
-                                        type="number"
-                                        label="Cobre (Cu)"
-                                        value={formData.cobre}
-                                        onChange={(value) => handleInputChange('cobre', value)}
-                                        placeholder="Ex: 1.5"
-                                        step="0.1"
-                                    />
-
-                                    <CustomInput
-                                        type="number"
-                                        label="Boro (B)"
-                                        value={formData.boro}
-                                        onChange={(value) => handleInputChange('boro', value)}
-                                        placeholder="Ex: 0.8"
-                                        step="0.1"
-                                    />
-
-                                    <CustomInput
-                                        type="number"
-                                        label="Molibdênio (Mo)"
-                                        value={formData.molibdenio}
-                                        onChange={(value) => handleInputChange('molibdenio', value)}
-                                        placeholder="Ex: 0.2"
-                                        step="0.01"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Análise Complementar */}
-                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold mb-4">Análise Complementar</h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <CustomInput
-                                        type="number"
-                                        label="CTC - Capacidade de Troca Catiônica (cmolc/dm³)"
-                                        value={formData.capacidadeTrocaCationica}
-                                        onChange={(value) => handleInputChange('capacidadeTrocaCationica', value)}
-                                        placeholder="Ex: 8.5"
-                                        step="0.1"
-                                    />
-
-                                    <CustomInput
-                                        type="number"
-                                        label="Saturação por Bases (%)"
-                                        value={formData.saturacaoBases}
-                                        onChange={(value) => handleInputChange('saturacaoBases', value)}
-                                        placeholder="Ex: 65"
-                                        step="0.1"
-                                    />
-
-                                    <CustomInput
-                                        type="number"
-                                        label="Soma de Bases (cmolc/dm³)"
-                                        value={formData.cationesTotais}
-                                        onChange={(value) => handleInputChange('cationesTotais', value)}
-                                        placeholder="Ex: 5.5"
-                                        step="0.1"
-                                    />
-
-                                    <CustomInput
-                                        type="number"
-                                        label="Relação C/N"
-                                        value={formData.relacaoCN}
-                                        onChange={(value) => handleInputChange('relacaoCN', value)}
-                                        placeholder="Ex: 12"
-                                        step="0.1"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                );
-
-            case 4: // Resultados e Recomendações
-                return (
-                    <div className="max-w-full mx-auto">
-                        <div className="bg-gradient-to-r from-green-50 to-teal-50 rounded-2xl p-6 mb-8 border border-green-100">
-                            <div className="flex items-center space-x-3 mb-3">
-                                <div className="p-2 bg-green-100 rounded-lg">
-                                    <Activity className="w-6 h-6 text-green-600" />
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-800">Resultados e Recomendações</h3>
-                            </div>
-                            <p className="text-gray-600">
-                                Interpretação dos resultados e recomendações técnicas.
-                            </p>
-                        </div>
-
-                        <div className="space-y-8">
-                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold mb-4">Recomendações de Manejo</h4>
-                                
-                                <div className="space-y-6">
-                                    <CustomInput
-                                        type="textarea"
-                                        label="Recomendações de Calagem"
-                                        value={formData.recomendacoesCalcario}
-                                        onChange={(value) => handleInputChange('recomendacoesCalcario', value)}
-                                        placeholder="Tipo e quantidade de calcário recomendado"
-                                        rows={3}
-                                    />
-
-                                    <CustomInput
-                                        type="textarea"
-                                        label="Recomendações de Fertilização"
-                                        value={formData.recomendacoesFertilizante}
-                                        onChange={(value) => handleInputChange('recomendacoesFertilizante', value)}
-                                        placeholder="Fertilizantes e dosagens recomendadas"
-                                        rows={4}
-                                    />
-
-                                    <CustomInput
-                                        type="multiselect"
-                                        label="Culturas Recomendadas"
-                                        value={formData.culturasRecomendadas}
-                                        options={[
-                                            { label: "Milho", value: "milho" },
-                                            { label: "Feijão", value: "feijao" },
-                                            { label: "Soja", value: "soja" },
-                                            { label: "Arroz", value: "arroz" },
-                                            { label: "Batata-doce", value: "batata_doce" },
-                                            { label: "Mandioca", value: "mandioca" },
-                                            { label: "Tomate", value: "tomate" },
-                                            { label: "Cebola", value: "cebola" },
-                                            { label: "Couve", value: "couve" },
-                                            { label: "Alface", value: "alface" },
-                                            { label: "Café", value: "cafe" },
-                                            { label: "Banana", value: "banana" }
-                                        ]}
-                                        onChange={(value) => handleInputChange('culturasRecomendadas', value)}
-                                        placeholder="Culturas adequadas para este solo"
-                                    />
-
-                                    <CustomInput
-                                        type="textarea"
-                                        label="Observações Gerais"
-                                        value={formData.observacoes}
-                                        onChange={(value) => handleInputChange('observacoes', value)}
-                                        placeholder="Observações adicionais e recomendações específicas"
-                                        rows={4}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Upload de Resultados */}
-                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <h4 className="text-lg font-semibold mb-4">Anexar Resultados do Laboratório</h4>
-                                <div className="relative">
-                                    <input
-                                        type="file"
-                                        className="hidden"
-                                        accept=".pdf,.doc,.docx,.jpg,.png"
-                                        multiple
-                                        onChange={(e) => handleInputChange('resultadosLaboratorio', e.target.files)}
-                                        id="resultados-upload"
-                                    />
-                                    <label
-                                        htmlFor="resultados-upload"
-                                        className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${formData.resultadosLaboratorio
-                                            ? 'bg-green-50 border-green-300 hover:bg-green-100'
-                                            : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                                            }`}
-                                    >
-                                        <Upload className={`w-8 h-8 mb-3 ${formData.resultadosLaboratorio ? 'text-green-500' : 'text-gray-400'}`} />
-                                        <p className={`text-sm font-medium ${formData.resultadosLaboratorio ? 'text-green-600' : 'text-gray-500'}`}>
-                                            {formData.resultadosLaboratorio ? `${formData.resultadosLaboratorio.length} arquivo(s) carregado(s)` : 'Carregar resultados do laboratório'}
-                                        </p>
-                                        <p className="text-xs text-gray-400 mt-1">PDF, DOC, DOCX, JPG, PNG - Máximo 10MB por arquivo</p>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                );
-
-            default:
-                return null;
+                </div>
+            );
         }
+
+        if (stepType === 'Localização') {
+            return (
+                <div className="max-w-full mx-auto">
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 mb-8 border border-green-100">
+                        <div className="flex items-center space-x-3 mb-3">
+                            <div className="p-2 bg-green-100 rounded-lg">
+                                <MapPin className="w-6 h-6 text-green-600" />
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-800">Localização da Amostra</h3>
+                        </div>
+                        <p className="text-gray-600">Localização geográfica onde foi coletada a amostra.</p>
+                    </div>
+
+                    <div className="space-y-8">
+                        <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                            <h4 className="text-lg font-semibold mb-4">Localização Administrativa</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <CustomInput
+                                    type="select"
+                                    label="Província"
+                                    value={formData.provincia}
+                                    options={provincias}
+                                    onChange={(value) => handleInputChange('provincia', value)}
+                                    required
+                                />
+
+                                <CustomInput
+                                    type="text"
+                                    label="Município"
+                                    value={formData.municipio}
+                                    onChange={(value) => handleInputChange('municipio', value)}
+                                    placeholder="Nome do município"
+                                    required
+                                />
+
+                                <CustomInput
+                                    type="text"
+                                    label="Comuna"
+                                    value={formData.comuna}
+                                    onChange={(value) => handleInputChange('comuna', value)}
+                                    placeholder="Nome da comuna"
+                                />
+
+                                <CustomInput
+                                    type="text"
+                                    label="Aldeia"
+                                    value={formData.aldeia}
+                                    onChange={(value) => handleInputChange('aldeia', value)}
+                                    placeholder="Nome da aldeia"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                            <h4 className="text-lg font-semibold mb-4 flex items-center">
+                                <MapPin className="w-5 h-5 mr-2 text-blue-600" />
+                                Coordenadas GPS
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <CustomInput
+                                    type="number"
+                                    label="Latitude"
+                                    value={formData.latitude}
+                                    onChange={(value) => handleInputChange('latitude', value)}
+                                    step="any"
+                                    placeholder="Ex: -8.838333"
+                                />
+                                <CustomInput
+                                    type="number"
+                                    label="Longitude"
+                                    value={formData.longitude}
+                                    onChange={(value) => handleInputChange('longitude', value)}
+                                    step="any"
+                                    placeholder="Ex: 13.234444"
+                                />
+                            </div>
+                            <MapaGPS
+                                latitude={formData.latitude}
+                                longitude={formData.longitude}
+                                onLocationSelect={(lat, lng) => {
+                                    handleInputChange('latitude', lat);
+                                    handleInputChange('longitude', lng);
+                                }}
+                            />
+                            <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+                                <p className="text-sm text-blue-600 flex items-center">
+                                    <Info size={16} className="mr-2" />
+                                    Clique no mapa para selecionar a localização
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        if (stepType === 'Coleta') {
+            return (
+                <div className="max-w-full mx-auto">
+                    <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-2xl p-6 mb-8 border border-orange-100">
+                        <div className="flex items-center space-x-3 mb-3">
+                            <div className="p-2 bg-orange-100 rounded-lg">
+                                <TestTube className="w-6 h-6 text-orange-600" />
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-800">Dados da Coleta</h3>
+                        </div>
+                        <p className="text-gray-600">Informações sobre método e características da amostra.</p>
+                    </div>
+
+                    <div className="space-y-8">
+                        <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                            <h4 className="text-lg font-semibold mb-4">Método de Coleta</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <CustomInput
+                                    type="select"
+                                    label="Profundidade da Coleta"
+                                    value={formData.profundidadeColeta}
+                                    options={[
+                                        { label: "0-15cm", value: "0-15cm" },
+                                        { label: "15-30cm", value: "15-30cm" },
+                                        { label: "30-60cm", value: "30-60cm" },
+                                        { label: "60-100cm", value: "60-100cm" }
+                                    ]}
+                                    onChange={(value) => handleInputChange('profundidadeColeta', value)}
+                                    required
+                                />
+
+                                <CustomInput
+                                    type="select"
+                                    label="Método de Coleta"
+                                    value={formData.metodoColeta}
+                                    options={[
+                                        { label: "Tradagem", value: "tradagem" },
+                                        { label: "Perfil de Solo", value: "perfil_solo" },
+                                        { label: "Amostragem Simples", value: "amostragem_simples" },
+                                        { label: "Amostragem Composta", value: "amostragem_composta" }
+                                    ]}
+                                    onChange={(value) => handleInputChange('metodoColeta', value)}
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                            <h4 className="text-lg font-semibold mb-4">Culturas</h4>
+                            <CustomInput
+                                type="multiselect"
+                                label="Culturas Atuais"
+                                value={formData.culturasAtuais}
+                                options={culturas}
+                                onChange={(value) => handleInputChange('culturasAtuais', value)}
+                                helperText="Selecione múltiplas culturas"
+                            />
+
+                            {formData.culturasAtuais?.some(c => c.value === 'outras') && (
+                                <div className="mt-4">
+                                    <CustomInput
+                                        type="text"
+                                        label="Especifique outras culturas"
+                                        value={formData.culturasAtuaisOutra}
+                                        onChange={(value) => handleInputChange('culturasAtuaisOutra', value)}
+                                        placeholder="Digite as culturas"
+                                    />
+                                </div>
+                            )}
+
+                            <div className="mt-6">
+                                <CustomInput
+                                    type="text"
+                                    label="Cultura Anterior"
+                                    value={formData.culturaAnterior}
+                                    onChange={(value) => handleInputChange('culturaAnterior', value)}
+                                    placeholder="Última cultura plantada"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                            <h4 className="text-lg font-semibold mb-4">Características do Solo</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <CustomInput
+                                    type="select"
+                                    label="Tipo de Solo"
+                                    value={formData.tipoSolo}
+                                    options={[
+                                        { label: "Arenoso", value: "arenoso" },
+                                        { label: "Argiloso", value: "argiloso" },
+                                        { label: "Franco", value: "franco" },
+                                        { label: "Franco-Arenoso", value: "franco_arenoso" },
+                                        { label: "Franco-Argiloso", value: "franco_argiloso" }
+                                    ]}
+                                    onChange={(value) => handleInputChange('tipoSolo', value)}
+                                />
+
+                                <CustomInput
+                                    type="select"
+                                    label="Cor do Solo"
+                                    value={formData.corSolo}
+                                    options={[
+                                        { label: "Escuro/Preto", value: "escuro_preto" },
+                                        { label: "Marrom", value: "marrom" },
+                                        { label: "Vermelho", value: "vermelho" },
+                                        { label: "Amarelo", value: "amarelo" },
+                                        { label: "Cinza", value: "cinza" }
+                                    ]}
+                                    onChange={(value) => handleInputChange('corSolo', value)}
+                                />
+
+                                <CustomInput
+                                    type="select"
+                                    label="Textura"
+                                    value={formData.textura}
+                                    options={[
+                                        { label: "Muito fina", value: "muito_fina" },
+                                        { label: "Fina", value: "fina" },
+                                        { label: "Média", value: "media" },
+                                        { label: "Grosseira", value: "grosseira" }
+                                    ]}
+                                    onChange={(value) => handleInputChange('textura', value)}
+                                />
+
+                                <CustomInput
+                                    type="select"
+                                    label="Drenagem"
+                                    value={formData.drenagem}
+                                    options={[
+                                        { label: "Boa", value: "boa" },
+                                        { label: "Moderada", value: "moderada" },
+                                        { label: "Deficiente", value: "deficiente" },
+                                        { label: "Muito Deficiente", value: "muito_deficiente" }
+                                    ]}
+                                    onChange={(value) => handleInputChange('drenagem', value)}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                            <h4 className="text-lg font-semibold mb-4">Upload da Fotografia da Amostra</h4>
+                            <div className="relative">
+                                <input
+                                    type="file"
+                                    className="hidden"
+                                    accept="image/*"
+                                    onChange={(e) => handleInputChange('fotografiaAmostra', e.target.files[0])}
+                                    id="foto-upload"
+                                />
+                                <label
+                                    htmlFor="foto-upload"
+                                    className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
+                                        formData.fotografiaAmostra
+                                            ? 'bg-green-50 border-green-300 hover:bg-green-100'
+                                            : 'bg-gray-50 border-gray-300 hover:border-cyan-400 hover:bg-cyan-50'
+                                    }`}
+                                >
+                                    <Camera className={`w-8 h-8 mb-3 ${formData.fotografiaAmostra ? 'text-green-500' : 'text-gray-400'}`} />
+                                    <p className={`text-sm font-medium ${formData.fotografiaAmostra ? 'text-green-600' : 'text-gray-500'}`}>
+                                        {formData.fotografiaAmostra ? 'Foto carregada' : 'Carregar fotografia da amostra'}
+                                    </p>
+                                    <p className="text-xs text-gray-400 mt-1">Máximo 10MB</p>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        if (stepType === 'Finalização') {
+            return (
+                <div className="max-w-full mx-auto">
+                    <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 mb-8 border border-purple-100">
+                        <div className="flex items-center space-x-3 mb-3">
+                            <div className="p-2 bg-purple-100 rounded-lg">
+                                <CheckCircle className="w-6 h-6 text-purple-600" />
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-800">Finalização</h3>
+                        </div>
+                        <p className="text-gray-600">Observações adicionais e revisão dos dados.</p>
+                    </div>
+
+                    <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
+                        <CustomInput
+                            type="textarea"
+                            label="Observações Gerais"
+                            value={formData.observacoesGerais}
+                            onChange={(value) => handleInputChange('observacoesGerais', value)}
+                            placeholder="Observações adicionais sobre a coleta"
+                            rows={5}
+                        />
+                    </div>
+
+                    <div className="bg-blue-50 rounded-2xl p-6 border border-blue-200">
+                        <h4 className="text-lg font-semibold mb-4 text-blue-900">Resumo da Coleta</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div><strong>Identificação:</strong> {formData.identificacaoMostra || 'Não informado'}</div>
+                            <div><strong>Data:</strong> {formData.dataColeta}</div>
+                            <div><strong>Pertence a Produtor:</strong> {formData.pertenceProdutor?.label || 'Não informado'}</div>
+                            {formData.pertenceProdutor?.value === 'sim' && formData.produtorSelecionado && (
+                                <div><strong>Produtor:</strong> {formData.produtorSelecionado.label?.split(' - ')[0] || 'N/A'}</div>
+                            )}
+                            <div><strong>Província:</strong> {formData.provincia?.label || 'Não informado'}</div>
+                            <div><strong>Profundidade:</strong> {formData.profundidadeColeta?.label || 'Não informado'}</div>
+                            <div><strong>Método:</strong> {formData.metodoColeta?.label || 'Não informado'}</div>
+                            <div><strong>Tipo de Solo:</strong> {formData.tipoSolo?.label || 'Não informado'}</div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        return null;
     };
 
     return (
         <div className="bg-gray-50 min-h-screen">
-            {/* Header */}
             <div className="text-center mb-6 p-10 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-cyan-50">
-                <h1 className="text-4xl font-bold mb-3 text-gray-800">Teste de Amostras de Solo</h1>
-                <p className="text-gray-600">Sistema Nacional de Registo de Pequenos Agricultores</p>
+                <h1 className="text-4xl font-bold mb-3 text-gray-800">Formulário de Coleta de Amostras de Solo</h1>
+                <p className="text-gray-600">Ministério da Agricultura e Florestas - RNPA</p>
             </div>
 
-            {/* Stepper */}
             <div className="flex justify-between items-center px-8 mb-8 overflow-x-auto">
                 {steps.map((stepObj, idx) => (
                     <div
                         key={idx}
-                        className={`flex flex-col items-center cursor-pointer transition-all min-w-0 flex-shrink-0 mx-1 ${idx > activeIndex ? 'opacity-50' : ''
-                            }`}
+                        className={`flex flex-col items-center cursor-pointer transition-all min-w-0 flex-shrink-0 mx-1 ${
+                            idx > activeIndex ? 'opacity-50' : ''
+                        }`}
                         onClick={() => idx <= activeIndex && setActiveIndex(idx)}
                     >
                         <div
-                            className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${idx < activeIndex
-                                ? 'bg-cyan-500 text-white'
-                                : idx === activeIndex
+                            className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${
+                                idx < activeIndex
+                                    ? 'bg-cyan-500 text-white'
+                                    : idx === activeIndex
                                     ? 'bg-cyan-600 text-white'
                                     : 'bg-gray-200 text-gray-500'
-                                }`}
+                            }`}
                         >
                             {React.createElement(stepObj.icon, { size: 28, className: "mx-auto" })}
                         </div>
-                        <span
-                            className={`text-sm text-center font-medium ${idx === activeIndex ? 'text-cyan-700' : 'text-gray-500'
-                                }`}
-                        >
+                        <span className={`text-sm text-center font-medium ${idx === activeIndex ? 'text-cyan-700' : 'text-gray-500'}`}>
                             {stepObj.label}
                         </span>
                     </div>
                 ))}
             </div>
 
-            {/* Progress Bar */}
             <div className="w-full bg-gray-200 h-2 mb-8 mx-8" style={{ width: 'calc(100% - 4rem)' }}>
                 <div
                     className="bg-cyan-600 h-2 transition-all duration-300 rounded-full"
@@ -915,18 +734,17 @@ const TesteAmostrasSolo = () => {
                 ></div>
             </div>
 
-            {/* Content */}
             <div className="step-content p-8 bg-white min-h-[600px]">
                 {renderStepContent(activeIndex)}
             </div>
 
-            {/* Navigation */}
             <div className="flex justify-between items-center p-8 pt-6 border-t border-gray-100 bg-gray-50">
                 <button
-                    className={`px-8 py-3 rounded-xl border border-gray-300 flex items-center transition-all font-medium ${activeIndex === 0
-                        ? 'opacity-50 cursor-not-allowed bg-gray-100'
-                        : 'bg-white hover:bg-gray-50 text-gray-700 hover:border-gray-400'
-                        }`}
+                    className={`px-8 py-3 rounded-xl border border-gray-300 flex items-center transition-all font-medium ${
+                        activeIndex === 0
+                            ? 'opacity-50 cursor-not-allowed bg-gray-100'
+                            : 'bg-white hover:bg-gray-50 text-gray-700 hover:border-gray-400'
+                    }`}
                     onClick={() => setActiveIndex(Math.max(0, activeIndex - 1))}
                     disabled={activeIndex === 0}
                 >
@@ -938,38 +756,35 @@ const TesteAmostrasSolo = () => {
                     Etapa {activeIndex + 1} de {steps.length}
                 </div>
 
-                <div className="flex space-x-3">
-                    <button
-                        className={`px-8 py-3 rounded-xl flex items-center transition-all font-medium ${activeIndex === steps.length - 1
-                            ? (saving
-                                ? 'bg-cyan-400 cursor-not-allowed'
-                                : 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg')
+                <button
+                    className={`px-8 py-3 rounded-xl flex items-center transition-all font-medium ${
+                        activeIndex === steps.length - 1
+                            ? (saving ? 'bg-cyan-400 cursor-not-allowed' : 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg')
                             : 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-                            }`}
-                        onClick={() => {
-                            if (activeIndex === steps.length - 1) {
-                                handleSave();
-                            } else {
-                                setActiveIndex(Math.min(steps.length - 1, activeIndex + 1));
-                            }
-                        }}
-                        disabled={activeIndex === steps.length - 1 && saving}
-                    >
-                        {activeIndex === steps.length - 1 ? (
-                            saving ? (
-                                <>
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                    Salvando...
-                                </>
-                            ) : (
-                                'Finalizar Análise'
-                            )
+                    }`}
+                    onClick={() => {
+                        if (activeIndex === steps.length - 1) {
+                            handleSave();
+                        } else {
+                            setActiveIndex(Math.min(steps.length - 1, activeIndex + 1));
+                        }
+                    }}
+                    disabled={activeIndex === steps.length - 1 && saving}
+                >
+                    {activeIndex === steps.length - 1 ? (
+                        saving ? (
+                            <>
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                Salvando...
+                            </>
                         ) : (
-                            'Próximo'
-                        )}
-                        <ChevronRight className="ml-2" size={16} />
-                    </button>
-                </div>
+                            'Finalizar Coleta'
+                        )
+                    ) : (
+                        'Próximo'
+                    )}
+                    <ChevronRight className="ml-2" size={16} />
+                </button>
             </div>
         </div>
     );

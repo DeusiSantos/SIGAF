@@ -43,11 +43,11 @@ import {
   TrendingDown,
   Minus
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const CustomInput = ({ type, label, value, onChange, options, required, errorMessage, disabled, placeholder, iconStart, helperText, rows, ...props }) => {
-  const baseInputClasses = `w-full p-3 border rounded-xl transition-all ${
-    errorMessage ? 'border-red-500 bg-red-50' : 'border-gray-200 focus:border-emerald-500'
-  } ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'} focus:outline-none focus:ring-2 focus:ring-emerald-200`;
+  const baseInputClasses = `w-full p-3 border rounded-xl transition-all ${errorMessage ? 'border-red-500 bg-red-50' : 'border-gray-200 focus:border-emerald-500'
+    } ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'} focus:outline-none focus:ring-2 focus:ring-emerald-200`;
 
   const renderInput = () => {
     switch (type) {
@@ -136,6 +136,7 @@ const CustomInput = ({ type, label, value, onChange, options, required, errorMes
 };
 
 const GestaoTestesSolo = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLaboratorio, setSelectedLaboratorio] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
@@ -531,6 +532,11 @@ const GestaoTestesSolo = () => {
     setShowModal(true);
   };
 
+  const handleLancarResultados = (amostraId) => {
+    navigate(`/GerenciaRNPA/lancamento-resultados/${amostraId}`);
+
+  };
+
   // Componente Toast
   const Toast = () => {
     if (!toastMessage) return null;
@@ -607,7 +613,7 @@ const GestaoTestesSolo = () => {
                 <div><strong>Data Coleta:</strong> {formatDate(selectedRecord.dataColeta)}</div>
                 <div><strong>Data Análise:</strong> {formatDate(selectedRecord.dataAnalise)}</div>
                 <div><strong>Laboratório:</strong> {getLaboratorioLabel(selectedRecord.laboratorio)}</div>
-                <div><strong>Status:</strong> 
+                <div><strong>Status:</strong>
                   <span className={`ml-2 px-2 py-1 rounded-full text-xs ${getStatusColor(selectedRecord.statusAnalise)}`}>
                     {getStatusLabel(selectedRecord.statusAnalise)}
                   </span>
@@ -843,7 +849,7 @@ const GestaoTestesSolo = () => {
                 <Plus className="w-5 h-5 mr-2" />
                 Novo Teste
               </button>
-              
+
               <button
                 onClick={handleExportData}
                 disabled={testesSolo.length === 0}
@@ -982,7 +988,7 @@ const GestaoTestesSolo = () => {
                           <User className="w-3.5 h-3.5 mr-1" />
                           {record.tecnicoResponsavel.nome}
                         </div>
-                        <div className="text-xs text-start text-gray-600">    
+                        <div className="text-xs text-start text-gray-600">
                           {formatCurrency(record.custoAnalise)}
                         </div>
                       </div>
@@ -1005,6 +1011,16 @@ const GestaoTestesSolo = () => {
                         >
                           <Eye className="w-5 h-5" />
                         </button>
+
+                        {(record.statusAnalise === 'PENDENTE' || record.statusAnalise === 'EM_ANALISE') && (
+                          <button
+                            onClick={() => handleLancarResultados(record.id)}
+                            className="p-2 hover:bg-blue-100 text-blue-600 hover:text-blue-800 rounded-full transition-colors"
+                            title="Lançar resultados"
+                          >
+                            <Upload className="w-5 h-5" />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -1062,6 +1078,16 @@ const GestaoTestesSolo = () => {
                       >
                         <Eye className="w-4 h-4" />
                       </button>
+
+                      {(record.statusAnalise === 'PENDENTE' || record.statusAnalise === 'EM_ANALISE') && (
+                        <button
+                          onClick={() => handleLancarResultados(record.id)}
+                          className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-full transition-colors"
+                          title="Lançar resultados"
+                        >
+                          <Upload className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
