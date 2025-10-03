@@ -417,7 +417,7 @@ const VisualizarIncentivo = () => {
     };
 
     const handleBack = () => {
-        navigate('/GerenciaRNPA/programas-beneficios/incentivos');
+        navigate('/GerenciaRNPA/gestao-agricultores/incentivos');
     };
 
     {/*   const handleStatusChange = async (value) => {

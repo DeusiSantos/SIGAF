@@ -697,9 +697,9 @@ const GestaoPragas = () => {
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                     Produção Acfetada
                                 </th>
-                                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                               {/* <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                     Responsável
-                                </th>
+                                </th>*/}
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                     Localização
                                 </th>
@@ -754,7 +754,7 @@ const GestaoPragas = () => {
                                         </div>
                                     </td>
 
-                                    <td className="px-6 py-4 whitespace-nowrap">
+                                    {/*<td className="px-6 py-4 whitespace-nowrap">
                                         <div className="space-y-2">
                                             <div className="flex items-start text-xs text-gray-700">
                                                 <User className="w-4 h-4 mr-2 text-blue-500" />
@@ -765,7 +765,7 @@ const GestaoPragas = () => {
                                                 {praga.telefone}
                                             </div>
                                         </div>
-                                    </td>
+                                    </td> */}
 
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="space-y-2">

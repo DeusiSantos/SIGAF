@@ -2659,7 +2659,7 @@ const VisualizarPraga = () => {
                             {/* Título e navegação */}
                             <div className="flex items-center gap-4">
                                 <button
-                                    onClick={() => navigate('/GerenciaRNPA/pragas')}
+                                    onClick={() => navigate('/GerenciaRNPA/painel-monitoramento/indicadores')}
                                     className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                                 >
                                     <ArrowLeft className="w-5 h-5 text-gray-600" />
