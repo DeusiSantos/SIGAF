@@ -58,9 +58,9 @@ import { gerarFichaCompletaPDF } from './ProdutorCompletoRNPAPDF';
 const HistoricoProducao = () => {
 
     const { id: produtorId } = useParams();
-    const navigate = useNavigate(); 
- 
-    
+    const navigate = useNavigate();
+
+
 
     const [filtroAno, setFiltroAno] = useState({ value: 'todos', label: 'Todos os anos' });
     const [filtroTipo, setFiltroTipo] = useState({ value: 'todos', label: 'Todos os tipos' });
@@ -1146,7 +1146,7 @@ const HistoricoProducao = () => {
             dadosFiltrados.reduce((acc, item) => acc + item.rendimento, 0) / dadosFiltrados.length : 0
     };
 
-   
+
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -1177,7 +1177,7 @@ const HistoricoProducao = () => {
                         <div className="flex flex-col md:flex-row justify-between  items-start md:items-center gap-4">
                             <div className="flex flex-1 items-center gap-4 col-span-6">
                                 <button
-                                   onClick={() => navigate('/GerenciaRNPA/gestao-agricultores')}
+                                    onClick={() => navigate('/GerenciaRNPA/gestao-agricultores')}
                                     className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                                 >
                                     <ArrowLeft className="w-5 h-5 text-gray-600" />
@@ -1190,10 +1190,10 @@ const HistoricoProducao = () => {
                                     <p className="text-gray-600">
                                         Produtor: {produtor.nome} | Código : {produtor.codigoRNPA}
                                     </p>
-                                   
+
                                 </div>
                             </div>
-                            
+
                             <div className="flex-1 flex items-start gap-2 col-span-6 justify-end">
                                 {/* Adicionar Registro */}
                                 <div className="relative group">
@@ -1210,7 +1210,7 @@ const HistoricoProducao = () => {
                                     <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-1 bg-green-100 text-green-700 text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap">
                                         Adicionar Registro
                                     </span>
-                                    
+
                                 </div>
 
                                 {/* Imprimir Ficha Completa */}
@@ -1227,11 +1227,11 @@ const HistoricoProducao = () => {
                                         Imprimir Ficha Completa
                                     </button>
                                     <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-1 bg-white text-gray-700 text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap">
-                                      {gerandoPDF ? 'A gerar PDF...' : 'Imprimir Ficha Completa'}
+                                        {gerandoPDF ? 'A gerar PDF...' : 'Imprimir Ficha Completa'}
                                     </span>
                                 </div>
 
-                              
+
                             </div>
                         </div>
                     </div>
@@ -1414,61 +1414,55 @@ const HistoricoProducao = () => {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             {/* Campo de Busca */}
                             <div className="md:col-span-1">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    <Search className="w-4 h-4 inline mr-1" />
-                                    Pesquisar
-                                </label>
-                                <input
+                                <CustomInput
                                     type="text"
+                                    label={
+                                        <span>
+                                            <Search className="w-4 h-4 inline mr-1" />
+                                            Pesquisar
+                                        </span>
+                                    }
                                     value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    onChange={setSearchTerm}
                                     placeholder="Pesquisar por cultura ou safra..."
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    iconStart={<Search className="w-4 h-4 text-gray-400" />}
                                 />
                             </div>
 
                             {/* Filtro por Ano */}
                             <div className="md:col-span-1">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    <Calendar className="w-4 h-4 inline mr-1" />
-                                    Filtrar por Ano
-                                </label>
-                                <select
-                                    value={filtroAno.value}
-                                    onChange={(e) => {
-                                        const option = opcoesAno.find(opt => opt.value === e.target.value);
-                                        setFiltroAno(option);
-                                    }}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                                >
-                                    {opcoesAno.map(opcao => (
-                                        <option key={opcao.value} value={opcao.value}>
-                                            {opcao.label}
-                                        </option>
-                                    ))}
-                                </select>
+                                <CustomInput
+                                    type="select"
+                                    label={
+                                        <span>
+                                            <Calendar className="w-4 h-4 inline mr-1" />
+                                            Filtrar por Ano
+                                        </span>
+                                    }
+                                    value={filtroAno}
+                                    options={opcoesAno}
+                                    onChange={setFiltroAno}
+                                    placeholder="Selecione o ano"
+                                    iconStart={<Calendar className="w-4 h-4 text-gray-400" />}
+                                />
                             </div>
 
                             {/* Filtro por Tipo */}
                             <div className="md:col-span-1">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    <Filter className="w-4 h-4 inline mr-1" />
-                                    Filtrar por Tipo
-                                </label>
-                                <select
-                                    value={filtroTipo.value}
-                                    onChange={(e) => {
-                                        const option = opcoesTipo.find(opt => opt.value === e.target.value);
-                                        setFiltroTipo(option);
-                                    }}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                                >
-                                    {opcoesTipo.map(opcao => (
-                                        <option key={opcao.value} value={opcao.value}>
-                                            {opcao.label}
-                                        </option>
-                                    ))}
-                                </select>
+                                <CustomInput
+                                    type="select"
+                                    label={
+                                        <span>
+                                            <Filter className="w-4 h-4 inline mr-1" />
+                                            Filtrar por Tipo
+                                        </span>
+                                    }
+                                    value={filtroTipo}
+                                    options={opcoesTipo}
+                                    onChange={setFiltroTipo}
+                                    placeholder="Selecione o tipo"
+                                    iconStart={<Filter className="w-4 h-4 text-gray-400" />}
+                                />
                             </div>
                         </div>
                     </div>
@@ -1512,91 +1506,91 @@ const HistoricoProducao = () => {
                             </div>
                         ) : (
                             <div className='overflow-x-auto'>
-                               <table className="table-auto w-full divide-y divide-gray-200 text-xs sm:text-sm">
+                                <table className="table-auto w-full divide-y divide-gray-200 text-xs sm:text-sm">
                                     <thead className="bg-gray-50">
                                         <tr>
-                                        <th className="px-2 md:px-4 py-2 md:py-3 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-normal break-words">
-                                            Ano/Safra
-                                        </th>
-                                        <th className="px-2 md:px-4 py-2 md:py-3 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-normal break-words">
-                                            Cultura/Criação
-                                        </th>
-                                        <th className="px-2 md:px-4 py-2 md:py-3 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-normal break-words">
-                                            Tipo
-                                        </th>
-                                        <th className="px-2 md:px-4 py-2 md:py-3 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-normal break-words">
-                                            Área (ha)
-                                        </th>
-                                        <th className="px-2 md:px-4 py-2 md:py-3 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-normal break-words">
-                                            Produção
-                                        </th>
-                                        <th className="px-2 md:px-4 py-2 md:py-3 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-normal break-words">
-                                            Rendimento
-                                        </th>
-                                        <th className="px-2 md:px-4 py-2 md:py-3 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-normal break-words">
-                                            Mercado
-                                        </th>
-                                        <th className="px-2 md:px-4 py-2 md:py-3 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-normal break-words">
-                                            Assistência Técnica
-                                        </th>
+                                            <th className="px-2 md:px-4 py-2 md:py-3 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-normal break-words">
+                                                Ano/Safra
+                                            </th>
+                                            <th className="px-2 md:px-4 py-2 md:py-3 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-normal break-words">
+                                                Cultura/Criação
+                                            </th>
+                                            <th className="px-2 md:px-4 py-2 md:py-3 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-normal break-words">
+                                                Tipo
+                                            </th>
+                                            <th className="px-2 md:px-4 py-2 md:py-3 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-normal break-words">
+                                                Área (ha)
+                                            </th>
+                                            <th className="px-2 md:px-4 py-2 md:py-3 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-normal break-words">
+                                                Produção
+                                            </th>
+                                            <th className="px-2 md:px-4 py-2 md:py-3 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-normal break-words">
+                                                Rendimento
+                                            </th>
+                                            <th className="px-2 md:px-4 py-2 md:py-3 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-normal break-words">
+                                                Mercado
+                                            </th>
+                                            <th className="px-2 md:px-4 py-2 md:py-3 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-normal break-words">
+                                                Assistência Técnica
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
                                         {dadosFiltrados.map((item) => (
-                                        <tr key={item.id} className="hover:bg-gray-50 text-[11px] sm:text-xs md:text-sm">
-                                            <td className="px-2 md:px-4 py-2 whitespace-normal break-words">
-                                            <div className="flex flex-wrap items-center text-gray-900">
-                                                <Calendar className="w-4 h-4 mr-1 text-gray-400" />
-                                                <span className="text-sm">{item.ano}</span>
-                                            </div>
-                                            <div className="text-gray-500">{item.safra}</div>
-                                            </td>
-                                            <td className="px-2 md:px-4 py-2 whitespace-normal break-words">
-                                            <div className="text-gray-900">{item.cultura}</div>
-                                            </td>
-                                            <td className="px-2 md:px-4 py-2 whitespace-normal break-words">
-                                            <span className={`inline-flex px-2 py-1 text-[10px] sm:text-xs font-semibold rounded-full ${item.tipo === 'agricultura'
-                                                ? 'bg-green-100 text-green-800'
-                                                : item.tipo === 'pecuaria'
-                                                ? 'bg-blue-100 text-blue-800'
-                                                : 'bg-purple-100 text-purple-800'
-                                                }`}>
-                                                {item.tipo === 'agricultura'
-                                                ? 'Agricultura'
-                                                : item.tipo === 'pecuaria'
-                                                    ? 'Pecuária'
-                                                    : 'Agropecuária'}
-                                            </span>
-                                            </td>
-                                            <td className="px-2 md:px-4 py-2 whitespace-normal text-gray-900">
-                                            {item.area.toFixed(1)} ha
-                                            </td>
-                                            <td className="px-2 md:px-4 py-2 whitespace-normal break-words">
-                                            <div className="text-gray-900">{item.producao.toFixed(0)}</div>
-                                            <div className="text-gray-500">{item.unidade}</div>
-                                            </td>
-                                            <td className="px-2 md:px-4 py-2 whitespace-normal text-gray-900">
-                                            {item.rendimento.toFixed(1)}
-                                            </td>
-                                            <td className="px-2 md:px-4 py-2 whitespace-normal break-words">
-                                            <div>Local: {item.vendaLocal ? `${item.vendaLocal}%` : '-'}</div>
-                                            <div>Regional: {item.vendaRegional ? `${item.vendaRegional}%` : '-'}</div>
-                                            </td>
-                                            <td className="px-2 md:px-4 py-2 whitespace-normal break-words">
-                                            <span className={`inline-flex px-2 py-1 text-[10px] sm:text-xs font-semibold rounded-full ${item.assistenciaTecnica === 'sim'
-                                                ? 'bg-green-100 text-green-800'
-                                                : item.assistenciaTecnica === 'nao'
-                                                ? 'bg-red-100 text-red-800'
-                                                : 'bg-gray-100 text-gray-800'
-                                                }`}>
-                                                {item.assistenciaTecnica === 'sim'
-                                                ? 'Sim'
-                                                : item.assistenciaTecnica === 'nao'
-                                                    ? 'Não'
-                                                    : 'Não informado'}
-                                            </span>
-                                            </td>
-                                        </tr>
+                                            <tr key={item.id} className="hover:bg-gray-50 text-[11px] sm:text-xs md:text-sm">
+                                                <td className="px-2 md:px-4 py-2 whitespace-normal break-words">
+                                                    <div className="flex flex-wrap items-center text-gray-900">
+                                                        <Calendar className="w-4 h-4 mr-1 text-gray-400" />
+                                                        <span className="text-sm">{item.ano}</span>
+                                                    </div>
+                                                    <div className="text-gray-500">{item.safra}</div>
+                                                </td>
+                                                <td className="px-2 md:px-4 py-2 whitespace-normal break-words">
+                                                    <div className="text-gray-900">{item.cultura}</div>
+                                                </td>
+                                                <td className="px-2 md:px-4 py-2 whitespace-normal break-words">
+                                                    <span className={`inline-flex px-2 py-1 text-[10px] sm:text-xs font-semibold rounded-full ${item.tipo === 'agricultura'
+                                                        ? 'bg-green-100 text-green-800'
+                                                        : item.tipo === 'pecuaria'
+                                                            ? 'bg-blue-100 text-blue-800'
+                                                            : 'bg-purple-100 text-purple-800'
+                                                        }`}>
+                                                        {item.tipo === 'agricultura'
+                                                            ? 'Agricultura'
+                                                            : item.tipo === 'pecuaria'
+                                                                ? 'Pecuária'
+                                                                : 'Agropecuária'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-2 md:px-4 py-2 whitespace-normal text-gray-900">
+                                                    {item.area.toFixed(1)} ha
+                                                </td>
+                                                <td className="px-2 md:px-4 py-2 whitespace-normal break-words">
+                                                    <div className="text-gray-900">{item.producao.toFixed(0)}</div>
+                                                    <div className="text-gray-500">{item.unidade}</div>
+                                                </td>
+                                                <td className="px-2 md:px-4 py-2 whitespace-normal text-gray-900">
+                                                    {item.rendimento.toFixed(1)}
+                                                </td>
+                                                <td className="px-2 md:px-4 py-2 whitespace-normal break-words">
+                                                    <div>Local: {item.vendaLocal ? `${item.vendaLocal}%` : '-'}</div>
+                                                    <div>Regional: {item.vendaRegional ? `${item.vendaRegional}%` : '-'}</div>
+                                                </td>
+                                                <td className="px-2 md:px-4 py-2 whitespace-normal break-words">
+                                                    <span className={`inline-flex px-2 py-1 text-[10px] sm:text-xs font-semibold rounded-full ${item.assistenciaTecnica === 'sim'
+                                                        ? 'bg-green-100 text-green-800'
+                                                        : item.assistenciaTecnica === 'nao'
+                                                            ? 'bg-red-100 text-red-800'
+                                                            : 'bg-gray-100 text-gray-800'
+                                                        }`}>
+                                                        {item.assistenciaTecnica === 'sim'
+                                                            ? 'Sim'
+                                                            : item.assistenciaTecnica === 'nao'
+                                                                ? 'Não'
+                                                                : 'Não informado'}
+                                                    </span>
+                                                </td>
+                                            </tr>
                                         ))}
                                     </tbody>
                                 </table>

@@ -181,7 +181,7 @@ const GestaoApoiAgricola = () => {
     const [toastTimeout, setToastTimeout] = useState(null);
     const [contentHeight, setContentHeight] = useState('calc(100vh - 12rem)');
     const containerRef = useRef(null);
-    const itemsPerPage = 6;
+    const itemsPerPage = 3;
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [empresasToDelete, setempresasToDelete] = useState(null);
 
@@ -504,7 +504,7 @@ const GestaoApoiAgricola = () => {
 
             <div className="w-full bg-white rounded-xl shadow-md overflow-visible z-10">
                 {/* Cabeçalho */}
-                <div className="bg-gradient-to-r from-blue-700 to-blue-500 p-6 text-white rounded-t-xl">
+                <div className="bg-gradient-to-r from-slate-700 to-slate-400 p-6 text-white rounded-t-xl">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
                         <div>
                             <h1 className="text-2xl font-bold">Gestão de Empresas de Apoio à Agricultura
@@ -515,7 +515,7 @@ const GestaoApoiAgricola = () => {
 
                             <button
                                 onClick={() => showToast('info', 'Função', 'Exportar dados das empresas')}
-                                className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
+                                className="inline-flex items-center px-4 py-2 bg-white text-slate-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
                             >
                                 <Download className="w-5 h-5 mr-2" />
                                 Exportar
@@ -611,7 +611,7 @@ const GestaoApoiAgricola = () => {
                                 <tr key={empresa.id} className="hover:bg-blue-50 transition-colors">
                                     <td className="px-6 py-4 whitespace-nowrap" >
                                         <div className="flex items-start">
-                                            <div className="flex-shrink-0 h-12 w-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
+                                            <div className="flex-shrink-0 h-12 w-12 bg-gradient-to-br from-slate-700 to-slate-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
                                                 {empresa.nomeEmpresa.charAt(0)}{empresa.nomeEmpresa.split(' ').pop().charAt(0)}
                                             </div>
                                             <div className="ml-4">

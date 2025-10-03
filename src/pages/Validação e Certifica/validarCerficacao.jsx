@@ -909,7 +909,7 @@ const CertificacaoProdutor = () => {
               <div className="flex items-center space-x-4 mb-6">
                 <button
                   className={`px-6 py-3 rounded-xl font-medium transition-all ${modoBusca
-                    ? 'bg-blue-600 text-white shadow-lg'
+                    ? 'bg-gradient-to-r from-blue-50 to-orange-50 text-slate shadow-lg'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   onClick={() => {
@@ -924,7 +924,7 @@ const CertificacaoProdutor = () => {
                 </button>
                 <button
                   className={`px-6 py-3 rounded-xl font-medium transition-all ${!modoBusca
-                    ? 'bg-blue-600 text-white shadow-lg'
+                    ? 'bg-gradient-to-r from-blue-50 to-orange-50 text-slate shadow-lg'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   onClick={() => {
@@ -2182,8 +2182,8 @@ const CertificacaoProdutor = () => {
                     }`}
                   onClick={() => index <= activeIndex && setActiveIndex(index)}
                 >
-                  <div className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${index < activeIndex ? 'bg-blue-500 text-white' :
-                    index === activeIndex ? 'bg-blue-600 text-white' :
+                  <div className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${index < activeIndex ? 'bg-gradient-to-r from-blue-50 to-orange-50 text-slate' :
+                    index === activeIndex ? 'bg-gradient-to-r from-blue-200 to-orange-100 text-slate-600 shadow-lg' :
                       'bg-gray-200 text-gray-500'
                     }`}>
                     {index < activeIndex ? (
@@ -2192,7 +2192,7 @@ const CertificacaoProdutor = () => {
                       <StepIcon size={24} />
                     )}
                   </div>
-                  <span className={`text-sm text-center font-medium ${index === activeIndex ? 'text-blue-700' : 'text-gray-500'
+                  <span className={`text-sm text-center font-medium ${index === activeIndex ? 'text-slate-700' : 'text-gray-500'
                     }`}>
                     {step.label}
                   </span>
@@ -2204,7 +2204,7 @@ const CertificacaoProdutor = () => {
           {/* Progress Bar */}
           <div className="w-full bg-gray-200 h-2 mb-8 mx-8" style={{ width: 'calc(100% - 4rem)' }}>
             <div
-              className="bg-blue-600 h-2 transition-all duration-300 rounded-full"
+              className="bg-gradient-to-r from-blue-200 to-orange-50 h-2 transition-all duration-300 rounded-full"
               style={{ width: `${((activeIndex + 1) / steps.length) * 100}%` }}
             ></div>
           </div>
@@ -2233,8 +2233,8 @@ const CertificacaoProdutor = () => {
 
             <button
               className={`px-8 py-3 rounded-xl flex items-center transition-all font-medium ${isLastStep
-                ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg'
-                : 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg'
+                ? 'bg-gradient-to-r from-blue-50 to-orange-50 hover:bg-blue-700 text-slate shadow-lg'
+                : 'bg-gradient-to-r from-blue-50 to-orange-50 hover:bg-blue-700 text-slate shadow-lg'
                 }`}
               disabled={loading}
               onClick={(e) => {

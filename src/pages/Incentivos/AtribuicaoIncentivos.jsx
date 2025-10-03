@@ -40,9 +40,10 @@ import {
 } from 'lucide-react';
 import { useProdutoresAprovados } from '../../hooks/useRnpaData';
 import axios from 'axios';
+import CustomInput from '../../components/CustomInput';
 
 // Componente CustomInput mockado para o exemplo
-const CustomInput = ({ type, label, value, onChange, options, placeholder, iconStart, required, disabled, rows, maxLength }) => {
+{/*}const CustomInput = ({ type, label, value, onChange, options, placeholder, iconStart, required, disabled, rows, maxLength }) => {
   if (type === 'select') {
     return (
       <div className="space-y-1">
@@ -101,7 +102,7 @@ const CustomInput = ({ type, label, value, onChange, options, placeholder, iconS
       </div>
     </div>
   );
-};
+*/};
 
 const AtribuicaoIncentivos = () => {
   const [activeIndex, setActiveIndex] = useState(0);

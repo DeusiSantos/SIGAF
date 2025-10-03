@@ -288,7 +288,7 @@ const TesteAmostrasSolo = () => {
                             <div className="space-y-6">
                                 {loadingProdutores ? (
                                     <div className="flex items-center justify-center py-8">
-                                        <Loader className="w-6 h-6 animate-spin text-cyan-600 mr-2" />
+                                        <Loader className="w-6 h-6 animate-spin text-emerald-600 mr-2" />
                                         <span className="text-gray-600">Carregando produtores...</span>
                                     </div>
                                 ) : (
@@ -631,7 +631,7 @@ const TesteAmostrasSolo = () => {
                                     className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
                                         formData.fotografiaAmostra
                                             ? 'bg-green-50 border-green-300 hover:bg-green-100'
-                                            : 'bg-gray-50 border-gray-300 hover:border-cyan-400 hover:bg-cyan-50'
+                                            : 'bg-gray-50 border-gray-300 hover:border-emerald-400 hover:bg-emerald-50'
                                     }`}
                                 >
                                     <Camera className={`w-8 h-8 mb-3 ${formData.fotografiaAmostra ? 'text-green-500' : 'text-gray-400'}`} />
@@ -695,9 +695,9 @@ const TesteAmostrasSolo = () => {
 
     return (
         <div className="bg-gray-50 min-h-screen">
-            <div className="text-center mb-6 p-10 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-cyan-50">
-                <h1 className="text-4xl font-bold mb-3 text-gray-800">Formulário de Coleta de Amostras de Solo</h1>
-                <p className="text-gray-600">Ministério da Agricultura e Florestas - RNPA</p>
+            <div className="text-center mb-6 p-10 border-b border-gray-100 bg-gradient-to-r from-emerald-700 to-emerald-500 rounded-t-lg">
+                <h1 className="text-4xl font-bold mb-3 text-white">Formulário de Coleta de Amostras de Solo</h1>
+            
             </div>
 
             <div className="flex justify-between items-center px-8 mb-8 overflow-x-auto">
@@ -712,15 +712,15 @@ const TesteAmostrasSolo = () => {
                         <div
                             className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${
                                 idx < activeIndex
-                                    ? 'bg-cyan-500 text-white'
+                                    ? 'bg-gradient-to-r from-emerald-700 to-emerald-500 text-white'
                                     : idx === activeIndex
-                                    ? 'bg-cyan-600 text-white'
+                                    ? 'bg-gradient-to-r from-emerald-700 to-emerald-500 text-white'
                                     : 'bg-gray-200 text-gray-500'
                             }`}
                         >
                             {React.createElement(stepObj.icon, { size: 28, className: "mx-auto" })}
                         </div>
-                        <span className={`text-sm text-center font-medium ${idx === activeIndex ? 'text-cyan-700' : 'text-gray-500'}`}>
+                        <span className={`text-sm text-center font-medium ${idx === activeIndex ? 'text-emerald-700' : 'text-gray-500'}`}>
                             {stepObj.label}
                         </span>
                     </div>
@@ -729,7 +729,7 @@ const TesteAmostrasSolo = () => {
 
             <div className="w-full bg-gray-200 h-2 mb-8 mx-8" style={{ width: 'calc(100% - 4rem)' }}>
                 <div
-                    className="bg-cyan-600 h-2 transition-all duration-300 rounded-full"
+                    className="bg-gradient-to-r from-emerald-700 to-emerald-500 h-2 transition-all duration-300 rounded-full"
                     style={{ width: `${((activeIndex + 1) / steps.length) * 100}%` }}
                 ></div>
             </div>
@@ -759,8 +759,8 @@ const TesteAmostrasSolo = () => {
                 <button
                     className={`px-8 py-3 rounded-xl flex items-center transition-all font-medium ${
                         activeIndex === steps.length - 1
-                            ? (saving ? 'bg-cyan-400 cursor-not-allowed' : 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg')
-                            : 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+                            ? (saving ? 'bg-emerald-400 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg')
+                            : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg'
                     }`}
                     onClick={() => {
                         if (activeIndex === steps.length - 1) {

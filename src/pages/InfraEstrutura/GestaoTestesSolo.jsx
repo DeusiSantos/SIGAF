@@ -44,8 +44,8 @@ import {
   Minus
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
-const CustomInput = ({ type, label, value, onChange, options, required, errorMessage, disabled, placeholder, iconStart, helperText, rows, ...props }) => {
+import CustomInput from '../../components/CustomInput';
+{/*const CustomInput = ({ type, label, value, onChange, options, required, errorMessage, disabled, placeholder, iconStart, helperText, rows, ...props }) => {
   const baseInputClasses = `w-full p-3 border rounded-xl transition-all ${errorMessage ? 'border-red-500 bg-red-50' : 'border-gray-200 focus:border-emerald-500'
     } ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'} focus:outline-none focus:ring-2 focus:ring-emerald-200`;
 
@@ -133,7 +133,7 @@ const CustomInput = ({ type, label, value, onChange, options, required, errorMes
       )}
     </div>
   );
-};
+*/};
 
 const GestaoTestesSolo = () => {
   const navigate = useNavigate();
@@ -842,13 +842,7 @@ const GestaoTestesSolo = () => {
             </div>
 
             <div className="flex gap-4">
-              <button
-                onClick={() => showToast('info', 'Novo Teste', 'Funcionalidade de cadastro será implementada em breve')}
-                className="inline-flex items-center px-4 py-2 bg-white text-emerald-700 rounded-lg hover:bg-emerald-50 transition-colors shadow-sm font-medium"
-              >
-                <Plus className="w-5 h-5 mr-2" />
-                Novo Teste
-              </button>
+
 
               <button
                 onClick={handleExportData}
@@ -871,7 +865,7 @@ const GestaoTestesSolo = () => {
                 type="text"
                 placeholder="Pesquisar por amostra, localização, cultura..."
                 value={searchTerm}
-                onChange={(value) => setSearchTerm(value)}
+                onChange={setSearchTerm}
                 iconStart={<Search size={18} />}
               />
             </div>
@@ -881,7 +875,7 @@ const GestaoTestesSolo = () => {
               <CustomInput
                 type="select"
                 placeholder="Laboratório"
-                value={selectedLaboratorio}
+                value={selectedLaboratorio ? { label: getLaboratorioLabel(selectedLaboratorio), value: selectedLaboratorio } : null}
                 options={[
                   { label: 'Todos os Laboratórios', value: '' },
                   { label: 'Laboratório Central', value: 'LAB_CENTRAL' },
@@ -889,7 +883,7 @@ const GestaoTestesSolo = () => {
                   { label: 'Laboratório Universitário', value: 'LAB_UNIVERSITARIO' },
                   { label: 'Laboratório Privado', value: 'LAB_PRIVADO' }
                 ]}
-                onChange={(value) => setSelectedLaboratorio(value)}
+                onChange={(option) => setSelectedLaboratorio(option?.value || '')}
                 iconStart={<Microscope size={18} />}
               />
             </div>
@@ -899,7 +893,7 @@ const GestaoTestesSolo = () => {
               <CustomInput
                 type="select"
                 placeholder="Estado da Análise"
-                value={selectedStatus}
+                value={selectedStatus ? { label: getStatusLabel(selectedStatus), value: selectedStatus } : null}
                 options={[
                   { label: 'Todos os Status', value: '' },
                   { label: 'Pendente', value: 'PENDENTE' },
@@ -907,7 +901,7 @@ const GestaoTestesSolo = () => {
                   { label: 'Concluída', value: 'CONCLUIDA' },
                   { label: 'Cancelada', value: 'CANCELADA' }
                 ]}
-                onChange={(value) => setSelectedStatus(value)}
+                onChange={(option) => setSelectedStatus(option?.value || '')}
                 iconStart={<Filter size={18} />}
               />
             </div>

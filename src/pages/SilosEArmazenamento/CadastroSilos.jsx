@@ -1141,7 +1141,7 @@ const CadastroSilos = () => {
       <div className="mx-auto px-4 py-8">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200">
           {/* Header */}
-          <div className="text-center mb-8 p-8 border-b border-gray-100 bg-gradient-to-r from-yellow-700 to-yellow-500 rounded-t-2xl ">
+          <div className="text-center mb-8 p-8 border-b border-gray-100   bg-gradient-to-r from-yellow-700 to-yellow-500 rounded-t-2xl ">
             <h1 className="text-4xl font-bold mb-3 text-white">Cadastro de Silos e Centros de Armazenamento</h1>
           </div>
 
@@ -1162,7 +1162,7 @@ const CadastroSilos = () => {
                 >
                   <div className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${
                     isActive 
-                      ? 'bg-yellow-600 text-white shadow-lg' 
+                      ? ' text-white shadow-lg bg-gradient-to-r from-yellow-700 to-yellow-500' 
                       : isCompleted 
                         ? 'bg-yellow-500 text-white'
                         : 'bg-gray-200 text-gray-500'
