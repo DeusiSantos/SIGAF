@@ -75,6 +75,7 @@ import VisualizarInfraestrutura from './pages/InfraEstrutura/VisualizarInfraestr
 import VisualizarIrrigacao from './pages/InfraEstrutura/VisualizarIrrigacao';
 import VisualizarSilos from './pages/SilosEArmazenamento/VisualizarSilos';
 import LancamentoResultadosSolo from './pages/InfraEstrutura/LancamentoResultadosSolo';
+import VisualizarAmostra from './pages/InfraEstrutura/VisualizarAmostra';
 
 function App() {
   return (
@@ -104,9 +105,9 @@ function App() {
           <Route path="gestao-empresas/visualizar-empresa/:id" element={<VisualizarAssociacaoRural />} />
           <Route path="certificados-florestais/visualizar/:produtorId" element={<VisualizarCertificadosFlorestal />} />
           <Route path="infraestruturas/visualizar/:id" element={<VisualizarInfraestrutura />} />
-          <Route path="lancamento-resultados/:id" 
-          element={<LancamentoResultadosSolo />} 
-        />
+          <Route path="lancamento-resultados/:id"
+            element={<LancamentoResultadosSolo />}
+          />
           {/* Rotas de gestão escolar (mantidas) */}
           <Route path="gestao-escolar/produtores" element={<h1 className="text-2xl font-semibold">Lista de Produtores</h1>} />
           <Route path="gestao-escolar/produtores/visualizar/:id" element={<VisualizarProdutor />} />
@@ -132,7 +133,7 @@ function App() {
             {/* Infraestrutura Agrícola */}/GerenciaRNPA/gestao-agricultores
             <Route path="produtores/irrigacao" element={<IrrigacaoMenuAgricola />} />
             <Route path='produtores/irrigacao/visualizarirrigacao/:id' element={<VisualizarIrrigacao />} />
-            
+
             <Route path="produtores/silos-armazenamento" element={<MenuSilosAgricola />} />
             <Route path="produtores/entrepostosMercado" element={<MenuEntrepostosMercadoAgricola />} />
             <Route path="produtores/apoio-agricola" element={<MenuApoioAgricolaAgricola />} />
@@ -140,6 +141,8 @@ function App() {
             <Route path="programas" element={<GestaoProgramasBeneficiosMenu />} />
             <Route path="programas-beneficios/visualizar/:id" element={<VisualizarProjeto />} />
             <Route path="AmostrasDeSolo" element={<AmostrasDeSoloMenu />} />
+            <Route path="AmostraDeSolo/visualizar/:id" element={<VisualizarAmostra />} />
+
 
             <Route path="incentivos" element={<IncentivoMenu />} />
 

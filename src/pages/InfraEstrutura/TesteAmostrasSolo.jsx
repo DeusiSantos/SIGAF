@@ -14,6 +14,7 @@ import {
     Loader
 } from 'lucide-react';
 import CustomInput from '../../components/CustomInput';
+import axios from 'axios';
 
 // Configuração do ícone do Leaflet
 const defaultIcon = L.icon({
@@ -124,7 +125,7 @@ const TesteAmostrasSolo = () => {
         // Identificação do Produtor
         pertenceProdutor: null,
         produtorSelecionado: null,
-        
+
         // Localização
         provincia: null,
         municipio: '',
@@ -132,28 +133,28 @@ const TesteAmostrasSolo = () => {
         aldeia: '',
         latitude: '',
         longitude: '',
-        
+
         // Identificação da Mostra
         identificacaoMostra: '',
         profundidadeColeta: null,
         metodoColeta: null,
-        
+
         // Culturas
         culturasAtuais: [],
         culturasAtuaisOutra: '',
         culturaAnterior: '',
-        
+
         // Tipo de Solo
         tipoSolo: null,
-        
+
         // Características Visuais
         corSolo: null,
         textura: null,
         drenagem: null,
-        
+
         // Upload
         fotografiaAmostra: null,
-        
+
         // Observações e Responsáveis
         observacoesGerais: '',
         codigoTecnicoResponsavel: '',
@@ -168,9 +169,8 @@ const TesteAmostrasSolo = () => {
         const fetchProdutores = async () => {
             setLoadingProdutores(true);
             try {
-                const response = await fetch('https://mwangobrainsa-001-site2.mtempurl.com/api/formulario/all');
-                const data = await response.json();
-                setProdutores(data);
+                const response = await axios.get('https://mwangobrainsa-001-site2.mtempurl.com/api/formulario/all');
+                setProdutores(response.data);
             } catch (error) {
                 console.error('Erro ao buscar produtores:', error);
                 alert('Erro ao carregar lista de produtores');
@@ -219,12 +219,12 @@ const TesteAmostrasSolo = () => {
             if (produtor) {
                 // Extrair coordenadas GPS
                 const coords = produtor.gps_coordinates?.split(' ') || [];
-                
+
                 // Encontrar a província correspondente
-                const provinciaEncontrada = provincias.find(p => 
+                const provinciaEncontrada = provincias.find(p =>
                     p.value.toLowerCase() === produtor.provincia?.toLowerCase()
                 );
-                
+
                 setFormData(prev => ({
                     ...prev,
                     produtorSelecionado: value,
@@ -240,16 +240,82 @@ const TesteAmostrasSolo = () => {
     };
 
     const handleSave = async () => {
+        // Validação básica
+        if (!formData.identificacaoMostra) {
+            alert('Por favor, preencha a Identificação da Mostra');
+            return;
+        }
+
+        if (!formData.profundidadeColeta || !formData.metodoColeta) {
+            alert('Por favor, preencha todos os campos obrigatórios da coleta');
+            return;
+        }
+
+        if (!formData.codigoTecnicoResponsavel) {
+            alert('Por favor, preencha o Código do Técnico Responsável');
+            return;
+        }
+
         setSaving(true);
         try {
-            console.log('Dados da coleta de solo:', formData);
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            alert('Coleta de amostra registrada com sucesso!');
+            // Construir objeto base
+            const apiData = {
+                este_solo_pertence_a_um_produt: formData.pertenceProdutor?.value || "nao",
+                profundidade_da_Coleta: formData.profundidadeColeta?.value || "",
+                m_todo_de_Coleta: formData.metodoColeta?.value || "",
+                cultura_Actual: formData.culturasAtuais?.map(c => c.value) || [],
+                cultura_Anterior: formData.culturaAnterior || "",
+                tipo_de_Solo: formData.tipoSolo?.value || "",
+                cor_do_Solo: formData.corSolo?.value || "",
+                textura: formData.textura?.value || "",
+                drenagem: formData.drenagem?.value || "",
+                upload_da_Fotografia_da_Amostra: formData.fotografiaAmostra?.name || "",
+                observa_es_Gerais: formData.observacoesGerais || "",
+                tecnico_Responsavel: formData.codigoTecnicoResponsavel || "",
+                c_digo_Supervisor: formData.codigoSupervisor || "",
+                data_da_Coleta: formData.dataColeta
+            };
+
+            // Só adiciona c_digo_do_ se tiver produtor selecionado
+            if (formData.pertenceProdutor?.value === 'sim' && formData.produtorSelecionado?.value) {
+                apiData.c_digo_do_ = parseInt(formData.produtorSelecionado.value);
+            } else {
+                // Se não pertencer a produtor, enviar 0
+                apiData.c_digo_do_ = 0;
+            }
+
+            console.log('📤 Enviando dados para API:');
+            console.log(JSON.stringify(apiData, null, 2));
+
+            const response = await axios.post(
+                'https://mwangobrainsa-001-site2.mtempurl.com/api/testeDeAmostraDeSolo',
+                apiData,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                }
+            );
+
+            console.log('✅ Resposta da API:', response.data);
+            alert('✅ Coleta de amostra registrada com sucesso!');
             setFormData(initialState);
             setActiveIndex(0);
         } catch (error) {
-            console.error('Erro ao salvar:', error);
-            alert('Erro ao registrar coleta. Tente novamente.');
+            console.error('❌ Erro completo:', error);
+            console.error('❌ Response data:', error.response?.data);
+            console.error('❌ Response status:', error.response?.status);
+            
+            let errorMessage = 'Erro ao registrar coleta. ';
+            if (error.response?.data?.message) {
+                errorMessage += error.response.data.message;
+            } else if (error.response?.data) {
+                errorMessage += JSON.stringify(error.response.data);
+            } else {
+                errorMessage += error.message;
+            }
+            
+            alert(errorMessage);
         } finally {
             setSaving(false);
         }
@@ -548,11 +614,12 @@ const TesteAmostrasSolo = () => {
 
                             <div className="mt-6">
                                 <CustomInput
-                                    type="text"
+                                    type="multiselect"
                                     label="Cultura Anterior"
+                                    options={culturas}
                                     value={formData.culturaAnterior}
                                     onChange={(value) => handleInputChange('culturaAnterior', value)}
-                                    placeholder="Última cultura plantada"
+                                    placeholder="Última cultura plantada (ex: milho, feijão)"
                                 />
                             </div>
                         </div>
@@ -628,15 +695,14 @@ const TesteAmostrasSolo = () => {
                                 />
                                 <label
                                     htmlFor="foto-upload"
-                                    className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-                                        formData.fotografiaAmostra
-                                            ? 'bg-green-50 border-green-300 hover:bg-green-100'
-                                            : 'bg-gray-50 border-gray-300 hover:border-cyan-400 hover:bg-cyan-50'
-                                    }`}
+                                    className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${formData.fotografiaAmostra
+                                        ? 'bg-green-50 border-green-300 hover:bg-green-100'
+                                        : 'bg-gray-50 border-gray-300 hover:border-cyan-400 hover:bg-cyan-50'
+                                        }`}
                                 >
                                     <Camera className={`w-8 h-8 mb-3 ${formData.fotografiaAmostra ? 'text-green-500' : 'text-gray-400'}`} />
                                     <p className={`text-sm font-medium ${formData.fotografiaAmostra ? 'text-green-600' : 'text-gray-500'}`}>
-                                        {formData.fotografiaAmostra ? 'Foto carregada' : 'Carregar fotografia da amostra'}
+                                        {formData.fotografiaAmostra ? `Foto: ${formData.fotografiaAmostra.name}` : 'Carregar fotografia da amostra'}
                                     </p>
                                     <p className="text-xs text-gray-400 mt-1">Máximo 10MB</p>
                                 </label>
@@ -680,10 +746,10 @@ const TesteAmostrasSolo = () => {
                             {formData.pertenceProdutor?.value === 'sim' && formData.produtorSelecionado && (
                                 <div><strong>Produtor:</strong> {formData.produtorSelecionado.label?.split(' - ')[0] || 'N/A'}</div>
                             )}
-                            <div><strong>Província:</strong> {formData.provincia?.label || 'Não informado'}</div>
                             <div><strong>Profundidade:</strong> {formData.profundidadeColeta?.label || 'Não informado'}</div>
                             <div><strong>Método:</strong> {formData.metodoColeta?.label || 'Não informado'}</div>
                             <div><strong>Tipo de Solo:</strong> {formData.tipoSolo?.label || 'Não informado'}</div>
+                            <div><strong>Técnico:</strong> {formData.codigoTecnicoResponsavel || 'Não informado'}</div>
                         </div>
                     </div>
                 </div>
@@ -704,19 +770,17 @@ const TesteAmostrasSolo = () => {
                 {steps.map((stepObj, idx) => (
                     <div
                         key={idx}
-                        className={`flex flex-col items-center cursor-pointer transition-all min-w-0 flex-shrink-0 mx-1 ${
-                            idx > activeIndex ? 'opacity-50' : ''
-                        }`}
+                        className={`flex flex-col items-center cursor-pointer transition-all min-w-0 flex-shrink-0 mx-1 ${idx > activeIndex ? 'opacity-50' : ''
+                            }`}
                         onClick={() => idx <= activeIndex && setActiveIndex(idx)}
                     >
                         <div
-                            className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${
-                                idx < activeIndex
-                                    ? 'bg-cyan-500 text-white'
-                                    : idx === activeIndex
+                            className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${idx < activeIndex
+                                ? 'bg-cyan-500 text-white'
+                                : idx === activeIndex
                                     ? 'bg-cyan-600 text-white'
                                     : 'bg-gray-200 text-gray-500'
-                            }`}
+                                }`}
                         >
                             {React.createElement(stepObj.icon, { size: 28, className: "mx-auto" })}
                         </div>
@@ -740,11 +804,10 @@ const TesteAmostrasSolo = () => {
 
             <div className="flex justify-between items-center p-8 pt-6 border-t border-gray-100 bg-gray-50">
                 <button
-                    className={`px-8 py-3 rounded-xl border border-gray-300 flex items-center transition-all font-medium ${
-                        activeIndex === 0
-                            ? 'opacity-50 cursor-not-allowed bg-gray-100'
-                            : 'bg-white hover:bg-gray-50 text-gray-700 hover:border-gray-400'
-                    }`}
+                    className={`px-8 py-3 rounded-xl border border-gray-300 flex items-center transition-all font-medium ${activeIndex === 0
+                        ? 'opacity-50 cursor-not-allowed bg-gray-100'
+                        : 'bg-white hover:bg-gray-50 text-gray-700 hover:border-gray-400'
+                        }`}
                     onClick={() => setActiveIndex(Math.max(0, activeIndex - 1))}
                     disabled={activeIndex === 0}
                 >
@@ -757,11 +820,10 @@ const TesteAmostrasSolo = () => {
                 </div>
 
                 <button
-                    className={`px-8 py-3 rounded-xl flex items-center transition-all font-medium ${
-                        activeIndex === steps.length - 1
-                            ? (saving ? 'bg-cyan-400 cursor-not-allowed' : 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg')
-                            : 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
-                    }`}
+                    className={`px-8 py-3 rounded-xl flex items-center transition-all font-medium ${activeIndex === steps.length - 1
+                        ? (saving ? 'bg-cyan-400 cursor-not-allowed' : 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg')
+                        : 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+                        }`}
                     onClick={() => {
                         if (activeIndex === steps.length - 1) {
                             handleSave();

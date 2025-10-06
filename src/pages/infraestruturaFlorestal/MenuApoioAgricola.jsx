@@ -3,7 +3,6 @@ import { UserPlus, Users,Info, FileText, User, MapPin, Award, Check, X, Clock, A
 
 import CadastroProdutor from '../CadastroProdutor';
 import ProdutoresGestao from '../ProdutoresGestao';
-import ProdutoresGestaoAprovados from '../ProdutoresGestaoAprovados';
 import { useProdutores, useProdutoresAprovados } from '../../hooks/useRnpaData';
 import GestaoApoioAgricola from '../infraestruturaAgricola/GestaoApoiAgricola';
 import RegistroApoioAgricola from '../InfraEstrutura/RegistroApoioAgricola';
