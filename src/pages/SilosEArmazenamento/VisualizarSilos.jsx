@@ -1037,7 +1037,7 @@ const VisualizarSilos = () => {
                                                     {documents.licencaOperacao ? 'Documento disponível' : 'Não anexado'}
                                                 </span>
                                             </div>
-                                            {documents.licencaOperacao && (
+                                            {/*documents.licencaOperacao && (
                                                 <a
                                                     href={documents.licencaOperacao}
                                                     target="_blank"
@@ -1046,7 +1046,7 @@ const VisualizarSilos = () => {
                                                 >
                                                     Download
                                                 </a>
-                                            )}
+                                            )*/}
                                         </div>
                                     </div>
 
@@ -1062,7 +1062,7 @@ const VisualizarSilos = () => {
                                                     {documents.certificacaoSanitaria ? 'Documento disponível' : 'Não anexado'}
                                                 </span>
                                             </div>
-                                            {documents.certificacaoSanitaria && (
+                                            {/*documents.certificacaoSanitaria && (
                                                 <a
                                                     href={documents.certificacaoSanitaria}
                                                     target="_blank"
@@ -1071,7 +1071,7 @@ const VisualizarSilos = () => {
                                                 >
                                                     Download
                                                 </a>
-                                            )}
+                                            )*/}
                                         </div>
                                     </div>
 
@@ -1087,7 +1087,7 @@ const VisualizarSilos = () => {
                                                     {documents.documentoProprietario ? 'Documento disponível' : 'Não anexado'}
                                                 </span>
                                             </div>
-                                            {documents.documentoProprietario && (
+                                            {/*documents.documentoProprietario && (
                                                 <a
                                                     href={documents.documentoProprietario}
                                                     target="_blank"
@@ -1096,7 +1096,7 @@ const VisualizarSilos = () => {
                                                 >
                                                     Download
                                                 </a>
-                                            )}
+                                            )*/}
                                         </div>
                                     </div>
 
@@ -1112,7 +1112,7 @@ const VisualizarSilos = () => {
                                                     {documents.comprovanteEndereco ? 'Documento disponível' : 'Não anexado'}
                                                 </span>
                                             </div>
-                                            {documents.comprovanteEndereco && (
+                                            {/*documents.comprovanteEndereco && (
                                                 <a
                                                     href={documents.comprovanteEndereco}
                                                     target="_blank"
@@ -1121,7 +1121,7 @@ const VisualizarSilos = () => {
                                                 >
                                                     Download
                                                 </a>
-                                            )}
+                                            )*/}
                                         </div>
                                     </div>
 
@@ -1137,7 +1137,7 @@ const VisualizarSilos = () => {
                                                     {documents.fotoSilo ? 'Fotos disponíveis' : 'Não anexado'}
                                                 </span>
                                             </div>
-                                            {documents.fotoSilo && (
+                                            {/*documents.fotoSilo && (
                                                 <a
                                                     href={documents.fotoSilo}
                                                     target="_blank"
@@ -1146,7 +1146,7 @@ const VisualizarSilos = () => {
                                                 >
                                                     Download
                                                 </a>
-                                            )}
+                                            )*/}
                                         </div>
                                     </div>
                                 </div>
