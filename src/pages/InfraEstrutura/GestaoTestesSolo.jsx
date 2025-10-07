@@ -18,7 +18,8 @@ import {
   Leaf,
   Calendar,
   User,
-  FileText
+  FileText,
+  Filter
 } from 'lucide-react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -110,28 +111,111 @@ const GestaoTestesSolo = () => {
   const [toastTimeout, setToastTimeout] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [testesSolo, setTestesSolo] = useState([]);
+  const [filterEstado, setFilterEstado] = useState('todos');
   const itemsPerPage = 8;
 
-  // Buscar dados da API
-  useEffect(() => {
-    const fetchTestesSolo = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get('https://mwangobrainsa-001-site2.mtempurl.com/api/testeDeAmostraDeSolo/all');
-        console.log('Dados recebidos:', response.data);
-        setTestesSolo(response.data);
-      } catch (error) {
-        console.error('Erro ao buscar testes:', error);
-        showToast('error', 'Erro', 'Erro ao carregar dados dos testes de solo');
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Dados mockados baseados na API
+useEffect(() => {
+  const fetchTestesSolo = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get('https://mwangobrainsa-001-site2.mtempurl.com/api/testeDeAmostraDeSolo/all');
+      setTestesSolo(response.data);
+    } catch (error) {
+      console.error('Erro ao buscar testes:', error);
+      showToast('error', 'Erro', 'Erro ao carregar dados');
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchTestesSolo();
+}, []);
 
-    fetchTestesSolo();
-  }, []);
+  // Funções auxiliares para parsing de dados
+  const parseCulturas = (culturasArray) => {
+    if (!culturasArray || !Array.isArray(culturasArray) || culturasArray.length === 0) {
+      return [];
+    }
+    
+    try {
+      // Se o primeiro elemento é uma string JSON, fazer parse
+      if (typeof culturasArray[0] === 'string' && culturasArray[0].startsWith('[')) {
+        const parsed = JSON.parse(culturasArray[0]);
+        // Se é array de strings, retornar direto
+        if (typeof parsed[0] === 'string') {
+          return parsed;
+        }
+        // Se é array de objetos com label/value, extrair labels
+        if (parsed[0]?.label) {
+          return parsed.map(item => item.label || item.value);
+        }
+        return parsed;
+      }
+      // Se já é array de strings, retornar direto
+      return culturasArray;
+    } catch (e) {
+      console.error('Erro ao fazer parse de culturas:', e);
+      return culturasArray;
+    }
+  };
+
+  // Validar se a data é válida
+  const isValidDate = (dateString) => {
+    if (!dateString) return false;
+    const date = new Date(dateString);
+    return date.getFullYear() > 2000;
+  };
+
+  // Formatar data
+  const formatDate = (dateString) => {
+    if (!dateString || !isValidDate(dateString)) return 'Não informada';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('pt-BR');
+    } catch {
+      return 'Não informada';
+    }
+  };
+
+  // Obter valor ou N/A
+  const getValueOrNA = (value) => {
+    if (value === null || value === undefined || value === '' || value === 0) {
+      return 'N/A';
+    }
+    return value;
+  };
+
+  // Filtragem dos registros
+  const filteredRecords = useMemo(() => {
+    return testesSolo.filter(record => {
+      // Filtro por estado
+      const matchesEstado = filterEstado === 'todos' || 
+        (record.estado || 'Pendente').toLowerCase() === filterEstado.toLowerCase();
+
+      // Filtro por busca
+      const searchLower = searchTerm.toLowerCase();
+      const culturasAtuais = parseCulturas(record.cultura_Actual);
+      const culturasAnteriores = parseCulturas(record.cultura_Anterior);
+      
+      const matchesSearch = !searchTerm ||
+        record._id?.toString().includes(searchLower) ||
+        record.tecnico_Responsavel?.toLowerCase().includes(searchLower) ||
+        culturasAtuais?.some(c => c?.toLowerCase().includes(searchLower)) ||
+        culturasAnteriores?.some(c => c?.toLowerCase().includes(searchLower)) ||
+        record.tipo_de_Solo?.toLowerCase().includes(searchLower) ||
+        record.profundidade_da_Coleta?.toLowerCase().includes(searchLower) ||
+        record.c_digo_Supervisor?.toLowerCase().includes(searchLower);
+
+      return matchesEstado && matchesSearch;
+    });
+  }, [testesSolo, searchTerm, filterEstado]);
+
+  // Reset página quando filtros mudarem
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterEstado]);
 
   // Função para mostrar toast
   const showToast = (type, title, message, duration = 5000) => {
@@ -157,27 +241,8 @@ const GestaoTestesSolo = () => {
     };
   }, [toastTimeout]);
 
-  // Filtragem dos registros
-  const filteredRecords = useMemo(() => {
-    return testesSolo.filter(record => {
-      const matchesSearch =
-        record._id?.toString().includes(searchTerm.toLowerCase()) ||
-        record.tecnico_Responsavel?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.cultura_Actual?.some(c => c.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        record.tipo_de_Solo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.profundidade_da_Coleta?.toLowerCase().includes(searchTerm.toLowerCase());
-
-      return matchesSearch;
-    });
-  }, [testesSolo, searchTerm]);
-
-  // Reset página quando filtros mudarem
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm]);
-
   const handleViewAmostra = (id) => {
-    navigate(`/GerenciaRNPA/gestao-agricultores/AmostraDeSolo/visualizar/${id}`);
+    showToast('info', 'Visualizar', `Abrindo detalhes da amostra #${id}`);
   };
 
   // Paginação
@@ -188,18 +253,6 @@ const GestaoTestesSolo = () => {
     return filteredRecords.slice(startIndex, endIndex);
   };
 
-  // Formatar data
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    try {
-      const date = new Date(dateString);
-      if (date.getFullYear() < 2000) return 'N/A';
-      return date.toLocaleDateString('pt-BR');
-    } catch {
-      return 'N/A';
-    }
-  };
-
   // Labels para métodos de coleta
   const getMetodoColetaLabel = (metodo) => {
     const labels = {
@@ -208,7 +261,7 @@ const GestaoTestesSolo = () => {
       'amostragem_simples': 'Amostragem Simples',
       'amostragem_composta': 'Amostragem Composta'
     };
-    return labels[metodo] || metodo || 'N/A';
+    return labels[metodo] || getValueOrNA(metodo);
   };
 
   // Labels para tipo de solo
@@ -220,7 +273,7 @@ const GestaoTestesSolo = () => {
       'franco_arenoso': 'Franco-Arenoso',
       'franco_argiloso': 'Franco-Argiloso'
     };
-    return labels[tipo] || tipo || 'N/A';
+    return labels[tipo] || getValueOrNA(tipo);
   };
 
   // Labels para cor do solo
@@ -232,7 +285,26 @@ const GestaoTestesSolo = () => {
       'amarelo': 'Amarelo',
       'cinza': 'Cinza'
     };
-    return labels[cor] || cor || 'N/A';
+    return labels[cor] || getValueOrNA(cor);
+  };
+
+  // Badge de estado
+  const getEstadoBadge = (estado) => {
+    const estados = {
+      'Pendente': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      'Em Análise': 'bg-blue-100 text-blue-800 border-blue-200',
+      'Concluído': 'bg-green-100 text-green-800 border-green-200',
+      'Cancelado': 'bg-red-100 text-red-800 border-red-200'
+    };
+    
+    const estadoAtual = estado || 'Pendente';
+    const colorClass = estados[estadoAtual] || 'bg-gray-100 text-gray-800 border-gray-200';
+    
+    return (
+      <span className={`px-2 py-1 rounded-full text-xs font-medium border ${colorClass}`}>
+        {estadoAtual}
+      </span>
+    );
   };
 
   // Exportar dados
@@ -240,20 +312,21 @@ const GestaoTestesSolo = () => {
     try {
       const dataToExport = filteredRecords.map(record => ({
         'ID': record._id,
-        'Técnico Responsável': record.tecnico_Responsavel || 'N/A',
-        'Supervisor': record.c_digo_Supervisor || 'N/A',
+        'Técnico Responsável': getValueOrNA(record.tecnico_Responsavel),
+        'Supervisor': getValueOrNA(record.c_digo_Supervisor),
         'Data da Coleta': formatDate(record.data_da_Coleta),
-        'Pertence a Produtor': record.este_solo_pertence_a_um_produt || 'N/A',
-        'Código Produtor': record.c_digo_do_ || 'N/A',
-        'Profundidade': record.profundidade_da_Coleta || 'N/A',
-        'Método de Coleta': record.m_todo_de_Coleta || 'N/A',
-        'Culturas Atuais': record.cultura_Actual?.join(', ') || 'N/A',
-        'Cultura Anterior': record.cultura_Anterior || 'N/A',
-        'Tipo de Solo': record.tipo_de_Solo || 'N/A',
-        'Cor do Solo': record.cor_do_Solo || 'N/A',
-        'Textura': record.textura || 'N/A',
-        'Drenagem': record.drenagem || 'N/A',
-        'Observações': record.observa_es_Gerais || 'N/A'
+        'Estado': record.estado || 'Pendente',
+        'Pertence a Produtor': getValueOrNA(record.este_solo_pertence_a_um_produt),
+        'Código Produtor': record.c_digo_do_ > 0 ? record.c_digo_do_ : 'N/A',
+        'Profundidade': getValueOrNA(record.profundidade_da_Coleta),
+        'Método de Coleta': getMetodoColetaLabel(record.m_todo_de_Coleta),
+        'Culturas Atuais': parseCulturas(record.cultura_Actual).join(', ') || 'N/A',
+        'Cultura Anterior': parseCulturas(record.cultura_Anterior).join(', ') || 'N/A',
+        'Tipo de Solo': getTipoSoloLabel(record.tipo_de_Solo),
+        'Cor do Solo': getCorSoloLabel(record.cor_do_Solo),
+        'Textura': getValueOrNA(record.textura),
+        'Drenagem': getValueOrNA(record.drenagem),
+        'Observações': getValueOrNA(record.observa_es_Gerais)
       }));
 
       const csv = [
@@ -280,16 +353,16 @@ const GestaoTestesSolo = () => {
 
   // Ver detalhes do registro
   const handleViewDetails = (record) => {
-    setSelectedRecord(record);
-    setShowModal(true);
+      navigate(`/GerenciaRNPA/gestao-agricultores/AmostraDeSolo/visualizar/${record}`);
+
   };
 
   const handleNovoTeste = () => {
-    window.location.href = '/GerenciaRNPA/teste-amostras-solo';
+    showToast('info', 'Novo Teste', 'Redirecionando para formulário de nova coleta...');
   };
 
   const handleLancarResultados = (amostraId) => {
-    showToast('info', 'Em Desenvolvimento', 'Funcionalidade de lançamento de resultados será implementada em breve');
+      navigate(`/GerenciaRNPA/lancamento-resultados/${amostraId}`);
   };
 
   // Componente Toast
@@ -340,13 +413,19 @@ const GestaoTestesSolo = () => {
   const DetailsModal = () => {
     if (!showModal || !selectedRecord) return null;
 
+    const culturasAtuais = parseCulturas(selectedRecord.cultura_Actual);
+    const culturasAnteriores = parseCulturas(selectedRecord.cultura_Anterior);
+
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
           <div className="sticky top-0 bg-white border-b p-6 flex justify-between items-center">
-            <h2 className="text-xl font-bold text-gray-900">
-              Detalhes da Amostra #{selectedRecord._id}
-            </h2>
+            <div className="flex items-center gap-4">
+              <h2 className="text-xl font-bold text-gray-900">
+                Amostra #{selectedRecord._id}
+              </h2>
+              {getEstadoBadge(selectedRecord.estado)}
+            </div>
             <button
               onClick={() => setShowModal(false)}
               className="p-2 hover:bg-gray-100 rounded-full"
@@ -364,8 +443,9 @@ const GestaoTestesSolo = () => {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div><strong>ID:</strong> {selectedRecord._id}</div>
+                <div><strong>Estado:</strong> {selectedRecord.estado || 'Pendente'}</div>
                 <div><strong>Data da Coleta:</strong> {formatDate(selectedRecord.data_da_Coleta)}</div>
-                <div><strong>Pertence a Produtor:</strong> {selectedRecord.este_solo_pertence_a_um_produt || 'N/A'}</div>
+                <div><strong>Pertence a Produtor:</strong> {getValueOrNA(selectedRecord.este_solo_pertence_a_um_produt)}</div>
                 {selectedRecord.c_digo_do_ > 0 && (
                   <div><strong>Código do Produtor:</strong> {selectedRecord.c_digo_do_}</div>
                 )}
@@ -379,36 +459,45 @@ const GestaoTestesSolo = () => {
                 Dados da Coleta
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div><strong>Profundidade:</strong> {selectedRecord.profundidade_da_Coleta || 'N/A'}</div>
+                <div><strong>Profundidade:</strong> {getValueOrNA(selectedRecord.profundidade_da_Coleta)}</div>
                 <div><strong>Método de Coleta:</strong> {getMetodoColetaLabel(selectedRecord.m_todo_de_Coleta)}</div>
                 <div><strong>Tipo de Solo:</strong> {getTipoSoloLabel(selectedRecord.tipo_de_Solo)}</div>
                 <div><strong>Cor do Solo:</strong> {getCorSoloLabel(selectedRecord.cor_do_Solo)}</div>
-                <div><strong>Textura:</strong> {selectedRecord.textura || 'N/A'}</div>
-                <div><strong>Drenagem:</strong> {selectedRecord.drenagem || 'N/A'}</div>
+                <div><strong>Textura:</strong> {getValueOrNA(selectedRecord.textura)}</div>
+                <div><strong>Drenagem:</strong> {getValueOrNA(selectedRecord.drenagem)}</div>
               </div>
             </div>
 
             {/* Culturas */}
-            {selectedRecord.cultura_Actual?.length > 0 && (
+            {(culturasAtuais.length > 0 || culturasAnteriores.length > 0) && (
               <div className="bg-green-50 rounded-lg p-4">
                 <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
                   <Leaf className="w-5 h-5 mr-2 text-green-600" />
                   Culturas
                 </h3>
-                <div className="space-y-2 text-sm">
-                  <div>
-                    <strong>Culturas Atuais:</strong>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {selectedRecord.cultura_Actual.map((cultura, index) => (
-                        <span key={index} className="bg-white px-3 py-1 rounded-full text-xs border border-green-200">
-                          {cultura}
-                        </span>
-                      ))}
+                <div className="space-y-3 text-sm">
+                  {culturasAtuais.length > 0 && (
+                    <div>
+                      <strong>Culturas Atuais:</strong>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {culturasAtuais.map((cultura, index) => (
+                          <span key={index} className="bg-white px-3 py-1 rounded-full text-xs border border-green-200">
+                            {cultura}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                  {selectedRecord.cultura_Anterior && (
-                    <div className="mt-3">
-                      <strong>Cultura Anterior:</strong> {selectedRecord.cultura_Anterior}
+                  )}
+                  {culturasAnteriores.length > 0 && (
+                    <div>
+                      <strong>Culturas Anteriores:</strong>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {culturasAnteriores.map((cultura, index) => (
+                          <span key={index} className="bg-white px-3 py-1 rounded-full text-xs border border-green-200">
+                            {cultura}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -422,10 +511,8 @@ const GestaoTestesSolo = () => {
                 Responsável Técnico
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div><strong>Técnico Responsável:</strong> {selectedRecord.tecnico_Responsavel || 'N/A'}</div>
-                {selectedRecord.c_digo_Supervisor && (
-                  <div><strong>Supervisor:</strong> {selectedRecord.c_digo_Supervisor}</div>
-                )}
+                <div><strong>Técnico:</strong> {getValueOrNA(selectedRecord.tecnico_Responsavel)}</div>
+                <div><strong>Supervisor:</strong> {getValueOrNA(selectedRecord.c_digo_Supervisor)}</div>
               </div>
             </div>
 
@@ -459,12 +546,12 @@ const GestaoTestesSolo = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 p-6">
       <Toast />
       <DetailsModal />
 
       {/* Estatísticas */}
-      <div className="mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl shadow-md p-6">
           <div className="flex items-center">
             <div className="p-3 bg-emerald-100 rounded-full">
@@ -479,13 +566,13 @@ const GestaoTestesSolo = () => {
 
         <div className="bg-white rounded-xl shadow-md p-6">
           <div className="flex items-center">
-            <div className="p-3 bg-green-100 rounded-full">
-              <CheckCircle className="w-6 h-6 text-green-600" />
+            <div className="p-3 bg-yellow-100 rounded-full">
+              <Clock className="w-6 h-6 text-yellow-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Com Produtor</p>
+              <p className="text-sm font-medium text-gray-500">Pendentes</p>
               <p className="text-2xl font-bold text-gray-900">
-                {testesSolo.filter(s => s.este_solo_pertence_a_um_produt === 'sim').length}
+                {testesSolo.filter(s => (s.estado || 'Pendente') === 'Pendente').length}
               </p>
             </div>
           </div>
@@ -494,17 +581,26 @@ const GestaoTestesSolo = () => {
         <div className="bg-white rounded-xl shadow-md p-6">
           <div className="flex items-center">
             <div className="p-3 bg-blue-100 rounded-full">
-              <Clock className="w-6 h-6 text-blue-600" />
+              <Loader className="w-6 h-6 text-blue-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Últimos 30 dias</p>
+              <p className="text-sm font-medium text-gray-500">Em Análise</p>
               <p className="text-2xl font-bold text-gray-900">
-                {testesSolo.filter(s => {
-                  const dataColeta = new Date(s.data_da_Coleta);
-                  const hoje = new Date();
-                  const diff = (hoje - dataColeta) / (1000 * 60 * 60 * 24);
-                  return diff <= 30 && diff >= 0;
-                }).length}
+                {testesSolo.filter(s => s.estado === 'Em Análise').length}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="flex items-center">
+            <div className="p-3 bg-green-100 rounded-full">
+              <CheckCircle className="w-6 h-6 text-green-600" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-500">Concluídos</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {testesSolo.filter(s => s.estado === 'Concluído').length}
               </p>
             </div>
           </div>
@@ -541,15 +637,32 @@ const GestaoTestesSolo = () => {
           </div>
         </div>
 
-        {/* Barra de pesquisa */}
-        <div className="p-6 border-b border-gray-200 bg-white">
-          <CustomInput
-            type="text"
-            placeholder="Pesquisar por ID, técnico, cultura, tipo de solo..."
-            value={searchTerm}
-            onChange={(value) => setSearchTerm(value)}
-            iconStart={<Search size={18} />}
-          />
+        {/* Barra de filtros */}
+        <div className="p-6 border-b border-gray-200 bg-white space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <CustomInput
+              type="text"
+              placeholder="Pesquisar por ID, técnico, cultura, tipo de solo..."
+              value={searchTerm}
+              onChange={(value) => setSearchTerm(value)}
+              iconStart={<Search size={18} />}
+            />
+
+            <CustomInput
+              type="select"
+              placeholder="Filtrar por estado"
+              value={filterEstado}
+              onChange={(value) => setFilterEstado(value)}
+              iconStart={<Filter size={18} />}
+              options={[
+                { value: 'todos', label: 'Todos os Estados' },
+                { value: 'pendente', label: 'Pendente' },
+                { value: 'em análise', label: 'Em Análise' },
+                { value: 'concluído', label: 'Concluído' },
+                { value: 'cancelado', label: 'Cancelado' }
+              ]}
+            />
+          </div>
         </div>
 
         {/* Tabela - Desktop */}
@@ -576,104 +689,110 @@ const GestaoTestesSolo = () => {
                     Culturas
                   </th>
                   <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                    Estado
+                  </th>
+                  <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                     Ações
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 bg-white">
-                {getCurrentItems().map((record) => (
-                  <tr key={record._id} className="hover:bg-emerald-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
-                          <TestTube className="w-6 h-6 text-emerald-600" />
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-semibold text-gray-900">#{record._id}</div>
-                          <div className="flex items-center text-xs text-gray-600 mt-1">
-                            <User className="w-3.5 h-3.5 mr-1" />
-                            {record.tecnico_Responsavel || 'N/A'}
+                {getCurrentItems().map((record) => {
+                  const culturasAtuais = parseCulturas(record.cultura_Actual);
+                  
+                  return (
+                    <tr key={record._id} className="hover:bg-emerald-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
+                            <TestTube className="w-6 h-6 text-emerald-600" />
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-semibold text-gray-900">#{record._id}</div>
+                            <div className="flex items-center text-xs text-gray-600 mt-1">
+                              <User className="w-3.5 h-3.5 mr-1" />
+                              {getValueOrNA(record.tecnico_Responsavel)}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </td>
+                      </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="space-y-1">
-                        <div className="flex items-center text-sm text-gray-900">
-                          <Calendar className="w-3.5 h-3.5 mr-1" />
-                          {formatDate(record.data_da_Coleta)}
-                        </div>
-                        <div className="text-xs text-gray-600">
-                          {record.profundidade_da_Coleta || 'N/A'}
-                        </div>
-                        <div className="text-xs text-gray-600">
-                          {getMetodoColetaLabel(record.m_todo_de_Coleta)}
-                        </div>
-                      </div>
-                    </td>
-
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="space-y-1">
-                        <div className="text-sm font-medium text-gray-900">
-                          {getTipoSoloLabel(record.tipo_de_Solo)}
-                        </div>
-                        <div className="text-xs text-gray-600">
-                          Cor: {getCorSoloLabel(record.cor_do_Solo)}
-                        </div>
-                        <div className="text-xs text-gray-600">
-                          Drenagem: {record.drenagem || 'N/A'}
-                        </div>
-                      </div>
-                    </td>
-
-                    <td className="px-6 py-4">
-                      <div className="space-y-1">
-                        {record.cultura_Actual?.length > 0 ? (
-                          <div className="flex flex-wrap gap-1">
-                            {record.cultura_Actual.slice(0, 2).map((cultura, idx) => (
-                              <span key={idx} className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">
-                                {cultura}
-                              </span>
-                            ))}
-                            {record.cultura_Actual.length > 2 && (
-                              <span className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full">
-                                +{record.cultura_Actual.length - 2}
-                              </span>
-                            )}
+                      <td className="px-6 py-4 text-start whitespace-nowrap">
+                        <div className="space-y-1">
+                          <div className="flex items-start text-sm text-gray-900">
+                            <Calendar className="w-3.5 h-3.5 mr-1" />
+                            {formatDate(record.data_da_Coleta)}
                           </div>
-                        ) : (
-                          <span className="text-xs text-gray-400">Nenhuma cultura</span>
-                        )}
-                        {record.cultura_Anterior && (
                           <div className="text-xs text-gray-600">
-                            Anterior: {record.cultura_Anterior}
+                            {getValueOrNA(record.profundidade_da_Coleta)}
                           </div>
-                        )}
-                      </div>
-                    </td>
+                          <div className="text-xs text-gray-600">
+                            {getMetodoColetaLabel(record.m_todo_de_Coleta)}
+                          </div>
+                        </div>
+                      </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center justify-center space-x-1">
-                        <button
-                          onClick={() => handleViewAmostra(record._id)}
-                          className="p-2 hover:bg-emerald-100 text-emerald-600 hover:text-emerald-800 rounded-full transition-colors"
-                          title="Ver detalhes"
-                        >
-                          <Eye className="w-5 h-5" />
-                        </button>
+                      <td className="px-6 py-4 text-start whitespace-nowrap">
+                        <div className="space-y-1">
+                          <div className="text-sm font-medium text-gray-900">
+                            {getTipoSoloLabel(record.tipo_de_Solo)}
+                          </div>
+                          <div className="text-xs text-gray-600">
+                            Cor: {getCorSoloLabel(record.cor_do_Solo)}
+                          </div>
+                          <div className="text-xs text-gray-600">
+                            Drenagem: {getValueOrNA(record.drenagem)}
+                          </div>
+                        </div>
+                      </td>
 
-                        <button
-                          onClick={() => handleLancarResultados(record._id)}
-                          className="p-2 hover:bg-blue-100 text-blue-600 hover:text-blue-800 rounded-full transition-colors"
-                          title="Lançar resultados"
-                        >
-                          <Upload className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      <td className="px-6 text-start py-4">
+                        <div className="space-y-1">
+                          {culturasAtuais.length > 0 ? (
+                            <div className="flex flex-wrap gap-1">
+                              {culturasAtuais.slice(0, 2).map((cultura, idx) => (
+                                <span key={idx} className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">
+                                  {cultura}
+                                </span>
+                              ))}
+                              {culturasAtuais.length > 2 && (
+                                <span className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full">
+                                  +{culturasAtuais.length - 2}
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-xs text-gray-400">Nenhuma cultura</span>
+                          )}
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        {getEstadoBadge(record.estado)}
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center justify-center space-x-1">
+                          <button
+                            onClick={() => handleViewDetails(record._id)}
+                            className="p-2 hover:bg-emerald-100 text-emerald-600 hover:text-emerald-800 rounded-full transition-colors"
+                            title="Ver detalhes"
+                          >
+                            <Eye className="w-5 h-5" />
+                          </button>
+
+                          <button
+                            onClick={() => handleLancarResultados(record._id)}
+                            className="p-2 hover:bg-blue-100 text-blue-600 hover:text-blue-800 rounded-full transition-colors"
+                            title="Lançar resultados"
+                          >
+                            <Upload className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}
@@ -687,57 +806,62 @@ const GestaoTestesSolo = () => {
               <span className="ml-3 text-gray-600">Carregando...</span>
             </div>
           ) : (
-            getCurrentItems().map((record) => (
-              <div key={record._id} className="p-4 border-b border-gray-200 hover:bg-emerald-50 transition-colors">
-                <div className="flex items-start">
-                  <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <TestTube className="w-6 h-6 text-emerald-600" />
-                  </div>
-                  <div className="flex-1 ml-4">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="text-sm font-semibold text-gray-900">#{record._id}</h3>
-                        <div className="text-xs text-gray-500 mt-1">
-                          {record.tecnico_Responsavel || 'N/A'}
-                        </div>
-                      </div>
+            getCurrentItems().map((record) => {
+              const culturasAtuais = parseCulturas(record.cultura_Actual);
+              
+              return (
+                <div key={record._id} className="p-4 border-b border-gray-200 hover:bg-emerald-50 transition-colors">
+                  <div className="flex items-start">
+                    <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <TestTube className="w-6 h-6 text-emerald-600" />
                     </div>
+                    <div className="flex-1 ml-4">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="text-sm font-semibold text-gray-900">#{record._id}</h3>
+                          <div className="text-xs text-gray-500 mt-1">
+                            {getValueOrNA(record.tecnico_Responsavel)}
+                          </div>
+                        </div>
+                        {getEstadoBadge(record.estado)}
+                      </div>
 
-                    <div className="mt-3 space-y-2">
-                      <div className="text-xs text-gray-700">
-                        <strong>Data:</strong> {formatDate(record.data_da_Coleta)}
-                      </div>
-                      <div className="text-xs text-gray-700">
-                        <strong>Solo:</strong> {getTipoSoloLabel(record.tipo_de_Solo)}
-                      </div>
-                      {record.cultura_Actual?.length > 0 && (
+                      <div className="mt-3 space-y-2">
                         <div className="text-xs text-gray-700">
-                          <strong>Culturas:</strong> {record.cultura_Actual.join(', ')}
+                          <strong>Data:</strong> {formatDate(record.data_da_Coleta)}
                         </div>
-                      )}
-                    </div>
+                        <div className="text-xs text-gray-700">
+                          <strong>Solo:</strong> {getTipoSoloLabel(record.tipo_de_Solo)}
+                        </div>
+                        {culturasAtuais.length > 0 && (
+                          <div className="text-xs text-gray-700">
+                            <strong>Culturas:</strong> {culturasAtuais.join(', ')}
+                          </div>
+                        )}
+                      </div>
 
-                    <div className="mt-3 flex justify-end space-x-2">
-                      <button
-                        onClick={() => handleViewDetails(record)}
-                        className="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-full transition-colors"
-                        title="Ver detalhes"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
+                      <div className="mt-3 flex justify-end space-x-2">
+                        <button
+                          onClick={() => handleViewDetails(record)}
+                          className="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-full transition-colors"
+                          title="Ver detalhes"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
 
-                      <button
-                        onClick={() => handleLancarResultados(record._id)}
-                        className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-full transition-colors"
-                        title="Lançar resultados"
-                      >
-                        <Upload className="w-4 h-4" />
-                      </button>
+                        <button
+                          onClick={() => handleLancarResultados(record._id)}
+                          className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-full transition-colors"
+                          title="Lançar resultados"
+                        >
+                          <Upload className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
 
@@ -803,12 +927,15 @@ const GestaoTestesSolo = () => {
                 : 'Não foram encontrados resultados para a sua pesquisa. Tente outros termos.'
               }
             </p>
-            {searchTerm && (
+            {(searchTerm || filterEstado !== 'todos') && (
               <button
-                onClick={() => setSearchTerm('')}
+                onClick={() => {
+                  setSearchTerm('');
+                  setFilterEstado('todos');
+                }}
                 className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
               >
-                Limpar pesquisa
+                Limpar filtros
               </button>
             )}
           </div>

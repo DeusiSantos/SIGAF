@@ -105,9 +105,7 @@ function App() {
           <Route path="gestao-empresas/visualizar-empresa/:id" element={<VisualizarAssociacaoRural />} />
           <Route path="certificados-florestais/visualizar/:produtorId" element={<VisualizarCertificadosFlorestal />} />
           <Route path="infraestruturas/visualizar/:id" element={<VisualizarInfraestrutura />} />
-          <Route path="lancamento-resultados/:id"
-            element={<LancamentoResultadosSolo />}
-          />
+          <Route path="lancamento-resultados/:id" element={<LancamentoResultadosSolo />} />
           {/* Rotas de gestão escolar (mantidas) */}
           <Route path="gestao-escolar/produtores" element={<h1 className="text-2xl font-semibold">Lista de Produtores</h1>} />
           <Route path="gestao-escolar/produtores/visualizar/:id" element={<VisualizarProdutor />} />
