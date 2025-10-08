@@ -18,126 +18,22 @@ import {
     Loader,
     X
 } from 'lucide-react';
-
-// Componente Input customizado
-const CustomInput = ({ type = "text", label, value, onChange, options, required, placeholder, helperText, rows, step, disabled }) => {
-    const baseInputClass = `w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all ${disabled ? 'bg-gray-100 cursor-not-allowed' : ''}`;
-
-    if (type === "select") {
-        return (
-            <div className="space-y-2">
-                {label && <label className="block text-sm font-medium text-gray-700">{label} {required && <span className="text-red-500">*</span>}</label>}
-                <select value={value} onChange={(e) => onChange(e.target.value)} className={baseInputClass} required={required} disabled={disabled}>
-                    <option value="">Selecione...</option>
-                    {options?.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                </select>
-            </div>
-        );
-    }
-
-    if (type === "textarea") {
-        return (
-            <div className="space-y-2">
-                {label && <label className="block text-sm font-medium text-gray-700">{label} {required && <span className="text-red-500">*</span>}</label>}
-                <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={rows || 3} className={baseInputClass} placeholder={placeholder} required={required} disabled={disabled} />
-                {helperText && <p className="text-xs text-gray-500">{helperText}</p>}
-            </div>
-        );
-    }
-
-    if (type === "multiselect") {
-        return (
-            <div className="space-y-2">
-                {label && <label className="block text-sm font-medium text-gray-700 mb-3">{label}</label>}
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {options?.map(opt => (
-                        <label key={opt.value} className="flex items-center space-x-2 p-2 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                            <input
-                                type="checkbox"
-                                checked={value?.includes(opt.value)}
-                                onChange={(e) => {
-                                    const newValue = e.target.checked
-                                        ? [...(value || []), opt.value]
-                                        : value.filter(v => v !== opt.value);
-                                    onChange(newValue);
-                                }}
-                                className="w-4 h-4 text-emerald-600 rounded"
-                                disabled={disabled}
-                            />
-                            <span className="text-sm">{opt.label}</span>
-                        </label>
-                    ))}
-                </div>
-            </div>
-        );
-    }
-
-    return (
-        <div className="space-y-2">
-            {label && <label className="block text-sm font-medium text-gray-700">{label} {required && <span className="text-red-500">*</span>}</label>}
-            <input
-                type={type}
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                className={baseInputClass}
-                placeholder={placeholder}
-                required={required}
-                step={step}
-                disabled={disabled}
-            />
-            {helperText && <p className="text-xs text-gray-500">{helperText}</p>}
-        </div>
-    );
-};
+import CustomInput from '../../components/CustomInput';
 
 const LancamentoResultadosSolo = () => {
-    // Simula useParams do React Router
     const { id } = useParams();
+    const navigate = useNavigate();
     const amostraId = id;
+
+    const API_BASE_URL = 'https://mwangobrainsa-001-site2.mtempurl.com/api';
 
     const [activeIndex, setActiveIndex] = useState(amostraId ? 1 : 0);
     const [saving, setSaving] = useState(false);
     const [loading, setLoading] = useState(false);
     const [amostraSelecionada, setAmostraSelecionada] = useState(null);
+    const [amostrasDisponiveis, setAmostrasDisponiveis] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [toastMessage, setToastMessage] = useState(null);
-
-    // Mock de amostras disponíveis (em produção viria de uma API)
-    const amostrasDisponiveis = [
-        {
-            id: 1,
-            codigoAmostra: 'TS-2024-001',
-            numeroAmostra: 'SOLO-CAC-001',
-            localizacao: { provincia: 'LUANDA', municipio: 'CACUACO', aldeia: 'Funda' },
-            dataColeta: '2024-08-15',
-            culturaAtual: 'Milho',
-            profundidadeColeta: '0-20 cm',
-            tipoSolo: 'Franco-arenoso',
-            statusAnalise: 'PENDENTE'
-        },
-        {
-            id: 2,
-            codigoAmostra: 'TS-2024-002',
-            numeroAmostra: 'SOLO-BEN-002',
-            localizacao: { provincia: 'BENGUELA', municipio: 'BENGUELA', aldeia: 'Cavaco' },
-            dataColeta: '2024-08-10',
-            culturaAtual: 'Tomate',
-            profundidadeColeta: '0-30 cm',
-            tipoSolo: 'Argiloso',
-            statusAnalise: 'EM_ANALISE'
-        },
-        {
-            id: 3,
-            codigoAmostra: 'TS-2024-003',
-            numeroAmostra: 'SOLO-HUI-003',
-            localizacao: { provincia: 'HUILA', municipio: 'LUBANGO', aldeia: 'Hoque' },
-            dataColeta: '2024-07-28',
-            culturaAtual: 'Batata-doce',
-            profundidadeColeta: '0-25 cm',
-            tipoSolo: 'Franco',
-            statusAnalise: 'PENDENTE'
-        }
-    ];
 
     const initialState = {
         // Identificação da Amostra
@@ -198,6 +94,11 @@ const LancamentoResultadosSolo = () => {
         { label: 'Recomendações', icon: CheckCircle }
     ];
 
+    // Carregar todas as amostras disponíveis
+    useEffect(() => {
+        carregarAmostras();
+    }, []);
+
     // Se recebeu ID, carrega a amostra automaticamente
     useEffect(() => {
         if (amostraId) {
@@ -205,26 +106,45 @@ const LancamentoResultadosSolo = () => {
         }
     }, [amostraId]);
 
-    const carregarAmostra = (id) => {
+    const carregarAmostras = async () => {
         setLoading(true);
-        setTimeout(() => {
-            const amostra = amostrasDisponiveis.find(a => a.id === parseInt(id));
-            if (amostra) {
-                setAmostraSelecionada(amostra);
-                setFormData(prev => ({ ...prev, amostraId: id }));
-                showToast('success', 'Amostra carregada', 'Dados da amostra carregados com sucesso!');
-            } else {
-                showToast('error', 'Erro', 'Amostra não encontrada');
-            }
+        try {
+            const response = await fetch(`${API_BASE_URL}/testeDeAmostraDeSolo/all`);
+            if (!response.ok) throw new Error('Erro ao carregar amostras');
+
+            const data = await response.json();
+            setAmostrasDisponiveis(data);
+        } catch (error) {
+            console.error('Erro ao carregar amostras:', error);
+            showToast('error', 'Erro', 'Não foi possível carregar as amostras disponíveis');
+        } finally {
             setLoading(false);
-        }, 1000);
+        }
+    };
+
+    const carregarAmostra = async (id) => {
+        setLoading(true);
+        try {
+            const response = await fetch(`${API_BASE_URL}/testeDeAmostraDeSolo/${id}`);
+            if (!response.ok) throw new Error('Amostra não encontrada');
+
+            const amostra = await response.json();
+            setAmostraSelecionada(amostra);
+            setFormData(prev => ({ ...prev, amostraId: id }));
+            showToast('success', 'Amostra carregada', 'Dados da amostra carregados com sucesso!');
+        } catch (error) {
+            console.error('Erro ao carregar amostra:', error);
+            showToast('error', 'Erro', 'Amostra não encontrada');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleSelecionarAmostra = (amostra) => {
         setAmostraSelecionada(amostra);
         setFormData(prev => ({ ...prev, amostraId: amostra.id }));
         setActiveIndex(1);
-        showToast('success', 'Amostra selecionada', `Amostra ${amostra.numeroAmostra} selecionada`);
+        showToast('success', 'Amostra selecionada', `Amostra ${amostra.numeroAmostra || amostra.id} selecionada`);
     };
 
     const handleInputChange = (field, value) => {
@@ -239,8 +159,77 @@ const LancamentoResultadosSolo = () => {
     const handleSave = async () => {
         setSaving(true);
         try {
-            console.log('Dados dos resultados:', formData);
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            // Criar FormData para enviar como multipart/form-data
+            const formDataToSend = new FormData();
+
+            // Adicionar campos obrigatórios e opcionais
+            formDataToSend.append('DataDaAnalise', formData.dataAnalise);
+            formDataToSend.append('NomeDoLaboratorio', formData.laboratorio);
+            formDataToSend.append('TecnicoResponsavel', formData.tecnicoResponsavel);
+            formDataToSend.append('AmostraDeSoloId', formData.amostraId);
+
+            // Parâmetros Físicos
+            if (formData.ph) formDataToSend.append('pH', parseFloat(formData.ph));
+            if (formData.condutividadeEletrica) formDataToSend.append('CondutividadeEletrica', parseFloat(formData.condutividadeEletrica));
+            if (formData.materiaOrganica) formDataToSend.append('MateriaOrganica', parseFloat(formData.materiaOrganica));
+            if (formData.umidade) formDataToSend.append('Humidade', parseFloat(formData.umidade));
+            if (formData.densidade) formDataToSend.append('Densidade', parseFloat(formData.densidade));
+            if (formData.porosidade) formDataToSend.append('Porosidade', parseFloat(formData.porosidade));
+
+            // Análise Complementar
+            if (formData.capacidadeTrocaCationica) formDataToSend.append('CapacidadeDeTrocaCationica', parseFloat(formData.capacidadeTrocaCationica));
+            if (formData.saturacaoBases) formDataToSend.append('SaturaçãoPorBases', parseFloat(formData.saturacaoBases));
+            if (formData.somaBases) formDataToSend.append('SomaDeBases', parseFloat(formData.somaBases));
+            if (formData.relacaoCN) formDataToSend.append('Relacao', parseFloat(formData.relacaoCN));
+            if (formData.aluminio) formDataToSend.append('Aluminio', parseFloat(formData.aluminio));
+            if (formData.acidezTrocavel) formDataToSend.append('AcidezTrocavel', parseFloat(formData.acidezTrocavel));
+
+            // Macronutrientes
+            if (formData.nitrogenio) formDataToSend.append('Nitrogenio', parseFloat(formData.nitrogenio));
+            if (formData.fosforo) formDataToSend.append('Fosforo', parseFloat(formData.fosforo));
+            if (formData.potassio) formDataToSend.append('Potassio', parseFloat(formData.potassio));
+            if (formData.calcio) formDataToSend.append('Calcio', parseFloat(formData.calcio));
+            if (formData.magnesio) formDataToSend.append('Magnesio', parseFloat(formData.magnesio));
+            if (formData.enxofre) formDataToSend.append('Enxofre', parseFloat(formData.enxofre));
+
+            // Micronutrientes
+            if (formData.ferro) formDataToSend.append('Ferro', parseFloat(formData.ferro));
+            if (formData.manganes) formDataToSend.append('Manganes', parseFloat(formData.manganes));
+            if (formData.zinco) formDataToSend.append('Zinco', parseFloat(formData.zinco));
+            if (formData.cobre) formDataToSend.append('Cobre', parseFloat(formData.cobre));
+            if (formData.boro) formDataToSend.append('Boro', parseFloat(formData.boro));
+            if (formData.molibdenio) formDataToSend.append('Molibdenio', parseFloat(formData.molibdenio));
+
+            // Recomendações
+            if (formData.classificacaoFertilidade)
+                formDataToSend.append('ClassificacaoDaFertilidade', formData.classificacaoFertilidade.value);
+            if (formData.recomendacoesCalcario) formDataToSend.append('RecomendacoesDeCalagem', formData.recomendacoesCalcario);
+            if (formData.recomendacoesFertilizante) formDataToSend.append('RecomendacoesDeFertilizacao', formData.recomendacoesFertilizante);
+            if (formData.observacoes) formDataToSend.append('ObservacoesGerais', formData.observacoes);
+
+            // Culturas Recomendadas (array)
+            if (formData.culturasRecomendadas && formData.culturasRecomendadas.length > 0) {
+                formData.culturasRecomendadas.forEach((cultura, index) => {
+                    formDataToSend.append(`CulturasRecomendadas[${index}]`, cultura.value);
+                });
+            }
+
+
+            // Anexo de arquivo
+            if (formData.resultadosLaboratorio && formData.resultadosLaboratorio.length > 0) {
+                formDataToSend.append('AnexarResultadosDoLaboratorio', formData.resultadosLaboratorio[0]);
+            }
+
+            const response = await fetch(`${API_BASE_URL}/analise`, {
+                method: 'POST',
+                body: formDataToSend
+            });
+
+            if (!response.ok) {
+                const errorData = await response.text();
+                throw new Error(errorData || 'Erro ao salvar resultados');
+            }
+
             showToast('success', 'Sucesso', 'Resultados registrados com sucesso!');
 
             // Resetar formulário após salvar
@@ -248,10 +237,13 @@ const LancamentoResultadosSolo = () => {
                 setFormData(initialState);
                 setAmostraSelecionada(null);
                 setActiveIndex(amostraId ? 1 : 0);
+                if (!amostraId) {
+                    carregarAmostras(); // Recarregar lista de amostras
+                }
             }, 2000);
         } catch (error) {
             console.error('Erro ao salvar:', error);
-            showToast('error', 'Erro', 'Erro ao registrar resultados. Tente novamente.');
+            showToast('error', 'Erro', error.message || 'Erro ao registrar resultados. Tente novamente.');
         } finally {
             setSaving(false);
         }
@@ -277,7 +269,7 @@ const LancamentoResultadosSolo = () => {
         }
 
         return (
-            <div className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg max-w-md z-50 ${bgColor} animate-fadeIn`}>
+            <div className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg max-w-md z-50 ${bgColor}`}>
                 <div className="flex items-center">
                     <div className="mr-3">{icon}</div>
                     <div>
@@ -321,56 +313,81 @@ const LancamentoResultadosSolo = () => {
                         </div>
 
                         {/* Lista de Amostras */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {amostrasDisponiveis
-                                .filter(a =>
-                                    a.numeroAmostra.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                    a.codigoAmostra.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                    a.localizacao.provincia.toLowerCase().includes(searchTerm.toLowerCase())
-                                )
-                                .map(amostra => (
-                                    <div
-                                        key={amostra.id}
-                                        className="bg-white rounded-xl border-2 border-gray-200 hover:border-emerald-500 p-6 cursor-pointer transition-all hover:shadow-lg"
-                                        onClick={() => handleSelecionarAmostra(amostra)}
-                                    >
-                                        <div className="flex items-center mb-4">
-                                            <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
-                                                <TestTube className="w-6 h-6 text-emerald-600" />
+                        {loading ? (
+                            <div className="text-center py-12">
+                                <Loader className="w-12 h-12 animate-spin text-emerald-600 mx-auto mb-4" />
+                                <p className="text-gray-600">Carregando amostras...</p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {amostrasDisponiveis
+                                    .filter(a => {
+                                        const termo = searchTerm.toLowerCase();
+                                        return (
+                                            (a.numeroAmostra && a.numeroAmostra.toLowerCase().includes(termo)) ||
+                                            (a.codigoAmostra && a.codigoAmostra.toLowerCase().includes(termo)) ||
+                                            (a.localizacao?.provincia && a.localizacao.provincia.toLowerCase().includes(termo)) ||
+                                            (a.provincia && a.provincia.toLowerCase().includes(termo)) ||
+                                            String(a.id).includes(termo)
+                                        );
+                                    })
+                                    .map(amostra => (
+                                        <div
+                                            key={amostra.id}
+                                            className="bg-white rounded-xl border-2 border-gray-200 hover:border-emerald-500 p-6 cursor-pointer transition-all hover:shadow-lg"
+                                            onClick={() => handleSelecionarAmostra(amostra)}
+                                        >
+                                            <div className="flex items-center mb-4">
+                                                <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
+                                                    <TestTube className="w-6 h-6 text-emerald-600" />
+                                                </div>
+                                                <div className="ml-3">
+                                                    <h4 className="font-semibold text-gray-900">
+                                                        {amostra.numeroAmostra || `Amostra #${amostra.id}`}
+                                                    </h4>
+                                                    <p className="text-xs text-gray-500">
+                                                        {amostra.codigoAmostra || `Código: ${amostra.id}`}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div className="ml-3">
-                                                <h4 className="font-semibold text-gray-900">{amostra.numeroAmostra}</h4>
-                                                <p className="text-xs text-gray-500">{amostra.codigoAmostra}</p>
+
+                                            <div className="space-y-2 text-sm">
+                                                {(amostra.localizacao?.municipio || amostra.municipio) && (
+                                                    <div className="flex items-center text-gray-600">
+                                                        <MapPin className="w-4 h-4 mr-2" />
+                                                        {amostra.localizacao?.municipio || amostra.municipio}, {amostra.localizacao?.provincia || amostra.provincia}
+                                                    </div>
+                                                )}
+                                                {(amostra.dataColeta || amostra.dataDeColeta) && (
+                                                    <div className="flex items-center text-gray-600">
+                                                        <Calendar className="w-4 h-4 mr-2" />
+                                                        Coleta: {new Date(amostra.dataColeta || amostra.dataDeColeta).toLocaleDateString('pt-BR')}
+                                                    </div>
+                                                )}
+                                                {(amostra.culturaAtual || amostra.cultura) && (
+                                                    <div className="flex items-center text-gray-600">
+                                                        <Leaf className="w-4 h-4 mr-2" />
+                                                        {amostra.culturaAtual || amostra.cultura}
+                                                    </div>
+                                                )}
+                                                <div className="mt-3 pt-3 border-t">
+                                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${(amostra.statusAnalise || amostra.status) === 'PENDENTE'
+                                                        ? 'bg-yellow-100 text-yellow-800'
+                                                        : 'bg-blue-100 text-blue-800'
+                                                        }`}>
+                                                        {(amostra.statusAnalise || amostra.status) === 'PENDENTE' ? 'Pendente' : 'Em Análise'}
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
+                                    ))}
+                            </div>
+                        )}
 
-                                        <div className="space-y-2 text-sm">
-                                            <div className="flex items-center text-gray-600">
-                                                <MapPin className="w-4 h-4 mr-2" />
-                                                {amostra.localizacao.municipio}, {amostra.localizacao.provincia}
-                                            </div>
-                                            <div className="flex items-center text-gray-600">
-                                                <Calendar className="w-4 h-4 mr-2" />
-                                                Coleta: {new Date(amostra.dataColeta).toLocaleDateString('pt-BR')}
-                                            </div>
-                                            <div className="flex items-center text-gray-600">
-                                                <Leaf className="w-4 h-4 mr-2" />
-                                                {amostra.culturaAtual}
-                                            </div>
-                                            <div className="mt-3 pt-3 border-t">
-                                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${amostra.statusAnalise === 'PENDENTE' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'
-                                                    }`}>
-                                                    {amostra.statusAnalise === 'PENDENTE' ? 'Pendente' : 'Em Análise'}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                        </div>
-
-                        {amostrasDisponiveis.filter(a =>
-                            a.numeroAmostra.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            a.codigoAmostra.toLowerCase().includes(searchTerm.toLowerCase())
+                        {!loading && amostrasDisponiveis.filter(a =>
+                            (a.numeroAmostra && a.numeroAmostra.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                            (a.codigoAmostra && a.codigoAmostra.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                            String(a.id).includes(searchTerm.toLowerCase())
                         ).length === 0 && (
                                 <div className="text-center py-12">
                                     <TestTube className="w-16 h-16 text-gray-300 mx-auto mb-4" />
@@ -384,32 +401,7 @@ const LancamentoResultadosSolo = () => {
                 return (
                     <div className="max-w-4xl mx-auto">
                         {/* Informações da Amostra Selecionada */}
-                        {amostraSelecionada && (
-                            <div className="bg-emerald-50 rounded-2xl p-6 mb-8 border border-emerald-200">
-                                <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
-                                    <TestTube className="w-5 h-5 mr-2 text-emerald-600" />
-                                    Amostra Selecionada
-                                </h4>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                                    <div>
-                                        <span className="font-medium text-gray-700">Número:</span>
-                                        <p className="text-gray-600">{amostraSelecionada.numeroAmostra}</p>
-                                    </div>
-                                    <div>
-                                        <span className="font-medium text-gray-700">Localização:</span>
-                                        <p className="text-gray-600">{amostraSelecionada.localizacao.municipio}</p>
-                                    </div>
-                                    <div>
-                                        <span className="font-medium text-gray-700">Cultura:</span>
-                                        <p className="text-gray-600">{amostraSelecionada.culturaAtual}</p>
-                                    </div>
-                                    <div>
-                                        <span className="font-medium text-gray-700">Tipo Solo:</span>
-                                        <p className="text-gray-600">{amostraSelecionada.tipoSolo}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+
 
                         <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-6 mb-8 border border-blue-100">
                             <div className="flex items-center space-x-3 mb-3">
@@ -789,15 +781,14 @@ const LancamentoResultadosSolo = () => {
                                         type="file"
                                         className="hidden"
                                         accept=".pdf,.doc,.docx,.jpg,.png"
-                                        multiple
                                         onChange={(e) => handleInputChange('resultadosLaboratorio', e.target.files)}
                                         id="resultados-upload"
                                     />
                                     <label
                                         htmlFor="resultados-upload"
                                         className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all ${formData.resultadosLaboratorio
-                                                ? 'bg-green-50 border-green-300 hover:bg-green-100'
-                                                : 'bg-gray-50 border-gray-300 hover:border-emerald-400 hover:bg-emerald-50'
+                                            ? 'bg-green-50 border-green-300 hover:bg-green-100'
+                                            : 'bg-gray-50 border-gray-300 hover:border-emerald-400 hover:bg-emerald-50'
                                             }`}
                                     >
                                         <Upload className={`w-8 h-8 mb-3 ${formData.resultadosLaboratorio ? 'text-green-500' : 'text-gray-400'}`} />
@@ -819,12 +810,12 @@ const LancamentoResultadosSolo = () => {
         }
     };
 
-    if (loading) {
+    if (loading && activeIndex === 0) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="text-center">
                     <Loader className="w-12 h-12 animate-spin text-emerald-600 mx-auto mb-4" />
-                    <p className="text-gray-600">Carregando amostra...</p>
+                    <p className="text-gray-600">Carregando dados...</p>
                 </div>
             </div>
         );
@@ -849,7 +840,7 @@ const LancamentoResultadosSolo = () => {
                                 <h1 className="text-3xl font-bold">Lançamento de Resultados</h1>
                                 <p className="text-emerald-100 mt-1">
                                     {amostraSelecionada
-                                        ? `Amostra: ${amostraSelecionada.numeroAmostra}`
+                                        ? `Amostra: AMT-${amostraSelecionada._id || `#${amostraSelecionada.id}`}`
                                         : 'Sistema de Gestão de Análises de Solo'}
                                 </p>
                             </div>
@@ -875,10 +866,10 @@ const LancamentoResultadosSolo = () => {
                             >
                                 <div
                                     className={`flex items-center justify-center w-12 h-12 rounded-full mb-2 transition-colors ${idx < activeIndex
-                                            ? 'bg-emerald-500 text-white'
-                                            : idx === activeIndex
-                                                ? 'bg-emerald-600 text-white ring-4 ring-emerald-100'
-                                                : 'bg-gray-200 text-gray-500'
+                                        ? 'bg-emerald-500 text-white'
+                                        : idx === activeIndex
+                                            ? 'bg-emerald-600 text-white ring-4 ring-emerald-100'
+                                            : 'bg-gray-200 text-gray-500'
                                         }`}
                                 >
                                     {React.createElement(stepObj.icon, { size: 24 })}
@@ -912,8 +903,8 @@ const LancamentoResultadosSolo = () => {
                     <div className="flex justify-between items-center">
                         <button
                             className={`px-6 py-3 rounded-xl border border-gray-300 flex items-center transition-all font-medium ${activeIndex === 0
-                                    ? 'opacity-50 cursor-not-allowed bg-gray-100'
-                                    : 'bg-white hover:bg-gray-50 text-gray-700'
+                                ? 'opacity-50 cursor-not-allowed bg-gray-100'
+                                : 'bg-white hover:bg-gray-50 text-gray-700'
                                 }`}
                             onClick={() => setActiveIndex(Math.max(0, activeIndex - 1))}
                             disabled={activeIndex === 0}
@@ -929,8 +920,8 @@ const LancamentoResultadosSolo = () => {
                         {activeIndex === steps.length - 1 ? (
                             <button
                                 className={`px-6 py-3 rounded-xl flex items-center transition-all font-medium shadow-lg ${saving
-                                        ? 'bg-emerald-400 cursor-not-allowed'
-                                        : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                                    ? 'bg-emerald-400 cursor-not-allowed'
+                                    : 'bg-emerald-600 hover:bg-emerald-700 text-white'
                                     }`}
                                 onClick={handleSave}
                                 disabled={saving || !amostraSelecionada}
@@ -950,8 +941,8 @@ const LancamentoResultadosSolo = () => {
                         ) : (
                             <button
                                 className={`px-6 py-3 rounded-xl flex items-center transition-all font-medium shadow-lg ${(activeIndex === 0 && !amostraSelecionada)
-                                        ? 'bg-gray-300 cursor-not-allowed text-gray-500'
-                                        : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                                    ? 'bg-gray-300 cursor-not-allowed text-gray-500'
+                                    : 'bg-emerald-600 hover:bg-emerald-700 text-white'
                                     }`}
                                 onClick={() => setActiveIndex(Math.min(steps.length - 1, activeIndex + 1))}
                                 disabled={activeIndex === 0 && !amostraSelecionada}

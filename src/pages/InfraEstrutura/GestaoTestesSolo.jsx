@@ -708,7 +708,7 @@ useEffect(() => {
                             <TestTube className="w-6 h-6 text-emerald-600" />
                           </div>
                           <div className="ml-4">
-                            <div className="text-sm font-semibold text-gray-900">#{record._id}</div>
+                            <div className="text-sm font-semibold text-gray-900">{record._id}</div>
                             <div className="flex items-center text-xs text-gray-600 mt-1">
                               <User className="w-3.5 h-3.5 mr-1" />
                               {getValueOrNA(record.tecnico_Responsavel)}

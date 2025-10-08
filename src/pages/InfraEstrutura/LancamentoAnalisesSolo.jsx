@@ -11,74 +11,7 @@ import {
     AlertCircle
 } from 'lucide-react';
 
-// Componente Input customizado
-const CustomInput = ({ type = "text", label, value, onChange, options, required, placeholder, helperText, rows, step }) => {
-    const baseInputClass = "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all";
-    
-    if (type === "select") {
-        return (
-            <div className="space-y-2">
-                {label && <label className="block text-sm font-medium text-gray-700">{label} {required && <span className="text-red-500">*</span>}</label>}
-                <select value={value} onChange={(e) => onChange(e.target.value)} className={baseInputClass} required={required}>
-                    <option value="">Selecione...</option>
-                    {options?.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                </select>
-            </div>
-        );
-    }
-    
-    if (type === "textarea") {
-        return (
-            <div className="space-y-2">
-                {label && <label className="block text-sm font-medium text-gray-700">{label} {required && <span className="text-red-500">*</span>}</label>}
-                <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={rows || 3} className={baseInputClass} placeholder={placeholder} required={required} />
-                {helperText && <p className="text-xs text-gray-500">{helperText}</p>}
-            </div>
-        );
-    }
-
-    if (type === "multiselect") {
-        return (
-            <div className="space-y-2">
-                {label && <label className="block text-sm font-medium text-gray-700 mb-3">{label}</label>}
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {options?.map(opt => (
-                        <label key={opt.value} className="flex items-center space-x-2 p-2 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                            <input
-                                type="checkbox"
-                                checked={value?.includes(opt.value)}
-                                onChange={(e) => {
-                                    const newValue = e.target.checked 
-                                        ? [...(value || []), opt.value]
-                                        : value.filter(v => v !== opt.value);
-                                    onChange(newValue);
-                                }}
-                                className="w-4 h-4 text-purple-600 rounded"
-                            />
-                            <span className="text-sm">{opt.label}</span>
-                        </label>
-                    ))}
-                </div>
-            </div>
-        );
-    }
-    
-    return (
-        <div className="space-y-2">
-            {label && <label className="block text-sm font-medium text-gray-700">{label} {required && <span className="text-red-500">*</span>}</label>}
-            <input
-                type={type}
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                className={baseInputClass}
-                placeholder={placeholder}
-                required={required}
-                step={step}
-            />
-            {helperText && <p className="text-xs text-gray-500">{helperText}</p>}
-        </div>
-    );
-};
+import CustomInput from '../../components/CustomInput';
 
 const LancamentoAnalisesSolo = () => {
     const [activeIndex, setActiveIndex] = useState(0);
