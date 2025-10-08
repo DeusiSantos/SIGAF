@@ -3,8 +3,8 @@ import { Image, Page, Text, View, Document, StyleSheet, pdf } from '@react-pdf/r
 import axios from 'axios';
 import QRCode from 'qrcode'; // 👈 IMPORTAÇÃO ADICIONADA
 import emblema from '../../assets/emblema.png';
-import fotoC from '../../assets/RNPA-removebg.png';
-import logo from '../../assets/RNPA-removebg.png';
+import fotoC from '../../assets/SIGAF.png';
+import logo from '../../assets/SIGAF.png';
 
 import api from '../../services/api';
 
@@ -535,7 +535,7 @@ const HeaderSection = () => (
     <Text style={styles.logo}>REPÚBLICA DE ANGOLA</Text>
     <Text style={styles.logo}>MINISTÉRIO DA AGRICULTURA E FLORESTAS</Text>
     <Text style={styles.logo}>INSTITUTO DE DESENVOLVIMENTO AGRÁRIO</Text>
-    <Text style={styles.logo}>REGISTO NACIONAL DE PRODUTORES AGRÍCOLAS, PECUÁRIOS E FLORESTAIS</Text>
+    <Text style={styles.logo}>SISTEMA INTEGRADO DE GESTÃO DE AGRO-FLORESTAL</Text>
     <Text style={styles.titleRepublica}>FICHA DO PRODUTOR</Text>
   </View>
 );

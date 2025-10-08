@@ -6,7 +6,7 @@ import emblema from '../assets/emblema.png'
 import Imagem2 from '../assets/imageLogin.jpeg'
 import IDA from '../assets/IDA.png'
 import ISV from '../assets/ISV.png'
-import RNPA from '../assets/RNPA-removebg.png'
+import RNPA from '../assets/SIGAF.png'
 
 const LoginPage = () => {
     const navigate = useNavigate();
@@ -295,8 +295,8 @@ const LoginPage = () => {
 
                         {/* Description */}
                         <div className="text-sm text-gray-600 font-medium border-t border-green-100 pt-6">
-                            <h3 className="font-bold text-gray-800 mb-2">RNPA - Sistema Nacional</h3>
-                            <p>Registro Nacional de Produtores Agrícolas e Florestais</p>
+                            <h3 className="font-bold text-gray-800 mb-2">SIGAF - Sistema Nacional</h3>
+                            <p>Sistema Integrado de Gestão De Agro-Florestal</p>
                         </div>
 
                         {/* Features */}

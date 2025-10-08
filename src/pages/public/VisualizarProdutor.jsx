@@ -187,9 +187,8 @@ const mapApiDataToProdutor = (apiData) => {
 
         // Dados pessoais
         nomeProdutor: apiData.nome_produtor || '',
-        nomeMeioProdutor: apiData.nome_meio_produtor || '',
         sobrenomeProdutor: apiData.sobrenome_produtor || '',
-        nome: apiData.beneficiary_name || `${apiData.nome_produtor || ''} ${apiData.nome_meio_produtor || ''} ${apiData.sobrenome_produtor || ''}`.trim(),
+        nome: apiData.beneficiary_name || `${apiData.nome_produtor || ''} ${apiData.sobrenome_produtor || ''}`.trim(),
         genero: apiData.beneficiary_gender === 'm' ? 'MASCULINO' : 'FEMININO',
         numeroBI: apiData.confirmar_documento || 'N/A',
         telefone: apiData.beneficiary_phone_number || 'N/A',
@@ -896,6 +895,7 @@ const VisualizarProdutor = () => {
 
     // Função para salvar dados
     const prepareDataForAPI = (formData) => {
+        // Função auxiliar para converter valores
         const convertValue = (value) => {
             if (value === null || value === undefined) return '';
             if (typeof value === 'object' && value !== null && value.value !== undefined) {
@@ -910,50 +910,129 @@ const VisualizarProdutor = () => {
             return value.toString();
         };
 
+        // Função auxiliar para obter valores de select
+        const getSelectStringValue = (value) => {
+            if (typeof value === 'string') return value;
+            if (value && typeof value === 'object' && value.value !== undefined) {
+                return value.value;
+            }
+            return '';
+        };
+
+        // Função para formatar data no formato ISO 8601 completo
+        const formatDateForAPI = (dateString) => {
+            if (!dateString) {
+                return new Date().toISOString();
+            }
+
+            try {
+                if (dateString.includes('T')) {
+                    return dateString;
+                }
+
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) {
+                    return new Date().toISOString();
+                }
+                return date.toISOString();
+            } catch (error) {
+                console.error('Erro ao formatar data:', error);
+                return new Date().toISOString();
+            }
+        };
+
+        // ===== CORREÇÃO: Extrair apenas o primeiro nome =====
+        const getPrimeiroNomeOnly = (nomeCompleto) => {
+            if (!nomeCompleto) return '';
+            return nomeCompleto.trim().split(' ')[0];
+        };
+
+        // Garantir que temos apenas o primeiro nome
+        const primeiroNome = getPrimeiroNomeOnly(formData.nome);
+        const nomeMeio = convertValue(formData.nomeMeioProdutor) || '';
+        const sobrenome = convertValue(formData.sobrenomeProdutor) || '';
+
+        // Construir o nome completo corretamente (sem duplicação)
+        const nomeCompleto = [primeiroNome, nomeMeio, sobrenome]
+            .filter(parte => parte && parte.trim()) // Remove partes vazias
+            .join(' ')
+            .trim();
+
+        // Garantir que o ID seja numérico
+        const formId = parseInt(id);
+        if (isNaN(formId) || formId <= 0) {
+            throw new Error('ID do formulário inválido');
+        }
+
         return {
-            id: parseInt(id),
-            provincia: getSelectStringValue(formData.provincia),
+            command: "UpdateFormulario",
+            id: formId,
+            codigo_inquiridor: convertValue(formData.codigoInquiridor) || '',
+            nome_inquiridor: convertValue(formData.nomeInquiridor) || '',
+            nome_meio: convertValue(formData.nomeMeioInquiridor) || '',
+            sobrenome_inquiridor: convertValue(formData.sobrenomeInquiridor) || '',
+            registration_date: formatDateForAPI(formData.dataRegistro),
+
+            // Localização
+            provincia: getSelectStringValue(formData.provincia) || '',
             municipio: getSelectStringValue(formData.municipio) || '',
             comuna: convertValue(formData.comuna) || '',
-            geoLevel4: convertValue(formData.geoLevel4) || '',
-            geoLevel5: convertValue(formData.geoLevel5) || '',
-            geoLevel6: convertValue(formData.geoLevel6) || '',
-            gpsCoordinates: formData.coordenadasGPS ? `${formData.coordenadasGPS.lat} ${formData.coordenadasGPS.lng}` : '',
+            geo_level_4: convertValue(formData.geoLevel4) || '',
+            geo_level_5: convertValue(formData.geoLevel5) || '',
+            geo_level_6: convertValue(formData.geoLevel6) || '',
+            gps_coordinates: formData.coordenadasGPS ?
+                `${formData.coordenadasGPS.lat} ${formData.coordenadasGPS.lng}` : '',
+
+            // Consentimento
             permissao: 'sim',
-            membroRegistrado: 'nao',
-            codigoFamiliar: '',
-            nomeProdutor: convertValue(formData.nome) || '',
-            nomeMeioProdutor: convertValue(formData.nomeMeioProdutor) || '',
-            sobrenomeProdutor: convertValue(formData.sobrenomeProdutor) || '',
-            beneficiaryName: `${formData.nome || ''} ${formData.nomeMeioProdutor || ''} ${formData.sobrenomeProdutor || ''}`.trim(),
-            beneficiaryIdNumber: convertValue(formData.numeroBI) || '',
-            tipoDocumento: 'bilhete_identidade',
-            confirmarDocumento: convertValue(formData.numeroBI) || '',
-            beneficiaryGender: convertValue(formData.genero) === 'MASCULINO' ? 'm' : 'f',
-            beneficiaryPhoneNumber: convertValue(formData.telefone) || '',
-            confirmarTelefone: convertValue(formData.telefone) || '',
-            telefoneProprio: 'sim',
-            donoNumero: '',
-            beneficiaryDateOfBirth: convertValue(formData.dataNascimento) || '1990-01-01',
-            lugarNascimento: convertValue(formData.lugarNascimento) || '',
-            estadoCivil: convertValue(formData.estadoCivil) || 'solteiro',
-            nivelEscolaridade: convertValue(formData.nivelEscolaridade) || 'primario',
+            membro_registrado: 'nao',
+            codigo_familiar: '',
+
+            // ===== DADOS DO PRODUTOR CORRIGIDOS =====
+            nome_produtor: primeiroNome,  // Apenas o primeiro nome
+            nome_meio_produtor: nomeMeio,  // Apenas nome do meio
+            sobrenome_produtor: sobrenome, // Apenas sobrenome
+            beneficiary_name: nomeCompleto, // Nome completo sem duplicação
+
+            // ECA
+            e_4_Fazes_parte_de_uma_cooper: convertValue(formData.e4FazesParteDeUmaCooper) || '',
+            posicao_eca: convertValue(formData.posicaoECA) || '',
+            tipo_organizacao: convertValue(formData.tipoOrganizacao) || '',
+            especificar_organizacao: convertValue(formData.especificarOrganizacao) || '',
+
+            // Documento e Contato
+            beneficiary_gender: getSelectStringValue(formData.genero) === 'MASCULINO' ? 'm' : 'f',
+            tipo_documento: 'bilhete_identidade',
+            confirmar_documento: convertValue(formData.numeroBI) || '',
+            beneficiary_id_number: convertValue(formData.numeroBI) || '',
+            beneficiary_phone_number: convertValue(formData.telefone) || '',
+            confirmar_telefone: convertValue(formData.telefone) || '',
+            telefone_proprio: 'sim',
+            dono_numero: '',
+
+            // Dados Pessoais
+            beneficiary_date_of_birth: formatDateForAPI(formData.dataNascimento),
+            lugar_nascimento: convertValue(formData.lugarNascimento) || '',
+            estado_civil: getSelectStringValue(formData.estadoCivil) || 'solteiro',
+            nivel_escolaridade: getSelectStringValue(formData.nivelEscolaridade) || 'primario',
             outro: '',
-            gravida: formData.gravida ? 'sim' : 'nao',
-            possuiDeficiencia: formData.possuiDeficiencia ? 'sim' : 'nao',
-            tipoDeficiencia: convertValue(formData.tipoDeficiencia) || '',
-            chefeFamiliar: formData.chefeAgregado ? 'sim' : 'nao',
-            nomeChefe: convertValue(formData.nomeChefe) || '',
-            nomeMeioChefe: convertValue(formData.nomeMeioChefe) || '',
-            sobreNomeChefe: convertValue(formData.sobrenomeChefe) || '',
-            sexoChefe: convertValue(formData.sexoChefe) === 'MASCULINO' ? 'm' : 'f',
-            tipoDocChefe: '',
-            numDocChefe: '',
-            confirmarDocChefe: '',
-            numTelChefe: '',
-            confirmarTelChefe: '',
-            relacaoChefe: '',
-            totalAgregado: (formData.totalAgregado || 1).toString(),
+            gravida: formData.gravida === true || formData.gravida?.value === true ? 'sim' : 'nao',
+            possui_deficiencia: formData.possuiDeficiencia === true || formData.possuiDeficiencia?.value === true ? 'sim' : 'nao',
+            tipo_deficiencia: convertValue(formData.tipoDeficiencia) || '',
+
+            // Agregado Familiar
+            chefe_familiar: formData.chefeAgregado === true || formData.chefeAgregado?.value === true ? 'sim' : 'nao',
+            nome_chefe: convertValue(formData.nomeChefe) || '',
+            nome_meio_chefe: convertValue(formData.nomeMeioChefe) || '',
+            sobrenome_chefe: convertValue(formData.sobrenomeChefe) || '',
+            sexo_chefe: getSelectStringValue(formData.sexoChefe) === 'MASCULINO' ? 'm' : 'f',
+            tipo_doc_chefe: '',
+            num_doc_chefe: '',
+            confirmar_doc_chefe: '',
+            num_tel_chefe: '',
+            confirmar_tel_chefe: '',
+            relacao_chefe: '',
+            total_agregado: (formData.totalAgregado || 1).toString(),
             feminino_0_6: (formData.feminino0a6 || 0).toString(),
             masculino_0_6: (formData.masculino0a6 || 0).toString(),
             feminino_7_18: (formData.feminino7a18 || 0).toString(),
@@ -962,71 +1041,77 @@ const VisualizarProdutor = () => {
             masculino_19_60: (formData.masculino19a60 || 0).toString(),
             feminino_61_mais: (formData.feminino61mais || 0).toString(),
             masculino_61_mais: (formData.masculino61mais || 0).toString(),
-            atividadesProdutor: convertValue(formData.atividadesProdutor) || '',
-            outraAtividade: '',
-            acessoTerra: formData.acessoTerra ? 'sim' : 'nao',
-            eProprietario: formData.proprietarioTerra ? 'sim' : 'nao',
-            tituloTerra: formData.tituloTerra ? 'sim' : 'nao',
-            tipoDocTerra: '',
-            areaTotal: (formData.areaTotalCampos || 0).toString(),
-            areaExplorada: (formData.areaExplorada || 0).toString(),
-            areaAgricola: (formData.areaAgricola || 0).toString(),
-            areaPecuaria: (formData.areaPecuaria || 0).toString(),
-            areaFlorestal: (formData.areaFlorestal || 0).toString(),
-            tecnologiaAgricola: convertValue(formData.tecnologiaAgricola) || '',
-            culturasImportantes: convertValue(formData.culturasImportantes) || '',
-            outraCultura: convertValue(formData.outraCultura) || '',
-            producaoSacos: (formData.producaoSacos || 0).toString(),
-            tipoSemanteira: convertValue(formData.tipoSementeira) || '',
-            usoFertilizante: formData.usoFertilizantes ? 'sim' : 'nao',
-            preparacaoTerra: convertValue(formData.preparacaoTerra) || '',
-            acessoIrrigacao: formData.acessoIrrigacao ? 'sim' : 'nao',
-            sistemaIrrigacao: convertValue(formData.sistemaIrrigacao) || '',
-            especificarIrrigacao: '',
-            distanciaAgua: '0',
-            amanhosCulturais: '',
-            tiposAmanhos: '',
-            especificarAmanhos: '',
-            acessoInsumoaAgricolas: '',
-            fonteInsumos: '',
-            especificarFonte: '',
-            tiposCriacao: convertValue(formData.tiposCriacao) || '',
-            outraCriacao: '',
-            sistemaAvicultura: '',
-            objetivoAvicultura: '',
-            outroObjAvicultura: '',
-            numeroAves: (formData.numeroAves || 0).toString(),
-            tipoPecuaria: '',
-            manejoPecuaria: '',
-            numeroCabras: (formData.numeroCabras || 0).toString(),
-            numeroVacas: (formData.numeroVacas || 0).toString(),
-            numeroOvelhas: (formData.numeroOvelhas || 0).toString(),
-            objetivoProducao: '',
-            especificarObjetivoProducao: '',
-            numeroPorcos: (formData.numeroPorcos || 0).toString(),
-            objetivoSuinocultura: '',
-            especificarObjetivoSuino: '',
-            tipoAquicultura: '',
-            objetivoAquicultura: '',
-            especificarObjetivoAquic: '',
-            numeroPeixes: (formData.numeroPeixes || 0).toString(),
-            numeroCoelhos: (formData.numeroCoelhos || 0).toString(),
-            objetivoCoelho: '',
-            especificarObjetivoCoelhos: '',
-            acessoRacao: formData.acessoRacao ? 'sim' : 'nao',
-            conhecimentoDoencas: formData.conhecimentoDoencas ? 'sim' : 'nao',
-            creditoBeneficio: formData.creditoBeneficio ? 'sim' : 'nao',
-            fonteCredito: '',
-            especificarCredito: '',
-            bensFamiliares: convertValue(formData.bensFamiliares) || '',
-            especificarBem: '',
-            tipoApoio: convertValue(formData.tipoApoio) || '',
-            observacoesGerais: convertValue(formData.observacoesGerais) || '',
-            tipoPatec: '',
-            especificarPatec: '',
-            h3OProdutorJBeneficiouD: '',
-            h31TiposDeCrditos: '',
-            especificaOutroTipItoQueOBeneficiou: ''
+
+            // Atividades
+            atividades_produtor: convertValue(formData.atividadesProdutor) || '',
+            outra_atividade: '',
+            acesso_terra: formData.acessoTerra === true || formData.acessoTerra?.value === true ? 'sim' : 'nao',
+            e_proprietario: formData.proprietarioTerra === true || formData.proprietarioTerra?.value === true ? 'sim' : 'nao',
+            titulo_terra: formData.tituloTerra === true || formData.tituloTerra?.value === true ? 'sim' : 'nao',
+            tipo_doc_terra: '',
+            area_total: (formData.areaTotalCampos || 0).toString(),
+            area_explorada: (formData.areaExplorada || 0).toString(),
+            area_agricola: (formData.areaAgricola || 0).toString(),
+            area_pecuaria: (formData.areaPecuaria || 0).toString(),
+            area_florestal: (formData.areaFlorestal || 0).toString(),
+            tecnologia_agricola: getSelectStringValue(formData.tecnologiaAgricola) || '',
+            culturas_importantes: convertValue(formData.culturasImportantes) || '',
+            outra_cultura: convertValue(formData.outraCultura) || '',
+            producao_sacos: (formData.producaoSacos || 0).toString(),
+            tipo_semanteira: getSelectStringValue(formData.tipoSementeira) || '',
+            uso_fertilizante: formData.usoFertilizantes === true || formData.usoFertilizantes?.value === true ? 'sim' : 'nao',
+            preparacao_terra: getSelectStringValue(formData.preparacaoTerra) || '',
+            acesso_irrigacao: formData.acessoIrrigacao === true || formData.acessoIrrigacao?.value === true ? 'sim' : 'nao',
+            sistema_irrigacao: convertValue(formData.sistemaIrrigacao) || '',
+            especificar_irrigacao: '',
+            distancia_agua: '0',
+            amanhos_culturais: '',
+            tipos_amanhos: '',
+            especificar_amanhos: '',
+            acesso_insumoa_agricolas: '',
+            fonte_insumos: '',
+            especificar_fonte: '',
+
+            // Pecuária
+            tipos_criacao: convertValue(formData.tiposCriacao) || '',
+            outra_criacao: '',
+            sistema_avicultura: '',
+            objetivo_avicultura: '',
+            outro_obj_avicultura: '',
+            numero_aves: (formData.numeroAves || 0).toString(),
+            tipo_pecuaria: '',
+            manejo_pecuaria: '',
+            numero_cabras: (formData.numeroCabras || 0).toString(),
+            numero_vacas: (formData.numeroVacas || 0).toString(),
+            numero_ovelhas: (formData.numeroOvelhas || 0).toString(),
+            objetivo_producao: '',
+            especificar_objetivo_producao: '',
+            numero_porcos: (formData.numeroPorcos || 0).toString(),
+            objetivo_suinocultura: '',
+            especificar_objetivo_suino: '',
+            tipo_aquicultura: '',
+            objetivo_aquicultura: '',
+            especificar_objetivo_aquic: '',
+            numero_peixes: (formData.numeroPeixes || 0).toString(),
+            numero_coelhos: (formData.numeroCoelhos || 0).toString(),
+            objetivo_coelho: '',
+            especificar_objetivo_coelhos: '',
+            acesso_racao: formData.acessoRacao === true || formData.acessoRacao?.value === true ? 'sim' : 'nao',
+            conhecimento_doencas: formData.conhecimentoDoencas === true || formData.conhecimentoDoencas?.value === true ? 'sim' : 'nao',
+            credito_beneficio: formData.creditoBeneficio === true || formData.creditoBeneficio?.value === true ? 'sim' : 'nao',
+            fonte_credito: '',
+            especificar_credito: '',
+
+            // Bens e Apoio
+            bens_familiares: convertValue(formData.bensFamiliares) || '',
+            especificar_bem: '',
+            tipo_apoio: convertValue(formData.tipoApoio) || '',
+            observacoes_gerais: convertValue(formData.observacoesGerais) || '',
+            tipo_patec: '',
+            especificar_patec: '',
+            h_3_O_produtor_j_beneficiou_d: '',
+            h3_1_Tipos_de_cr_ditos: '',
+            especifica_outro_tip_ito_que_o_beneficiou: ''
         };
     };
 
@@ -1037,11 +1122,29 @@ const VisualizarProdutor = () => {
                 return;
             }
 
+            const ageObj = calculateAge(formData.dataNascimento);
+            if (ageObj.age < 18) {
+                showToast('error', 'Produtor deve ter pelo menos 18 anos.');
+                return;
+            }
+
             setLoading(true);
             const token = "91c163addd72730d6bfe7a2d80eac5129767a044";
 
             const dataToSend = prepareDataForAPI(formData);
-            console.log('Enviando dados:', dataToSend);
+
+            // ===== LOG DE DEBUG PARA VERIFICAR OS NOMES =====
+            console.log('=== VERIFICAÇÃO DE NOMES ===');
+            console.log('formData.nome:', formData.nome);
+            console.log('formData.nomeMeioProdutor:', formData.nomeMeioProdutor);
+            console.log('formData.sobrenomeProdutor:', formData.sobrenomeProdutor);
+            console.log('---');
+            console.log('Enviando:');
+            console.log('nome_produtor:', dataToSend.nome_produtor);
+            console.log('nome_meio_produtor:', dataToSend.nome_meio_produtor);
+            console.log('sobrenome_produtor:', dataToSend.sobrenome_produtor);
+            console.log('beneficiary_name:', dataToSend.beneficiary_name);
+            console.log('========================');
 
             const response = await api.put(`/formulario/${id}`, dataToSend, {
                 headers: {
@@ -1050,13 +1153,32 @@ const VisualizarProdutor = () => {
                 }
             });
 
-            console.log('Resposta da API:', response.data);
-            showToast('success', 'Dados atualizados com sucesso!');
-            setIsEditing(false);
+            console.log('=== RESPOSTA DA API ===');
+            console.log('Status:', response.status);
+            console.log('Dados:', response.data);
+
+            if (response.status === 200 || response.status === 204) {
+                showToast('success', 'Dados atualizados com sucesso!');
+                setIsEditing(false);
+                window.location.reload();
+            } else {
+                showToast('error', `Resposta inesperada: ${response.status}`);
+            }
 
         } catch (error) {
-            console.error('Erro ao salvar:', error);
-            showToast('error', 'Erro ao salvar dados. Tente novamente.');
+            console.error('=== ERRO AO SALVAR ===');
+            console.error('Mensagem:', error.message);
+            console.error('Response:', error.response?.data);
+            console.error('Status:', error.response?.status);
+
+            let errorMessage = 'Erro ao salvar dados.';
+            if (error.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            } else if (error.response?.data) {
+                errorMessage = JSON.stringify(error.response.data);
+            }
+
+            showToast('error', errorMessage);
         } finally {
             setLoading(false);
         }

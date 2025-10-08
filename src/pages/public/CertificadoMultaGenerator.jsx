@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Image, Page, Text, View, Document, StyleSheet, pdf } from '@react-pdf/renderer';
 import QRCode from 'qrcode';
 import emblema from '../../assets/emblema.png';
-import logo from '../../assets/RNPA-removebg.png';
+import logo from '../../assets/SIGAF.png';
 
 // Estilos para o auto de infração oficial
 const styles = StyleSheet.create({

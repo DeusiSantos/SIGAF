@@ -343,7 +343,7 @@ const Layout = () => {
               MINISTÉRIO DA AGRICULTURA
             </h3>
             <h4 className="text-xs font-semibold text-gray-800">E FLORESTAS</h4>
-            <span className="text-xs font-medium text-blue-600 mt-1 block">RNPA</span>
+            <span className="text-xs font-medium text-blue-600 mt-1 block">SIGAF</span>
           </div>
         </>
       )}
@@ -515,7 +515,7 @@ const Layout = () => {
                 className="flex items-center text-gray-600 hover:text-blue-600 min-w-0"
               >
                 <Home className="w-4 h-4 flex-shrink-0" />
-                <span className="ml-2 text-sm truncate">Registo Nacional de Produtores Agrícolas</span>
+                <span className="ml-2 text-sm truncate">SIGAF</span>
               </button>
 
               {activeMenu && (

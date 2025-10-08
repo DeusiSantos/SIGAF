@@ -23,7 +23,7 @@ import ISV from '../../assets/ISV.png'
 import MinAdriPesca from '../../assets/MINISTERIO-DA-AGRICULTURA-removebg-preview.png';
 import fotoC from '../../assets/fotoC.jpeg';
 import api from '../../services/api';
-import logoRNPA from '../../assets/RNPA-removebg.png'
+import logoRNPA from '../../assets/SIGAF.png'
 import logo5 from '../../assets/logo5.png'
 import sense from '../../assets/sense.png'
 import iiv from '../../assets/iiiv.png'
@@ -614,7 +614,7 @@ Município: ${dadosProdutor.municipio}`;
                                         </div>
                                         <h1 className="text-lg text-[13px] font-bold text-green-800 leading-tight">REPÚBLICA DE ANGOLA</h1>
                                         <p className="text-[13px] font-bold text-green-800 leading-tight">MINISTÉRIO DA AGRICULTURA E FLORESTAS</p>
-                                        <p className="text-sm font-bold text-gray-600">Registo Nacional de Produtores Agrícolas</p>
+                                        <p className="text-sm font-bold text-gray-600">Sistema Integrado de Gestão De Agro-Florestal</p>
                                     </div>
 
                                     {/* Conteúdo principal */}
