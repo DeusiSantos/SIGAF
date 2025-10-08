@@ -23,8 +23,8 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-
-const CustomInput = ({ type, label, value, onChange, options, required, errorMessage, disabled, placeholder, iconStart, helperText, rows, ...props }) => {
+import CustomInput from '../../components/CustomInput';
+{/*const CustomInput = ({ type, label, value, onChange, options, required, errorMessage, disabled, placeholder, iconStart, helperText, rows, ...props }) => {
   const baseInputClasses = `w-full p-3 border rounded-xl transition-all ${errorMessage ? 'border-red-500 bg-red-50' : 'border-gray-200 focus:border-emerald-500'
     } ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'} focus:outline-none focus:ring-2 focus:ring-emerald-200`;
 
@@ -101,7 +101,7 @@ const CustomInput = ({ type, label, value, onChange, options, required, errorMes
       )}
     </div>
   );
-};
+*/};
 
 const GestaoTestesSolo = () => {
   const navigate = useNavigate();

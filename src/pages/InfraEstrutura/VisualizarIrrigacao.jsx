@@ -50,6 +50,8 @@ const VisualizarIrrigacao = () => {
     const [uploadingFotografia, setUploadingFotografia] = useState(false);
     const [novaFotografia, setNovaFotografia] = useState(null);
     const [previewFotografia, setPreviewFotografia] = useState('');
+    
+    
 
     const steps = [
         { label: 'Informações Gerais', icon: FileText },
@@ -109,6 +111,7 @@ const VisualizarIrrigacao = () => {
 
                     // Load photo - usando URL direta da API
                     setImagemUrlFotografia(`https://mwangobrainsa-001-site2.mtempurl.com/api/irrigacao/${id}/fotografiaDeFonteDeAgua`);
+                    
                 } catch (error) {
                     console.error('Erro ao carregar sistema:', error);
                 }
@@ -242,6 +245,8 @@ const VisualizarIrrigacao = () => {
         setNovaFotografia(null);
         setPreviewFotografia('');
     };
+
+ 
 
     const handleEdit = () => {
         setOriginalData({ ...sistemaIrrigacao });
@@ -881,51 +886,54 @@ const VisualizarIrrigacao = () => {
                             <div className="bg-white rounded-2xl border border-gray-200 p-6">
                                 <h4 className="text-lg font-semibold mb-10">Anexos</h4>
                                 <div className="space-y-6">
-                                    {/* Fotografia da Fonte de Água */}
-                                    <div className="bg-gray-50 rounded-lg p-4">
-                                        <h3 className="text-sm font-medium text-gray-700 mb-2">Fotografia da fonte de água</h3>
-                                        {imagemUrlFotografia ? (
-                                            <img
-                                                src={previewFotografia || imagemUrlFotografia}
-                                                alt="Fonte de Água"
-                                                className="w-full h-auto rounded-lg max-h-96 object-cover"
-                                            />
-                                        ) : (
-                                            <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
-                                                <Camera className="w-12 h-12 text-gray-400" />
-                                            </div>
-                                        )}
-
-                                        {isEditing && (
-                                            <label className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors mt-2 inline-block">
-                                                <input
-                                                    type="file"
-                                                    accept="image/*"
-                                                    onChange={handleFotografiaChange}
-                                                    className="hidden"
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        {/* Fotografia da Fonte de Água */}
+                                        <div className="bg-gray-50 rounded-lg p-4">
+                                            <h3 className="text-sm font-medium text-gray-700 mb-2">Fotografia da fonte de água</h3>
+                                            {imagemUrlFotografia ? (
+                                                <img
+                                                    src={previewFotografia || imagemUrlFotografia}
+                                                    alt="Fonte de Água"
+                                                    className="w-full h-auto rounded-lg max-h-96 object-cover"
                                                 />
-                                                Alterar Foto
-                                            </label>
-                                        )}
+                                            ) : (
+                                                <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+                                                    <Camera className="w-12 h-12 text-gray-400" />
+                                                </div>
+                                            )}
 
-                                        {isEditing && novaFotografia && (
-                                            <div className="flex gap-2 mt-3">
-                                                <button
-                                                    onClick={() => uploadFotografia(novaFotografia)}
-                                                    disabled={uploadingFotografia}
-                                                    className="flex-1 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded text-sm transition-colors disabled:bg-green-300"
-                                                >
-                                                    {uploadingFotografia ? 'Enviando...' : 'Confirmar Upload'}
-                                                </button>
-                                                <button
-                                                    onClick={cancelarFotografia}
-                                                    disabled={uploadingFotografia}
-                                                    className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded text-sm transition-colors"
-                                                >
-                                                    Cancelar
-                                                </button>
-                                            </div>
-                                        )}
+                                            {isEditing && (
+                                                <label className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors mt-2 inline-block">
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={handleFotografiaChange}
+                                                        className="hidden"
+                                                    />
+                                                    Alterar Foto
+                                                </label>
+                                            )}
+
+                                            {isEditing && novaFotografia && (
+                                                <div className="flex gap-2 mt-3">
+                                                    <button
+                                                        onClick={() => uploadFotografia(novaFotografia)}
+                                                        disabled={uploadingFotografia}
+                                                        className="flex-1 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded text-sm transition-colors disabled:bg-green-300"
+                                                    >
+                                                        {uploadingFotografia ? 'Enviando...' : 'Confirmar Upload'}
+                                                    </button>
+                                                    <button
+                                                        onClick={cancelarFotografia}
+                                                        disabled={uploadingFotografia}
+                                                        className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded text-sm transition-colors"
+                                                    >
+                                                        Cancelar
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+
                                     </div>
 
                                     {/* Outros Documentos */}

@@ -1754,7 +1754,7 @@ const ReembolsoIncentivos = () => {
       <div className="">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200">
           {/* Header */}
-          <div className="text-center mb-6 p-8 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-red-50">
+          <div className="text-center mb-6 p-8 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-red-50 rounded-t-lg">
             <h1 className="text-4xl font-bold mb-3 text-gray-800">Reembolso de Incentivos</h1>
             <p className="text-gray-600">Sistema de gestão e processamento de reembolsos de incentivos</p>
           </div>
@@ -1770,8 +1770,8 @@ const ReembolsoIncentivos = () => {
                     }`}
                   onClick={() => index <= activeIndex && setActiveIndex(index)}
                 >
-                  <div className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${index < activeIndex ? 'bg-blue-500 text-white' :
-                    index === activeIndex ? 'bg-blue-600 text-white' :
+                  <div className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${index < activeIndex ? ' bg-gradient-to-r from-blue-50 to-red-50 text-white' :
+                    index === activeIndex ? ' bg-gradient-to-r from-blue-50 to-red-50 text-slate-800 shadow-lg' :
                       'bg-gray-200 text-gray-500'
                     }`}>
                     {index < activeIndex ? (
@@ -1780,7 +1780,7 @@ const ReembolsoIncentivos = () => {
                       <StepIcon size={24} />
                     )}
                   </div>
-                  <span className={`text-sm text-center font-medium ${index === activeIndex ? 'text-blue-700' : 'text-gray-500'
+                  <span className={`text-sm text-center font-medium ${index === activeIndex ? 'text-slate-700' : 'text-gray-500'
                     }`}>
                     {step.label}
                   </span>
@@ -1792,7 +1792,7 @@ const ReembolsoIncentivos = () => {
           {/* Progress Bar */}
           <div className="w-full bg-gray-200 h-2 mb-8 mx-8" style={{ width: 'calc(100% - 4rem)' }}>
             <div
-              className="bg-blue-600 h-2 transition-all duration-300 rounded-full"
+              className=" bg-gradient-to-r from-blue-200 to-red-100 h-2 transition-all duration-300 rounded-full"
               style={{ width: `${((activeIndex + 1) / steps.length) * 100}%` }}
             ></div>
           </div>
@@ -1822,8 +1822,8 @@ const ReembolsoIncentivos = () => {
             <button
               className={`px-8 py-3 rounded-xl flex items-center transition-all font-medium ${!canProceed() ? 'opacity-50 cursor-not-allowed bg-gray-300 text-gray-500' :
                 isLastStep
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg'
-                  : 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg'
+                  ? ' bg-gradient-to-r from-blue-50 to-red-50 hover:bg-blue-700 text-gray-500 shadow-lg'
+                  : ' bg-gradient-to-r from-blue-50 to-red-50 hover:bg-blue-700 text-gray-500 shadow-lg'
                 }`}
               disabled={loading || !canProceed()}
               onClick={(e) => {

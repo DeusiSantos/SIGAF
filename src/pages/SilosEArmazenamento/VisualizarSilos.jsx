@@ -21,17 +21,20 @@ import {
     AlertCircle,
     Building,
     Package,
-    Shield
+    Shield,
+    Camera,
+    Eye
 } from 'lucide-react';
 import CustomInput from '../../components/CustomInput';
 import { useSilo } from '../../hooks/useSilo';
 import provinciasData from '../../components/Provincias.json';
 import axios from 'axios';
+import api from '../../services/api';
 
 const VisualizarSilos = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { fetchSiloById, updateSilo, fetchLicencaOperacao, fetchCertificacaoSanitaria, fetchDocumentoProprietario, fetchComprovanteEndereco, fetchFotoSilo } = useSilo();
+    const { fetchSiloById, updateSilo, fetchLicencaOperacao, fetchCertificacaoSanitaria, fetchDocumentoProprietario, fetchComprovanteEndereco, fetchFotoSilo, updateFotoSilo } = useSilo();
     const [activeIndex, setActiveIndex] = useState(0);
     const [siloData, setSiloData] = useState(null);
     const [dataLoading, setDataLoading] = useState(true);
@@ -44,6 +47,12 @@ const VisualizarSilos = () => {
     const [nifData, setNifData] = useState(null);
     const [uploadedFiles, setUploadedFiles] = useState({});
     const [documents, setDocuments] = useState({});
+    const [imagemUrlFotografia, setImagemUrlFotografia] = useState('');
+    const [novaFotografia, setNovaFotografia] = useState(null);
+    const [previewFotografia, setPreviewFotografia] = useState('');
+    const [uploadingFotografia, setUploadingFotografia] = useState(false);
+    const [modalPreviewUrl, setModalPreviewUrl] = useState(null);
+    const [modalPreviewTitle, setModalPreviewTitle] = useState('');
 
     const steps = [
         { label: 'Identificação', icon: Building },
@@ -72,6 +81,11 @@ const VisualizarSilos = () => {
                 comprovanteEndereco: comprovante.status === 'fulfilled' ? comprovante.value : null,
                 fotoSilo: foto.status === 'fulfilled' ? foto.value : null
             });
+            
+            // Set photo URL if available
+            if (foto.status === 'fulfilled' && foto.value) {
+                setImagemUrlFotografia(foto.value);
+            }
         } catch (error) {
             console.error('Erro ao carregar documentos:', error);
         }
@@ -268,6 +282,85 @@ const VisualizarSilos = () => {
     const formatDisplayValue = (value) => {
         if (!value) return '';
         return value.toString().replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    };
+
+    // Photo upload functions
+    const uploadFotografia = async (file) => {
+        if (!file) {
+            setToastMessage({ type: 'error', message: 'Selecione uma foto primeiro' });
+            setTimeout(() => setToastMessage(null), 3000);
+            return;
+        }
+
+        setUploadingFotografia(true);
+        try {
+            const formData = new FormData();
+            formData.append('novaImagem', file);
+            
+            await updateFotoSilo(id, formData); // PATCH para /api/silo/{id}/fotoDoSiloFile
+            
+            setToastMessage({ type: 'success', message: 'Fotografia atualizada com sucesso!' });
+            setTimeout(() => setToastMessage(null), 3000);
+            const url = URL.createObjectURL(file);
+            setImagemUrlFotografia(url);
+            setNovaFotografia(null);
+            setPreviewFotografia('');
+        } catch (error) {
+            console.error('Erro ao fazer upload da fotografia:', error);
+            setToastMessage({ type: 'error', message: 'Erro ao atualizar fotografia' });
+            setTimeout(() => setToastMessage(null), 3000);
+        } finally {
+            setUploadingFotografia(false);
+        }
+    };
+
+    const handleFotografiaChange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            setNovaFotografia(file);
+            const reader = new FileReader();
+            reader.onload = (e) => setPreviewFotografia(e.target.result);
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const cancelarFotografia = () => {
+        setNovaFotografia(null);
+        setPreviewFotografia('');
+    };
+
+    // Document preview function
+    const handlePreview = (document, title) => {
+        if (document && document.url) {
+            setModalPreviewUrl(document.url);
+            setModalPreviewTitle(title);
+        }
+    };
+
+    // Document upload function
+    const handleDocumentUpload = async (documentType, fetchFunction, updateFunction, file) => {
+        if (!file) return;
+        
+        try {
+            const formData = new FormData();
+            formData.append('novaImagem', file);
+            
+            await updateFunction(id, formData);
+            
+            // Reload the document
+            const updatedDoc = await fetchFunction(id);
+            setDocuments(prev => ({
+                ...prev,
+                [documentType]: updatedDoc
+            }));
+            
+            setToastMessage({ type: 'success', message: 'Documento atualizado com sucesso!' });
+            setTimeout(() => setToastMessage(null), 3000);
+        } catch (error) {
+            console.error('Erro ao atualizar documento:', error);
+            setToastMessage({ type: 'error', message: 'Erro ao atualizar documento' });
+            setTimeout(() => setToastMessage(null), 3000);
+        }
     };
 
     const handleSave = async () => {
@@ -851,308 +944,261 @@ const VisualizarSilos = () => {
                             </p>
                         </div>
 
-                        {isEditing ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {/* Fotografia do Silo - SEMPRE visível, só aqui */}
+                        <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-8">
+                            <h4 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
+                                <Camera className="w-5 h-5 mr-2 text-indigo-600" />
+                                Fotografia do Silo
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="bg-gray-50 rounded-lg p-4">
+                                    <h3 className="text-sm font-medium text-gray-700 mb-2">Fotografia do Silo</h3>
+                                    {imagemUrlFotografia ? (
+                                        <img
+                                            src={previewFotografia || imagemUrlFotografia}
+                                            alt="Foto do Silo"
+                                            className="w-full h-auto rounded-lg max-h-96 object-cover"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+                                            <Camera className="w-12 h-12 text-gray-400" />
+                                        </div>
+                                    )}
+
+                                    {isEditing && (
+                                        <label className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors mt-2 inline-block">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleFotografiaChange}
+                                                className="hidden"
+                                            />
+                                            Alterar Foto
+                                        </label>
+                                    )}
+
+                                    {isEditing && novaFotografia && (
+                                        <div className="flex gap-2 mt-3">
+                                            <button
+                                                onClick={() => uploadFotografia(novaFotografia)}
+                                                disabled={uploadingFotografia}
+                                                className="flex-1 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded text-sm transition-colors disabled:bg-green-300"
+                                            >
+                                                {uploadingFotografia ? 'Enviando...' : 'Confirmar Upload'}
+                                            </button>
+                                            <button
+                                                onClick={cancelarFotografia}
+                                                disabled={uploadingFotografia}
+                                                className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded text-sm transition-colors"
+                                            >
+                                                Cancelar
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Documentos Anexados */}
+                        <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                            <h4 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
+                                <FileText className="w-5 h-5 mr-2 text-indigo-600" />
+                                Documentos Anexados
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                                 {/* Licença de Operação */}
                                 <div className="space-y-4">
                                     <label className="block text-sm font-semibold text-gray-700">
-                                        Licença de Operação *
+                                        Licença de Operação
                                     </label>
-                                    <div className="relative">
-                                        <input
-                                            type="file"
-                                            className="hidden"
-                                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                                            onChange={(e) => handleFileUpload('licencaDocumento', e.target.files[0])}
-                                            id="licenca-upload"
-                                        />
-                                        <label
-                                            htmlFor="licenca-upload"
-                                            className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-                                                uploadedFiles.licencaDocumento
-                                                    ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
-                                                    : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                                            }`}
-                                        >
-                                            <Shield className={`w-8 h-8 mb-3 ${uploadedFiles.licencaDocumento ? 'text-blue-500' : 'text-gray-400'}`} />
-                                            <p className={`text-sm font-medium ${uploadedFiles.licencaDocumento ? 'text-blue-600' : 'text-gray-500'}`}>
-                                                {uploadedFiles.licencaDocumento ? 'Documento carregado' : 'Carregar Licença'}
-                                            </p>
-                                            {uploadedFiles.licencaDocumento && (
-                                                <p className="text-xs text-blue-500 mt-1">{uploadedFiles.licencaDocumento.name}</p>
-                                            )}
-                                        </label>
+                                    <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+                                        <Shield className="w-5 h-5 text-gray-500 mr-3" />
+                                        <div className="flex-1">
+                                            <span className="text-sm text-gray-700">
+                                                {documents.licencaOperacao ? 'Documento disponível' : 'Não anexado'}
+                                            </span>
+                                        </div>
+                                        {documents.licencaOperacao && (
+                                            <>
+                                                <button
+                                                    className="ml-2 text-blue-600 hover:text-blue-800"
+                                                    onClick={() => handlePreview(documents.licencaOperacao, 'Licença de Operação')}
+                                                    title="Visualizar"
+                                                >
+                                                    <Eye className="w-5 h-5" />
+                                                </button>
+                                            </>
+                                        )}
+                                        {isEditing && (
+                                            <label className="ml-2 cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs transition-colors">
+                                                <input
+                                                    type="file"
+                                                    accept="application/pdf,image/*"
+                                                    className="hidden"
+                                                    onChange={e => handleDocumentUpload(
+                                                        'licencaOperacao',
+                                                        fetchLicencaOperacao,
+                                                        async (id, formData) => {
+                                                            
+                                                            await api.patch(`/silo/${id}/licencaDeOperacaoFile`, formData, {
+                                                                headers: { 'Content-Type': 'multipart/form-data' }
+                                                            });
+                                                        },
+                                                        e.target.files[0]
+                                                    )}
+                                                />
+                                                {documents.licencaOperacao ? 'Atualizar' : 'Anexar'}
+                                            </label>
+                                        )}
                                     </div>
                                 </div>
 
                                 {/* Certificação Sanitária */}
                                 <div className="space-y-4">
                                     <label className="block text-sm font-semibold text-gray-700">
-                                        Certificação Sanitária *
+                                        Certificação Sanitária
                                     </label>
-                                    <div className="relative">
-                                        <input
-                                            type="file"
-                                            className="hidden"
-                                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                                            onChange={(e) => handleFileUpload('certificacaoDocumento', e.target.files[0])}
-                                            id="certificacao-upload"
-                                        />
-                                        <label
-                                            htmlFor="certificacao-upload"
-                                            className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-                                                uploadedFiles.certificacaoDocumento
-                                                    ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
-                                                    : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                                            }`}
-                                        >
-                                            <CheckCircle className={`w-8 h-8 mb-3 ${uploadedFiles.certificacaoDocumento ? 'text-blue-500' : 'text-gray-400'}`} />
-                                            <p className={`text-sm font-medium ${uploadedFiles.certificacaoDocumento ? 'text-blue-600' : 'text-gray-500'}`}>
-                                                {uploadedFiles.certificacaoDocumento ? 'Documento carregado' : 'Carregar Certificação'}
-                                            </p>
-                                            {uploadedFiles.certificacaoDocumento && (
-                                                <p className="text-xs text-blue-500 mt-1">{uploadedFiles.certificacaoDocumento.name}</p>
-                                            )}
-                                        </label>
+                                    <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+                                        <CheckCircle className="w-5 h-5 text-gray-500 mr-3" />
+                                        <div className="flex-1">
+                                            <span className="text-sm text-gray-700">
+                                                {documents.certificacaoSanitaria ? 'Documento disponível' : 'Não anexado'}
+                                            </span>
+                                        </div>
+                                        {documents.certificacaoSanitaria && (
+                                            <>
+                                                <button
+                                                    className="ml-2 text-blue-600 hover:text-blue-800"
+                                                    onClick={() => handlePreview(documents.certificacaoSanitaria, 'Certificação Sanitária')}
+                                                    title="Visualizar"
+                                                >
+                                                    <Eye className="w-5 h-5" />
+                                                </button>
+                                            </>
+                                        )}
+                                        {isEditing && (
+                                            <label className="ml-2 cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs transition-colors">
+                                                <input
+                                                    type="file"
+                                                    accept="application/pdf,image/*"
+                                                    className="hidden"
+                                                    onChange={e => handleDocumentUpload(
+                                                        'certificacaoSanitaria',
+                                                        fetchCertificacaoSanitaria,
+                                                        async (id, formData) => {
+                                                            // PATCH para /silo/{id}/certificacaoSanitariaFile
+                                                            await api.patch(`/silo/${id}/certificacaoSanitariaFile`, formData, {
+                                                                headers: { 'Content-Type': 'multipart/form-data' }
+                                                            });
+                                                        },
+                                                        e.target.files[0]
+                                                    )}
+                                                />
+                                                {documents.certificacaoSanitaria ? 'Atualizar' : 'Anexar'}
+                                            </label>
+                                        )}
                                     </div>
                                 </div>
 
                                 {/* Documento do Proprietário */}
                                 <div className="space-y-4">
                                     <label className="block text-sm font-semibold text-gray-700">
-                                        Documento do Proprietário *
+                                        Documento do Proprietário
                                     </label>
-                                    <div className="relative">
-                                        <input
-                                            type="file"
-                                            className="hidden"
-                                            accept=".pdf,.jpg,.jpeg,.png"
-                                            onChange={(e) => handleFileUpload('documentoProprietario', e.target.files[0])}
-                                            id="proprietario-upload"
-                                        />
-                                        <label
-                                            htmlFor="proprietario-upload"
-                                            className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-                                                uploadedFiles.documentoProprietario
-                                                    ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
-                                                    : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                                            }`}
-                                        >
-                                            <FileText className={`w-8 h-8 mb-3 ${uploadedFiles.documentoProprietario ? 'text-blue-500' : 'text-gray-400'}`} />
-                                            <p className={`text-sm font-medium ${uploadedFiles.documentoProprietario ? 'text-blue-600' : 'text-gray-500'}`}>
-                                                {uploadedFiles.documentoProprietario ? 'Documento carregado' : 'Carregar Documento'}
-                                            </p>
-                                            {uploadedFiles.documentoProprietario && (
-                                                <p className="text-xs text-blue-500 mt-1">{uploadedFiles.documentoProprietario.name}</p>
-                                            )}
-                                        </label>
+                                    <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+                                        <FileText className="w-5 h-5 text-gray-500 mr-3" />
+                                        <div className="flex-1">
+                                            <span className="text-sm text-gray-700">
+                                                {documents.documentoProprietario ? 'Documento disponível' : 'Não anexado'}
+                                            </span>
+                                        </div>
+                                        {documents.documentoProprietario && (
+                                            <>
+                                                <button
+                                                    className="ml-2 text-blue-600 hover:text-blue-800"
+                                                    onClick={() => handlePreview(documents.documentoProprietario, 'Documento do Proprietário')}
+                                                    title="Visualizar"
+                                                >
+                                                    <Eye className="w-5 h-5" />
+                                                </button>
+                                            </>
+                                        )}
+                                        {isEditing && (
+                                            <label className="ml-2 cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs transition-colors">
+                                                <input
+                                                    type="file"
+                                                    accept="application/pdf,image/*"
+                                                    className="hidden"
+                                                    onChange={e => handleDocumentUpload(
+                                                        'documentoProprietario',
+                                                        fetchDocumentoProprietario,
+                                                        async (id, formData) => {
+                                                            // PATCH para /silo/{id}/documentoDoProprietarioFile
+                                                            await api.patch(`/silo/${id}/documentoDoProprietarioFile`, formData, {
+                                                                headers: { 'Content-Type': 'multipart/form-data' }
+                                                            });
+                                                        },
+                                                        e.target.files[0]
+                                                    )}
+                                                />
+                                                {documents.documentoProprietario ? 'Atualizar' : 'Anexar'}
+                                            </label>
+                                        )}
                                     </div>
                                 </div>
 
                                 {/* Comprovante de Endereço */}
                                 <div className="space-y-4">
                                     <label className="block text-sm font-semibold text-gray-700">
-                                        Comprovante de Endereço *
+                                        Comprovante de Endereço
                                     </label>
-                                    <div className="relative">
-                                        <input
-                                            type="file"
-                                            className="hidden"
-                                            accept=".pdf,.jpg,.jpeg,.png"
-                                            onChange={(e) => handleFileUpload('comprovanteEndereco', e.target.files[0])}
-                                            id="endereco-upload"
-                                        />
-                                        <label
-                                            htmlFor="endereco-upload"
-                                            className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-                                                uploadedFiles.comprovanteEndereco
-                                                    ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
-                                                    : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                                            }`}
-                                        >
-                                            <MapPin className={`w-8 h-8 mb-3 ${uploadedFiles.comprovanteEndereco ? 'text-blue-500' : 'text-gray-400'}`} />
-                                            <p className={`text-sm font-medium ${uploadedFiles.comprovanteEndereco ? 'text-blue-600' : 'text-gray-500'}`}>
-                                                {uploadedFiles.comprovanteEndereco ? 'Documento carregado' : 'Carregar Comprovante'}
-                                            </p>
-                                            {uploadedFiles.comprovanteEndereco && (
-                                                <p className="text-xs text-blue-500 mt-1">{uploadedFiles.comprovanteEndereco.name}</p>
-                                            )}
-                                        </label>
+                                    <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+                                        <MapPin className="w-5 h-5 text-gray-500 mr-3" />
+                                        <div className="flex-1">
+                                            <span className="text-sm text-gray-700">
+                                                {documents.comprovanteEndereco ? 'Documento disponível' : 'Não anexado'}
+                                            </span>
+                                        </div>
+                                        {documents.comprovanteEndereco && (
+                                            <>
+                                                <button
+                                                    className="ml-2 text-blue-600 hover:text-blue-800"
+                                                    onClick={() => handlePreview(documents.comprovanteEndereco, 'Comprovante de Endereço')}
+                                                    title="Visualizar"
+                                                >
+                                                    <Eye className="w-5 h-5" />
+                                                </button>
+                                            </>
+                                        )}
+                                        {isEditing && (
+                                            <label className="ml-2 cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs transition-colors">
+                                                <input
+                                                    type="file"
+                                                    accept="application/pdf,image/*"
+                                                    className="hidden"
+                                                    onChange={e => handleDocumentUpload(
+                                                        'comprovanteEndereco',
+                                                        fetchComprovanteEndereco,
+                                                        async (id, formData) => {
+                                                            // PATCH para /silo/{id}/comprovanteDeEnderecoFile
+                                                            await api.patch(`/silo/${id}/comprovanteDeEnderecoFile`, formData, {
+                                                                headers: { 'Content-Type': 'multipart/form-data' }
+                                                            });
+                                                        },
+                                                        e.target.files[0]
+                                                    )}
+                                                />
+                                                {documents.comprovanteEndereco ? 'Atualizar' : 'Anexar'}
+                                            </label>
+                                        )}
                                     </div>
                                 </div>
 
-                                {/* Fotos do Silo */}
-                                <div className="space-y-4">
-                                    <label className="block text-sm font-semibold text-gray-700">
-                                        Fotos do Silo
-                                    </label>
-                                    <div className="relative">
-                                        <input
-                                            type="file"
-                                            className="hidden"
-                                            accept=".jpg,.jpeg,.png"
-                                            multiple
-                                            onChange={(e) => {
-                                                const files = Array.from(e.target.files);
-                                                setUploadedFiles(prev => ({ ...prev, fotosSilo: files }));
-                                                setSiloData(prev => ({ ...prev, fotosSilo: files }));
-                                                setToastMessage({ type: 'success', message: `${files.length} foto(s) carregada(s) com sucesso!` });
-                                                setTimeout(() => setToastMessage(null), 3000);
-                                            }}
-                                            id="fotos-upload"
-                                        />
-                                        <label
-                                            htmlFor="fotos-upload"
-                                            className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-                                                uploadedFiles.fotosSilo
-                                                    ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
-                                                    : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                                            }`}
-                                        >
-                                            <Building className={`w-8 h-8 mb-3 ${uploadedFiles.fotosSilo ? 'text-blue-500' : 'text-gray-400'}`} />
-                                            <p className={`text-sm font-medium ${uploadedFiles.fotosSilo ? 'text-blue-600' : 'text-gray-500'}`}>
-                                                {uploadedFiles.fotosSilo ? 'Fotos carregadas' : 'Carregar Fotos'}
-                                            </p>
-                                            {uploadedFiles.fotosSilo && (
-                                                <p className="text-xs text-blue-500 mt-1">
-                                                    {uploadedFiles.fotosSilo.length} arquivo(s)
-                                                </p>
-                                            )}
-                                        </label>
-                                    </div>
-                                </div>
+                               
                             </div>
-                        ) : (
-                            <div className="bg-white rounded-2xl border border-gray-200 p-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {/* Licença de Operação */}
-                                    <div className="space-y-4">
-                                        <label className="block text-sm font-semibold text-gray-700">
-                                            Licença de Operação
-                                        </label>
-                                        <div className="flex items-center p-3 bg-gray-50 rounded-lg">
-                                            <Shield className="w-5 h-5 text-gray-500 mr-3" />
-                                            <div className="flex-1">
-                                                <span className="text-sm text-gray-700">
-                                                    {documents.licencaOperacao ? 'Documento disponível' : 'Não anexado'}
-                                                </span>
-                                            </div>
-                                            {documents.licencaOperacao && (
-                                                <a
-                                                    href={documents.licencaOperacao}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-blue-600 hover:text-blue-800 text-sm"
-                                                >
-                                                    Download
-                                                </a>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Certificação Sanitária */}
-                                    <div className="space-y-4">
-                                        <label className="block text-sm font-semibold text-gray-700">
-                                            Certificação Sanitária
-                                        </label>
-                                        <div className="flex items-center p-3 bg-gray-50 rounded-lg">
-                                            <CheckCircle className="w-5 h-5 text-gray-500 mr-3" />
-                                            <div className="flex-1">
-                                                <span className="text-sm text-gray-700">
-                                                    {documents.certificacaoSanitaria ? 'Documento disponível' : 'Não anexado'}
-                                                </span>
-                                            </div>
-                                            {documents.certificacaoSanitaria && (
-                                                <a
-                                                    href={documents.certificacaoSanitaria}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-blue-600 hover:text-blue-800 text-sm"
-                                                >
-                                                    Download
-                                                </a>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Documento do Proprietário */}
-                                    <div className="space-y-4">
-                                        <label className="block text-sm font-semibold text-gray-700">
-                                            Documento do Proprietário
-                                        </label>
-                                        <div className="flex items-center p-3 bg-gray-50 rounded-lg">
-                                            <FileText className="w-5 h-5 text-gray-500 mr-3" />
-                                            <div className="flex-1">
-                                                <span className="text-sm text-gray-700">
-                                                    {documents.documentoProprietario ? 'Documento disponível' : 'Não anexado'}
-                                                </span>
-                                            </div>
-                                            {documents.documentoProprietario && (
-                                                <a
-                                                    href={documents.documentoProprietario}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-blue-600 hover:text-blue-800 text-sm"
-                                                >
-                                                    Download
-                                                </a>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Comprovante de Endereço */}
-                                    <div className="space-y-4">
-                                        <label className="block text-sm font-semibold text-gray-700">
-                                            Comprovante de Endereço
-                                        </label>
-                                        <div className="flex items-center p-3 bg-gray-50 rounded-lg">
-                                            <MapPin className="w-5 h-5 text-gray-500 mr-3" />
-                                            <div className="flex-1">
-                                                <span className="text-sm text-gray-700">
-                                                    {documents.comprovanteEndereco ? 'Documento disponível' : 'Não anexado'}
-                                                </span>
-                                            </div>
-                                            {documents.comprovanteEndereco && (
-                                                <a
-                                                    href={documents.comprovanteEndereco}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-blue-600 hover:text-blue-800 text-sm"
-                                                >
-                                                    Download
-                                                </a>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Foto do Silo */}
-                                    <div className="space-y-4">
-                                        <label className="block text-sm font-semibold text-gray-700">
-                                            Fotos do Silo
-                                        </label>
-                                        <div className="flex items-center p-3 bg-gray-50 rounded-lg">
-                                            <Building className="w-5 h-5 text-gray-500 mr-3" />
-                                            <div className="flex-1">
-                                                <span className="text-sm text-gray-700">
-                                                    {documents.fotoSilo ? 'Fotos disponíveis' : 'Não anexado'}
-                                                </span>
-                                            </div>
-                                            {documents.fotoSilo && (
-                                                <a
-                                                    href={documents.fotoSilo}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-blue-600 hover:text-blue-800 text-sm"
-                                                >
-                                                    Download
-                                                </a>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+                        </div>
                     </div>
+                    
                 );
 
             default:
@@ -1379,6 +1425,24 @@ const VisualizarSilos = () => {
                                 Não
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de Preview */}
+            {modalPreviewUrl && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                    <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl flex flex-col items-center relative">
+                        <button
+                            onClick={() => setModalPreviewUrl(null)}
+                            className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                        >
+                            <X className="w-6 h-6" />
+                        </button>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">{modalPreviewTitle}</h3>
+                        {modalPreviewUrl && (
+                            <iframe src={modalPreviewUrl} title="Preview" className="w-full h-96" />
+                        )}
                     </div>
                 </div>
             )}

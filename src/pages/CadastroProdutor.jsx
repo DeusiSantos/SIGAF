@@ -3723,8 +3723,8 @@ const CadastroProdutor = () => {
       <div className="py-8">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200">
           {/* Header */}
-          <div className="text-center mb-6 p-8 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
-            <h1 className="text-4xl font-bold mb-3 text-gray-800">Registro de Produtor </h1>
+          <div className="text-center mb-6 p-8 border-b border-gray-100 bg-gradient-to-r from-blue-700 to-blue-500 rounded-t-lg">
+            <h1 className="text-4xl font-bold mb-3 text-white">Registro de Produtor </h1>
           </div>
 
           {/* Step Navigation */}
@@ -3739,7 +3739,7 @@ const CadastroProdutor = () => {
                   onClick={() => index <= activeIndex && setActiveIndex(index)}
                 >
                   <div className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${index < activeIndex ? 'bg-blue-500 text-white' :
-                    index === activeIndex ? 'bg-blue-600 text-white' :
+                    index === activeIndex ? 'bg-blue-600 text-white shadow-lg' :
                       'bg-gray-200 text-gray-500'
                     }`}>
                     {index < activeIndex ? (

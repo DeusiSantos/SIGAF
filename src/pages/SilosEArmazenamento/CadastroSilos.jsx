@@ -83,21 +83,21 @@ const CadastroSilos = () => {
     provincia: '',
     latitude: '',
     longitude: '',
-    
+
     // Proprietário/Responsável
     nomeProprietario: '',
     entidade: '',
     nifProprietario: '',
     telefoneProprietario: '',
     emailProprietario: '',
-    
+
     // Capacidade de Armazenamento
     capacidadeTotal: 0,
     capacidadeUtilizada: 0,
     numeroUnidades: 0,
     produtosArmazenados: [],
     outrosProdutos: '',
-    
+
     // Infraestrutura
     sistemaSeccagem: false,
     sistemaVentilacao: false,
@@ -105,14 +105,14 @@ const CadastroSilos = () => {
     tipoEnergia: '',
     estadoVias: '',
     equipamentosDisponiveis: [],
-    
+
     // Situação Legal
     licencaOperacao: false,
     certificacaoSanitaria: false,
     outrasAutorizacoes: '',
     dataLicenca: '',
     validadeLicenca: '',
-    
+
     // Observações
     observacoes: ''
   };
@@ -201,12 +201,12 @@ const CadastroSilos = () => {
 
   const handleInputChange = (field, value) => {
     setTouched(prev => ({ ...prev, [field]: true }));
-    
+
     if (field === 'provincia') {
       handleProvinciaChange(value);
       return;
     }
-    
+
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -286,64 +286,79 @@ const CadastroSilos = () => {
     setLoading(true);
 
     try {
-      // Mapear dados do formulário para a estrutura da API
+      // Montar os dados conforme a estrutura da API
       const siloData = {
-        NomeDoSilo: formData.nomeSilo,
-        TipoDeUnidade: formData.tipoUnidade?.value || formData.tipoUnidade,
-        CodigoDeRegistro: formData.codigoRegistro,
-        Endereço: formData.endereco,
-        Provincia: formData.provincia?.value || formData.provincia,
-        Municipio: formData.municipio?.value || formData.municipio,
-        Latitude: formData.latitude,
-        Longitude: formData.longitude,
-        NomeDoProprietario: formData.nomeProprietario,
-        EmpresaDoProprietario: formData.entidade,
-        NifDoProprietario: formData.nifProprietario,
-        TelefoneDoProprietario: formData.telefoneProprietario,
-        EmailDoProprietario: formData.emailProprietario,
+        NomeDoSilo: formData.nomeSilo?.trim() || "",
+        TipoDeUnidade: formData.tipoUnidade?.value || formData.tipoUnidade || "",
+        CodigoDeRegistro: String(formData.codigoRegistro || ""),
+        Endereço: formData.endereco?.trim() || "",
+        Provincia: formData.provincia?.value || formData.provincia || "",
+        Municipio: formData.municipio?.value || formData.municipio || "",
+        Latitude: String(formData.latitude || ""),
+        Longitude: String(formData.longitude || ""),
+        NomeDoProprietario: formData.nomeProprietario?.trim() || "",
+        EmpresaDoProprietario: formData.entidade?.trim() || "",
+        NifDoProprietario: String(formData.nifProprietario || ""),
+        TelefoneDoProprietario: String(formData.telefoneProprietario || ""),
+        EmailDoProprietario: formData.emailProprietario?.trim() || "",
         CapacidadeMaxima: parseFloat(formData.capacidadeTotal) || 0,
         CapacidadeUtilizada: parseFloat(formData.capacidadeUtilizada) || 0,
         NumeroDeUnidade: parseFloat(formData.numeroUnidades) || 0,
-        ProdutosArmazenados: formData.produtosArmazenados?.map(item => item.value) || [],
-        SistemaDeSecagem: formData.sistemaSeccagem ? 'true' : 'false',
-        SistemaDeVentilacao: formData.sistemaVentilacao ? 'true' : 'false',
-        ProtecaoContraPragas: formData.sistemaProtecaoPragas ? 'true' : 'false',
-        TipoDeEnergia: formData.tipoEnergia?.value || formData.tipoEnergia,
-        EstadoDasViasDeAcesso: formData.estadoVias?.value || formData.estadoVias,
-        EquipamentosDisponiveis: formData.equipamentosDisponiveis?.map(item => item.value) || [],
-        LicencaDeOperacao: formData.licencaOperacao ? 'true' : 'false',
-        CertificacaoSanitaria: formData.certificacaoSanitaria ? 'true' : 'false',
-        DataDeLicenca: formData.dataLicenca ? new Date(formData.dataLicenca).toISOString().split('T')[0] : '',
-        ValidadeDaLicenca: formData.validadeLicenca ? new Date(formData.validadeLicenca).toISOString().split('T')[0] : '',
-        OutrasAutorizacoes: formData.outrasAutorizacoes,
-        ObservacoesGerais: formData.observacoes,
-        LicencaDeOperacaoFile: uploadedFiles.LicencaDeOperacaoFile,
-        CertificacaoSanitariaFile: uploadedFiles.CertificacaoSanitariaFile,
-        DocumentoDoProprietarioFile: uploadedFiles.DocumentoDoProprietarioFile,
-        ComprovanteDeEnderecoFile: uploadedFiles.ComprovanteDeEnderecoFile,
-        FotoDoSiloFile: uploadedFiles.FotoDoSiloFile
-      };
-      // Adicione este console.log:
-      console.log('Dados enviados para API:', siloData);
 
+        // Arrays (listas)
+        ProdutosArmazenados: formData.produtosArmazenados?.map(item => item.value) || [],
+        EquipamentosDisponiveis: formData.equipamentosDisponiveis?.map(item => item.value) || [],
+
+        // Booleanos (sempre strings)
+        SistemaDeSecagem: formData.sistemaSeccagem ? "true" : "false",
+        SistemaDeVentilacao: formData.sistemaVentilacao ? "true" : "false",
+        ProtecaoContraPragas: formData.sistemaProtecaoPragas ? "true" : "false",
+        LicencaDeOperacao: formData.licencaOperacao ? "true" : "false",
+        CertificacaoSanitaria: formData.certificacaoSanitaria ? "true" : "false",
+
+        TipoDeEnergia: formData.tipoEnergia?.value || formData.tipoEnergia || "",
+        EstadoDasViasDeAcesso: formData.estadoVias?.value || formData.estadoVias || "",
+
+        // Datas no formato YYYY-MM-DD
+        DataDeLicenca: formData.dataLicenca
+          ? new Date(formData.dataLicenca).toISOString().split("T")[0]
+          : "",
+        ValidadeDaLicenca: formData.validadeLicenca
+          ? new Date(formData.validadeLicenca).toISOString().split("T")[0]
+          : "",
+
+        OutrasAutorizacoes: formData.outrasAutorizacoes?.trim() || "",
+        ObservacoesGerais: formData.observacoes?.trim() || "",
+
+        // Arquivos (enviar File, não FileList)
+        LicencaDeOperacaoFile: uploadedFiles.LicencaDeOperacaoFile || null,
+        CertificacaoSanitariaFile: uploadedFiles.CertificacaoSanitariaFile || null,
+        DocumentoDoProprietarioFile: uploadedFiles.DocumentoDoProprietarioFile || null,
+        ComprovanteDeEnderecoFile: uploadedFiles.ComprovanteDeEnderecoFile || null,
+        FotoDoSiloFile: uploadedFiles.FotoDoSiloFile?.[0] || null, // <- garante que é File
+      };
+
+      console.log("✅ Dados enviados para API:", siloData);
+
+      // Chama o método de criação
       await createSilo(siloData);
-      
-      showToast('success', 'Sucesso', 'Silo registrado com sucesso!');
-      
-      // Reset do formulário
+
+      // Feedback e reset
+      showToast("success", "Sucesso", "Silo registrado com sucesso!");
       setFormData(initialState);
       setActiveIndex(0);
       setErrors({});
       setTouched({});
       setUploadedFiles({});
-      
+
     } catch (error) {
-      console.error('Erro ao registrar silo:', error);
-      showToast('error', 'Erro', 'Erro ao registrar silo. Tente novamente.');
+      console.error(" Erro ao registrar silo:", error.response?.data || error);
+      showToast("error", "Erro", "Erro ao registrar silo. Tente novamente.");
     } finally {
       setLoading(false);
     }
   };
+
 
   const renderStepContent = (index) => {
     switch (index) {
@@ -490,7 +505,7 @@ const CadastroSilos = () => {
                 <MapPin className="w-5 h-5 mr-2 text-blue-600" />
                 Coordenadas GPS
               </h4>
-              
+
               <div className="h-96 rounded-lg overflow-hidden border border-gray-300">
                 <MapContainer
                   center={[formData.latitude || -8.838333, formData.longitude || 13.234444]}
@@ -947,11 +962,10 @@ const CadastroSilos = () => {
                   />
                   <label
                     htmlFor="licenca-upload"
-                    className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-                      uploadedFiles.LicencaDeOperacaoFile
+                    className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${uploadedFiles.LicencaDeOperacaoFile
                         ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
                         : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                    }`}
+                      }`}
                   >
                     <Shield className={`w-8 h-8 mb-3 ${uploadedFiles.LicencaDeOperacaoFile ? 'text-blue-500' : 'text-gray-400'}`} />
                     <p className={`text-sm font-medium ${uploadedFiles.LicencaDeOperacaoFile ? 'text-blue-600' : 'text-gray-500'}`}>
@@ -979,11 +993,10 @@ const CadastroSilos = () => {
                   />
                   <label
                     htmlFor="certificacao-upload"
-                    className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-                      uploadedFiles.CertificacaoSanitariaFile
+                    className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${uploadedFiles.CertificacaoSanitariaFile
                         ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
                         : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                    }`}
+                      }`}
                   >
                     <CheckCircle className={`w-8 h-8 mb-3 ${uploadedFiles.CertificacaoSanitariaFile ? 'text-blue-500' : 'text-gray-400'}`} />
                     <p className={`text-sm font-medium ${uploadedFiles.CertificacaoSanitariaFile ? 'text-blue-600' : 'text-gray-500'}`}>
@@ -1011,11 +1024,10 @@ const CadastroSilos = () => {
                   />
                   <label
                     htmlFor="proprietario-upload"
-                    className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-                      uploadedFiles.DocumentoDoProprietarioFile
+                    className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${uploadedFiles.DocumentoDoProprietarioFile
                         ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
                         : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                    }`}
+                      }`}
                   >
                     <CreditCard className={`w-8 h-8 mb-3 ${uploadedFiles.DocumentoDoProprietarioFile ? 'text-blue-500' : 'text-gray-400'}`} />
                     <p className={`text-sm font-medium ${uploadedFiles.DocumentoDoProprietarioFile ? 'text-blue-600' : 'text-gray-500'}`}>
@@ -1043,11 +1055,10 @@ const CadastroSilos = () => {
                   />
                   <label
                     htmlFor="endereco-upload"
-                    className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-                      uploadedFiles.ComprovanteDeEnderecoFile
+                    className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${uploadedFiles.ComprovanteDeEnderecoFile
                         ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
                         : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                    }`}
+                      }`}
                   >
                     <Home className={`w-8 h-8 mb-3 ${uploadedFiles.ComprovanteDeEnderecoFile ? 'text-blue-500' : 'text-gray-400'}`} />
                     <p className={`text-sm font-medium ${uploadedFiles.ComprovanteDeEnderecoFile ? 'text-blue-600' : 'text-gray-500'}`}>
@@ -1076,11 +1087,10 @@ const CadastroSilos = () => {
                   />
                   <label
                     htmlFor="fotos-upload"
-                    className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-                      uploadedFiles.FotoDoSiloFile
+                    className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${uploadedFiles.FotoDoSiloFile
                         ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
                         : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                    }`}
+                      }`}
                   >
                     <Camera className={`w-8 h-8 mb-3 ${uploadedFiles.FotoDoSiloFile ? 'text-blue-500' : 'text-gray-400'}`} />
                     <p className={`text-sm font-medium ${uploadedFiles.FotoDoSiloFile ? 'text-blue-600' : 'text-gray-500'}`}>
@@ -1117,12 +1127,11 @@ const CadastroSilos = () => {
     <div className="bg-gray-50 min-h-screen">
       {/* Toast Message */}
       {toastMessage && (
-        <div className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all ${
-          toastMessage.severity === 'success' ? 'bg-blue-100 border-l-4 border-blue-500 text-blue-700' :
-          toastMessage.severity === 'error' ? 'bg-red-100 border-l-4 border-red-500 text-red-700' :
-          toastMessage.severity === 'warn' ? 'bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700' :
-          'bg-blue-100 border-l-4 border-blue-500 text-blue-700'
-        }`}>
+        <div className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all ${toastMessage.severity === 'success' ? 'bg-blue-100 border-l-4 border-blue-500 text-blue-700' :
+            toastMessage.severity === 'error' ? 'bg-red-100 border-l-4 border-red-500 text-red-700' :
+              toastMessage.severity === 'warn' ? 'bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700' :
+                'bg-blue-100 border-l-4 border-blue-500 text-blue-700'
+          }`}>
           <div className="flex items-center">
             <div className="mr-3">
               {toastMessage.severity === 'success' && <CheckCircle size={20} />}
@@ -1141,7 +1150,7 @@ const CadastroSilos = () => {
       <div className="mx-auto px-4 py-8">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200">
           {/* Header */}
-          <div className="text-center mb-8 p-8 border-b border-gray-100 bg-gradient-to-r from-yellow-700 to-yellow-500 rounded-t-2xl ">
+          <div className="text-center mb-8 p-8 border-b border-gray-100   bg-gradient-to-r from-yellow-700 to-yellow-500 rounded-t-2xl ">
             <h1 className="text-4xl font-bold mb-3 text-white">Cadastro de Silos e Centros de Armazenamento</h1>
           </div>
 
@@ -1153,29 +1162,26 @@ const CadastroSilos = () => {
               const isCompleted = index < activeIndex;
 
               return (
-                <div 
-                  key={index} 
-                  className={`flex flex-col items-center cursor-pointer transition-all min-w-0 flex-shrink-0 mx-1 ${
-                    !isActive && !isCompleted ? 'opacity-50' : ''
-                  }`}
+                <div
+                  key={index}
+                  className={`flex flex-col items-center cursor-pointer transition-all min-w-0 flex-shrink-0 mx-1 ${!isActive && !isCompleted ? 'opacity-50' : ''
+                    }`}
                   onClick={() => setActiveIndex(index)}
                 >
-                  <div className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${
-                    isActive 
-                      ? 'bg-yellow-600 text-white shadow-lg' 
-                      : isCompleted 
+                  <div className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${isActive
+                      ? ' text-white shadow-lg bg-gradient-to-r from-yellow-700 to-yellow-500'
+                      : isCompleted
                         ? 'bg-yellow-500 text-white'
                         : 'bg-gray-200 text-gray-500'
-                  }`}>
+                    }`}>
                     {isCompleted ? (
                       <Check size={24} />
                     ) : (
                       <Icon size={24} />
                     )}
                   </div>
-                  <span className={`text-sm text-center font-medium ${
-                    isActive ? 'text-yellow-700' : isCompleted ? 'text-yellow-600' : 'text-gray-500'
-                  }`}>
+                  <span className={`text-sm text-center font-medium ${isActive ? 'text-yellow-700' : isCompleted ? 'text-yellow-600' : 'text-gray-500'
+                    }`}>
                     {step.label}
                   </span>
                 </div>
@@ -1184,10 +1190,10 @@ const CadastroSilos = () => {
           </div>
 
           {/* Progress Bar */}
-          <div className="w-full bg-gray-200 h-2 mb-8 mx-8" style={{width: 'calc(100% - 4rem)'}}>
-            <div 
-              className="bg-yellow-600 h-2 transition-all duration-300 rounded-full" 
-              style={{width: `${((activeIndex + 1) / steps.length) * 100}%`}}
+          <div className="w-full bg-gray-200 h-2 mb-8 mx-8" style={{ width: 'calc(100% - 4rem)' }}>
+            <div
+              className="bg-yellow-600 h-2 transition-all duration-300 rounded-full"
+              style={{ width: `${((activeIndex + 1) / steps.length) * 100}%` }}
             ></div>
           </div>
 
@@ -1201,11 +1207,10 @@ const CadastroSilos = () => {
                 type="button"
                 onClick={prevStep}
                 disabled={activeIndex === 0}
-                className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all ${
-                  activeIndex === 0
+                className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all ${activeIndex === 0
                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
+                  }`}
               >
                 <ChevronLeft size={20} className="mr-2" />
                 Anterior
@@ -1216,11 +1221,10 @@ const CadastroSilos = () => {
                   type="button"
                   onClick={handleSubmit}
                   disabled={loading || siloLoading}
-                  className={`flex items-center px-8 py-3 rounded-lg font-medium transition-all ${
-                    (loading || siloLoading)
+                  className={`flex items-center px-8 py-3 rounded-lg font-medium transition-all ${(loading || siloLoading)
                       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       : 'bg-blue-600 text-white hover:bg-blue-700'
-                  }`}
+                    }`}
                 >
                   {(loading || siloLoading) ? (
                     <>
@@ -1238,7 +1242,7 @@ const CadastroSilos = () => {
                 <button
                   type="button"
                   onClick={nextStep}
-                  className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all"
+                  className="flex items-center px-6 py-3 bg-yellow-600 text-white rounded-lg font-medium hover:bg-yellow-700 transition-all"
                 >
                   Próximo
                   <ChevronRight size={20} className="ml-2" />

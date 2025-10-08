@@ -1250,8 +1250,8 @@ const RegistroApoioAgricola = () => {
       <div className="mx-auto px-4 py-8">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200">
           {/* Header */}
-          <div className="text-center mb-8 p-8 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-emerald-50">
-            <h1 className="text-4xl font-bold mb-3 text-gray-800">Cadastro de Empresas de Apoio à Agricultura
+          <div className="text-center mb-8 p-8 border-b border-gray-100 bg-gradient-to-r from-slate-700 to-slate-400 rounded-t-lg">
+            <h1 className="text-4xl font-bold mb-3 text-white">Cadastro de Empresas de Apoio à Agricultura
             </h1>
           </div>
 
@@ -1270,9 +1270,9 @@ const RegistroApoioAgricola = () => {
                   onClick={() => setActiveIndex(index)}
                 >
                   <div className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${isActive
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-gradient-to-r from-slate-700 to-slate-400 text-white'
                       : isCompleted
-                        ? 'bg-green-500 text-white'
+                        ? 'bg-gradient-to-r from-slate-700 to-slate-400 text-white'
                         : 'bg-gray-200 text-gray-500'
                     }`}>
                     {isCompleted ? (
@@ -1281,7 +1281,7 @@ const RegistroApoioAgricola = () => {
                       <Icon size={24} />
                     )}
                   </div>
-                  <span className={`text-sm text-center font-medium ${isActive ? 'text-blue-700' : isCompleted ? 'text-green-600' : 'text-gray-500'
+                  <span className={`text-sm text-center font-medium ${isActive ? 'text-slate-700' : isCompleted ? 'text-slate-600' : 'text-gray-500'
                     }`}>
                     {step.label}
                   </span>
@@ -1293,7 +1293,7 @@ const RegistroApoioAgricola = () => {
           {/* Progress Bar */}
           <div className="w-full bg-gray-200 h-2 mb-8 mx-8" style={{ width: 'calc(100% - 4rem)' }}>
             <div
-              className="bg-blue-600 h-2 transition-all duration-300 rounded-full"
+              className="bg-gradient-to-r from-slate-700 to-slate-400 h-2 transition-all duration-300 rounded-full"
               style={{ width: `${((activeIndex + 1) / steps.length) * 100}%` }}
             ></div>
           </div>

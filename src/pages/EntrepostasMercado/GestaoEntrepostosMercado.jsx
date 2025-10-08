@@ -539,7 +539,7 @@ const GestaoEntrepostosMercado = () => {
 
             <div className="w-full bg-white rounded-2xl shadow-md overflow-visible z-10">
                 {/* Cabeçalho */}
-                <div className="bg-gradient-to-r from-blue-700 to-blue-500 p-6 text-white rounded-t-xl
+                <div className="bg-gradient-to-r from-blue-800 to-blue-500 p-6 text-white rounded-t-xl
 
 ">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
@@ -643,7 +643,7 @@ const GestaoEntrepostosMercado = () => {
                                 <tr key={entreposto.id} className="hover:bg-blue-50 transition-colors">
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-start">
-                                            <div className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-semibold text-sm">
+                                            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-800 to-blue-500 text-white flex items-center justify-center font-semibold text-sm">
                                                 {entreposto.nomeEntreposto.split(' ').map(word => word[0]).join('').substring(0, 2).toUpperCase()}
                                             </div>
                                             <div className="ml-4">

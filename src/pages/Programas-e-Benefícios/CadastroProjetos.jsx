@@ -144,17 +144,17 @@ const CadastroProjetos = () => {
   const handleInputChange = (field, value) => {
     // Garantir tipos corretos conforme especificação
     let processedValue = value;
-    
+
     if (field === 'ProvinciasAbrangidas' || field === 'tipoCredito') {
       processedValue = Array.isArray(value) ? value : [];
-    } else if (field === 'NomeProjeto' || field === 'NumeroBeneficiarios' || 
-               field === 'FaseProjeto' || field === 'ValorGlobalProjeto' || 
-               field === 'entidadeImplementadora') {
+    } else if (field === 'NomeProjeto' || field === 'NumeroBeneficiarios' ||
+      field === 'FaseProjeto' || field === 'ValorGlobalProjeto' ||
+      field === 'entidadeImplementadora') {
       processedValue = String(value || '');
     }
-    
+
     setFormData(prev => ({ ...prev, [field]: processedValue }));
-    
+
     // Limpar erro do campo
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
@@ -165,7 +165,7 @@ const CadastroProjetos = () => {
     if (!value || value === '') return '';
     const numValue = parseFloat(value.toString().replace(/[^\d.-]/g, ''));
     if (isNaN(numValue)) return '';
-    
+
     return new Intl.NumberFormat('pt-AO', {
       style: 'currency',
       currency: 'AOA',
@@ -176,7 +176,7 @@ const CadastroProjetos = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
-  
+
     const formatArrayField = (array) =>
       array
         .map(item =>
@@ -185,7 +185,7 @@ const CadastroProjetos = () => {
             : item?.value?.trim?.() || ''
         )
         .filter(Boolean);
-  
+
     const dataToSend = {
       id: projetoEditando?.id,
       nomeProjeto: formData.NomeProjeto.trim(),
@@ -196,7 +196,7 @@ const CadastroProjetos = () => {
       entidadeImplementadora: formData.entidadeImplementadora.trim(),
       tipoCredito: formatArrayField(formData.tipoCredito)
     };
-  
+
     try {
       if (projetoEditando) {
         await api.patch(`/projetoBeneficiario/${dataToSend.id}`, dataToSend);
@@ -205,13 +205,13 @@ const CadastroProjetos = () => {
         await api.post('/projetoBeneficiario', dataToSend);
         showToast('success', 'Sucesso!', 'Projeto cadastrado com sucesso!');
       }
-  
+
       // Limpa o formulário após salvar
       setFormData(initialFormState);
-  
+
       setErrors({});
       setTimeout(() => navigate(-1), 1000); // Volta para a tela anterior
-  
+
     } catch (error) {
       console(error)
       showToast('error', 'Erro', 'Erro ao salvar projeto. Tente novamente.');
@@ -219,18 +219,17 @@ const CadastroProjetos = () => {
       setLoading(false);
     }
   };
-  
+
 
 
   return (
     <div className="bg-gray-50 min-h-screen">
       {/* Toast Message */}
       {toastMessage && (
-        <div className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all duration-300 ${
-          toastMessage.severity === 'success' ? 'bg-green-100 border-l-4 border-green-500 text-green-700' :
-          toastMessage.severity === 'error' ? 'bg-red-100 border-l-4 border-red-500 text-red-700' :
-          'bg-blue-100 border-l-4 border-blue-500 text-blue-700'
-        }`}>
+        <div className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all duration-300 ${toastMessage.severity === 'success' ? 'bg-green-100 border-l-4 border-green-500 text-green-700' :
+            toastMessage.severity === 'error' ? 'bg-red-100 border-l-4 border-red-500 text-red-700' :
+              'bg-blue-100 border-l-4 border-blue-500 text-blue-700'
+          }`}>
           <div className="flex items-center">
             <div className="mr-3">
               {toastMessage.severity === 'success' && <CheckCircle size={20} />}
@@ -255,7 +254,7 @@ const CadastroProjetos = () => {
           {/* Formulário */}
           <form onSubmit={handleSubmit} className="p-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              
+
               {/* Nome do Projeto */}
               <div className="lg:col-span-2">
                 <CustomInput
@@ -285,30 +284,30 @@ const CadastroProjetos = () => {
 
               {/* Fase do Projeto */}
               <div className="space-y-2">
-                <label className="block text-left text-sm font-semibold text-gray-700">
-                  Fase do Projecto <span className="text-red-500">*</span>
-                </label>
+               
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Layers size={18} className="text-gray-400" />
                   </div>
-                  <select
-                    value={formData.FaseProjeto}
-                    onChange={(e) => handleInputChange('FaseProjeto', e.target.value)}
-                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
-                      errors.FaseProjeto 
-                        ? 'border-red-300 bg-red-50' 
-                        : 'border-gray-300 bg-white hover:border-gray-400'
-                    }`}
+                  <CustomInput
+                    type="select"
+                    label={
+                      <span>
+                       
+                        Fase do Projecto 
+                      </span>
+                    }
+                    placeholder="Selecione a fase atual do projecto"
+                    value={fasesProjeto.find(f => f.value === formData.FaseProjeto) || null}
+                    options={[
+                      { label: 'Selecione a fase atual do projecto', value: '' },
+                      ...fasesProjeto
+                    ]}
+                    onChange={option => handleInputChange('FaseProjeto', option?.value || '')}
                     required
-                  >
-                    <option value="">Selecione a fase atual do projecto</option>
-                    {fasesProjeto.map((fase) => (
-                      <option key={fase.value} value={fase.value}>
-                        {fase.label}
-                      </option>
-                    ))}
-                  </select>
+                    errorMessage={errors.FaseProjeto}
+                    iconStart={<Layers size={18} className="text-gray-400" />}
+                  />
                 </div>
                 {errors.FaseProjeto && (
                   <p className="text-sm text-red-600 flex items-center mt-1">
@@ -328,8 +327,8 @@ const CadastroProjetos = () => {
                 errorMessage={errors.ValorGlobalProjeto}
                 placeholder="Ex: 15000000.00"
                 iconStart={<DollarSign size={18} />}
-                helperText={formData.ValorGlobalProjeto ? 
-                  `Valor formatado: ${formatCurrency(formData.ValorGlobalProjeto)}` : 
+                helperText={formData.ValorGlobalProjeto ?
+                  `Valor formatado: ${formatCurrency(formData.ValorGlobalProjeto)}` :
                   'Digite o valor em Kwanzas (apenas números e ponto decimal)'
                 }
               />
@@ -386,14 +385,14 @@ const CadastroProjetos = () => {
                   Resumo do Projeto
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
-                  
+
                   {formData.NomeProjeto && (
                     <div className="bg-white p-3 rounded-lg">
                       <span className="block font-semibold text-blue-700">Projeto:</span>
                       <span className="text-blue-600">{formData.NomeProjeto}</span>
                     </div>
                   )}
-                  
+
                   {formData.NumeroBeneficiarios && (
                     <div className="bg-white p-3 rounded-lg">
                       <span className="block font-semibold text-blue-700">Beneficiários:</span>
@@ -402,14 +401,14 @@ const CadastroProjetos = () => {
                       </span>
                     </div>
                   )}
-                  
+
                   {formData.ValorGlobalProjeto && (
                     <div className="bg-white p-3 rounded-lg">
                       <span className="block font-semibold text-blue-700">Valor:</span>
                       <span className="text-blue-600">{formatCurrency(formData.ValorGlobalProjeto)}</span>
                     </div>
                   )}
-                  
+
                   {formData.FaseProjeto && (
                     <div className="bg-white p-3 rounded-lg">
                       <span className="block font-semibold text-blue-700">Fase:</span>
@@ -418,7 +417,7 @@ const CadastroProjetos = () => {
                       </span>
                     </div>
                   )}
-                  
+
                   {formData.ProvinciasAbrangidas.length > 0 && (
                     <div className="bg-white p-3 rounded-lg">
                       <span className="block font-semibold text-blue-700">Províncias:</span>
@@ -427,7 +426,7 @@ const CadastroProjetos = () => {
                       </span>
                     </div>
                   )}
-                  
+
                   {formData.tipoCredito.length > 0 && (
                     <div className="bg-white p-3 rounded-lg">
                       <span className="block font-semibold text-blue-700">Tipos de Apoio:</span>
@@ -445,11 +444,10 @@ const CadastroProjetos = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className={`px-16 py-4 rounded-xl flex items-center transition-all font-semibold text-lg shadow-lg ${
-                  loading 
+                className={`px-16 py-4 rounded-xl flex items-center transition-all font-semibold text-lg shadow-lg ${loading
                     ? 'bg-gray-400 cursor-not-allowed text-gray-700'
                     : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white hover:shadow-xl transform hover:-translate-y-1'
-                }`}
+                  }`}
               >
                 {loading ? (
                   <>

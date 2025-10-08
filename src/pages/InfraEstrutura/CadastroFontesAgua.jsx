@@ -959,8 +959,8 @@ const CadastroFontesAgua = () => {
     return (
         <div className="bg-gray-50 min-h-screen rounded-xl shadow-md overflow-hidden">
             {/* Header */}
-            <div className="text-center mb-6 p-10 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-cyan-50">
-                <h1 className="text-4xl font-bold mb-3 text-gray-800">Registo de Fontes de Água para Irrigação</h1>
+            <div className="text-center mb-6 p-10 border-b border-gray-100 bg-gradient-to-r from-cyan-700 to-cyan-500">
+                <h1 className="text-4xl font-bold mb-3 text-white">Registo de Fontes de Água para Irrigação</h1>
             </div>
 
             {/* Stepper */}
@@ -974,9 +974,9 @@ const CadastroFontesAgua = () => {
                     >
                         <div
                             className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${idx < activeIndex
-                                ? 'bg-cyan-500 text-white'
+                                ? 'bg-gradient-to-r from-cyan-700 to-cyan-500 text-white'
                                 : idx === activeIndex
-                                    ? 'bg-cyan-600 text-white'
+                                    ? 'bg-gradient-to-r from-cyan-700 to-cyan-500 shadow-lg text-white'
                                     : 'bg-gray-200 text-gray-500'
                                 }`}
                         >

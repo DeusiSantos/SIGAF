@@ -40,9 +40,10 @@ import {
 } from 'lucide-react';
 import { useProdutoresAprovados } from '../../hooks/useRnpaData';
 import axios from 'axios';
+import CustomInput from '../../components/CustomInput';
 
 // Componente CustomInput mockado para o exemplo
-const CustomInput = ({ type, label, value, onChange, options, placeholder, iconStart, required, disabled, rows, maxLength }) => {
+{/*}const CustomInput = ({ type, label, value, onChange, options, placeholder, iconStart, required, disabled, rows, maxLength }) => {
   if (type === 'select') {
     return (
       <div className="space-y-1">
@@ -101,7 +102,7 @@ const CustomInput = ({ type, label, value, onChange, options, placeholder, iconS
       </div>
     </div>
   );
-};
+*/};
 
 const AtribuicaoIncentivos = () => {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -1573,7 +1574,7 @@ const AtribuicaoIncentivos = () => {
                   onClick={() => index <= activeIndex && setActiveIndex(index)}
                 >
                   <div className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${index < activeIndex ? 'bg-blue-500 text-white' :
-                    index === activeIndex ? 'bg-blue-600 text-white' :
+                    index === activeIndex ? 'bg-gradient-to-r from-blue-100 to-blue-50 text-slate-800 shadow-lg' :
                       'bg-gray-200 text-gray-500'
                     }`}>
                     {index < activeIndex ? (
@@ -1582,7 +1583,7 @@ const AtribuicaoIncentivos = () => {
                       <StepIcon size={24} />
                     )}
                   </div>
-                  <span className={`text-sm text-center font-medium ${index === activeIndex ? 'text-blue-700' : 'text-gray-500'
+                  <span className={`text-sm text-center font-medium ${index === activeIndex ? 'text-slate-700' : 'text-gray-500'
                     }`}>
                     {step.label}
                   </span>
@@ -1594,7 +1595,7 @@ const AtribuicaoIncentivos = () => {
           {/* Progress Bar */}
           <div className="w-full bg-gray-200 h-2 mb-8 mx-8" style={{ width: 'calc(100% - 4rem)' }}>
             <div
-              className="bg-blue-600 h-2 transition-all duration-300 rounded-full"
+              className="bg-gradient-to-r from-blue-200 to-blue-50 h-2 transition-all duration-300 rounded-full"
               style={{ width: `${((activeIndex + 1) / steps.length) * 100}%` }}
             ></div>
           </div>

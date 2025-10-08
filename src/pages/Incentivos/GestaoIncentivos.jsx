@@ -37,62 +37,8 @@ import {
     RefreshCw
 } from 'lucide-react';
 import api from '../../services/api';
+import CustomInput from '../../components/CustomInput';
 
-// Mock do CustomInput (ajuste conforme seu componente)
-const CustomInput = ({
-    type = 'text',
-    placeholder,
-    value,
-    onChange,
-    iconStart,
-    options = []
-}) => {
-    const baseClasses = "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent";
-
-    if (type === 'select') {
-        return (
-            <div className="relative">
-                {iconStart && (
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        {iconStart}
-                    </div>
-                )}
-                <select
-                    value={value?.value || ''}
-                    onChange={(e) => {
-                        const selectedOption = options.find(opt => opt.value === e.target.value);
-                        onChange(selectedOption || { value: e.target.value, label: e.target.value });
-                    }}
-                    className={`${baseClasses} ${iconStart ? 'pl-10' : ''}`}
-                >
-                    <option value="">{placeholder}</option>
-                    {options.map(option => (
-                        <option key={option.value} value={option.value}>
-                            {option.label}
-                        </option>
-                    ))}
-                </select>
-            </div>
-        );
-    }
-
-    return (
-        <div className="relative">
-            {iconStart && (
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    {iconStart}
-                </div>
-            )}
-            <input
-                type={type}
-                placeholder={placeholder}
-                value={value || ''}
-                onChange={(e) => onChange(e.target.value)}
-                className={`${baseClasses} ${iconStart ? 'pl-10' : ''}`}
-            />
-        </div>
-    );
-};
 
 const GestaoIncentivos = () => {
     const navigate = useNavigate();

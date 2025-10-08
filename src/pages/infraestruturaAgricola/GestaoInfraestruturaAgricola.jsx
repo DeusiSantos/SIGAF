@@ -434,13 +434,7 @@ const GestaoInfraestruturaAgricola = () => {
                             <p className="text-blue-100 mt-1">Sistema de Registro de Infraestruturas - Angola</p>
                         </div>
                         <div className="flex gap-4">
-                            <button
-                                onClick={() => navigate('/infraestruturas/novo')}
-                                className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm font-medium"
-                            >
-                                <Plus className="w-5 h-5 mr-2" />
-                                Nova Infraestrutura
-                            </button>
+                            
                             <button
                                 onClick={() => showToast('info', 'Função', 'Exportar dados das infraestruturas')}
                                 className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
@@ -534,7 +528,7 @@ const GestaoInfraestruturaAgricola = () => {
                                 <tr key={infraestrutura._id} className="hover:bg-blue-50 transition-colors">
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-start">
-                                            <div className="flex-shrink-0 h-12 w-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
+                                            <div className="flex-shrink-0 h-12 w-12 bg-gradient-to-br from-blue-700 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
                                                 {infraestrutura.nome_da_Infraestrutura?.charAt(0) || 'I'}
                                             </div>
                                             <div className="ml-4">
@@ -640,13 +634,6 @@ const GestaoInfraestruturaAgricola = () => {
                                                 title="Visualizar"
                                             >
                                                 <Eye className="w-5 h-5" />
-                                            </button>
-                                            <button
-                                                onClick={() => handleEditInfraestrutura(infraestrutura._id)}
-                                                className="p-2 hover:bg-green-100 text-green-600 hover:text-green-800 rounded-full transition-colors"
-                                                title="Editar"
-                                            >
-                                                <Pencil className="w-5 h-5" />
                                             </button>
                                             <button
                                                 onClick={() => openDeleteModal(infraestrutura._id)}

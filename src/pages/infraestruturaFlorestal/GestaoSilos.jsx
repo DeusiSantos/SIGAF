@@ -502,9 +502,9 @@ const GestaoSilos = () => {
                             <CheckCircle className="w-6 h-6 text-green-600" />
                         </div>
                         <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-500">Silos Ativos</p>
+                            <p className="text-sm font-medium text-gray-500">Total de Licenças</p>
                             <p className="text-2xl font-bold text-gray-900">
-                                {silosData.filter(c => c.status === 'ATIVO').length}
+                                {silosData.filter(c => c.licencaOperacao === true).length}
                             </p>
                         </div>
                     </div>

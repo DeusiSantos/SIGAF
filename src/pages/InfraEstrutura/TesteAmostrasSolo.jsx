@@ -370,7 +370,7 @@ const TesteAmostrasSolo = () => {
                             <div className="space-y-6">
                                 {loadingProdutores ? (
                                     <div className="flex items-center justify-center py-8">
-                                        <Loader className="w-6 h-6 animate-spin text-cyan-600 mr-2" />
+                                        <Loader className="w-6 h-6 animate-spin text-emerald-600 mr-2" />
                                         <span className="text-gray-600">Carregando produtores...</span>
                                     </div>
                                 ) : (
@@ -777,9 +777,9 @@ const TesteAmostrasSolo = () => {
 
     return (
         <div className="bg-gray-50 min-h-screen">
-            <div className="text-center mb-6 p-10 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-cyan-50">
-                <h1 className="text-4xl font-bold mb-3 text-gray-800">Formulário de Coleta de Amostras de Solo</h1>
-                <p className="text-gray-600">Ministério da Agricultura e Florestas - RNPA</p>
+            <div className="text-center mb-6 p-10 border-b border-gray-100 bg-gradient-to-r from-emerald-700 to-emerald-500 rounded-t-lg">
+                <h1 className="text-4xl font-bold mb-3 text-white">Formulário de Coleta de Amostras de Solo</h1>
+            
             </div>
 
             <div className="flex justify-between items-center px-8 mb-8 overflow-x-auto">
@@ -800,7 +800,7 @@ const TesteAmostrasSolo = () => {
                         >
                             {React.createElement(stepObj.icon, { size: 28, className: "mx-auto" })}
                         </div>
-                        <span className={`text-sm text-center font-medium ${idx === activeIndex ? 'text-cyan-700' : 'text-gray-500'}`}>
+                        <span className={`text-sm text-center font-medium ${idx === activeIndex ? 'text-emerald-700' : 'text-gray-500'}`}>
                             {stepObj.label}
                         </span>
                     </div>
@@ -809,7 +809,7 @@ const TesteAmostrasSolo = () => {
 
             <div className="w-full bg-gray-200 h-2 mb-8 mx-8" style={{ width: 'calc(100% - 4rem)' }}>
                 <div
-                    className="bg-cyan-600 h-2 transition-all duration-300 rounded-full"
+                    className="bg-gradient-to-r from-emerald-700 to-emerald-500 h-2 transition-all duration-300 rounded-full"
                     style={{ width: `${((activeIndex + 1) / steps.length) * 100}%` }}
                 ></div>
             </div>
