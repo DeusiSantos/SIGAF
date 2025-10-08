@@ -1822,8 +1822,8 @@ const ReembolsoIncentivos = () => {
             <button
               className={`px-8 py-3 rounded-xl flex items-center transition-all font-medium ${!canProceed() ? 'opacity-50 cursor-not-allowed bg-gray-300 text-gray-500' :
                 isLastStep
-                  ? ' bg-gradient-to-r from-blue-50 to-red-50 hover:bg-blue-700 text-white shadow-lg'
-                  : ' bg-gradient-to-r from-blue-50 to-red-50 hover:bg-blue-700 text-white shadow-lg'
+                  ? ' bg-gradient-to-r from-blue-50 to-red-50 hover:bg-blue-700 text-gray-500 shadow-lg'
+                  : ' bg-gradient-to-r from-blue-50 to-red-50 hover:bg-blue-700 text-gray-500 shadow-lg'
                 }`}
               disabled={loading || !canProceed()}
               onClick={(e) => {
