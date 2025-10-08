@@ -14,9 +14,11 @@ import {
   Layers,
   Droplets,
   Camera,
-  FileText
+  FileText,
+  Upload
 } from 'lucide-react';
 import CustomInput from '../../components/CustomInput';
+import axios from 'axios';
 
 const VisualizarAmostra = () => {
   const { id } = useParams();
@@ -29,6 +31,13 @@ const VisualizarAmostra = () => {
   const [saving, setSaving] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  
+  // Estados para imagem
+  const [imagemUrl, setImagemUrl] = useState('');
+  const [loadingFoto, setLoadingFoto] = useState(false);
+  const [uploadingFoto, setUploadingFoto] = useState(false);
+  const [novaFoto, setNovaFoto] = useState(null);
+  const [previewFoto, setPreviewFoto] = useState('');
 
   // Opções para os campos
   const profundidadeOptions = [
@@ -100,35 +109,102 @@ const VisualizarAmostra = () => {
     { label: "Não", value: "nao" }
   ];
 
-  // Função para obter label de uma opção
   const getLabel = (value, options) => {
     const option = options.find(opt => opt.value === value);
     return option ? option.label : value || 'N/A';
   };
 
-  // Função para obter labels de múltiplas seleções
   const getSelectedLabels = (selected, options) => {
     if (!selected || !Array.isArray(selected)) return [];
     return options.filter(opt => selected.includes(opt.value)).map(opt => opt.label);
   };
 
+  // Carregar dados da amostra
   useEffect(() => {
     const fetchAmostra = async () => {
       try {
-        const response = await fetch(`https://mwangobrainsa-001-site2.mtempurl.com/api/testeDeAmostraDeSolo/${id}`);
-        if (!response.ok) throw new Error('Erro ao buscar amostra');
-        const data = await response.json();
+        console.log('🔄 Carregando amostra:', id);
+        
+        const response = await axios.get(
+          `https://mwangobrainsa-001-site2.mtempurl.com/api/testeDeAmostraDeSolo/${id}`
+        );
+        
+        const data = response.data;
+        console.log('📊 Dados da amostra:', data);
+        
         setAmostra(data);
         setFormData(data);
       } catch (error) {
         setErro('Erro ao carregar amostra de solo.');
-        console.error(error);
+        console.error('❌ Erro ao carregar amostra:', error);
       } finally {
         setLoading(false);
       }
     };
+
     fetchAmostra();
   }, [id]);
+
+  // Carregar imagem
+  useEffect(() => {
+    const carregarImagem = async () => {
+      if (!id) return;
+      
+      setLoadingFoto(true);
+      try {
+        console.log('🔍 Buscando foto da amostra:', id);
+        
+        const response = await axios.get(
+          `https://mwangobrainsa-001-site2.mtempurl.com/api/testeDeAmostraDeSolo/${id}/fotografiaDeAmostra`,
+          { 
+            responseType: 'blob',
+            timeout: 60000 
+          }
+        );
+
+        console.log('📦 Resposta recebida:', {
+          status: response.status,
+          contentType: response.headers['content-type'],
+          size: response.data.size
+        });
+
+        if (response.data && response.data.size > 0) {
+          const contentType = response.headers['content-type'];
+          if (contentType && contentType.startsWith('image/')) {
+            const url = URL.createObjectURL(response.data);
+            console.log('✅ URL da foto criada:', url);
+            setImagemUrl(url);
+          } else {
+            console.warn('⚠️ Resposta não é uma imagem:', contentType);
+            setImagemUrl('');
+          }
+        } else {
+          console.log('ℹ️ Sem foto disponível');
+          setImagemUrl('');
+        }
+      } catch (error) {
+        console.error('❌ Erro ao carregar foto:', error);
+        setImagemUrl('');
+      } finally {
+        setLoadingFoto(false);
+      }
+    };
+
+    carregarImagem();
+  }, [id]);
+
+  // Cleanup da URL do blob quando o componente for desmontado
+  useEffect(() => {
+    return () => {
+      if (imagemUrl && imagemUrl.startsWith('blob:')) {
+        console.log('🧹 Limpando URL do blob:', imagemUrl);
+        URL.revokeObjectURL(imagemUrl);
+      }
+      if (previewFoto && previewFoto.startsWith('blob:')) {
+        URL.revokeObjectURL(previewFoto);
+      }
+    };
+  }, [imagemUrl, previewFoto]);
 
   const handleInputChange = (field, value) => {
     let formattedValue = value;
@@ -142,6 +218,63 @@ const VisualizarAmostra = () => {
     setFormData(prev => ({ ...prev, [field]: formattedValue }));
   };
 
+  // Handler para mudança de arquivo
+  const handleFotoChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      console.log('📁 Nova foto selecionada:', file.name, file.type, file.size);
+      setNovaFoto(file);
+      
+      // Criar preview
+      const reader = new FileReader();
+      reader.onload = (e) => setPreviewFoto(e.target.result);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Função para fazer upload da foto
+  const uploadFoto = async (file) => {
+    if (!file) {
+      showToast('error', 'Selecione uma foto primeiro');
+      return;
+    }
+
+    setUploadingFoto(true);
+    try {
+      const formData = new FormData();
+      formData.append('novaImagem', file);
+
+      const response = await axios.patch(
+        `https://mwangobrainsa-001-site2.mtempurl.com/api/testeDeAmostraDeSolo/${id}/fotografiaDeAmostra`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+
+      if (response.status === 200) {
+        showToast('success', 'Foto atualizada com sucesso!');
+        const url = URL.createObjectURL(file);
+        setImagemUrl(url);
+        setNovaFoto(null);
+        setPreviewFoto('');
+      }
+    } catch (error) {
+      console.error('Erro ao fazer upload da foto:', error);
+      showToast('error', 'Erro ao atualizar foto');
+    } finally {
+      setUploadingFoto(false);
+    }
+  };
+
+  // Função para cancelar upload
+  const cancelarFoto = () => {
+    setNovaFoto(null);
+    setPreviewFoto('');
+  };
+
   const showToast = (severity, summary, detail, duration = 4000) => {
     setToastMessage({ severity, summary, detail, visible: true });
     setTimeout(() => setToastMessage(null), duration);
@@ -150,22 +283,42 @@ const VisualizarAmostra = () => {
   const handleSave = async () => {
     setSaving(true);
 
-    const payload = {
-      ...formData,
-      cultura_Actual: Array.isArray(formData.cultura_Actual)
-        ? formData.cultura_Actual.map(item => typeof item === 'string' ? item : item.value)
-        : [],
-    };
-
     try {
+      const payload = {
+        id: parseInt(id),
+        este_solo_pertence_a_um_produt: formData.este_solo_pertence_a_um_produt || "",
+        c_digo_do_: formData.c_digo_do_ || 0,
+        profundidade_da_Coleta: formData.profundidade_da_Coleta || "",
+        m_todo_de_Coleta: formData.m_todo_de_Coleta || "",
+        cultura_Actual: Array.isArray(formData.cultura_Actual)
+          ? formData.cultura_Actual
+          : [],
+        cultura_Anterior: Array.isArray(formData.cultura_Anterior)
+          ? formData.cultura_Anterior
+          : [formData.cultura_Anterior || ""],
+        tipo_de_Solo: formData.tipo_de_Solo || "",
+        cor_do_Solo: formData.cor_do_Solo || "",
+        textura: formData.textura || "",
+        drenagem: formData.drenagem || "",
+        upload_da_Fotografia_da_Amostra: formData.upload_da_Fotografia_da_Amostra || "",
+        observa_es_Gerais: formData.observa_es_Gerais || "",
+        tecnico_Responsavel: formData.tecnico_Responsavel || "",
+        c_digo_Supervisor: formData.c_digo_Supervisor || "",
+        data_da_Coleta: formData.data_da_Coleta || new Date().toISOString().split('T')[0]
+      };
+
       console.log('📤 Payload enviado:', payload);
-      const response = await fetch(`https://mwangobrainsa-001-site2.mtempurl.com/api/testeDeAmostraDeSolo/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload)
-      });
+
+      const response = await fetch(
+        `https://mwangobrainsa-001-site2.mtempurl.com/api/testeDeAmostraDeSolo/${id}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload)
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -174,7 +327,11 @@ const VisualizarAmostra = () => {
 
       const updatedData = await response.json();
       setAmostra(updatedData);
+      setFormData(updatedData);
       setEditMode(false);
+      setNovaFoto(null);
+      setPreviewFoto('');
+      
       showToast('success', 'Sucesso!', 'Alterações salvas com sucesso!');
     } catch (error) {
       console.error('❌ Erro ao salvar:', error);
@@ -191,6 +348,8 @@ const VisualizarAmostra = () => {
   const confirmCancelEdit = () => {
     setEditMode(false);
     setFormData(amostra);
+    setNovaFoto(null);
+    setPreviewFoto('');
     setShowCancelModal(false);
     showToast('info', 'Edição cancelada', 'Alterações descartadas');
   };
@@ -239,7 +398,7 @@ const VisualizarAmostra = () => {
                   <TestTube className="w-6 h-6 text-emerald-600" />
                   Detalhes da Amostra de Solo
                 </h1>
-                <span className="text-gray-600">ID da Amostra: <span className="font-semibold">#{amostra._id}</span></span>
+                <span className="text-gray-600">ID da Amostra: <span className="font-semibold">#{amostra.id || amostra._id}</span></span>
               </div>
             </div>
           </div>
@@ -274,6 +433,77 @@ const VisualizarAmostra = () => {
           </div>
         </div>
 
+        {/* Fotografia da Amostra */}
+        <div className="bg-white rounded-xl shadow p-6 mb-6">
+          <h2 className="font-semibold text-lg mb-4 flex items-center gap-2">
+            <Camera className="w-5 h-5 text-purple-600" />
+            Fotografia da Amostra
+          </h2>
+
+          <div className="bg-gray-50 rounded-lg p-4">
+            {loadingFoto && (
+              <div className="flex items-center justify-center p-8 text-gray-500">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                <span className="ml-3">Carregando foto...</span>
+              </div>
+            )}
+
+            {!loadingFoto && (imagemUrl || previewFoto) && (
+              <img
+                src={previewFoto || imagemUrl}
+                alt="Fotografia da Amostra"
+                className="w-full h-auto rounded-lg max-h-96 object-cover"
+                onError={(e) => {
+                  console.error('❌ Erro ao carregar imagem:', e);
+                  setImagemUrl('');
+                }}
+              />
+            )}
+
+            {!loadingFoto && !imagemUrl && !previewFoto && (
+              <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+                <div className="text-center">
+                  <Camera className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                  <p className="text-sm text-gray-500">Nenhuma fotografia disponível</p>
+                </div>
+              </div>
+            )}
+
+            {editMode && (
+              <div className="mt-4">
+                <label className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors inline-block">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFotoChange}
+                    className="hidden"
+                  />
+                  {imagemUrl || previewFoto ? 'Alterar Foto' : 'Adicionar Foto'}
+                </label>
+
+                {novaFoto && (
+                  <div className="flex gap-2 mt-3">
+                    <button
+                      onClick={() => uploadFoto(novaFoto)}
+                      disabled={uploadingFoto}
+                      className="flex-1 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded text-sm transition-colors disabled:bg-green-300"
+                    >
+                      {uploadingFoto ? 'Enviando...' : 'Confirmar Upload'}
+                    </button>
+                    <button
+                      onClick={cancelarFoto}
+                      disabled={uploadingFoto}
+                      className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded text-sm transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Informações da Amostra */}
         <div className="bg-white rounded-xl shadow p-6 mb-6">
           <h2 className="font-semibold text-lg mb-4 flex items-center gap-2">
@@ -282,37 +512,30 @@ const VisualizarAmostra = () => {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Pertence a Produtor */}
-            <label className="text-sm font-medium text-gray-700 flex flex-col gap-1">
-              <span>Pertence a um Produtor?</span>
-              {editMode ? (
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User size={18} className="text-gray-400" />
-                  </span>
-                  <select
-                    value={formData.este_solo_pertence_a_um_produt || ''}
-                    onChange={e => handleInputChange('este_solo_pertence_a_um_produt', e.target.value)}
-                    className="block w-full pl-10 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
-                  >
-                    <option value="">Selecione</option>
-                    {pertenceProdutorOptions.map(opt => (
-                      <option key={opt.value} value={opt.value}>{opt.label}</option>
-                    ))}
-                  </select>
-                </div>
-              ) : (
+            {editMode ? (
+              <CustomInput
+                type="select"
+                label="Pertence a um Produtor?"
+                value={formData.este_solo_pertence_a_um_produt || ''}
+                onChange={value => handleInputChange('este_solo_pertence_a_um_produt', value)}
+                options={pertenceProdutorOptions}
+                iconStart={<User size={18} />}
+              />
+            ) : (
+              <label className="text-sm font-medium text-gray-700 flex flex-col gap-1">
+                <span>Pertence a um Produtor?</span>
                 <div className="mt-1 flex items-center gap-1">
                   <User size={14} className="text-gray-400" />
                   <span className={`px-2 py-0.5 rounded text-xs ${
-                    amostra.este_solo_pertence_a_um_produt === 'sim' 
-                      ? 'bg-green-100 text-green-700' 
+                    amostra.este_solo_pertence_a_um_produt === 'sim'
+                      ? 'bg-green-100 text-green-700'
                       : 'bg-gray-100 text-gray-700'
                   }`}>
                     {getLabel(amostra.este_solo_pertence_a_um_produt, pertenceProdutorOptions)}
                   </span>
                 </div>
-              )}
-            </label>
+              </label>
+            )}
 
             {/* Código do Produtor */}
             {(amostra.este_solo_pertence_a_um_produt === 'sim' || formData.este_solo_pertence_a_um_produt === 'sim') && (
@@ -366,58 +589,44 @@ const VisualizarAmostra = () => {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Profundidade */}
-            <label className="text-sm font-medium text-gray-700 flex flex-col gap-1">
-              <span>Profundidade da Coleta</span>
-              {editMode ? (
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Layers size={18} className="text-gray-400" />
-                  </span>
-                  <select
-                    value={formData.profundidade_da_Coleta || ''}
-                    onChange={e => handleInputChange('profundidade_da_Coleta', e.target.value)}
-                    className="block w-full pl-10 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
-                  >
-                    <option value="">Selecione</option>
-                    {profundidadeOptions.map(opt => (
-                      <option key={opt.value} value={opt.value}>{opt.label}</option>
-                    ))}
-                  </select>
-                </div>
-              ) : (
+            {editMode ? (
+              <CustomInput
+                type="select"
+                label="Profundidade da Coleta"
+                value={formData.profundidade_da_Coleta || ''}
+                onChange={value => handleInputChange('profundidade_da_Coleta', value)}
+                options={profundidadeOptions}
+                iconStart={<Layers size={18} />}
+              />
+            ) : (
+              <label className="text-sm font-medium text-gray-700 flex flex-col gap-1">
+                <span>Profundidade da Coleta</span>
                 <div className="mt-1 flex items-center gap-1">
                   <Layers size={14} className="text-gray-400" />
                   <span className="text-gray-900">{getLabel(amostra.profundidade_da_Coleta, profundidadeOptions)}</span>
                 </div>
-              )}
-            </label>
+              </label>
+            )}
 
             {/* Método de Coleta */}
-            <label className="text-sm font-medium text-gray-700 flex flex-col gap-1">
-              <span>Método de Coleta</span>
-              {editMode ? (
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <TestTube size={18} className="text-gray-400" />
-                  </span>
-                  <select
-                    value={formData.m_todo_de_Coleta || ''}
-                    onChange={e => handleInputChange('m_todo_de_Coleta', e.target.value)}
-                    className="block w-full pl-10 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
-                  >
-                    <option value="">Selecione</option>
-                    {metodoColetaOptions.map(opt => (
-                      <option key={opt.value} value={opt.value}>{opt.label}</option>
-                    ))}
-                  </select>
-                </div>
-              ) : (
+            {editMode ? (
+              <CustomInput
+                type="select"
+                label="Método de Coleta"
+                value={formData.m_todo_de_Coleta || ''}
+                onChange={value => handleInputChange('m_todo_de_Coleta', value)}
+                options={metodoColetaOptions}
+                iconStart={<TestTube size={18} />}
+              />
+            ) : (
+              <label className="text-sm font-medium text-gray-700 flex flex-col gap-1">
+                <span>Método de Coleta</span>
                 <div className="mt-1 flex items-center gap-1">
                   <TestTube size={14} className="text-gray-400" />
                   <span className="text-gray-900">{getLabel(amostra.m_todo_de_Coleta, metodoColetaOptions)}</span>
                 </div>
-              )}
-            </label>
+              </label>
+            )}
           </div>
         </div>
 
@@ -429,92 +638,76 @@ const VisualizarAmostra = () => {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Tipo de Solo */}
-            <label className="text-sm font-medium text-gray-700 flex flex-col gap-1">
-              <span>Tipo de Solo</span>
-              {editMode ? (
-                <select
-                  value={formData.tipo_de_Solo || ''}
-                  onChange={e => handleInputChange('tipo_de_Solo', e.target.value)}
-                  className="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
-                >
-                  <option value="">Selecione</option>
-                  {tipoSoloOptions.map(opt => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
-              ) : (
+            {editMode ? (
+              <CustomInput
+                type="select"
+                label="Tipo de Solo"
+                value={formData.tipo_de_Solo || ''}
+                onChange={value => handleInputChange('tipo_de_Solo', value)}
+                options={tipoSoloOptions}
+              />
+            ) : (
+              <label className="text-sm font-medium text-gray-700 flex flex-col gap-1">
+                <span>Tipo de Solo</span>
                 <span className="px-2 py-0.5 bg-orange-100 text-orange-700 rounded text-xs inline-block w-fit">
                   {getLabel(amostra.tipo_de_Solo, tipoSoloOptions)}
                 </span>
-              )}
-            </label>
+              </label>
+            )}
 
             {/* Cor do Solo */}
-            <label className="text-sm font-medium text-gray-700 flex flex-col gap-1">
-              <span>Cor do Solo</span>
-              {editMode ? (
-                <select
-                  value={formData.cor_do_Solo || ''}
-                  onChange={e => handleInputChange('cor_do_Solo', e.target.value)}
-                  className="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
-                >
-                  <option value="">Selecione</option>
-                  {corSoloOptions.map(opt => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
-              ) : (
+            {editMode ? (
+              <CustomInput
+                type="select"
+                label="Cor do Solo"
+                value={formData.cor_do_Solo || ''}
+                onChange={value => handleInputChange('cor_do_Solo', value)}
+                options={corSoloOptions}
+              />
+            ) : (
+              <label className="text-sm font-medium text-gray-700 flex flex-col gap-1">
+                <span>Cor do Solo</span>
                 <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded text-xs inline-block w-fit">
                   {getLabel(amostra.cor_do_Solo, corSoloOptions)}
                 </span>
-              )}
-            </label>
+              </label>
+            )}
 
             {/* Textura */}
-            <label className="text-sm font-medium text-gray-700 flex flex-col gap-1">
-              <span>Textura</span>
-              {editMode ? (
-                <select
-                  value={formData.textura || ''}
-                  onChange={e => handleInputChange('textura', e.target.value)}
-                  className="block w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
-                >
-                  <option value="">Selecione</option>
-                  {texturaOptions.map(opt => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
-              ) : (
+            {editMode ? (
+              <CustomInput
+                type="select"
+                label="Textura"
+                value={formData.textura || ''}
+                onChange={value => handleInputChange('textura', value)}
+                options={texturaOptions}
+              />
+            ) : (
+              <label className="text-sm font-medium text-gray-700 flex flex-col gap-1">
+                <span>Textura</span>
                 <span className="text-gray-900">{getLabel(amostra.textura, texturaOptions)}</span>
-              )}
-            </label>
+              </label>
+            )}
 
             {/* Drenagem */}
-            <label className="text-sm font-medium text-gray-700 flex flex-col gap-1">
-              <span>Drenagem</span>
-              {editMode ? (
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Droplets size={18} className="text-gray-400" />
-                  </span>
-                  <select
-                    value={formData.drenagem || ''}
-                    onChange={e => handleInputChange('drenagem', e.target.value)}
-                    className="block w-full pl-10 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
-                  >
-                    <option value="">Selecione</option>
-                    {drenagemOptions.map(opt => (
-                      <option key={opt.value} value={opt.value}>{opt.label}</option>
-                    ))}
-                  </select>
-                </div>
-              ) : (
+            {editMode ? (
+              <CustomInput
+                type="select"
+                label="Drenagem"
+                value={formData.drenagem || ''}
+                onChange={value => handleInputChange('drenagem', value)}
+                options={drenagemOptions}
+                iconStart={<Droplets size={18} />}
+              />
+            ) : (
+              <label className="text-sm font-medium text-gray-700 flex flex-col gap-1">
+                <span>Drenagem</span>
                 <div className="mt-1 flex items-center gap-1">
                   <Droplets size={14} className="text-gray-400" />
                   <span className="text-gray-900">{getLabel(amostra.drenagem, drenagemOptions)}</span>
                 </div>
-              )}
-            </label>
+              </label>
+            )}
           </div>
         </div>
 
@@ -526,17 +719,18 @@ const VisualizarAmostra = () => {
           </h2>
           <div className="grid grid-cols-1 gap-6">
             {/* Culturas Atuais */}
-            <label className="text-sm font-medium text-gray-700">
-              Culturas Atuais
-              {editMode ? (
-                <CustomInput
-                  type="multiselect"
-                  value={formData.cultura_Actual || []}
-                  options={culturasOptions}
-                  onChange={value => handleInputChange('cultura_Actual', value)}
-                  helperText="Selecione uma ou mais culturas"
-                />
-              ) : (
+            {editMode ? (
+              <CustomInput
+                type="multiselect"
+                label="Culturas Atuais"
+                value={formData.cultura_Actual || []}
+                options={culturasOptions}
+                onChange={value => handleInputChange('cultura_Actual', value)}
+                helperText="Selecione uma ou mais culturas"
+              />
+            ) : (
+              <label className="text-sm font-medium text-gray-700">
+                Culturas Atuais
                 <div className="flex flex-wrap gap-2 mt-2">
                   {getSelectedLabels(amostra.cultura_Actual, culturasOptions).map((label, idx) => (
                     <span key={`cultura-${idx}`} className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs flex items-center gap-1">
@@ -545,8 +739,8 @@ const VisualizarAmostra = () => {
                     </span>
                   ))}
                 </div>
-              )}
-            </label>
+              </label>
+            )}
 
             {/* Cultura Anterior */}
             <CustomInput
@@ -560,14 +754,13 @@ const VisualizarAmostra = () => {
           </div>
         </div>
 
-        {/* Observações e Arquivo */}
+        {/* Observações */}
         <div className="bg-white rounded-xl shadow p-6">
           <h2 className="font-semibold text-lg mb-4 flex items-center gap-2">
             <FileText className="w-5 h-5 text-gray-600" />
-            Observações e Anexos
+            Observações
           </h2>
           <div className="grid grid-cols-1 gap-6">
-            {/* Observações */}
             <CustomInput
               type="textarea"
               label="Observações Gerais"
@@ -576,20 +769,6 @@ const VisualizarAmostra = () => {
               disabled={!editMode}
               rows={4}
             />
-
-            {/* Arquivo */}
-            {amostra.upload_da_Fotografia_da_Amostra && (
-              <label className="text-sm font-medium text-gray-700 flex flex-col gap-1">
-                <span className="flex items-center gap-2">
-                  <Camera className="w-4 h-4" />
-                  Fotografia da Amostra
-                </span>
-                <div className="mt-2 px-3 py-2 bg-cyan-50 border border-cyan-200 rounded-lg text-sm text-cyan-700 flex items-center gap-2">
-                  <Camera size={16} />
-                  {amostra.upload_da_Fotografia_da_Amostra}
-                </div>
-              </label>
-            )}
           </div>
         </div>
 
@@ -602,7 +781,7 @@ const VisualizarAmostra = () => {
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Confirmar Cancelamento</h3>
               <p className="text-gray-600 text-center text-sm mb-4">
-                Tem certeza que deseja cancelar? <br/>Os dados não salvos serão perdidos.
+                Tem certeza que deseja cancelar? <br />Os dados não salvos serão perdidos.
               </p>
               <div className="flex gap-3 mt-2 w-full">
                 <button
