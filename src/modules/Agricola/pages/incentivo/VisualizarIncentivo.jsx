@@ -39,10 +39,11 @@ import {
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import api from '../../services/api';
+import CustomInput from '../../../../core/components/CustomInput';
+import api from '../../../../core/services/api';
 //import { RefreshCw } from 'lucide-react';
 // Mock do CustomInput
-import CustomInput from '../../core/components/CustomInput';
+
 
 const VisualizarIncentivo = () => {
     // ✅ USANDO useParams CORRETAMENTE

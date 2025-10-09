@@ -238,7 +238,7 @@ const GestaoSistemasIrrigacao = () => {
 
   // Ver detalhes do registro
   const handleViewDetails = (irrigacao) => {
-    navigate(`/GerenciaRNPA/gestao-infraestrutura/irrigacao/visualizar/${irrigacao.id}`);
+    navigate(`/GerenciaRNPA/gestao-agricultores/produtores/silos-armazenamento/visualizar/${irrigacao.id}`);
   };
 
   // Função para abrir modal de confirmação

@@ -1,217 +1,217 @@
-import { Home, BarChart2, Users, FileText, Calendar, MapPin, Settings, HelpCircle, Plus, List, Award, BookOpen, Briefcase, FileSearch, Database, DollarSign } from 'lucide-react';
-import AddHistoricoProducao from '../pages/public/AddHistoricoProducao';
+import { Award, BarChart2, Briefcase, Calendar, Database, DollarSign, FileSearch, FileText, HelpCircle, Home, List, Plus, Settings, Users } from 'lucide-react';
+import AddHistoricoProducao from '../modules/Agricola/public/AddHistoricoProducao';
 
 // Configuração das rotas e menus
 const routes = {
   mainMenuItems: [
-    { 
-      icon: Home, 
-      text: 'Início', 
+    {
+      icon: Home,
+      text: 'Início',
       path: '/',
-      submenu: false 
+      submenu: false
     },
-    { 
-      icon: BarChart2, 
-      text: 'Dashboard', 
+    {
+      icon: BarChart2,
+      text: 'Dashboard',
       path: '/dashboard',
-      submenu: true 
+      submenu: true
     },
-    { 
-      icon: Users, 
-      text: 'Gestores', 
+    {
+      icon: Users,
+      text: 'Gestores',
       path: '/gestores',
-      submenu: true 
+      submenu: true
     },
-    { 
-      icon: FileText, 
-      text: 'Núcleo', 
+    {
+      icon: FileText,
+      text: 'Núcleo',
       path: '/nucleo',
-      submenu: true 
+      submenu: true
     },
-    { 
-      icon: FileText, 
-      text: 'Agrupamento', 
+    {
+      icon: FileText,
+      text: 'Agrupamento',
       path: '/agrupamento',
-      submenu: true 
+      submenu: true
     },
-    { 
-      icon: Users, 
-      text: 'Escuteiros', 
+    {
+      icon: Users,
+      text: 'Escuteiros',
       path: '/escuteiros',
-      submenu: true 
+      submenu: true
     },
-    { 
-      icon: Users, 
-      text: 'Profissional', 
+    {
+      icon: Users,
+      text: 'Profissional',
       path: '/profissional',
-      submenu: true 
+      submenu: true
     },
-    { 
-      icon: FileText, 
-      text: 'Atividades', 
+    {
+      icon: FileText,
+      text: 'Atividades',
       path: '/atividades',
-      submenu: true 
+      submenu: true
     },
-    { 
-      icon: Calendar, 
-      text: 'Eventos', 
+    {
+      icon: Calendar,
+      text: 'Eventos',
       path: '/eventos',
-      submenu: true 
+      submenu: true
     },
-    { 
-      icon: Settings, 
-      text: 'Configurações', 
+    {
+      icon: Settings,
+      text: 'Configurações',
       path: '/configuracoes',
-      submenu: true 
+      submenu: true
     },
-    { 
-      icon: HelpCircle, 
-      text: 'Ajuda', 
+    {
+      icon: HelpCircle,
+      text: 'Ajuda',
       path: '/ajuda',
-      submenu: false 
+      submenu: false
     }
   ],
   subMenus: {
     Dashboard: [
-      { 
-        icon: BarChart2, 
-        text: 'Estatísticas', 
+      {
+        icon: BarChart2,
+        text: 'Estatísticas',
         path: '/dashboard/estatisticas'
       },
-      { 
-        icon: DollarSign, 
-        text: 'Financeiro', 
+      {
+        icon: DollarSign,
+        text: 'Financeiro',
         path: '/dashboard/financeiro'
       },
-      { 
-        icon: FileSearch, 
-        text: 'Relatórios', 
+      {
+        icon: FileSearch,
+        text: 'Relatórios',
         path: '/dashboard/relatorios'
       },
-      { 
-        icon: Database, 
-        text: 'Dados Gerais', 
+      {
+        icon: Database,
+        text: 'Dados Gerais',
         path: '/dashboard/dados'
       }
     ],
     Gestores: [
-      { 
-        icon: Plus, 
-        text: 'Novo Gestor', 
+      {
+        icon: Plus,
+        text: 'Novo Gestor',
         path: '/gestores/novo'
       },
-      { 
-        icon: List, 
-        text: 'Gestão', 
+      {
+        icon: List,
+        text: 'Gestão',
         path: '/gestores/gestao'
       }
     ],
     Núcleo: [
-      { 
-        icon: Plus, 
-        text: 'Novo Núcleo', 
+      {
+        icon: Plus,
+        text: 'Novo Núcleo',
         path: '/nucleo/novo'
       },
-      { 
-        icon: List, 
-        text: 'Gestão', 
+      {
+        icon: List,
+        text: 'Gestão',
         path: '/nucleo/gestao'
       },
-      { 
-        icon: Plus, 
-        text: 'Add Agrupamento', 
+      {
+        icon: Plus,
+        text: 'Add Agrupamento',
         path: '/nucleo/add'
       }
     ],
     Agrupamento: [
-      { 
-        icon: Plus, 
-        text: 'Novo Agrupamento', 
+      {
+        icon: Plus,
+        text: 'Novo Agrupamento',
         path: '/agrupamento/novo'
       },
-      { 
-        icon: List, 
-        text: 'Gestão', 
+      {
+        icon: List,
+        text: 'Gestão',
         path: '/agrupamento/gestao'
       }
     ],
     Escuteiros: [
-      { 
-        icon: Plus, 
-        text: 'Novo Escuteiro', 
+      {
+        icon: Plus,
+        text: 'Novo Escuteiro',
         path: '/escuteiros/novo'
       },
-      { 
-        icon: List, 
-        text: 'Gestão', 
+      {
+        icon: List,
+        text: 'Gestão',
         path: '/escuteiros/gestao'
       },
-      { 
-        icon: Award, 
-        text: 'Promoção', 
+      {
+        icon: Award,
+        text: 'Promoção',
         path: '/escuteiros/promocao'
       },
     ],
     Profissional: [
-      { 
-        icon: Plus, 
-        text: 'Novo Profissional', 
+      {
+        icon: Plus,
+        text: 'Novo Profissional',
         path: '/profissional/novo'
       },
-      { 
-        icon: List, 
-        text: 'Gestão', 
+      {
+        icon: List,
+        text: 'Gestão',
         path: '/profissional/gestao'
       }
     ],
     Atividades: [
-      { 
-        icon: Plus, 
-        text: 'Nova Atividade', 
+      {
+        icon: Plus,
+        text: 'Nova Atividade',
         path: '/atividades/novo'
       },
-      { 
-        icon: List, 
-        text: 'Gestão', 
+      {
+        icon: List,
+        text: 'Gestão',
         path: '/atividades/gestao'
       }
     ],
     Eventos: [
-      { 
-        icon: Plus, 
-        text: 'Novo Evento', 
+      {
+        icon: Plus,
+        text: 'Novo Evento',
         path: '/eventos/novo'
       },
-      { 
-        icon: List, 
-        text: 'Gestão', 
+      {
+        icon: List,
+        text: 'Gestão',
         path: '/eventos/gestao'
       },
-      { 
-        icon: Calendar, 
-        text: 'Calendário', 
+      {
+        icon: Calendar,
+        text: 'Calendário',
         path: '/eventos/calendario'
       }
     ],
     Configurações: [
-      { 
-        icon: Users, 
-        text: 'Perfil', 
+      {
+        icon: Users,
+        text: 'Perfil',
         path: '/configuracoes/perfil'
       },
-      { 
-        icon: Briefcase, 
-        text: 'Conta', 
+      {
+        icon: Briefcase,
+        text: 'Conta',
         path: '/configuracoes/conta'
       },
-      { 
-        icon: Users, 
-        text: 'Usuários', 
+      {
+        icon: Users,
+        text: 'Usuários',
         path: '/configuracoes/usuarios'
       },
-      { 
-        icon: Settings, 
-        text: 'Sistema', 
+      {
+        icon: Settings,
+        text: 'Sistema',
         path: '/configuracoes/sistema'
       }
     ],

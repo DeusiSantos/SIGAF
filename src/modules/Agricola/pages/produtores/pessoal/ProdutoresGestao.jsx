@@ -333,7 +333,7 @@ const ProdutoresGestao = () => {
     };
 
     const handleHistoricoProducao = (produtorId) => {
-        navigate(`/GerenciaRNPA/produtores/historico-producao/${produtorId}`);
+        navigate(`/GerenciaRNPA/gestao-agricultores/produtores/historico-producao/${produtorId}`);
     };
 
     {/*const handleHistoricoBeneficios = (produtorId) => {
@@ -341,7 +341,7 @@ const ProdutoresGestao = () => {
     };*/}
 
     const handleGerarCartao = (produtorId) => {
-        navigate(`/GerenciaRNPA/gestao-escolar/produtores/gerar-cartao/${produtorId}`);
+        navigate(`/GerenciaRNPA/gestao-agricultores/produtores/gerar-cartao/${produtorId}`);
     };
 
     {/*const handleCadastroProdutor = () => {

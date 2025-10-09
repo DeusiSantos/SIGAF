@@ -21,11 +21,12 @@ import {
   User
 } from 'lucide-react';
 import { useState } from 'react';
-import provinciasData from '../../../../../core/components/';
-import CustomInput from '../../core/components/CustomInput';
-import api from '../../services/api';
+import provinciasData from '../../../../../core/components/Provincias.json';
+
 
 import { MapContainer, Marker, Popup, TileLayer, useMapEvents } from 'react-leaflet';
+import CustomInput from '../../../../../core/components/CustomInput';
+import api from '../../../../../core/services/api';
 
 
 const MapClickHandler = ({ onLocationSelect }) => {

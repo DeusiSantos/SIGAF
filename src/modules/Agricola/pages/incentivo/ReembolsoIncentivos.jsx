@@ -31,8 +31,8 @@ import {
   X
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import provinciasData from '../../../../../core/components/';
-import CustomInput from '../../core/components/CustomInput';
+import CustomInput from '../../../../core/components/CustomInput';
+import provinciasData from '../../../../core/components/Provincias.json';
 
 
 

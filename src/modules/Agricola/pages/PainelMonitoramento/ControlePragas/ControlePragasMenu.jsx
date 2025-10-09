@@ -1,16 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { UserPlus, Users, FileText, User, MapPin, Award } from 'lucide-react';
+import { UserPlus, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-
-import CadastroProdutor from '../../pages/CadastroProdutor';
-import ProdutoresGestao from '../../pages/ProdutoresGestao';
-import CadastroCooperativa from '../../pages/SociedadeAgricola/EntidadesAssociativasCadastro';
-import AssociasoesRurais from '../../pages/SociedadeAgricola/AssociasoesRurais';
-import CadastroProjetos from '../../pages/Programas-e-Benefícios/CadastroProjetos';
-import GestaoProjetos from '../../pages/Programas-e-Benefícios/GestaoProjetos';
-import CadastroPragas from '../../pages/Pragas/CadastroPragas';
-import GestaoPragas from '../../pages/Pragas/GestaoPragas';
+import CadastroPragas from './CadastroPragas';
 import DashboardControlePragas from './DashboardControlePragas';
+import GestaoPragas from './GestaoPragas';
+
 
 
 const ControlePragasMenu = () => {
@@ -25,14 +19,14 @@ const ControlePragasMenu = () => {
     }, [location.state]);
 
     const menuItems = [
-         {
+        {
             id: 'dashboard',
             title: 'Dashboard',
             icon: Users,
             description: 'Dashboard de Pragas',
             color: 'green'
         },
-         {
+        {
             id: 'gestao',
             title: 'Gestão',
             icon: Users,
@@ -88,7 +82,7 @@ const ControlePragasMenu = () => {
                         </div>
                     </div>
                 );
-             case 'dashboard':
+            case 'dashboard':
                 return (
                     <div className="bg-white rounded-lg shadow-sm">
                         <div className="text-center">

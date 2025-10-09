@@ -21,8 +21,8 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import CustomInput from '../../core/components/CustomInput';
-import api from '../../core/services/api';
+import CustomInput from '../../../core/components/CustomInput';
+import api from '../../../core/services/api';
 
 
 const AddHistoricoProducao = () => {
@@ -227,7 +227,7 @@ const AddHistoricoProducao = () => {
         }
     };
     const handleCancelForm = () => {
-        navigate(`/GerenciaRNPA/produtores/historico-producao/${produtorId}`);
+        navigate(`/GerenciaRNPA/gestao-agricultores/produtores/historico-producao/${produtorId}`);
     };
     // Função de envio (copiar e adaptar handleAddRecord do HistoricoProducao.jsx)
     const handleAddRecord = async () => {

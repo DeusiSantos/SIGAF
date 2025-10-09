@@ -29,8 +29,9 @@ import {
   X
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
-import { useProdutoresAprovados } from '../../../hooks/useRnpaData';
-import CustomInput from '../../core/components/CustomInput';
+import CustomInput from '../../../../core/components/CustomInput';
+import { useProdutoresAprovados } from '../../hooks/useRnpaData';
+
 
 // Componente CustomInput mockado para o exemplo
 {/*}const CustomInput = ({ type, label, value, onChange, options, placeholder, iconStart, required, disabled, rows, maxLength }) => {

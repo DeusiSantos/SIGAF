@@ -133,16 +133,12 @@ const GestaoIncentivos = () => {
 
     // Navegação - ATUALIZADA
     const handleViewIncentivo = (incentivoId) => {
-        navigate(`/GerenciaRNPA/incentivos/visualizar/${incentivoId}`);
+        navigate(`/GerenciaRNPA/gestao-agricultores/incentivos/visualizar/${incentivoId}`);
     };
 
     const handleEditIncentivo = (incentivoId) => {
         navigate(`/incentivos/editar/${incentivoId}`);
     };
-
-
-
-
 
     const handleRelatorios = (incentivoId) => {
         navigate(`/incentivos/relatorios/${incentivoId}`);

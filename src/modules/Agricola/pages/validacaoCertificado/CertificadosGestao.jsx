@@ -24,7 +24,9 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 import CustomInput from '../../../../core/components/CustomInput';
+import { useCertificadoProdutor } from '../../hooks/useCertificadoProdutor';
 import { useCertificados } from '../../hooks/useRnpaData';
+
 
 
 // Função para mapear os dados da API diretamente dos produtores (sem buscar dados extras)
@@ -231,7 +233,7 @@ const CertificadosGestao = () => {
 
     // Navegação para visualizar certificados do produtor
     const handleViewCertificado = (produtorId) => {
-        navigate(`/GerenciaRNPA/certificados/visualizar/${produtorId}`);
+        navigate(`/GerenciaRNPA/gestao-agricultores/certificados/visualizar/${produtorId}`);
     };
 
     const ProdutorAvatar = ({

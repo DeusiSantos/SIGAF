@@ -1,7 +1,9 @@
 import { Banknote, Calculator, Check, Info, Split, TrendingDown, TrendingUp, UserPlus, Users, X } from 'lucide-react';
 import { useState } from 'react';
+import AtribuicaoIncentivos from '../../modules/Agricola/pages/incentivo/AtribuicaoIncentivos';
 import CadastroIncentivos from '../../modules/Agricola/pages/incentivo/CadastroIncentivos ';
 import GestaoIncentivos from '../../modules/Agricola/pages/incentivo/GestaoIncentivos';
+import ReembolsoIncentivos from '../../modules/Agricola/pages/incentivo/ReembolsoIncentivos';
 
 
 const IncentivoMenu = () => {

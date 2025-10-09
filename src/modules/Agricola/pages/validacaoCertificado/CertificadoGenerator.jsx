@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
-import { Image, Page, Text, View, Document, StyleSheet, pdf } from '@react-pdf/renderer';
-import emblema from '../../assets/emblema.png';
-import logo from '../../assets/SIGAF.png';
-import api from '../../services/api';
+import { Document, Image, Page, StyleSheet, Text, View, pdf } from '@react-pdf/renderer';
+import { useState } from 'react';
+
+import emblema from '../../../../assets/emblema.png';
+
+import logo from '../../../../assets/SIGAF.png';
+import api from '../../../../core/services/api';
+
 
 // Estilos para o certificado oficial
 const styles = StyleSheet.create({

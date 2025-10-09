@@ -1,32 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import {
+    AlertCircle,
+    AlertTriangle,
     ArrowLeft,
     Award,
     Calendar,
-    MapPin,
-    User,
-    Phone,
-    IdCard,
-    Printer,
-    Download,
-    Eye,
     CheckCircle,
-    AlertTriangle,
-    X,
     Clock,
-    AlertCircle,
+    Download,
     FileText,
-    Tractor,
-    Activity,
+    IdCard,
     Info,
-    Globe
+    MapPin,
+    Phone,
+    Tractor,
+    User,
+    X
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import api from '../../services/api';
+
 // CORREÇÃO: Importar a função correta, não o componente
-import { gerarCertificadoValidacao } from './CertificadoGeneratorBaixar';
 import axios from 'axios';
+import api from '../../../../core/services/api';
+import { gerarCertificadoValidacao } from './CertificadoGenerator';
 
 const VisualizarCertificados = () => {
     const { produtorId } = useParams();
@@ -587,11 +584,11 @@ const VisualizarCertificados = () => {
                         <div className="flex items-start">
                             <ProdutorAvatar
                                 produtor={{
-                                    id: produtorId, 
+                                    id: produtorId,
                                     nome: produtor.beneficiary_name ||
                                         `${produtor.nome_produtor || ''} ${produtor.sobrenome_produtor || ''}`.trim()
                                 }}
-                                size="w-20 h-20"  
+                                size="w-20 h-20"
                                 textSize="text-lg"
                             />
                             <div className="ml-6 flex-1">
@@ -810,7 +807,7 @@ const VisualizarCertificados = () => {
                                             </div>
                                         </div>
 
-                                       {/* Finalidades */}
+                                        {/* Finalidades */}
                                         {certificado.finalidadeCertificado.length > 0 && (
                                             <div>
                                                 <h5 className="text-sm font-medium text-gray-700 mb-2 flex items-center">

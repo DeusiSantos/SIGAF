@@ -28,10 +28,13 @@ import {
     Wheat,
     X
 } from 'lucide-react';
+import CustomInput from '../../../core/components/CustomInput';
+import api from '../../../core/services/api';
+import { gerarFichaCompletaPDF } from '../../../pages/public/ProdutorCompletoRNPAPDF';
 
-import CustomInput from '../../core/components/CustomInput';
-import api from '../../services/api';
-import { gerarFichaCompletaPDF } from './ProdutorCompletoRNPAPDF';
+
+
+
 
 const HistoricoProducao = () => {
 
@@ -1176,7 +1179,7 @@ const HistoricoProducao = () => {
                                 {/* Adicionar Registro */}
                                 <div className="relative group">
                                     <button
-                                        onClick={() => navigate(`/GerenciaRNPA/produtores/historico-producao/${produtorId}/novo`)}
+                                        onClick={() => navigate(`/GerenciaRNPA/gestao-agricultores/produtores/historico-producao/${produtorId}/novo`)}
                                         className="flex items-center text-sm px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                                         style={{ minWidth: 0 }}
                                         aria-label="Adicionar Registro"

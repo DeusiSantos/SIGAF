@@ -1,32 +1,29 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import html2canvas from 'html2canvas';
-import QRCode from 'qrcode'; // Biblioteca para gerar QR Codes
 import {
-    ArrowLeft,
-    Download,
-    Save,
-    Printer,
-    Eye,
-    RefreshCw,
-    CheckCircle,
     AlertCircle,
+    ArrowLeft,
+    CheckCircle,
+    Download,
+    Eye,
+    Loader,
+    RefreshCw,
     RotateCcw,
-    User,
-    Loader
+    User
 } from 'lucide-react';
+import QRCode from 'qrcode'; // Biblioteca para gerar QR Codes
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import image from '../../assets/emblema.png'
-import IDA from '../../assets/IDA.png'
-import ISV from '../../assets/ISV.png'
-import MinAdriPesca from '../../assets/MINISTERIO-DA-AGRICULTURA-removebg-preview.png';
-import fotoC from '../../assets/fotoC.jpeg';
-import api from '../../services/api';
-import logoRNPA from '../../assets/SIGAF.png'
-import logo5 from '../../assets/logo5.png'
-import sense from '../../assets/sense.png'
-import iiv from '../../assets/iiiv.png'
+import image from '../../../assets/emblema.png';
+import fotoC from '../../../assets/fotoC.jpeg';
+import IDA from '../../../assets/IDA.png';
+import iiv from '../../../assets/iiiv.png';
+import ISV from '../../../assets/ISV.png';
+import logo5 from '../../../assets/logo5.png';
+import MinAdriPesca from '../../../assets/MINISTERIO-DA-AGRICULTURA-removebg-preview.png';
+import sense from '../../../assets/sense.png';
+import logoRNPA from '../../../assets/SIGAF.png';
+import api from '../../../core/services/api';
 
 // Função para mapear dados da API para o cartão
 const mapApiDataToCard = (apiData) => {
@@ -631,7 +628,7 @@ Município: ${dadosProdutor.municipio}`;
                                                 alt="Foto do Produtor"
                                                 className="w-full h-full rounded-md object-cover border-2 border-gray-400"
                                                 onError={(e) => {
-                                                    console.log('Erro ao carregar imagem, usando foto padrão',e);
+                                                    console.log('Erro ao carregar imagem, usando foto padrão', e);
                                                     // Limpar blob URL se necessário
                                                     if (fotoProdutor && fotoProdutor !== fotoC && fotoProdutor.startsWith('blob:')) {
                                                         URL.revokeObjectURL(fotoProdutor);
@@ -744,9 +741,9 @@ Município: ${dadosProdutor.municipio}`;
                                             <div className="absolute top-0 right-[20px] flex flex-col items-center mt-6">
                                                 <div className="w-20 h-20 bg-white border-2 border-gray-400 p-1 mb-2">
                                                     {qrCodeDataURL ? (
-                                                        <img 
-                                                            src={qrCodeDataURL} 
-                                                            alt="QR Code RNPA" 
+                                                        <img
+                                                            src={qrCodeDataURL}
+                                                            alt="QR Code RNPA"
                                                             className="w-full h-full object-contain"
                                                             onError={(e) => {
                                                                 console.log('Erro ao carregar QR Code, usando padrão');

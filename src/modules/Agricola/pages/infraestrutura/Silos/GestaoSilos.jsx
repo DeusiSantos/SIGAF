@@ -285,7 +285,7 @@ const GestaoSilos = () => {
 
     // Navegação para visualizar silo
     const handleViewEscola = (siloId) => {
-        navigate(`/GerenciaRNPA/gestao-infraestrutura/silos-armazenamento/visualizar/${siloId}`);
+        navigate(`/GerenciaRNPA/gestao-agricultores/produtores/silos-armazenamento/visualizar/${siloId}`);
     };
 
 

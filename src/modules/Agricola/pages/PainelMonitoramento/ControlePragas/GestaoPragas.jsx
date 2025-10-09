@@ -24,7 +24,8 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import CustomInput from '../../core/components/CustomInput';
+import CustomInput from '../../../../../core/components/CustomInput';
+
 
 const GestaoPragas = () => {
     const navigate = useNavigate();
@@ -330,7 +331,7 @@ const GestaoPragas = () => {
 
     // Navegação (simulada)
     const handleViewPraga = (produtorId) => {
-        navigate(`/GerenciaRNPA/praga/visualizar/${produtorId}`);
+        navigate(`/GerenciaRNPA/painel-monitoramento/praga/visualizar/${produtorId}`);
     };
 
     const handleEditPraga = () => {

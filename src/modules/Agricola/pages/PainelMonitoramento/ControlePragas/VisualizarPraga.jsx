@@ -38,10 +38,12 @@ import 'leaflet/dist/leaflet.css';
 import { MapContainer, Marker, Popup, TileLayer, useMapEvents } from 'react-leaflet';
 
 import axios from 'axios';
-import provinciasData from '../../../../../core/components/';
-import CustomInput from '../../core/components/CustomInput';
-import { gerarFichaProdutorPDF } from '../../pages/public/GerarCartaoRNPA';
-import api from '../../services/api';
+import provinciasData from '../../../../../core/components/Provincias.json';
+
+import CustomInput from '../../../../../core/components/CustomInput';
+
+import api from '../../../../../core/services/api';
+import { gerarFichaProdutorPDF } from '../../../../../pages/public/FichaProdutor';
 
 // Corrigir ícones do Leaflet
 delete L.Icon.Default.prototype._getIconUrl;

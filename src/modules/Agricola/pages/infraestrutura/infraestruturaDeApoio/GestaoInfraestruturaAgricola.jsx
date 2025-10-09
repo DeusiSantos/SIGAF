@@ -194,7 +194,7 @@ const GestaoInfraestruturaAgricola = () => {
 
     // Navegação
     const handleViewInfraestrutura = (id) => {
-        navigate(`/GerenciaRNPA/infraestruturas/visualizar/${id}`);
+        navigate(`/GerenciaRNPA/gestao-agricultores/produtores/infraestruturas/visualizar/${id}`);
     };
 
     const handleEditInfraestrutura = (id) => {
