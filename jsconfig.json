@@ -1,0 +1,44 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@/*": [
+                "./src/*"
+            ],
+            "@core/*": [
+                "./src/core/*"
+            ],
+            "@components/*": [
+                "./src/core/components/*"
+            ],
+            "@services/*": [
+                "./src/core/services/*"
+            ],
+            "@hooks/*": [
+                "./src/core/hooks/*"
+            ],
+            "@modules/*": [
+                "./src/modules/*"
+            ],
+            "@agricola/*": [
+                "./src/modules/Agricola/*"
+            ],
+            "@florestal/*": [
+                "./src/modules/Florestal/*"
+            ],
+            "@layout/*": [
+                "./src/Layout/*"
+            ],
+            "@pages/*": [
+                "./src/pages/*"
+            ],
+            "@assets/*": [
+                "./src/assets/*"
+            ]
+        }
+    },
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
+}

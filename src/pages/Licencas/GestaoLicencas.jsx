@@ -1,24 +1,22 @@
-import React, { useRef, useState, useEffect } from 'react';
 import {
-    Search,
-    Plus,
-    Trash2,
-    Filter,
-    Download,
-    MoreVertical,
-    Eye,
     AlertCircle,
-    CheckCircle,
-    X,
-    FileText,
+    AlertTriangle,
     Calendar,
+    CheckCircle,
+    Download,
+    Eye,
+    FileText,
+    Filter,
+    Plus,
+    Search,
+    Trash2,
     User,
-    Clock,
-    AlertTriangle
+    X
 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useNavigate } from 'react-router-dom';
-import CustomInput from '../../components/CustomInput';
+import CustomInput from '../../core/components/CustomInput';
 
 const GestaoLicencas = () => {
     const navigate = useNavigate();
@@ -106,12 +104,12 @@ const GestaoLicencas = () => {
 
     // Filtragem das licenças
     const filteredLicencas = licencas.filter(licenca => {
-      const matchesSearch = licenca.numero.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          licenca.produtor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          licenca.tipo.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus = !selectedStatus || licenca.status === selectedStatus;
+        const matchesSearch = licenca.numero.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            licenca.produtor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            licenca.tipo.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesStatus = !selectedStatus || licenca.status === selectedStatus;
 
-      return matchesSearch && matchesStatus;
+        return matchesSearch && matchesStatus;
     });
 
     // Paginação

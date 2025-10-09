@@ -1,21 +1,15 @@
-import React, { useState } from 'react';
-import { UserPlus, Users, FileText, User, MapPin, Award } from 'lucide-react';
+import { UserPlus, Users } from 'lucide-react';
+import { useState } from 'react';
+import CertificacaoProdutorFlorestal from '../../modules/Florestal/pages/CertificacaoProdutor/CertificacaoProdutorFlorestal';
+import CertificadosFlorestalGestao from '../../modules/Florestal/pages/CertificacaoProdutor/CertificadosFlorestalGestao';
 
-import CadastroProdutor from '../../pages/CadastroProdutor';
-import ProdutoresGestao from '../../pages/ProdutoresGestao';
-import CadastroCooperativa from '../../pages/SociedadeAgricola/EntidadesAssociativasCadastro';
-import AssociasoesRurais from '../../pages/SociedadeAgricola/AssociasoesRurais';
-import CadastroProjetos from '../../pages/Programas-e-Benefícios/CadastroProjetos';
-import ValidarCerficacao from '../../pages/Validação e Certifica/validarCerficacao';
-import CertificadosGestao from '../../pages/CertificadosGestao';
-import CertificacaoProdutorFlorestal from '../../pages/CertificacaoProdutorFlorestal';
-import CertificadosFlorestalGestao from '../../pages/CertificadosFlorestalGestao';
+
 
 const ValidacoesCerificadosFlorestaisMenu = () => {
     const [activeSection, setActiveSection] = useState('cadastro');
 
     const menuItems = [
-         {
+        {
             id: 'gestao',
             title: 'Gestão de Certificados',
             icon: Users,

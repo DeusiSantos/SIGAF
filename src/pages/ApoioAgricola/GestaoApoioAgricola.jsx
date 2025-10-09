@@ -1,40 +1,29 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
-    Search,
-    Plus,
-    Pencil,
-    Trash2,
+    AlertCircle,
+    Award,
+    Briefcase,
+    Building,
+    CheckCircle,
     ChevronLeft,
     ChevronRight,
-    Filter,
     Download,
+    Eye,
+    FileText,
+    GraduationCap,
+    MapPin,
     MoreVertical,
     Phone,
-    Mail,
-    Eye,
-    AlertCircle,
-    CheckCircle,
-    X,
-    Share2,
-    FileText,
-    Globe,
-    MapPin,
-    Calendar,
-    Info,
-    School,
-    Building,
-    Users,
-    GraduationCap,
-    User,
-    Award,
-    Activity,
     PlusCircle,
-    FileCheck,
-    Briefcase
+    School,
+    Search,
+    Trash2,
+    Users,
+    X
 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import CustomInput from '../../core/components/CustomInput';
 
-import CustomInput from '../../components/CustomInput';
 //import { useCooperativas } from '../../hooks/useCooperativas';
 
 // Dados estáticos das empresas
@@ -187,7 +176,7 @@ const GestaoApoiAgricola = () => {
 
     // Usar dados estáticos para empresas
     const empresass = empresasAdaptadas;
-   
+
 
     // Ajustar altura do conteúdo
     useEffect(() => {
@@ -235,7 +224,7 @@ const GestaoApoiAgricola = () => {
         setToastTimeout(timeout);
     };
 
-    
+
 
     // Filtragem das empresas
     const filteredEscolas = empresass.filter(empresa => {
@@ -268,7 +257,7 @@ const GestaoApoiAgricola = () => {
         navigate(`/GerenciaRNPA/entidades-associativas/cadastro-producao-empresas/${empresasId}`);
     };
 
-   
+
     // Função para abrir modal de confirmação
     const openDeleteModal = (empresasId) => {
         setempresasToDelete(empresasId);
@@ -299,14 +288,14 @@ const GestaoApoiAgricola = () => {
     const actionItems = [
         { label: 'Cadastro de Produção', icon: <PlusCircle size={16} />, action: handleTransferencia },
         { label: 'Relatóriosn', icon: <FileText size={16} />, action: "" },
-        {/* label: 'Infraestrutura', icon: <Building size={16} />, action: handleInfraestrutura */},
-        {/* label: 'Gestão de Pessoal', icon: <User size={16} />, action: handlePessoal */}
+        {/* label: 'Infraestrutura', icon: <Building size={16} />, action: handleInfraestrutura */ },
+        {/* label: 'Gestão de Pessoal', icon: <User size={16} />, action: handlePessoal */ }
     ];
 
-   
+
 
     // Obter label do tipo de ensino
-   { /* const getTipoEnsinoLabel = (tipo) => {
+    { /* const getTipoEnsinoLabel = (tipo) => {
         const tipos = {
             'GERAL': 'Ensino Geral',
             'TECNICO_PROFISSIONAL': 'Técnico-Profissional',
@@ -396,7 +385,7 @@ const GestaoApoiAgricola = () => {
         );
     };
 
-  
+
 
     // Extrair regiões únicas para o filtro
     const uniqueRegions = [...new Set(empresass.map(escola => escola.provincia))].filter(Boolean);
@@ -413,7 +402,7 @@ const GestaoApoiAgricola = () => {
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Confirmar Exclusão</h3>
                     <p className="text-gray-600 text-center text-sm mb-4">
-                        Tem certeza que deseja excluir a empresa <span className="font-semibold text-red-600">{empresas?.nomeEmpresa || 'Selecionada'}</span>?<br/>
+                        Tem certeza que deseja excluir a empresa <span className="font-semibold text-red-600">{empresas?.nomeEmpresa || 'Selecionada'}</span>?<br />
                         Esta ação não pode ser desfeita. Todos os dados da empresa serão removidos permanentemente.
                     </p>
                     <div className="flex gap-3 mt-2 w-full">
@@ -439,7 +428,7 @@ const GestaoApoiAgricola = () => {
         <div className="min-h-screen" ref={containerRef}>
             <Toast />
             <DeleteConfirmModal />
-               {/* Estatísticas das empresass */}
+            {/* Estatísticas das empresass */}
             <div className="mt-6 mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-white rounded-xl shadow-md p-6">
                     <div className="flex items-center">
@@ -489,7 +478,7 @@ const GestaoApoiAgricola = () => {
                         <div className="ml-4">
                             <p className="text-sm font-medium text-gray-500">Área (ha)</p>
                             <p className="text-2xl font-bold text-gray-900">
-                               0
+                                0
                             </p>
                         </div>
                     </div>
@@ -505,7 +494,7 @@ const GestaoApoiAgricola = () => {
                             {/* <p className="text-blue-100 mt-1">SistGestão Geral e Técnico-Profissional - Angola</p> */}
                         </div>
                         <div className="flex gap-4">
-                           
+
                             <button
                                 onClick={() => showToast('info', 'Função', 'Exportar dados das empresas')}
                                 className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
@@ -584,7 +573,7 @@ const GestaoApoiAgricola = () => {
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                     Tipo & Serviços
                                 </th>
-                               
+
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                     Localização
                                 </th>
@@ -657,7 +646,7 @@ const GestaoApoiAgricola = () => {
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="space-y-2">
                                             <div className="flex items-center text-xs">
-                                                
+
                                                 <CheckCircle className="w-3.5 h-3.5 mr-1 text-green-500" />
                                                 <span className="text-gray-700">Licença: {empresa.licencaOperacao}</span>
                                             </div>
@@ -674,7 +663,7 @@ const GestaoApoiAgricola = () => {
                                         </div>
                                     </td>
 
-                                
+
 
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-center justify-start space-x-1">
@@ -844,15 +833,15 @@ const GestaoApoiAgricola = () => {
                                 Limpar filtros
                             </button>
                         ) : (
-                            <p/>
-                               
+                            <p />
+
                         )}
                     </div>
                 )}
             </div>
 
             {/* Estatísticas das escolas */}
-         
+
         </div>
     );
 };

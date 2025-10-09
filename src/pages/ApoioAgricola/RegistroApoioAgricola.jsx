@@ -1,45 +1,36 @@
-import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import axios from 'axios';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import axios from 'axios';
 import {
-  User,
-  Home,
-  Users,
-  Tractor,
-  FileText,
-  Check,
-  ChevronRight,
-  ChevronLeft,
-  Calendar,
-  MapPin,
-  Map,
-  Building,
-  Camera,
+  Activity,
   AlertCircle,
+  Briefcase,
+  Building,
+  Calendar,
+  Check,
   CheckCircle,
+  ChevronLeft,
+  ChevronRight,
+  CreditCard,
+  FileText,
+  Globe,
+  Home,
   Info,
   Loader,
-  CreditCard,
-  Phone,
-  Trees,
-  Wheat,
-  Fish,
-  DollarSign,
   Mail,
-  Activity,
-  UserCheck,
-  Car,
-  Briefcase,
+  MapPin,
+  Phone,
   Settings,
-  Globe,
-  Factory
+  User,
+  Users
 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { MapContainer, Marker, Popup, TileLayer, useMapEvents } from 'react-leaflet';
 
-import CustomInput from '../../components/CustomInput';
-import provinciasData from '../../components/Provincias.json';
-import api from '../../services/api';
+import CustomInput from '../../core/components/CustomInput';
+import provinciasData from '../../core/components/Provincias.json';
+import api from '../../core/services/api';
+
 
 // Configuração do ícone do Leaflet
 const defaultIcon = L.icon({
@@ -928,7 +919,7 @@ const RegistroApoioAgricola = () => {
                 errorMessage={errors.telefone}
                 placeholder="Ex: 923456789"
                 iconStart={<Phone size={18} />}
-                 maxLength={9}
+                maxLength={9}
               />
 
               <CustomInput
@@ -1228,9 +1219,9 @@ const RegistroApoioAgricola = () => {
       {/* Toast Message */}
       {toastMessage && (
         <div className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all ${toastMessage.severity === 'success' ? 'bg-blue-100 border-l-4 border-blue-500 text-blue-700' :
-            toastMessage.severity === 'error' ? 'bg-red-100 border-l-4 border-red-500 text-red-700' :
-              toastMessage.severity === 'warn' ? 'bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700' :
-                'bg-blue-100 border-l-4 border-blue-500 text-blue-700'
+          toastMessage.severity === 'error' ? 'bg-red-100 border-l-4 border-red-500 text-red-700' :
+            toastMessage.severity === 'warn' ? 'bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700' :
+              'bg-blue-100 border-l-4 border-blue-500 text-blue-700'
           }`}>
           <div className="flex items-center">
             <div className="mr-3">
@@ -1269,10 +1260,10 @@ const RegistroApoioAgricola = () => {
                   onClick={() => setActiveIndex(index)}
                 >
                   <div className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${isActive
-                      ? 'bg-blue-600 text-white'
-                      : isCompleted
-                        ? 'bg-green-500 text-white'
-                        : 'bg-gray-200 text-gray-500'
+                    ? 'bg-blue-600 text-white'
+                    : isCompleted
+                      ? 'bg-green-500 text-white'
+                      : 'bg-gray-200 text-gray-500'
                     }`}>
                     {isCompleted ? (
                       <Check size={24} />
@@ -1308,8 +1299,8 @@ const RegistroApoioAgricola = () => {
                 onClick={prevStep}
                 disabled={activeIndex === 0}
                 className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all ${activeIndex === 0
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
               >
                 <ChevronLeft size={20} className="mr-2" />
@@ -1322,8 +1313,8 @@ const RegistroApoioAgricola = () => {
                   onClick={handleSubmit}
                   disabled={loading}
                   className={`flex items-center px-8 py-3 rounded-lg font-medium transition-all ${loading
-                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
                     }`}
                 >
                   {loading ? (

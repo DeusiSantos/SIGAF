@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Lock, LogIn, Mail, User } from 'lucide-react';
 import { Card } from 'primereact/card';
 import { Message } from 'primereact/message';
-import { TabView, TabPanel } from 'primereact/tabview';
-import { User, Mail, Lock, LogIn } from 'lucide-react';
+import { TabPanel, TabView } from 'primereact/tabview';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import logo from '../../assets/logoAngola.png';
-import CustomInput from '../../components/CustomInput';
+import CustomInput from '../../core/components/CustomInput';
 import { useAuth } from '../../services/AuthContext copy';
 
 

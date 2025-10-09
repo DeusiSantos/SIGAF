@@ -1,10 +1,29 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import {
-    FileText, MoveLeft, Wheat, Beef, CheckCircle, Plus, X, Calendar, Home, Target, MapPin, Tractor, Users, AlertCircle, ClipboardCheck, User, ChevronLeft, ChevronRight, Save, Check
+    AlertCircle,
+    Beef,
+    Calendar,
+    Check,
+    CheckCircle,
+    ChevronLeft, ChevronRight,
+    ClipboardCheck,
+    FileText,
+    Home,
+    MapPin,
+    MoveLeft,
+    Plus,
+    Save,
+    Target,
+    Tractor,
+    User,
+    Users,
+    Wheat,
+    X
 } from 'lucide-react';
-import CustomInput from '../../components/CustomInput';
-import api from '../../services/api';
+import { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import CustomInput from '../../core/components/CustomInput';
+import api from '../../core/services/api';
+
 
 const AddHistoricoProducao = () => {
     const { id: produtorId } = useParams();
@@ -13,7 +32,7 @@ const AddHistoricoProducao = () => {
     const [loading, setLoading] = useState(false);
     const [toastMessage, setToastMessage] = useState(null);
     const [formData, setFormData] = useState({
-        vendaNoMercadoLocal: '' , periodoInicio: '', periodoFim: '', safra: '', nomePropriedade: '', areaTotalUtilizada: '', coordenadasGPS: '', atividadePrincipal: '', culturasAgricolas: [], criacaoAnimais: [], vendaMercadoLocal: '', vendaMercadoRegional: '', autoconsumo: '', perdas: '', recebiuAssistencia: '', tipoAssistencia: [], tecnicoResponsavel: '', observacoesTecnicas: '', desafiosEnfrentados: '', melhorias: ''
+        vendaNoMercadoLocal: '', periodoInicio: '', periodoFim: '', safra: '', nomePropriedade: '', areaTotalUtilizada: '', coordenadasGPS: '', atividadePrincipal: '', culturasAgricolas: [], criacaoAnimais: [], vendaMercadoLocal: '', vendaMercadoRegional: '', autoconsumo: '', perdas: '', recebiuAssistencia: '', tipoAssistencia: [], tecnicoResponsavel: '', observacoesTecnicas: '', desafiosEnfrentados: '', melhorias: ''
     });
     const [culturasAgricolas, setCulturasAgricolas] = useState([]);
     const [criacaoAnimais, setCriacaoAnimais] = useState([]);

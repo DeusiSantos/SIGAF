@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { FileText, Save, X, Upload, CheckCircle, AlertCircle } from 'lucide-react';
-import CustomInput from '../../components/CustomInput';
+import { AlertCircle, CheckCircle, FileText, Save, Upload, X } from 'lucide-react';
+import { useState } from 'react';
+import CustomInput from '../../core/components/CustomInput';
 
 const CadastroLicencas = () => {
   const [formData, setFormData] = useState({
@@ -26,14 +26,14 @@ const CadastroLicencas = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
-    
+
     try {
       // Simular envio para API
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       console.log('Licença cadastrada:', formData);
       showToast('success', 'Sucesso', 'Licença cadastrada com sucesso!');
-      
+
       // Reset form
       setFormData({
         tipoLicenca: '',
@@ -93,7 +93,7 @@ const CadastroLicencas = () => {
   return (
     <div className="bg-gray-50 min-h-screen">
       <Toast />
-      
+
       {/* Header */}
       <div className="text-center mb-6 p-10 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
         <h1 className="text-4xl font-bold mb-3 text-gray-800">Cadastro de Licença Florestal</h1>
@@ -192,11 +192,10 @@ const CadastroLicencas = () => {
                 />
                 <label
                   htmlFor="documento-upload"
-                  className={`flex flex-col items-center justify-center h-48 px-6 py-8 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-                    formData.documentoUpload
+                  className={`flex flex-col items-center justify-center h-48 px-6 py-8 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${formData.documentoUpload
                       ? 'bg-blue-50 border-blue-300 hover:bg-blue-100'
                       : 'bg-gray-50 border-gray-300 hover:border-blue-400 hover:bg-blue-50'
-                  }`}
+                    }`}
                 >
                   <Upload className={`w-12 h-12 mb-4 ${formData.documentoUpload ? 'text-blue-500' : 'text-gray-400'}`} />
                   <p className={`text-lg font-medium mb-2 ${formData.documentoUpload ? 'text-blue-600' : 'text-gray-500'}`}>
@@ -237,11 +236,10 @@ const CadastroLicencas = () => {
               <button
                 type="submit"
                 disabled={saving}
-                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                  saving
+                className={`px-6 py-3 rounded-lg font-medium transition-colors ${saving
                     ? 'bg-blue-400 cursor-not-allowed text-white'
                     : 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg'
-                }`}
+                  }`}
               >
                 {saving ? (
                   <>

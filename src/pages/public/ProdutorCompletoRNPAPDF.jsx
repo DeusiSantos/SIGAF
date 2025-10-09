@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Image, Page, Text, View, Document, StyleSheet, pdf } from '@react-pdf/renderer';
+import { Document, Image, Page, StyleSheet, Text, View, pdf } from '@react-pdf/renderer';
 import QRCode from 'qrcode'; // QR CODE IMPORT ADICIONADO
+import { useEffect, useState } from 'react';
 
 import emblema from '../../assets/emblema.png';
-import fotoC from '../../assets/SIGAF.png';
-import logo from '../../assets/SIGAF.png';
-
-import api from '../../services/api';
+import { default as fotoC, default as logo } from '../../assets/SIGAF.png';
+import api from '../../core/services/api';
 
 // Estilos organizados com alinhamentos aperfeiçoados e cores uniformizadas
 const styles = StyleSheet.create({
@@ -25,7 +23,7 @@ const styles = StyleSheet.create({
   logoFundo: {
     position: 'absolute',
     top: '40%',
-    left: '30%', 
+    left: '30%',
     width: 280,
     height: 280,
     opacity: 0.05,
@@ -427,7 +425,7 @@ const carregarFotoAPI = async (produtorId) => {
 
   try {
     console.log(`Buscando foto para produtor ID: ${produtorId}`);
-    
+
     const response = await api.get(`/formulario/${produtorId}/foto-beneficiary`, {
       responseType: 'blob',
       timeout: 10000
@@ -586,24 +584,24 @@ const useProdutorComHistorico = (id) => {
 
       try {
         console.log('Buscando dados do produtor e histórico...');
-        
+
         // Buscar dados do formulário e histórico em paralelo
         const [produtorResponse, historicoData] = await Promise.all([
           api.get(`/formulario/${id}`),
           buscarHistoricoProducao(id)
         ]);
-        
+
         console.log('Dados carregados, buscando foto...');
-        
+
         // Buscar foto da API
         const fotoAPI = await carregarFotoAPI(id);
-        
+
         // Mapear dados incluindo a foto da API
         const dadosMapeados = mapearDadosAPI(produtorResponse.data, fotoAPI);
-        
+
         setDados(dadosMapeados);
         setHistorico(historicoData);
-        
+
       } catch (err) {
         console.error('Erro ao buscar dados:', err);
         setError(err.response?.data?.message || err.message);
@@ -1045,13 +1043,13 @@ const HistoricoProducaoSection = ({ historico }) => {
       <Text style={styles.historicoHeader}>
         HISTÓRICO DE PRODUÇÃO AGRÍCOLA E PECUÁRIA
       </Text>
-      
+
       {historico.map((registro, index) => (
         <View key={registro.id || index} style={styles.registroItem}>
           <Text style={styles.registroHeader}>
             Registro #{index + 1} - {formatDate(registro.anoDeProducao)} - {registro.safraOuEpocaAgricola}
           </Text>
-          
+
           <View style={styles.sectionContent}>
             {/* Informações Básicas */}
             <View style={styles.subSecao}>
@@ -1232,7 +1230,7 @@ const ProdutorCompletoDocument = ({ dados, historico, qrCodeData }) => {
         <IdentificacaoSection dados={dados} />
         <LocalizacaoSection dados={dados} />
       </PageWithWatermark>
-      
+
       {/* Segunda página - Agregado Familiar e Organização */}
       <PageWithWatermark>
         <AgregadoFamiliarSection dados={dados} />
@@ -1262,14 +1260,14 @@ export const gerarFichaCompletaPDF = async (produtorId) => {
 
     // Buscar dados do produtor
     const response = await api.get(`/formulario/${produtorId}`);
-    
+
     // Buscar histórico de produção
     const historicoData = await buscarHistoricoProducao(produtorId);
-    
+
     // Buscar foto da API
     console.log('Buscando foto da API...');
     const fotoAPI = await carregarFotoAPI(produtorId);
-    
+
     // Mapear dados incluindo a foto
     const dadosMapeados = mapearDadosAPI(response.data, fotoAPI);
 
@@ -1336,7 +1334,7 @@ const ProdutorCompletoRNPAPDF = ({ produtorId, onSuccess, onError }) => {
       const pdfBlob = await pdf(
         <ProdutorCompletoDocument dados={dados} historico={historico} qrCodeData={qrCodeData} />
       ).toBlob();
-      
+
       const url = URL.createObjectURL(pdfBlob);
 
       const link = document.createElement('a');
@@ -1453,12 +1451,12 @@ const ProdutorCompletoRNPAPDF = ({ produtorId, onSuccess, onError }) => {
               <strong>Registros de Produção:</strong> {historico.length}
             </div>
           </div>
-          
+
           {/* Status da Foto e Histórico */}
           <div style={{ marginTop: '16px', display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
             <div style={{ padding: '12px', backgroundColor: '#e3f2fd', borderRadius: '4px', flex: 1 }}>
-              <strong>Estado da Foto:</strong> 
-              <span style={{ 
+              <strong>Estado da Foto:</strong>
+              <span style={{
                 marginLeft: '8px',
                 padding: '2px 8px',
                 borderRadius: '12px',
@@ -1469,10 +1467,10 @@ const ProdutorCompletoRNPAPDF = ({ produtorId, onSuccess, onError }) => {
                 {dados.fotoAPI ? 'Carregada da API' : 'Usando foto padrão'}
               </span>
             </div>
-            
+
             <div style={{ padding: '12px', backgroundColor: '#f0f8ff', borderRadius: '4px', flex: 1 }}>
-              <strong>Histórico:</strong> 
-              <span style={{ 
+              <strong>Histórico:</strong>
+              <span style={{
                 marginLeft: '8px',
                 padding: '2px 8px',
                 borderRadius: '12px',
@@ -1487,7 +1485,7 @@ const ProdutorCompletoRNPAPDF = ({ produtorId, onSuccess, onError }) => {
 
           {/* Info sobre conteúdo do PDF COM QR CODE */}
           <div style={{ marginTop: '12px', padding: '12px', backgroundColor: '#f0f8ff', borderRadius: '4px', border: '1px solid #b3d9ff' }}>
-            <strong>Conteúdo do PDF:</strong> 
+            <strong>Conteúdo do PDF:</strong>
             <span style={{ marginLeft: '8px', fontSize: '12px', color: '#0066cc' }}>
               ✅ Dados pessoais ✅ Localização ✅ Agregado familiar ✅ Histórico completo de produção ✅ QR Code de verificação ✅ Marca d'água oficial
             </span>

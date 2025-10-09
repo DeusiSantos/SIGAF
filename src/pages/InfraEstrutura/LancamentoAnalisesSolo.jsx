@@ -1,17 +1,16 @@
-import React, { useState } from 'react';
 import {
-    Beaker,
     Activity,
-    ChevronRight,
-    ChevronLeft,
-    Upload,
-    Search,
-    Save,
+    Beaker,
     CheckCircle,
-    AlertCircle
+    ChevronLeft,
+    ChevronRight,
+    Save,
+    Search,
+    Upload
 } from 'lucide-react';
+import React, { useState } from 'react';
 
-import CustomInput from '../../components/CustomInput';
+import CustomInput from '../../core/components/CustomInput';
 
 const LancamentoAnalisesSolo = () => {
     const [activeIndex, setActiveIndex] = useState(0);
@@ -24,7 +23,7 @@ const LancamentoAnalisesSolo = () => {
         dataAnalise: new Date().toISOString().split('T')[0],
         laboratorio: '',
         tecnicoResponsavel: '',
-        
+
         // Parâmetros Físicos
         ph: '',
         condutividadeEletrica: '',
@@ -598,16 +597,15 @@ const LancamentoAnalisesSolo = () => {
                                     />
                                     <label
                                         htmlFor="resultados-upload"
-                                        className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-                                            formData.resultadosLaboratorio
+                                        className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${formData.resultadosLaboratorio
                                                 ? 'bg-green-50 border-green-300 hover:bg-green-100'
                                                 : 'bg-gray-50 border-gray-300 hover:border-purple-400 hover:bg-purple-50'
-                                        }`}
+                                            }`}
                                     >
                                         <Upload className={`w-8 h-8 mb-3 ${formData.resultadosLaboratorio ? 'text-green-500' : 'text-gray-400'}`} />
                                         <p className={`text-sm font-medium ${formData.resultadosLaboratorio ? 'text-green-600' : 'text-gray-500'}`}>
-                                            {formData.resultadosLaboratorio 
-                                                ? `${formData.resultadosLaboratorio.length} arquivo(s) carregado(s)` 
+                                            {formData.resultadosLaboratorio
+                                                ? `${formData.resultadosLaboratorio.length} arquivo(s) carregado(s)`
                                                 : 'Carregar laudos do laboratório'}
                                         </p>
                                         <p className="text-xs text-gray-400 mt-1">PDF, DOC, DOCX, JPG, PNG - Máximo 10MB por arquivo</p>
@@ -634,19 +632,17 @@ const LancamentoAnalisesSolo = () => {
                 {steps.map((stepObj, idx) => (
                     <div
                         key={idx}
-                        className={`flex flex-col items-center cursor-pointer transition-all min-w-0 flex-shrink-0 mx-1 ${
-                            idx > activeIndex ? 'opacity-50' : ''
-                        }`}
+                        className={`flex flex-col items-center cursor-pointer transition-all min-w-0 flex-shrink-0 mx-1 ${idx > activeIndex ? 'opacity-50' : ''
+                            }`}
                         onClick={() => idx <= activeIndex && setActiveIndex(idx)}
                     >
                         <div
-                            className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${
-                                idx < activeIndex
+                            className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${idx < activeIndex
                                     ? 'bg-purple-500 text-white'
                                     : idx === activeIndex
-                                    ? 'bg-purple-600 text-white'
-                                    : 'bg-gray-200 text-gray-500'
-                            }`}
+                                        ? 'bg-purple-600 text-white'
+                                        : 'bg-gray-200 text-gray-500'
+                                }`}
                         >
                             {React.createElement(stepObj.icon, { size: 28, className: "mx-auto" })}
                         </div>
@@ -670,11 +666,10 @@ const LancamentoAnalisesSolo = () => {
 
             <div className="flex justify-between items-center p-8 pt-6 border-t border-gray-100 bg-gray-50">
                 <button
-                    className={`px-8 py-3 rounded-xl border border-gray-300 flex items-center transition-all font-medium ${
-                        activeIndex === 0
+                    className={`px-8 py-3 rounded-xl border border-gray-300 flex items-center transition-all font-medium ${activeIndex === 0
                             ? 'opacity-50 cursor-not-allowed bg-gray-100'
                             : 'bg-white hover:bg-gray-50 text-gray-700 hover:border-gray-400'
-                    }`}
+                        }`}
                     onClick={() => setActiveIndex(Math.max(0, activeIndex - 1))}
                     disabled={activeIndex === 0}
                 >
@@ -687,11 +682,10 @@ const LancamentoAnalisesSolo = () => {
                 </div>
 
                 <button
-                    className={`px-8 py-3 rounded-xl flex items-center transition-all font-medium ${
-                        activeIndex === steps.length - 1
+                    className={`px-8 py-3 rounded-xl flex items-center transition-all font-medium ${activeIndex === steps.length - 1
                             ? (saving ? 'bg-purple-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg')
                             : 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg'
-                    }`}
+                        }`}
                     onClick={() => {
                         if (activeIndex === steps.length - 1) {
                             handleSave();

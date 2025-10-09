@@ -1,23 +1,36 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
-  PieChart, Pie, LineChart, Line, XAxis, YAxis, BarChart, Bar,
-  CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, Sector
-} from 'recharts';
-import {
-  ArrowUp, ArrowDown, User, Users, MapPin, Calendar, Award,
-  ChevronRight, Activity, TrendingUp, Tractor, Wheat,
-  UserCheck, Building2, FileText, DollarSign, Target,
-  Shield, Clock, TreePine, Fish, Bug, Gift, Plus, X, AlertTriangle,
-  CheckCircle, RefreshCw, Filter, ChevronDown, Eye, Search,
-  Cloud, BarChart3, BugIcon,
+  Activity,
+  ArrowUp,
+  Award,
+  BarChart3,
+  Bug,
+  CheckCircle,
+  ChevronDown,
+  Cloud,
+  Filter,
+  Gift,
+  MapPin,
+  RefreshCw,
+  Tractor,
+  Users,
+  X
 } from 'lucide-react';
-import DashboardAngola from '../components/DashboardAngola'
-import DashboardControlePragas from '../Layout/other/DashboardControlePragas';
-import DashboardIncentivos from '../pages/Incentivos/DashboardIncentivos';
-import api from '../services/api';
-import WeatherForecastAngola from '../components/WeatherForecastAngola';
-import Separador from '../components/Separador';
-import CustomInput from '../components/CustomInput';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Sector,
+  Tooltip
+} from 'recharts';
+import CustomInput from '../core/components/CustomInput';
+import Separador from '../core/components/Separador';
+import WeatherForecastAngola from '../core/components/WeatherForecastAngola';
+import api from '../core/services/api';
+import DashboardIncentivos from '../modules/Agricola/pages/incentivo/DashboardIncentivos';
+import DashboardControlePragas from '../modules/Agricola/pages/PainelMonitoramento/ControlePragas/DashboardControlePragas';
+
 
 // Dados aprimorados para o sistema RNPA Angola (mantidos como fallback)
 const mockAgricultureData = {
@@ -216,7 +229,7 @@ const Dashboard = () => {
   // Estados para controle dos gráficos de pizza
   const [activeIndexGenero, setActiveIndexGenero] = useState(0);
   const [activeIndexAtividades, setActiveIndexAtividades] = useState(0);
- // const [activeIndexTipo, setActiveIndexTipo] = useState(0);
+  // const [activeIndexTipo, setActiveIndexTipo] = useState(0);
   const [activeIndexStatus, setActiveIndexStatus] = useState(0);
   const [activeIndexProvincia, setActiveIndexProvincia] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -246,7 +259,7 @@ const Dashboard = () => {
   // Estados de loading separados
   const [loadingGenero, setLoadingGenero] = useState(true);
   const [loadingAtividades, setLoadingAtividades] = useState(true);
- // const [consultingBI, setConsultingBI] = useState(false);
+  // const [consultingBI, setConsultingBI] = useState(false);
   //const [error, setError] = useState(null);
 
   // Estados para filtros adicionais
@@ -282,11 +295,11 @@ const Dashboard = () => {
     const params = new URLSearchParams();
 
     const provinciaValue = typeof selectedProvince === 'object' ? selectedProvince?.value : selectedProvince;
-    
+
     if (provinciaValue && provinciaValue !== 'todas') {
       const provinciaMap = {
         'luanda': 'Luanda',
-        'benguela': 'Benguela', 
+        'benguela': 'Benguela',
         'huila': 'Huíla',
         'bie': 'Bié',
         'malanje': 'Malanje',
@@ -309,26 +322,26 @@ const Dashboard = () => {
         params.append('provincia', nomeProvinciaCompleto);
       }
     }
-    
+
     if (selectedPeriodo !== 'todos') {
       params.append('periodo', selectedPeriodo);
     }
-    
+
     if (selectedEstado !== 'todos') {
       params.append('estado', selectedEstado);
     }
-    
+
     if (selectedAtividade !== 'todos') {
       params.append('atividade', selectedAtividade);
     }
-    
+
     return params.toString() ? `${baseEndpoint}?${params.toString()}` : baseEndpoint;
   }, [selectedProvince, selectedPeriodo, selectedEstado, selectedAtividade]);
 
   // Buscar total de produtores por estado (aprovados/pendentes) somando agrícolas e florestais
   useEffect(() => {
     console.log('🔄 useEffect aprovados executado com:', { selectedProvince, selectedEstado });
-    
+
     const fetchAprovados = async () => {
       try {
         console.log('📡 Buscando dados de todos os produtores...');
@@ -336,15 +349,15 @@ const Dashboard = () => {
           api.get('/formulario/all'),
           api.get('/produtorFlorestal/all')
         ]);
-        
+
         let dadosAgricola = Array.isArray(respostaAgricola.data) ? respostaAgricola.data : [];
         let dadosFlorestal = Array.isArray(respostaFlorestal.data) ? respostaFlorestal.data : [];
-        
+
         console.log('📊 Dados recebidos:', {
           agricola: dadosAgricola.length,
           florestal: dadosFlorestal.length
         });
-        
+
         // Filtrar por província se selecionada
         if (selectedProvince && selectedProvince !== 'todas') {
           const provinciaValue = typeof selectedProvince === 'object' ? selectedProvince.value : selectedProvince;
@@ -356,11 +369,11 @@ const Dashboard = () => {
             'bengo': 'Bengo', 'cuanza_norte': 'Cuanza Norte', 'cuanza_sul': 'Cuanza Sul'
           };
           const nomeProvinciaCompleto = provinciaMap[provinciaValue] || provinciaValue;
-          
+
           dadosAgricola = dadosAgricola.filter(p => p.provincia === nomeProvinciaCompleto);
           dadosFlorestal = dadosFlorestal.filter(p => p.provincia === nomeProvinciaCompleto);
         }
-        
+
         // Filtrar por estado se selecionado
         const estadoValue = typeof selectedEstado === 'object' ? selectedEstado.value : selectedEstado;
         if (estadoValue && estadoValue !== 'todos') {
@@ -372,11 +385,11 @@ const Dashboard = () => {
           dadosAgricola = dadosAgricola.filter(p => p.estado === 'Aprovado');
           dadosFlorestal = dadosFlorestal.filter(p => p.estado === 'Aprovado');
         }
-        
+
         const totalAgricola = dadosAgricola.length;
         const totalFlorestal = dadosFlorestal.length;
         const totalGeral = totalAgricola + totalFlorestal;
-        
+
         setTotalAprovados(totalGeral);
         console.log('📈 Total por estado:', { agricola: totalAgricola, florestal: totalFlorestal, total: totalGeral, estado: estadoValue });
       } catch (error) {
@@ -396,16 +409,16 @@ const Dashboard = () => {
           api.get('/formulario/all'),
           api.get('/produtorFlorestal/all')
         ]);
-        
+
         let dadosAgricola = Array.isArray(respostaAgricola.data) ? respostaAgricola.data : [];
         let dadosFlorestal = Array.isArray(respostaFlorestal.data) ? respostaFlorestal.data : [];
-        
+
         // Debug: verificar estrutura dos dados
         console.log('Dados brutos:', {
           agricola: dadosAgricola.slice(0, 2),
           florestal: dadosFlorestal.slice(0, 2)
         });
-        
+
         // Filtrar por província se selecionada
         if (selectedProvince && selectedProvince !== 'todas') {
           const provinciaValue = typeof selectedProvince === 'object' ? selectedProvince.value : selectedProvince;
@@ -417,24 +430,24 @@ const Dashboard = () => {
             'bengo': 'Bengo', 'cuanza_norte': 'Cuanza Norte', 'cuanza_sul': 'Cuanza Sul'
           };
           const nomeProvinciaCompleto = provinciaMap[provinciaValue] || provinciaValue;
-          
+
           console.log('Filtrando por província:', nomeProvinciaCompleto);
-          
+
           dadosAgricola = dadosAgricola.filter(p => {
             console.log('Produtor agrícola:', p.provincia, '===', nomeProvinciaCompleto, '?', p.provincia === nomeProvinciaCompleto);
             return p.provincia === nomeProvinciaCompleto;
           });
-          
+
           dadosFlorestal = dadosFlorestal.filter(p => {
             console.log('Produtor florestal:', p.provincia, '===', nomeProvinciaCompleto, '?', p.provincia === nomeProvinciaCompleto);
             return p.provincia === nomeProvinciaCompleto;
           });
         }
-        
+
         const totalAgricola = dadosAgricola.length;
         const totalFlorestal = dadosFlorestal.length;
         const totalGeral = totalAgricola + totalFlorestal;
-        
+
         setTotalProdutores(totalGeral);
         console.log('Total produtores:', { agricola: totalAgricola, florestal: totalFlorestal, total: totalGeral, provincia: selectedProvince });
       } catch (error) {
@@ -468,11 +481,11 @@ const Dashboard = () => {
     const fetchFlorestal = async () => {
       try {
         let endpoint = '/dashboard/totalProdutorFlorestal';
-        
+
         if (selectedProvince !== 'todas') {
           const provinciaMap = {
             'luanda': 'Luanda',
-            'benguela': 'Benguela', 
+            'benguela': 'Benguela',
             'huila': 'Huíla',
             'bie': 'Bié',
             'malanje': 'Malanje',
@@ -511,11 +524,11 @@ const Dashboard = () => {
     const fetchAquicultura = async () => {
       try {
         let endpoint = '/dashboard/totalAquicultura';
-        
+
         if (selectedProvince !== 'todas') {
           const provinciaMap = {
             'luanda': 'Luanda',
-            'benguela': 'Benguela', 
+            'benguela': 'Benguela',
             'huila': 'Huíla',
             'bie': 'Bié',
             'malanje': 'Malanje',
@@ -554,11 +567,11 @@ const Dashboard = () => {
     const fetchAgricultura = async () => {
       try {
         let endpoint = '/dashboard/totalAgricultura';
-        
+
         if (selectedProvince !== 'todas') {
           const provinciaMap = {
             'luanda': 'Luanda',
-            'benguela': 'Benguela', 
+            'benguela': 'Benguela',
             'huila': 'Huíla',
             'bie': 'Bié',
             'malanje': 'Malanje',
@@ -593,136 +606,136 @@ const Dashboard = () => {
   }, [selectedProvince]);
 
   // Buscar dados de gênero com todos os filtros
-useEffect(() => {
-  setLoadingGenero(true);
-  
-  const fetchGenero = async () => {
-    try {
-      const endpoint = buildEndpoint('/dashboard/totalFemenino');
-      const resposta = await api.get(endpoint);
-      
-      const formularios = resposta.data;
-      if (Array.isArray(formularios)) {
-        const totalMasculinos = formularios.filter(f => f.sexo === 'Masculino').length;
-        const totalFemininos = formularios.filter(f => f.sexo === 'Feminino').length;
-        setMasculino(totalMasculinos);
-        setFeminino(totalFemininos);
-      } else {
+  useEffect(() => {
+    setLoadingGenero(true);
+
+    const fetchGenero = async () => {
+      try {
+        const endpoint = buildEndpoint('/dashboard/totalFemenino');
+        const resposta = await api.get(endpoint);
+
+        const formularios = resposta.data;
+        if (Array.isArray(formularios)) {
+          const totalMasculinos = formularios.filter(f => f.sexo === 'Masculino').length;
+          const totalFemininos = formularios.filter(f => f.sexo === 'Feminino').length;
+          setMasculino(totalMasculinos);
+          setFeminino(totalFemininos);
+        } else {
+          setMasculino(Math.round(totalProdutores * 0.57));
+          setFeminino(Math.round(totalProdutores * 0.43));
+        }
+      } catch (error) {
+        console.error('Erro ao buscar dados de gênero:', error);
         setMasculino(Math.round(totalProdutores * 0.57));
         setFeminino(Math.round(totalProdutores * 0.43));
+      } finally {
+        setLoadingGenero(false);
       }
-    } catch (error) {
-      console.error('Erro ao buscar dados de gênero:', error);
-      setMasculino(Math.round(totalProdutores * 0.57));
-      setFeminino(Math.round(totalProdutores * 0.43));
-    } finally {
-      setLoadingGenero(false);
-    }
-  };
-
-  fetchGenero();
-}, [buildEndpoint, totalProdutores]);
-
-// 2. CORRIGIR os useEffect das atividades para usar buildEndpoint
-// Substituir os useEffect existentes das atividades (linhas ~218-280) por estes:
-
-// Buscar agricultura com todos os filtros
-useEffect(() => {
-  const fetchAgricultura = async () => {
-    try {
-      const endpoint = buildEndpoint('/dashboard/totalAgricultura');
-      const resposta = await api.get(endpoint);
-      setTotalAgricultura(resposta.data || 0);
-      console.log('Total agricultura:', resposta.data, 'com todos os filtros aplicados');
-    } catch (error) {
-      console.error('Erro ao buscar agricultura:', error);
-      setTotalAgricultura(356700); // Fallback
-    }
-  };
-
-  fetchAgricultura();
-}, [buildEndpoint]);
-
-// Buscar pecuária com todos os filtros
-useEffect(() => {
-  const fetchPecuaria = async () => {
-    try {
-      const endpoint = buildEndpoint('/dashboard/totalPecuaria');
-      const resposta = await api.get(endpoint);
-      setTotalPecuaria(resposta.data || 0);
-      console.log('Total pecuária:', resposta.data, 'com todos os filtros aplicados');
-    } catch (error) {
-      console.error('Erro ao buscar pecuária:', error);
-      setTotalPecuaria(89300); // Fallback
-    }
-  };
-
-  fetchPecuaria();
-}, [buildEndpoint]);
-
-// Buscar produtor florestal com todos os filtros
-useEffect(() => {
-  const fetchFlorestal = async () => {
-    try {
-      const endpoint = buildEndpoint('/dashboard/totalProdutorFlorestal');
-      const resposta = await api.get(endpoint);
-      setTotalProdutorFlorestal(resposta.data || 0);
-      console.log('Total produtor florestal:', resposta.data, 'com todos os filtros aplicados');
-    } catch (error) {
-      console.error('Erro ao buscar produtor florestal:', error);
-      setTotalProdutorFlorestal(45600); // Fallback
-    }
-  };
-
-  fetchFlorestal();
-}, [buildEndpoint]);
-
-// Buscar aquicultura com todos os filtros
-useEffect(() => {
-  const fetchAquicultura = async () => {
-    try {
-      const endpoint = buildEndpoint('/dashboard/totalAquicultura');
-      const resposta = await api.get(endpoint);
-      setTotalAquicultura(resposta.data || 0);
-      console.log('Total aquicultura:', resposta.data, 'com todos os filtros aplicados');
-    } catch (error) {
-      console.error('Erro ao buscar aquicultura:', error);
-      setTotalAquicultura(31850); // Fallback
-    }
-  };
-
-  fetchAquicultura();
-}, [buildEndpoint]);
-
-
-
-// 4. ATUALIZAR o useMemo do gráfico de atividades para considerar o filtro de atividade
-const registrosPorAtividade = useMemo(() => {
-  let atividades = [
-    { name: 'Agricultura', value: totalAgricultura, color: '#10B981' },
-    { name: 'Pecuária', value: totalPecuaria, color: '#F59E0B' },
-    { name: 'Produtor Florestal', value: totalProdutorFlorestal, color: '#34D399' },
-    { name: 'Aquicultura', value: totalAquicultura, color: '#06B6D4' }
-  ];
-
-  // Filtrar por atividade específica se selecionada
-  const selectedValue = selectedAtividade?.value || selectedAtividade;
-  if (selectedValue && selectedValue !== 'todos') {
-    const atividadeMap = {
-      'agricultura': 'Agricultura',
-      'pecuaria': 'Pecuária',
-      'florestal': 'Produtor Florestal',
-      'aquicultura': 'Aquicultura'
     };
-    const nomeAtividade = atividadeMap[selectedValue];
-    if (nomeAtividade) {
-      atividades = atividades.filter(a => a.name === nomeAtividade);
+
+    fetchGenero();
+  }, [buildEndpoint, totalProdutores]);
+
+  // 2. CORRIGIR os useEffect das atividades para usar buildEndpoint
+  // Substituir os useEffect existentes das atividades (linhas ~218-280) por estes:
+
+  // Buscar agricultura com todos os filtros
+  useEffect(() => {
+    const fetchAgricultura = async () => {
+      try {
+        const endpoint = buildEndpoint('/dashboard/totalAgricultura');
+        const resposta = await api.get(endpoint);
+        setTotalAgricultura(resposta.data || 0);
+        console.log('Total agricultura:', resposta.data, 'com todos os filtros aplicados');
+      } catch (error) {
+        console.error('Erro ao buscar agricultura:', error);
+        setTotalAgricultura(356700); // Fallback
+      }
+    };
+
+    fetchAgricultura();
+  }, [buildEndpoint]);
+
+  // Buscar pecuária com todos os filtros
+  useEffect(() => {
+    const fetchPecuaria = async () => {
+      try {
+        const endpoint = buildEndpoint('/dashboard/totalPecuaria');
+        const resposta = await api.get(endpoint);
+        setTotalPecuaria(resposta.data || 0);
+        console.log('Total pecuária:', resposta.data, 'com todos os filtros aplicados');
+      } catch (error) {
+        console.error('Erro ao buscar pecuária:', error);
+        setTotalPecuaria(89300); // Fallback
+      }
+    };
+
+    fetchPecuaria();
+  }, [buildEndpoint]);
+
+  // Buscar produtor florestal com todos os filtros
+  useEffect(() => {
+    const fetchFlorestal = async () => {
+      try {
+        const endpoint = buildEndpoint('/dashboard/totalProdutorFlorestal');
+        const resposta = await api.get(endpoint);
+        setTotalProdutorFlorestal(resposta.data || 0);
+        console.log('Total produtor florestal:', resposta.data, 'com todos os filtros aplicados');
+      } catch (error) {
+        console.error('Erro ao buscar produtor florestal:', error);
+        setTotalProdutorFlorestal(45600); // Fallback
+      }
+    };
+
+    fetchFlorestal();
+  }, [buildEndpoint]);
+
+  // Buscar aquicultura com todos os filtros
+  useEffect(() => {
+    const fetchAquicultura = async () => {
+      try {
+        const endpoint = buildEndpoint('/dashboard/totalAquicultura');
+        const resposta = await api.get(endpoint);
+        setTotalAquicultura(resposta.data || 0);
+        console.log('Total aquicultura:', resposta.data, 'com todos os filtros aplicados');
+      } catch (error) {
+        console.error('Erro ao buscar aquicultura:', error);
+        setTotalAquicultura(31850); // Fallback
+      }
+    };
+
+    fetchAquicultura();
+  }, [buildEndpoint]);
+
+
+
+  // 4. ATUALIZAR o useMemo do gráfico de atividades para considerar o filtro de atividade
+  const registrosPorAtividade = useMemo(() => {
+    let atividades = [
+      { name: 'Agricultura', value: totalAgricultura, color: '#10B981' },
+      { name: 'Pecuária', value: totalPecuaria, color: '#F59E0B' },
+      { name: 'Produtor Florestal', value: totalProdutorFlorestal, color: '#34D399' },
+      { name: 'Aquicultura', value: totalAquicultura, color: '#06B6D4' }
+    ];
+
+    // Filtrar por atividade específica se selecionada
+    const selectedValue = selectedAtividade?.value || selectedAtividade;
+    if (selectedValue && selectedValue !== 'todos') {
+      const atividadeMap = {
+        'agricultura': 'Agricultura',
+        'pecuaria': 'Pecuária',
+        'florestal': 'Produtor Florestal',
+        'aquicultura': 'Aquicultura'
+      };
+      const nomeAtividade = atividadeMap[selectedValue];
+      if (nomeAtividade) {
+        atividades = atividades.filter(a => a.name === nomeAtividade);
+      }
     }
-  }
-  
-  // Remover atividades com valor 0
-  return atividades.filter(a => a.value > 0);
-}, [totalAgricultura, totalPecuaria, totalProdutorFlorestal, totalAquicultura, selectedAtividade]);
+
+    // Remover atividades com valor 0
+    return atividades.filter(a => a.value > 0);
+  }, [totalAgricultura, totalPecuaria, totalProdutorFlorestal, totalAquicultura, selectedAtividade]);
 
   // Buscar certificados
   useEffect(() => {
@@ -939,7 +952,7 @@ const registrosPorAtividade = useMemo(() => {
             </div>
 
             {/* Controles do Header  */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
               {/* Seletor de Província  */}
               <div className="relative">
                 <label className="block text-xs font-medium text-gray-700 mb-1">
@@ -965,14 +978,14 @@ const registrosPorAtividade = useMemo(() => {
               </button>
 
 
-              </div>
+            </div>
           </div>
 
           {/* Filtros Expandidos */}
           {showFilters && (
             <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Período */ }
+                {/* Período */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Período
@@ -1041,9 +1054,8 @@ const registrosPorAtividade = useMemo(() => {
                 <p className="text-sm font-medium text-gray-600">
                   {(selectedEstado?.value || selectedEstado) === 'pendentes' ? 'Pendentes' : 'Aprovados'}
                 </p>
-                <p className={`text-3xl font-bold mt-1 ${
-                  (selectedEstado?.value || selectedEstado) === 'pendentes' ? 'text-yellow-600' : 'text-green-600'
-                }`}>
+                <p className={`text-3xl font-bold mt-1 ${(selectedEstado?.value || selectedEstado) === 'pendentes' ? 'text-yellow-600' : 'text-green-600'
+                  }`}>
                   {formatNumber(dadosFiltrados.totalAprovados)}
                 </p>
                 <div className="flex items-center mt-2">
@@ -1054,12 +1066,10 @@ const registrosPorAtividade = useMemo(() => {
                   </span>
                 </div>
               </div>
-              <div className={`p-3 rounded-lg ${
-                (selectedEstado?.value || selectedEstado) === 'pendentes' ? 'bg-yellow-50' : 'bg-green-50'
-              }`}>
-                <CheckCircle className={`h-8 w-8 ${
-                  (selectedEstado?.value || selectedEstado) === 'pendentes' ? 'text-yellow-500' : 'text-green-500'
-                }`} />
+              <div className={`p-3 rounded-lg ${(selectedEstado?.value || selectedEstado) === 'pendentes' ? 'bg-yellow-50' : 'bg-green-50'
+                }`}>
+                <CheckCircle className={`h-8 w-8 ${(selectedEstado?.value || selectedEstado) === 'pendentes' ? 'text-yellow-500' : 'text-green-500'
+                  }`} />
               </div>
             </div>
           </div>
@@ -1429,7 +1439,7 @@ const registrosPorAtividade = useMemo(() => {
                     const sin = Math.sin(-RADIAN * midAngle);
                     const cos = Math.cos(-RADIAN * midAngle);
 
-                   // Responsividade: ajuste de fonte e posição
+                    // Responsividade: ajuste de fonte e posição
                     const cardWidth = window.innerWidth < 640 ? 280 : window.innerWidth < 1024 ? 340 : 400;
                     const fontSize = cardWidth < 340 ? 12 : cardWidth < 400 ? 14 : 16;
                     const labelOffset = cardWidth < 340 ? 8 : 12;
@@ -1836,7 +1846,7 @@ const registrosPorAtividade = useMemo(() => {
         </button>
 
         {/* Botão Outros */}
-               <button
+        <button
           onClick={() => setShowOutros(true)}
           className="group relative bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-full shadow-lg transform transition-all duration-300 hover:scale-110 hover:shadow-xl"
           title="Outros"

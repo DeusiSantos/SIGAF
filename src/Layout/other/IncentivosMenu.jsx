@@ -1,24 +1,15 @@
-import React, { useState } from 'react';
-import { UserPlus, Users, Info, FileText, User, Check, Calculator, X, TrendingUp, TrendingDown, MapPin, Award, DollarSign, Package, Activity, Split, Banknote } from 'lucide-react';
+import { Banknote, Calculator, Check, Info, Split, TrendingDown, TrendingUp, UserPlus, Users, X } from 'lucide-react';
+import { useState } from 'react';
+import CadastroIncentivos from '../../modules/Agricola/pages/incentivo/CadastroIncentivos ';
+import GestaoIncentivos from '../../modules/Agricola/pages/incentivo/GestaoIncentivos';
 
-import CadastroProdutor from '../../pages/CadastroProdutor';
-import ProdutoresGestao from '../../pages/ProdutoresGestao';
-import CadastroCooperativa from '../../pages/SociedadeAgricola/EntidadesAssociativasCadastro';
-import AssociasoesRurais from '../../pages/SociedadeAgricola/AssociasoesRurais';
-import CadastroProjetos from '../../pages/Programas-e-Benefícios/CadastroProjetos';
-import ValidarCerficacao from '../../pages/Validação e Certifica/validarCerficacao';
-import CertificadosGestao from '../../pages/CertificadosGestao';
-import CadastroIncentivos from '../../pages/Incentivos/CadastroIncentivos ';
-import AtribuicaoIncentivos from '../../pages/Incentivos/AtribuicaoIncentivos';
-import ReembolsoIncentivos from '../../pages/Incentivos/ReembolsoIncentivos';
-import GestaoIncentivos from '../../pages/Incentivos/GestaoIncentivos';
 
 const IncentivoMenu = () => {
     const [activeSection, setActiveSection] = useState('gestao');
-   
+
     const [showInfoModal, setShowInfoModal] = useState(false);
 
-   
+
 
     const menuItems = [
         {
@@ -38,11 +29,11 @@ const IncentivoMenu = () => {
         {
             id: 'distribuicao',
             title: 'Distribuir',
-            icon:Split ,
+            icon: Split,
             description: 'Realizar Distribuição',
             color: 'blue'
         },
-           {
+        {
             id: 'reembolso',
             title: 'Reembolsar',
             icon: Banknote,
@@ -91,7 +82,7 @@ const IncentivoMenu = () => {
                         </div>
                     </div>
                 );
-            
+
             case 'distribuicao':
                 return (
                     <div className="bg-white rounded-lg shadow-sm">
@@ -101,7 +92,7 @@ const IncentivoMenu = () => {
                     </div>
                 );
 
-             case 'reembolso':
+            case 'reembolso':
                 return (
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
                         <div className="text-center">
@@ -109,20 +100,20 @@ const IncentivoMenu = () => {
                         </div>
                     </div>
                 );
-                
+
 
             default:
                 return null;
         }
 
-        
+
     };
 
-    
+
 
     return (
         <div>
-           
+
             <div className="min-h-full p-3 ">
 
                 {/* Menu de Navegação */}
@@ -153,7 +144,7 @@ const IncentivoMenu = () => {
                         <button
                             onClick={() => setShowInfoModal(true)}
                             className="flex items-center text-center h-10 px-2 py-2 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-colors shadow-sm"
-                            
+
                         >
                             <Info className="w-5 h-5" />
                         </button>
@@ -162,7 +153,7 @@ const IncentivoMenu = () => {
                             Informações sobre a página
                         </span>
                     </div>
-                    
+
                 </div>
 
                 {/* Conteúdo da Seção Ativa */}
@@ -171,12 +162,12 @@ const IncentivoMenu = () => {
                 </div>
             </div>
 
-              {/* Modal de Informações do RNPA */}
-              {showInfoModal && (
+            {/* Modal de Informações do RNPA */}
+            {showInfoModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
                     <div className="bg-white p-8 rounded-lg shadow-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
                         <div className="flex justify-end">
-                            
+
                             <button
                                 onClick={() => setShowInfoModal(false)}
                                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -197,7 +188,7 @@ const IncentivoMenu = () => {
                                         <div>
                                             <h4 className="font-bold text-gray-800 text-lg mb-3">Objetivo dos Incentivos:</h4>
                                             <p className="leading-relaxed text-base">
-                                                Os incentivos visam apoiar os produtores agrícolas e pecuários no desenvolvimento de suas 
+                                                Os incentivos visam apoiar os produtores agrícolas e pecuários no desenvolvimento de suas
                                                 atividades, fornecendo recursos financeiros ou produtos necessários para aumentar a produtividade.
                                             </p>
                                         </div>
@@ -205,28 +196,28 @@ const IncentivoMenu = () => {
                                         <div>
                                             <h4 className="font-bold text-lg text-gray-800 mb-3">Sistema de Reembolso:</h4>
                                             <p className="leading-relaxed text-base mb-3">
-                                                O sistema de reembolso permite que uma porcentagem do valor total do incentivo seja 
+                                                O sistema de reembolso permite que uma porcentagem do valor total do incentivo seja
                                                 devolvida ao governo, calculando automaticamente o valor líquido que o produtor receberá.
                                             </p>
                                             <ul className="space-y-2 text-base leading-relaxed">
                                                 <li className="flex items-start">
-                                                <Calculator size={16} className="text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
-                                                Cálculo automático do reembolso
+                                                    <Calculator size={16} className="text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
+                                                    Cálculo automático do reembolso
                                                 </li>
                                                 <li className="flex items-start">
-                                                <TrendingUp size={16} className="text-green-600 mr-2 mt-0.5 flex-shrink-0" />
-                                                Valor líquido para o produtor
+                                                    <TrendingUp size={16} className="text-green-600 mr-2 mt-0.5 flex-shrink-0" />
+                                                    Valor líquido para o produtor
                                                 </li>
                                                 <li className="flex items-start">
-                                                <TrendingDown size={16} className="text-red-600 mr-2 mt-0.5 flex-shrink-0" />
-                                                Percentual de reembolso configurável
+                                                    <TrendingDown size={16} className="text-red-600 mr-2 mt-0.5 flex-shrink-0" />
+                                                    Percentual de reembolso configurável
                                                 </li>
                                             </ul>
                                         </div>
                                     </div>
                                 </p>
                             </div>
-                            
+
                         )}
                         {activeSection === 'distribuicao' && (
                             <div>
@@ -237,11 +228,11 @@ const IncentivoMenu = () => {
                                 <p className="text-gray-700">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm text-gray-600">
                                         <div>
-                                        <h4 className="font-bold text-lg text-gray-800 mb-3">Processo de Atribuição:</h4>
-                                        <p className="leading-relaxed text-base">
-                                            O sistema permite atribuir incentivos pré-cadastrados a grupos de produtores de forma 
-                                            eficiente e organizada, garantindo o controle total sobre distribuição e custos.
-                                        </p>
+                                            <h4 className="font-bold text-lg text-gray-800 mb-3">Processo de Atribuição:</h4>
+                                            <p className="leading-relaxed text-base">
+                                                O sistema permite atribuir incentivos pré-cadastrados a grupos de produtores de forma
+                                                eficiente e organizada, garantindo o controle total sobre distribuição e custos.
+                                            </p>
                                         </div>
 
                                         <div>
@@ -289,33 +280,33 @@ const IncentivoMenu = () => {
                                 <p className="text-gray-700">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm text-gray-600">
                                         <div>
-                                        <h4 className="font-bold text-gray-800 text-lg mb-3">Processo de Reembolso:</h4>
-                                        <p className="leading-relaxed text-base">
-                                            O sistema permite processar reembolsos de incentivos já atribuídos aos produtores, 
-                                            calculando automaticamente o valor baseado nas percentagens pré-definidas para cada tipo de incentivo.
-                                        </p>
+                                            <h4 className="font-bold text-gray-800 text-lg mb-3">Processo de Reembolso:</h4>
+                                            <p className="leading-relaxed text-base">
+                                                O sistema permite processar reembolsos de incentivos já atribuídos aos produtores,
+                                                calculando automaticamente o valor baseado nas percentagens pré-definidas para cada tipo de incentivo.
+                                            </p>
                                         </div>
 
                                         <div>
-                                        <h4 className="font-bold text-lg text-gray-800 mb-3">Funcionalidades:</h4>
-                                        <ul className="space-y-2 leading-relaxed text-base">
-                                            <li className="flex items-start">
-                                            <Check size={16} className="text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
-                                            Seleção individual de produtores
-                                            </li>
-                                            <li className="flex items-start">
-                                            <Check size={16} className="text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
-                                            Visualização de incentivos recebidos
-                                            </li>
-                                            <li className="flex items-start">
-                                            <Check size={16} className="text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
-                                            Cálculo automático de valores
-                                            </li>
-                                            <li className="flex items-start">
-                                            <Check size={16} className="text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
-                                            Controle de motivos e prioridades
-                                            </li>
-                                        </ul>
+                                            <h4 className="font-bold text-lg text-gray-800 mb-3">Funcionalidades:</h4>
+                                            <ul className="space-y-2 leading-relaxed text-base">
+                                                <li className="flex items-start">
+                                                    <Check size={16} className="text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
+                                                    Seleção individual de produtores
+                                                </li>
+                                                <li className="flex items-start">
+                                                    <Check size={16} className="text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
+                                                    Visualização de incentivos recebidos
+                                                </li>
+                                                <li className="flex items-start">
+                                                    <Check size={16} className="text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
+                                                    Cálculo automático de valores
+                                                </li>
+                                                <li className="flex items-start">
+                                                    <Check size={16} className="text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
+                                                    Controle de motivos e prioridades
+                                                </li>
+                                            </ul>
                                         </div>
                                     </div>
                                 </p>
@@ -326,7 +317,7 @@ const IncentivoMenu = () => {
             )}
 
         </div>
-       
+
     );
 };
 

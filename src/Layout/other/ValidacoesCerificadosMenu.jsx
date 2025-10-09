@@ -1,19 +1,15 @@
-import React, { useState } from 'react';
-import { UserPlus, Users, FileText, User, MapPin, Award } from 'lucide-react';
+import { UserPlus, Users } from 'lucide-react';
+import { useState } from 'react';
+import CertificadosGestao from '../../modules/Agricola/pages/validacaoCertificado/CertificadosGestao';
+import CertificacaoProdutor from '../../modules/Agricola/pages/validacaoCertificado/validarCerficacao';
 
-import CadastroProdutor from '../../pages/CadastroProdutor';
-import ProdutoresGestao from '../../pages/ProdutoresGestao';
-import CadastroCooperativa from '../../pages/SociedadeAgricola/EntidadesAssociativasCadastro';
-import AssociasoesRurais from '../../pages/SociedadeAgricola/AssociasoesRurais';
-import CadastroProjetos from '../../pages/Programas-e-Benefícios/CadastroProjetos';
-import ValidarCerficacao from '../../pages/Validação e Certifica/validarCerficacao';
-import CertificadosGestao from '../../pages/CertificadosGestao';
+
 
 const ValidacoesCerificadosMenu = () => {
     const [activeSection, setActiveSection] = useState('cadastro');
 
     const menuItems = [
-         {
+        {
             id: 'gestao',
             title: 'Gestão de Certificados',
             icon: Users,
@@ -65,7 +61,7 @@ const ValidacoesCerificadosMenu = () => {
                 return (
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
                         <div className="text-center">
-                            <ValidarCerficacao />
+                            <CertificacaoProdutor />
                         </div>
                     </div>
                 );

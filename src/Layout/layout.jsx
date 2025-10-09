@@ -1,29 +1,40 @@
-import React, { useState, useEffect } from 'react';
 import {
-  Menu, X, Bell, Search, User, ChevronRight, ChevronLeft, Home,
-  Users, MapPin, UserCheck, FileText, Award, BarChart3,
-  Building2, Shield, Archive, HelpCircle, Briefcase,
-  Calendar, Settings, Globe, TrendingUp, FileBarChart,
-  EyeOff, Sprout, TreePine, Tractor, PanelLeftClose, PanelLeftOpen,
-  Plus, Clock, AlertTriangle, CheckCircle,
-  BuildingIcon, Wheat,
+  Archive,
+  Award, BarChart3,
+  Bell,
+  Building2,
+  ChevronLeft,
+  ChevronRight,
+  EyeOff,
   File,
-  Building,
-  ShieldAlert,
-  Scale,
   Gavel,
-  Factory,
+  Globe,
+  Home,
   Landmark,
-  TestTube
+  MapPin,
+  Menu,
+  PanelLeftClose, PanelLeftOpen,
+  Plus,
+  Search,
+  Shield,
+  ShieldAlert,
+  Sprout,
+  TestTube,
+  Tractor,
+  TreePine,
+  TrendingUp,
+  Users,
+  Wheat,
+  X
 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import DashboardStats from '../components/DashboardStats';
 
-import imagetop from '../assets/emblema.png'
+import imagetop from '../assets/emblema.png';
 import imagebottom from '../assets/imageB1.png';
-import { useProdutores } from '../hooks/useRnpaData';
-import DashboardAngola from '../components/DashboardAngola';
+import DashboardStats from '../core/components/DashboardStats';
+import { useProdutores } from '../modules/Agricola/hooks/useRnpaData';
 
 // Configuração dos menus reorganizada mantendo todas as rotas existentes
 const rnpaRoutes = {

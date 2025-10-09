@@ -1,23 +1,15 @@
-import React, { useState } from 'react';
-import { UserPlus, Users, FileText, User, MapPin, Award } from 'lucide-react';
+import { UserPlus, Users } from 'lucide-react';
+import { useState } from 'react';
+import GestaoTestesSolo from '../../modules/Agricola/pages/AmostraSolo/GestaoTestesSolo';
+import TesteAmostrasSolo from '../../modules/Agricola/pages/AmostraSolo/TesteAmostrasSolo';
 
-import CadastroProdutor from '../../pages/CadastroProdutor';
-import ProdutoresGestao from '../../pages/ProdutoresGestao';
-import CadastroCooperativa from '../../pages/SociedadeAgricola/EntidadesAssociativasCadastro';
-import AssociasoesRurais from '../../pages/SociedadeAgricola/AssociasoesRurais';
-import CadastroProjetos from '../../pages/Programas-e-Benefícios/CadastroProjetos';
-import ValidarCerficacao from '../../pages/Validação e Certifica/validarCerficacao';
-import CertificadosGestao from '../../pages/CertificadosGestao';
-import CadastroFontesAgua from '../../pages/InfraEstrutura/CadastroFontesAgua';
-import GestaoSistemasIrrigacao from '../../pages/InfraEstrutura/GestaoSistemasIrrigacao';
-import TesteAmostrasSolo from '../../pages/InfraEstrutura/TesteAmostrasSolo';
-import GestaoTestesSolo from '../../pages/InfraEstrutura/GestaoTestesSolo';
+
 
 const AmostrasDeSoloMenu = () => {
     const [activeSection, setActiveSection] = useState('gestao');
 
     const menuItems = [
-         {
+        {
             id: 'gestao',
             title: 'Gestão ',
             icon: Users,

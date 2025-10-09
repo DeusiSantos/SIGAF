@@ -1,0 +1,254 @@
+src
+├── App.css
+├── App.jsx
+├── assets
+│   ├── emblema.png
+│   ├── footer.png
+│   ├── fotoC.jpeg
+│   ├── header.png
+│   ├── IDA.png
+│   ├── iiiv.png
+│   ├── image3.jpeg
+│   ├── imageB1.png
+│   ├── imagefooter.jpeg
+│   ├── imageLogin.jpeg
+│   ├── images.jpeg
+│   ├── ISV.png
+│   ├── log copy.jpg
+│   ├── log.jpg
+│   ├── logo5.png
+│   ├── LogoAngola copy.png
+│   ├── logoCertificate.png
+│   ├── logoG.png
+│   ├── MINISTERIO-DA-AGRICULTURA-removebg-preview.png
+│   ├── react.svg
+│   ├── RNPA-removebg.png
+│   ├── sense.png
+│   └── SIGAF.png
+├── core
+│   ├── components
+│   │   ├── CustomInput.jsx
+│   │   ├── DashboardAngola.jsx
+│   │   ├── DashboardStats.jsx
+│   │   ├── FormDemo.jsx
+│   │   ├── inputstyle.css
+│   │   ├── inquiridores.js
+│   │   ├── Inquiridores.json
+│   │   ├── produtores.json
+│   │   ├── Provincias.json
+│   │   ├── ScrollToTop.jsx
+│   │   ├── Separador.jsx
+│   │   ├── style.css
+│   │   ├── styles.css
+│   │   └── WeatherForecastAngola.jsx
+│   ├── hooks
+│   ├── services
+│   │   ├── api.js
+│   │   ├── AuthContext copy.jsx
+│   │   └── AuthContext.jsx
+│   ├── Styles
+│   └── Utils
+├── index.css
+├── Layout
+│   ├── layout - Cópia.jsx
+│   ├── layout.jsx
+│   └── other
+│       ├── AmostrasDeSoloMenu.jsx
+│       ├── ControlePragasMenu.jsx
+│       ├── GestaoAlunosMenu.jsx
+│       ├── GestaoAssociacoesRuraisMenu.jsx
+│       ├── GestaoAvaliacoesMenu.jsx
+│       ├── GestaoEntidadesAssociativasMenu.jsx
+│       ├── GestaoEscolaMenu.jsx
+│       ├── GestaoInqueridorMenu.jsx
+│       ├── GestaoPlanoCurricularMenu.jsx
+│       ├── GestaoProdutoresFlorestaisMenu.jsx
+│       ├── GestaoProfessores.jsx
+│       ├── GestaoProgramasBeneficiosMenu.jsx
+│       ├── GestaoProjectosMenu.jsx
+│       ├── IncentivosMenu.jsx
+│       ├── IrrigacaoMenu.jsx
+│       ├── SancoesMenu.jsx
+│       ├── ValidacoesCerificadosFlorestaisMenu.jsx
+│       └── ValidacoesCerificadosMenu.jsx
+├── main.jsx
+├── modules
+│   ├── AgenteDeCampo
+│   │   ├── AgenteCampo.jsx
+│   │   └── CadastroAgentesCampo.jsx
+│   ├── Agricola
+│   │   ├── components
+│   │   ├── hooks
+│   │   │   ├── useAssociacaoRural.jsx
+│   │   │   ├── useCertificadoProdutor.jsx
+│   │   │   ├── useCooperativas.jsx
+│   │   │   ├── useIrrigacao .jsx
+│   │   │   ├── useRnpaDataDashBoard.jsx
+│   │   │   ├── useRnpaData.jsx
+│   │   │   ├── useScoutData.jsx
+│   │   │   └── useSilo.jsx
+│   │   ├── Menu
+│   │   │   ├── AssociacaoMenuAgricola.jsx
+│   │   │   ├── CooperativaMenuAgricola.jsx
+│   │   │   ├── EmpresasMenu.jsx
+│   │   │   ├── IrrigacaoMenu.jsx
+│   │   │   ├── MenuApoioAgricola.jsx
+│   │   │   ├── MenuEntrepostasMercado.jsx
+│   │   │   ├── MenuEntrepostosMercado.jsx
+│   │   │   ├── MenuInfraestruturaAgricola.jsx
+│   │   │   └── MenuSilos.jsx
+│   │   ├── pages
+│   │   │   ├── AmostraSolo
+│   │   │   │   ├── GestaoTestesSolo.jsx
+│   │   │   │   ├── LancamentoResultadosSolo.jsx
+│   │   │   │   ├── TesteAmostrasSolo.jsx
+│   │   │   │   └── VisualizarAmostra.jsx
+│   │   │   ├── incentivo
+│   │   │   │   ├── AtribuicaoIncentivos.jsx
+│   │   │   │   ├── CadastroIncentivos .jsx
+│   │   │   │   ├── DashboardIncentivos.jsx
+│   │   │   │   ├── GestaoIncentivos.jsx
+│   │   │   │   ├── ReembolsoIncentivos.jsx
+│   │   │   │   └── VisualizarIncentivo.jsx
+│   │   │   ├── infraestrutura
+│   │   │   │   ├── empresasDeApoio
+│   │   │   │   │   ├── GestaoApoiAgricola.jsx
+│   │   │   │   │   └── RegistroApoioAgricola.jsx
+│   │   │   │   ├── entrepostos
+│   │   │   │   │   ├── CadastroEntrepostosMercado.jsx
+│   │   │   │   │   └── GestaoEntrepostosMercado.jsx
+│   │   │   │   ├── infraestruturaDeApoio
+│   │   │   │   │   ├── GestaoInfraestruturaAgricola.jsx
+│   │   │   │   │   ├── RegistroInfraestrutura.jsx
+│   │   │   │   │   └── VisualizarInfraestrutura.jsx
+│   │   │   │   ├── Irrigacao
+│   │   │   │   │   ├── CadastroFontesAgua.jsx
+│   │   │   │   │   ├── GestaoSistemasIrrigacao.jsx
+│   │   │   │   │   └── VisualizarIrrigacao.jsx
+│   │   │   │   └── Silos
+│   │   │   │       ├── CadastroSilos.jsx
+│   │   │   │       ├── GestaoSilos.jsx
+│   │   │   │       └── VisualizarSilos.jsx
+│   │   │   ├── PainelMonitoramento
+│   │   │   │   ├── ControlePragas
+│   │   │   │   │   ├── CadastroPragas.jsx
+│   │   │   │   │   ├── DashboardControlePragas.jsx
+│   │   │   │   │   ├── GestaoPragas.jsx
+│   │   │   │   │   └── VisualizarPraga.jsx
+│   │   │   │   ├── Hidrografia
+│   │   │   │   └── Meteorologia
+│   │   │   ├── produtores
+│   │   │   │   ├── associacoes
+│   │   │   │   │   ├── CadastroAssociacaoAgricola.jsx
+│   │   │   │   │   └── GestaoAssociacaoAgricola.jsx
+│   │   │   │   ├── cooperativas
+│   │   │   │   │   ├── CadastroCooperativaAgricola.jsx
+│   │   │   │   │   └── GestaoCooperativaAgricola.jsx
+│   │   │   │   ├── empresas
+│   │   │   │   │   ├── CadastroEmpresas.jsx
+│   │   │   │   │   └── GestaoEmpresas.jsx
+│   │   │   │   └── pessoal
+│   │   │   │       ├── CadastroProdutor.jsx
+│   │   │   │       ├── ProdutoresGestao.jsx
+│   │   │   │       └── VisualizarProdutor.jsx
+│   │   │   ├── ProgramaBeneficio
+│   │   │   │   ├── CadastroProjetos.jsx
+│   │   │   │   ├── GestaoProjetos.jsx
+│   │   │   │   └── VisualizarProjeto.jsx
+│   │   │   └── validacaoCertificado
+│   │   │       ├── CertificadosGestao.jsx
+│   │   │       ├── validarCerficacao.jsx
+│   │   │       └── VisualizarCertificados.jsx
+│   │   ├── public
+│   │   ├── routes.jsx
+│   │   └── services
+│   ├── Florestal
+│   │   ├── components
+│   │   ├── hooks
+│   │   ├── Menu
+│   │   │   ├── AssociacaoMenuFlorestal.jsx
+│   │   │   ├── CooperativaMenuFlorestal.jsx
+│   │   │   ├── EmpresasMenuFlorestal.jsx
+│   │   │   └── GestaoProdutoresFlorestais.jsx
+│   │   ├── pages
+│   │   │   ├── CertificacaoProdutor
+│   │   │   │   ├── CertificacaoProdutorFlorestal.jsx
+│   │   │   │   ├── CertificadoFlorestalGenerator.jsx
+│   │   │   │   ├── CertificadosFlorestalGestao.jsx
+│   │   │   │   └── VisualizarCertificadosFlorestal.jsx
+│   │   │   ├── Produtores
+│   │   │   │   ├── Associacao
+│   │   │   │   │   ├── CadastroAssociacaoFlorestal.jsx
+│   │   │   │   │   └── GestaoAssociacaoFlorestal.jsx
+│   │   │   │   ├── Cooperativa
+│   │   │   │   │   ├── CadastroCooperativaFlorestal.jsx
+│   │   │   │   │   └── GestaoCooperativaFlorestal.jsx
+│   │   │   │   ├── Empresa
+│   │   │   │   │   ├── CadastroEmpresasFlorestal.jsx
+│   │   │   │   │   └── GestaoEmpresasFlorestal.jsx
+│   │   │   │   └── Pessoal
+│   │   │   │       ├── CadastroProdutorFlorestal.jsx
+│   │   │   │       ├── ProdutoresFlorestaisGestao.jsx
+│   │   │   │       └── ProdutoresFlorestais.jsx
+│   │   │   └── Transgressoes
+│   │   │       ├── GestaoMultasApreensoes.jsx
+│   │   │       └── HistoricoMultasApreensoes.jsx
+│   │   ├── routes.jsx
+│   │   └── services
+│   ├── hooks
+│   │   └── useRnpaData.jsx
+│   ├── Inca
+│   │   ├── components
+│   │   ├── hooks
+│   │   ├── pages
+│   │   ├── routes.jsx
+│   │   └── services
+│   └── public
+│       └── CadastroProducaoCooperativa.jsx
+├── pages
+│   ├── ApoioAgricola
+│   │   ├── GestaoApoioAgricola.jsx
+│   │   ├── MenuApoioAgricola.jsx
+│   │   └── RegistroApoioAgricola.jsx
+│   ├── auth
+│   │   └── LoginPage.jsx
+│   ├── Dashboard.jsx
+│   ├── Fiscalizacao
+│   │   ├── CadastroFiscalizacao.jsx
+│   │   └── GestaoFiscalizacao.jsx
+│   ├── Geolocalizacao.jsx
+│   ├── InfraEstrutura
+│   │   ├── LancamentoAnalisesSolo.jsx
+│   │   └── MenuApoioFlorestal.jsx
+│   ├── Licencas
+│   │   ├── CadastroLicencas.jsx
+│   │   ├── GestaoLicencas.jsx
+│   │   └── LicencaMenu.jsx
+│   ├── LoginPage.jsx
+│   ├── ProdutorFlorestal
+│   ├── public
+│   │   ├── AddHistoricoProducao.jsx
+│   │   ├── CartaInternacional.jsx
+│   │   ├── CertificadoEscuteiro.jsx
+│   │   ├── CertificadoFlorestalGenerator.jsx
+│   │   ├── CertificadoGeneratorBaixar.jsx
+│   │   ├── CertificadoGenerator.jsx
+│   │   ├── CertificadoMultaGenerator.jsx
+│   │   ├── FichaProdutor.jsx
+│   │   ├── GerarCartaoRNPAAgricola.jsx
+│   │   ├── GerarCartaoRNPA.jsx
+│   │   ├── HistoricoProducao.jsx
+│   │   ├── ProcessoDisciplinar.jsx
+│   │   ├── ProdutorCompletoRNPAPDF.jsx
+│   │   ├── ProdutorPDF.jsx
+│   │   ├── ProgressaoEscuteiro.jsx
+│   │   ├── ScoutDetailsView.jsx
+│   │   └── ScoutPass.jsx
+│   ├── SilosEArmazenamento
+│   │   └── MenuSilos.jsx
+│   └── VisualizarProdutorFlorestal.jsx
+├── -RNPA.lnk
+└── routes
+    └── routes.js
+
+68 directories, 184 files

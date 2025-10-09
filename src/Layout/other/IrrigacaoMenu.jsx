@@ -1,21 +1,14 @@
-import React, { useState } from 'react';
-import { UserPlus, Users, FileText, User, MapPin, Award } from 'lucide-react';
+import { UserPlus, Users } from 'lucide-react';
+import { useState } from 'react';
+import CadastroFontesAgua from '../../modules/Agricola/pages/infraestrutura/Irrigacao/CadastroFontesAgua';
+import GestaoSistemasIrrigacao from '../../modules/Agricola/pages/infraestrutura/Irrigacao/GestaoSistemasIrrigacao';
 
-import CadastroProdutor from '../../pages/CadastroProdutor';
-import ProdutoresGestao from '../../pages/ProdutoresGestao';
-import CadastroCooperativa from '../../pages/SociedadeAgricola/EntidadesAssociativasCadastro';
-import AssociasoesRurais from '../../pages/SociedadeAgricola/AssociasoesRurais';
-import CadastroProjetos from '../../pages/Programas-e-Benefícios/CadastroProjetos';
-import ValidarCerficacao from '../../pages/Validação e Certifica/validarCerficacao';
-import CertificadosGestao from '../../pages/CertificadosGestao';
-import CadastroFontesAgua from '../../pages/InfraEstrutura/CadastroFontesAgua';
-import GestaoSistemasIrrigacao from '../../pages/InfraEstrutura/GestaoSistemasIrrigacao';
 
 const IrrigacaoMenu = () => {
     const [activeSection, setActiveSection] = useState('cadastro');
 
     const menuItems = [
-         {
+        {
             id: 'gestao',
             title: 'Gestão ',
             icon: Users,

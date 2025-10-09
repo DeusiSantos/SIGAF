@@ -1,13 +1,19 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import { 
-  MapPin, Users, User, Tractor, TreePine, Fish, 
-  BarChart3, TrendingUp, Target, Calendar,
-  Filter, Search, Download, Printer, RefreshCw
-} from 'lucide-react';
-import CustomInput from '../components/CustomInput';
-import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import {
+  BarChart3,
+  Download,
+  Fish,
+  MapPin,
+  Printer, RefreshCw,
+  Target,
+  Tractor, TreePine,
+  User,
+  Users
+} from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
+import CustomInput from '../core/components/CustomInput';
 
 // Fix para os ícones do Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -294,7 +300,7 @@ const MapController = ({ provincia, onMapReady }) => {
       // Visão geral de Angola
       map.setView([-12.5, 18.5], 6);
     }
-    
+
     if (onMapReady) {
       onMapReady();
     }
@@ -316,7 +322,7 @@ const Geolocalizacao = () => {
   const handleProvinciaChange = (provincia) => {
     setLoading(true);
     setProvinciaSelecionada(provincia);
-    
+
     // Simular carregamento
     setTimeout(() => {
       setLoading(false);
@@ -391,7 +397,7 @@ const Geolocalizacao = () => {
                   className="w-full relative z-50"
                 />
               </div>
-              
+
               {provinciaeSelecionada.value !== 'todas' && (
                 <div className="bg-gray-50 rounded-lg p-4">
                   <h3 className="font-semibold text-gray-900 mb-2">Informações da Província</h3>
@@ -417,7 +423,7 @@ const Geolocalizacao = () => {
                   Mapa de Angola - {provinciaeSelecionada.label}
                 </h2>
               </div>
-              
+
               <div className="p-4">
                 <div className="h-[750px] w-full rounded-lg overflow-hidden border border-gray-200">
                   <MapContainer
@@ -432,12 +438,12 @@ const Geolocalizacao = () => {
                       attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
-                    
-                    <MapController 
+
+                    <MapController
                       provincia={provinciaeSelecionada}
                       onMapReady={() => setLoading(false)}
                     />
-                    
+
                     {/* Marker para a província selecionada */}
                     {provinciaeSelecionada.value !== 'todas' && (
                       <Marker position={provinciaeSelecionada.coordenadas}>
@@ -451,9 +457,9 @@ const Geolocalizacao = () => {
                         </Popup>
                       </Marker>
                     )}
-                    
+
                     {/* Markers para todas as províncias quando "todas" está selecionado */}
-                    {provinciaeSelecionada.value === 'todas' && 
+                    {provinciaeSelecionada.value === 'todas' &&
                       provinciasAngola.slice(1).map((provincia) => (
                         <Marker key={provincia.value} position={provincia.coordenadas}>
                           <Popup>
@@ -481,7 +487,7 @@ const Geolocalizacao = () => {
                 <BarChart3 className="w-5 h-5 mr-2 text-green-600" />
                 Estatísticas Gerais
               </h3>
-              
+
               <div className="space-y-4">
                 <div className="bg-green-50 rounded-lg p-4">
                   <div className="flex items-center justify-between">
@@ -531,7 +537,7 @@ const Geolocalizacao = () => {
                 <Tractor className="w-5 h-5 mr-2 text-green-600" />
                 Atividades Produtivas
               </h3>
-              
+
               <div className="space-y-3">
                 <div className="flex items-center justify-between bg-green-50 rounded-lg p-3">
                   <div className="flex items-center">
@@ -581,7 +587,7 @@ const Geolocalizacao = () => {
                 <Target className="w-5 h-5 mr-2 text-green-600" />
                 Indicadores
               </h3>
-              
+
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">Programas Ativos</span>

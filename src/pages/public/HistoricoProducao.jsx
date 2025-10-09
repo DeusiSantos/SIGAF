@@ -1,57 +1,35 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import {
-    ArrowLeft,
-    Download,
-    Printer,
-    TrendingUp,
-    Calendar,
-    BarChart3,
-    Wheat,
-    Users,
-    Target,
     AlertCircle,
+    ArrowLeft,
+    BarChart3,
+    Beef,
+    Calendar,
+    Check,
     CheckCircle,
+    ChevronLeft,
+    ChevronRight,
+    ClipboardCheck,
+    Download,
     FileText,
     Filter,
-    Search,
-    PieChart,
-    Activity,
-    Plus,
-    X,
-    Save,
-    ChevronRight,
-    ChevronLeft,
-    Check,
-    User,
-    MapPin,
-    Beef,
-    Fish,
-    Tractor,
     Home,
-    ClipboardCheck,
-    Award
+    MapPin,
+    Plus,
+    Save,
+    Search,
+    Target,
+    Tractor,
+    TrendingUp,
+    User,
+    Users,
+    Wheat,
+    X
 } from 'lucide-react';
-import {
-    LineChart,
-    Line,
-    AreaChart,
-    Area,
-    BarChart,
-    Bar,
-    PieChart as RechartsPieChart,
-    Cell,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    Legend,
-    ResponsiveContainer,
-    Pie
-} from 'recharts';
 
-import CustomInput from '../../components/CustomInput';
+import CustomInput from '../../core/components/CustomInput';
 import api from '../../services/api';
 import { gerarFichaCompletaPDF } from './ProdutorCompletoRNPAPDF';
 

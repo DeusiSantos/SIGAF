@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Image, Page, Text, View, Document, StyleSheet, pdf } from '@react-pdf/renderer';
-import axios from 'axios';
+import { Document, Image, Page, StyleSheet, Text, View, pdf } from '@react-pdf/renderer';
 import QRCode from 'qrcode'; // 👈 IMPORTAÇÃO ADICIONADA
+import { useEffect, useState } from 'react';
 import emblema from '../../assets/emblema.png';
-import fotoC from '../../assets/SIGAF.png';
-import logo from '../../assets/SIGAF.png';
+import { default as fotoC, default as logo } from '../../assets/SIGAF.png';
+import api from '../../core/services/api';
 
-import api from '../../services/api';
+
 
 // Estilos organizados com alinhamentos aperfeiçoados
 const styles = StyleSheet.create({
@@ -294,7 +293,7 @@ const carregarFotoAPI = async (produtorId) => {
 
   try {
     console.log(`Buscando foto para produtor ID: ${produtorId}`);
-    
+
     // Fazer requisição GET para buscar a foto
     const response = await api.get(`/formulario/${produtorId}/foto-beneficiary`, {
       responseType: 'blob',
@@ -453,28 +452,28 @@ const useProdutorData = (id) => {
 
       try {
         console.log('Buscando dados do produtor...');
-        
+
         // Buscar dados do formulário
         const response = await api.get(`/formulario/${id}`);
-        
+
         console.log('Dados do formulário carregados, buscando foto...');
         setLoadingFoto(true);
-        
+
         // Buscar foto da API
         const fotoAPI = await carregarFotoAPI(id);
-        
+
         console.log('Foto carregada:', fotoAPI ? 'Sucesso' : 'Não encontrada');
-        
+
         // 👈 GERAR QR CODE ADICIONADO
         console.log('Gerando QR Code...');
         const dadosPreliminar = mapearDadosAPI(response.data, fotoAPI);
         const qrCodeDataURL = await gerarQRCodePDF(dadosPreliminar);
         console.log('QR Code gerado:', qrCodeDataURL ? 'Sucesso' : 'Erro');
-        
+
         // Mapear dados incluindo a foto e QR code
         const dadosMapeados = mapearDadosAPI(response.data, fotoAPI, qrCodeDataURL);
         setDados(dadosMapeados);
-        
+
       } catch (err) {
         console.error('Erro ao buscar produtor:', err);
         setError(err.response?.data?.message || err.message);
@@ -510,10 +509,10 @@ const PageWithWatermark = ({ children, showHeader = false, dados = null }) => (
   <Page size="A4" style={styles.page}>
     {/* Marca d'água em cada página */}
     <Image src={logo} style={styles.logoFundo} />
-    
+
     {/* QR Code - apenas na primeira página */}
     {showHeader && <QRCodeSection dados={dados} />}
-    
+
     {/* Conteúdo da página */}
     <View style={styles.content}>
       {showHeader && <HeaderSection />}
@@ -867,7 +866,7 @@ const ProdutorRNPADocument = ({ dados }) => (
       <IdentificacaoSection dados={dados} />
       <LocalizacaoSection dados={dados} />
     </PageWithWatermark>
-    
+
     {/* Segunda página - SEM QR CODE */}
     <PageWithWatermark>
       <AgregadoFamiliarSection dados={dados} />
@@ -886,16 +885,16 @@ export const gerarFichaProdutorPDF = async (produtorId) => {
 
     // Buscar dados do produtor
     const response = await api.get(`/formulario/${produtorId}`);
-    
+
     // Buscar foto da API
     console.log('Buscando foto da API...');
     const fotoAPI = await carregarFotoAPI(produtorId);
-    
+
     // Gerar QR code
     console.log('Gerando QR Code...');
     const dadosPreliminar = mapearDadosAPI(response.data, fotoAPI);
     const qrCodeDataURL = await gerarQRCodePDF(dadosPreliminar);
-    
+
     // Mapear dados incluindo a foto e QR code
     const dadosMapeados = mapearDadosAPI(response.data, fotoAPI, qrCodeDataURL);
 
@@ -1063,11 +1062,11 @@ const ProdutorRNPAPDF = ({ produtorId, onSuccess, onError }) => {
               <strong>Data Registro:</strong> {formatDate(dados.dataRegistro)}
             </div>
           </div>
-          
+
           {/* Status da Foto */}
           <div style={{ marginTop: '16px', padding: '12px', backgroundColor: '#e3f2fd', borderRadius: '4px' }}>
-            <strong>Estado da Foto:</strong> 
-            <span style={{ 
+            <strong>Estado da Foto:</strong>
+            <span style={{
               marginLeft: '8px',
               padding: '2px 8px',
               borderRadius: '12px',
@@ -1081,8 +1080,8 @@ const ProdutorRNPAPDF = ({ produtorId, onSuccess, onError }) => {
 
           {/* Status do QR Code */}
           <div style={{ marginTop: '12px', padding: '12px', backgroundColor: '#e8f5e8', borderRadius: '4px' }}>
-            <strong>QR Code:</strong> 
-            <span style={{ 
+            <strong>QR Code:</strong>
+            <span style={{
               marginLeft: '8px',
               padding: '2px 8px',
               borderRadius: '12px',
@@ -1101,7 +1100,7 @@ const ProdutorRNPAPDF = ({ produtorId, onSuccess, onError }) => {
 
           {/* Info sobre marca d'água */}
           <div style={{ marginTop: '12px', padding: '12px', backgroundColor: '#f0f8ff', borderRadius: '4px', border: '1px solid #b3d9ff' }}>
-            <strong>Marca d'Água:</strong> 
+            <strong>Marca d'Água:</strong>
             <span style={{ marginLeft: '8px', fontSize: '12px', color: '#0066cc' }}>
               ✅ Emblema de Angola será aplicado em todas as {pageCount} páginas
             </span>

@@ -1,40 +1,40 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import {
-    ArrowLeft,
-    Edit,
-    Save,
-    X,
-    RefreshCw,
-    CreditCard,
-    User,
-    Phone,
-    MapPin,
-    Trees,
-    FileText,
+    Activity,
     AlertCircle,
+    ArrowLeft,
+    Building,
+    Camera,
     CheckCircle,
+    ChevronLeft,
+    ChevronRight,
+    CreditCard,
+    Edit,
+    Eye,
+    FileText,
+    Gavel,
     Info,
     Loader,
-    Camera,
-    ChevronRight,
-    ChevronLeft,
-    Shield,
-    Activity,
-    Gavel,
+    MapPin,
+    Phone,
     Play,
-    Eye,
+    RefreshCw,
+    Save,
+    Shield,
     TreePine,
-    Building
+    Trees,
+    User,
+    X
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
 // Importações do React Leaflet
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
+import CustomInput from '../core/components/CustomInput';
+import api from '../core/services/api';
 
-import CustomInput from '../components/CustomInput';
-import api from '../services/api';
 
 // Corrigir ícones do Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -1057,8 +1057,8 @@ const VisualizarProdutorFlorestal = () => {
             {/* Toast Message */}
             {toastMessage && (
                 <div className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${toastMessage.type === 'success' ? 'bg-green-100 border-l-4 border-green-500 text-green-700' :
-                        toastMessage.type === 'error' ? 'bg-red-100 border-l-4 border-red-500 text-red-700' :
-                            'bg-blue-100 border-l-4 border-blue-500 text-blue-700'
+                    toastMessage.type === 'error' ? 'bg-red-100 border-l-4 border-red-500 text-red-700' :
+                        'bg-blue-100 border-l-4 border-blue-500 text-blue-700'
                     }`}>
                     <div className="flex items-center">
                         {toastMessage.type === 'success' && <CheckCircle className="w-5 h-5 mr-2" />}
@@ -1293,8 +1293,8 @@ const VisualizarProdutorFlorestal = () => {
                                     onClick={() => setActiveIndex(index)}
                                 >
                                     <div className={`flex items-center justify-center w-12 h-12 rounded-full mb-2 transition-colors ${index < activeIndex ? 'bg-blue-500 text-white' :
-                                            index === activeIndex ? 'bg-blue-600 text-white' :
-                                                'bg-gray-200 text-gray-500'
+                                        index === activeIndex ? 'bg-blue-600 text-white' :
+                                            'bg-gray-200 text-gray-500'
                                         }`}>
                                         {index < activeIndex ? (
                                             <CheckCircle size={20} />
@@ -1328,7 +1328,7 @@ const VisualizarProdutorFlorestal = () => {
                     <div className="flex justify-between items-center p-6 border-t border-gray-100 bg-gray-50">
                         <button
                             className={`px-6 py-2 rounded-lg border border-gray-300 flex items-center transition-all font-medium ${activeIndex === 0 ? 'opacity-50 cursor-not-allowed bg-gray-100' :
-                                    'bg-white hover:bg-gray-50 text-gray-700 hover:border-gray-400'
+                                'bg-white hover:bg-gray-50 text-gray-700 hover:border-gray-400'
                                 }`}
                             onClick={() => setActiveIndex((prev) => Math.max(prev - 1, 0))}
                             disabled={activeIndex === 0}
@@ -1343,7 +1343,7 @@ const VisualizarProdutorFlorestal = () => {
 
                         <button
                             className={`px-6 py-2 rounded-lg flex items-center transition-all font-medium ${activeIndex === steps.length - 1 ? 'opacity-50 cursor-not-allowed bg-gray-300 text-gray-600' :
-                                    'bg-blue-600 hover:bg-blue-700 text-white shadow-lg'
+                                'bg-blue-600 hover:bg-blue-700 text-white shadow-lg'
                                 }`}
                             onClick={() => setActiveIndex((prev) => Math.min(prev + 1, steps.length - 1))}
                             disabled={activeIndex === steps.length - 1}
