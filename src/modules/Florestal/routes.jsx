@@ -4,10 +4,11 @@ import ValidacoesCerificadosFlorestaisMenu from '../../Layout/other/ValidacoesCe
 import GestaoFiscalizacao from '../../pages/Fiscalizacao/GestaoFiscalizacao';
 import Geolocalizacao from '../../pages/Geolocalizacao';
 import LicencaMenu from '../../pages/Licencas/LicencaMenu';
-import VisualizarProdutorFlorestal from '../../pages/VisualizarProdutorFlorestal';
 import AssociacaoMenuFlorestal from './Menu/AssociacaoMenuFlorestal';
 import CooperativaMenuFlorestal from './Menu/CooperativaMenuFlorestal';
 import EmpresasMenuFlorestal from './Menu/EmpresasMenuFlorestal';
+import VisualizarCertificadosFlorestal from './pages/CertificacaoProdutor/VisualizarCertificadosFlorestal';
+import VisualizarProdutorFlorestal from './pages/Produtores/Pessoal/VisualizarProdutorFlorestal';
 
 
 const FlorestalRoutes = () => {
@@ -23,7 +24,6 @@ const FlorestalRoutes = () => {
             <Route path="produtores/empresa" element={<EmpresasMenuFlorestal />} />
             <Route path="produtores/cooperativa" element={<CooperativaMenuFlorestal />} />
             <Route path="produtores/associacao" element={<AssociacaoMenuFlorestal />} />
-
             <Route path="certificacaoFlorestal" element={<ValidacoesCerificadosFlorestaisMenu />} />
 
             {/* ======================================= */}
@@ -36,6 +36,7 @@ const FlorestalRoutes = () => {
             {/* VISUALIZAR PRODUTOR */}
             {/* ======================================= */}
             <Route path="visualizarprodutorflorestal/:id" element={<VisualizarProdutorFlorestal />} />
+            <Route path="visualizarCertificado/:produtorId" element={<VisualizarCertificadosFlorestal />} />
 
             {/* ======================================= */}
             {/* OUTRAS ROTAS */}

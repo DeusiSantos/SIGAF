@@ -27,11 +27,12 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import CustomInput from '../../../../../core/components/CustomInput';
+
 
 
 import axios from 'axios';
 import { RefreshCw } from 'lucide-react';
+import CustomInput from '../../../../../core/components/CustomInput';
 import provinciasData from '../../../../../core/components/Provincias.json';
 import api from '../../../../../core/services/api';
 import { useAssociacaoRural } from '../../../hooks/useAssociacaoRural';

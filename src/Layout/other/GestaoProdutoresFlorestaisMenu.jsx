@@ -2,6 +2,7 @@ import { Info, UserPlus, Users, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useProdutores, useProdutoresAprovados } from '../../modules/Agricola/hooks/useRnpaData';
 import GestaoProdutoresFlorestais from '../../modules/Florestal/Menu/GestaoProdutoresFlorestais';
+import CadastroProdutorFlorestal from '../../modules/Florestal/pages/Produtores/Pessoal/CadastroProdutorFlorestal';
 import ProdutoresFlorestaisGestao from '../../modules/Florestal/pages/Produtores/Pessoal/ProdutoresFlorestaisGestao';
 
 

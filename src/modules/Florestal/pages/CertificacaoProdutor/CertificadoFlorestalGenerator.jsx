@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
-import { Image, Page, Text, View, Document, StyleSheet, pdf } from '@react-pdf/renderer';
-import QRCode from 'react-qr-code';
-import { renderToStaticMarkup } from 'react-dom/server';
-import emblema from '../../assets/emblema.png';
-import logo from '../../assets/SIGAF.png';
-import api from '../../services/api';
+import { Document, Image, Page, StyleSheet, Text, View, pdf } from '@react-pdf/renderer';
+import QRCode from 'qrcode';
+import { useState } from 'react';
+import emblema from '../../../../assets/emblema.png';
+import logo from '../../../../assets/SIGAF.png';
 
 // Estilos para o certificado florestal oficial
 const styles = StyleSheet.create({
@@ -86,12 +84,34 @@ const styles = StyleSheet.create({
     color: '#000'
   },
 
+  rnpaSubtitle: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+    fontStyle: 'italic',
+    color: '#000'
+  },
+
   // Texto principal do certificado
   textoPrincipal: {
     fontSize: 9,
     lineHeight: 1.4,
     textAlign: 'justify',
     marginBottom: 15
+  },
+
+  textoLicencas: {
+    fontSize: 9,
+    lineHeight: 1.4,
+    textAlign: 'justify',
+    marginBottom: 15,
+    fontStyle: 'italic',
+    backgroundColor: '#f9f9f9',
+    padding: 10,
+    borderLeftWidth: 3,
+    borderLeftColor: '#2d5a27',
+    borderLeftStyle: 'solid'
   },
 
   destaque: {
@@ -131,7 +151,6 @@ const styles = StyleSheet.create({
     width: '50%',
     padding: 6,
     fontSize: 8,
-    fontWeight: 'bold',
     borderRightWidth: 1,
     borderRightStyle: 'solid',
     borderRightColor: '#000',
@@ -228,6 +247,59 @@ const styles = StyleSheet.create({
     marginTop: 15
   },
 
+  // Seção do QR Code
+  qrCodeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 15,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopStyle: 'solid',
+    borderTopColor: '#000'
+  },
+
+  qrCodeSection: {
+    alignItems: 'center',
+    width: '30%'
+  },
+
+  qrCodeImage: {
+    width: 80,
+    height: 80,
+    marginBottom: 5
+  },
+
+  qrCodeText: {
+    fontSize: 7,
+    textAlign: 'center',
+    fontWeight: 'bold'
+  },
+
+  verificacaoSection: {
+    width: '65%',
+    paddingLeft: 10
+  },
+
+  verificacaoTitulo: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    marginBottom: 3
+  },
+
+  verificacaoTexto: {
+    fontSize: 7,
+    lineHeight: 1.3,
+    marginBottom: 2
+  },
+
+  numeroCertificado: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginTop: 5
+  },
+
   // Texto de rodapé
   rodape: {
     fontSize: 7,
@@ -251,246 +323,22 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontStyle: 'italic',
     color: '#666'
-  },
-
-  // QR Code para certificado
-  qrCodeContainer: {
-    position: 'absolute',
-    bottom: 50,
-    right: 50,
-    width: 80,
-    height: 80,
-    borderWidth: 1,
-    borderColor: '#000',
-    padding: 5
-  },
-
-  qrCodeImage: {
-    width: 68,
-    height: 68
-  },
-
-  qrCodeText: {
-    fontSize: 6,
-    textAlign: 'center',
-    marginTop: 2
   }
 });
 
-// Estilos específicos para a fatura
-const faturaStyles = StyleSheet.create({
-  page: {
-    flexDirection: 'column',
-    backgroundColor: '#fff',
-    padding: 40,
-    fontSize: 10,
-    fontFamily: 'Helvetica'
-  },
-
-  header: {
-    textAlign: 'center',
-    marginBottom: 20,
-    paddingBottom: 10,
-    borderBottomWidth: 2,
-    borderBottomStyle: 'solid',
-    borderBottomColor: '#000'
-  },
-
-  tituloFatura: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 5
-  },
-
-  subtituloFatura: {
-    fontSize: 12,
-    color: '#666'
-  },
-
-  infoContainer: {
-    flexDirection: 'row',
-    marginBottom: 20
-  },
-
-  clienteInfo: {
-    width: '60%',
-    paddingRight: 20
-  },
-
-  faturaInfo: {
-    width: '40%'
-  },
-
-  sectionTitle: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#333',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-    paddingBottom: 2
-  },
-
-  infoText: {
-    fontSize: 9,
-    marginBottom: 3
-  },
-
-  tabelaFatura: {
-    marginBottom: 20
-  },
-
-  tabelaHeader: {
-    flexDirection: 'row',
-    backgroundColor: '#f0f0f0',
-    borderBottomWidth: 1,
-    borderBottomColor: '#000'
-  },
-
-  tabelaRow: {
-    flexDirection: 'row',
-    borderBottomWidth: 0.5,
-    borderBottomColor: '#ccc'
-  },
-
-  colProduto: {
-    width: '45%',
-    padding: 8,
-    fontSize: 9
-  },
-
-  colUnidade: {
-    width: '15%',
-    padding: 8,
-    fontSize: 9,
-    textAlign: 'center'
-  },
-
-  colPreco: {
-    width: '20%',
-    padding: 8,
-    fontSize: 9,
-    textAlign: 'right'
-  },
-
-  colTotal: {
-    width: '20%',
-    padding: 8,
-    fontSize: 9,
-    textAlign: 'right'
-  },
-
-  headerText: {
-    fontWeight: 'bold'
-  },
-
-  totaisContainer: {
-    width: '60%',
-    marginLeft: '40%',
-    marginBottom: 20
-  },
-
-  totalRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 2,
-    paddingHorizontal: 8
-  },
-
-  totalLabel: {
-    fontSize: 9
-  },
-
-  totalValue: {
-    fontSize: 9,
-    fontWeight: 'bold'
-  },
-
-  totalFinal: {
-    backgroundColor: '#f0f0f0',
-    borderTopWidth: 1,
-    borderTopColor: '#000',
-    marginTop: 5,
-    paddingTop: 5
-  },
-
-  estadoPagamento: {
-    textAlign: 'center',
-    padding: 10,
-    backgroundColor: '#fff3cd',
-    borderWidth: 1,
-    borderColor: '#ffeaa7',
-    borderRadius: 5,
-    marginBottom: 20
-  },
-
-  estadoText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#856404'
-  },
-
-  pagamentoContainer: {
-    marginTop: 20
-  },
-
-  pagamentoTitle: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    textAlign: 'center'
-  },
-
-  pagamentoInfo: {
-    fontSize: 9,
-    marginBottom: 3,
-    textAlign: 'center'
-  },
-
-  pagamentoDestaque: {
-    fontWeight: 'bold',
-    fontSize: 10
-  },
-
-  // QR Code para fatura
-  qrCodeFaturaContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 20,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#ddd'
-  },
-
-  qrCodeFaturaInfo: {
-    width: '70%'
-  },
-
-  qrCodeFaturaImage: {
-    width: '30%',
-    textAlign: 'center'
-  },
-
-  qrImage: {
-    width: 80,
-    height: 80
-  },
-
-  qrText: {
-    fontSize: 8,
-    textAlign: 'center',
-    marginTop: 5
-  }
-});
-
-// Função para formatar valores monetários
-const formatarMoeda = (valor) => {
-  return new Intl.NumberFormat('pt-AO', {
-    style: 'currency',
-    currency: 'AOA'
-  }).format(valor);
-};
+// Tipos de licença com preços atualizados
+const tiposLicencaOptions = [
+  { label: 'Licença de Exploração Florestal', value: 'EXPLORACAO_FLORESTAL', preco: 77000 },
+  { label: 'Licença de Plantio Florestal', value: 'PLANTIO_FLORESTAL', preco: 150000 },
+  { label: 'Licença de Manejo Florestal', value: 'MANEJO_FLORESTAL', preco: 12000 },
+  { label: 'Licença de Reflorestamento', value: 'REFLORESTAMENTO', preco: 32000 },
+  { label: 'Licença de exploração de Madeira em toro', value: 'MADEIRA_TORO', preco: 50000 },
+  { label: 'Licença de exploração de lenha', value: 'LENHA', preco: 15000 },
+  { label: 'Licença de exploração de carvão vegetal', value: 'CARVAO', preco: 20000 },
+  { label: 'Licença de exploração de produtos não lenhosos', value: 'NAO_LENHOSOS', preco: 25000 },
+  { label: 'Licença de exploração Comunitária', value: 'COMUNITARIA', preco: 10000 },
+  { label: 'Licença de aproveitamento de desperdícios', value: 'DESPERDICIOS', preco: 8000 }
+];
 
 // Função para formatar datas
 const formatDate = (dateString) => {
@@ -510,134 +358,130 @@ const gerarNumeroCertificado = () => {
   return `DNF/${numero}/${ano}`;
 };
 
-// Função para converter componente QRCode em data URL
-const qrCodeToDataURL = async (value, size = 200) => {
-  return new Promise((resolve) => {
-    // Criar um canvas temporário
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = size;
-    canvas.height = size;
+// Função para calcular valores da fatura com IVA - CORRIGIDA
+const calcularValoresFatura = (dadosFormulario) => {
+  console.log('🔍 Calculando valores da fatura com dados:', dadosFormulario);
 
-    // Gerar QR code usando uma biblioteca simples
-    // Para simplificar, vamos usar uma abordagem básica
-    const qrSize = Math.floor(size / 25); // 25x25 módulos
-    const moduleSize = Math.floor(size / 25);
-    
-    // Fundo branco
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(0, 0, size, size);
-    
-    // Padrão simples do QR (simulado para demonstração)
-    ctx.fillStyle = '#000000';
-    
-    // Cantos de posicionamento
-    const drawPositionMarker = (x, y) => {
-      ctx.fillRect(x * moduleSize, y * moduleSize, 7 * moduleSize, 7 * moduleSize);
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect((x + 1) * moduleSize, (y + 1) * moduleSize, 5 * moduleSize, 5 * moduleSize);
-      ctx.fillStyle = '#000000';
-      ctx.fillRect((x + 2) * moduleSize, (y + 2) * moduleSize, 3 * moduleSize, 3 * moduleSize);
-    };
-    
-    drawPositionMarker(0, 0);   // Canto superior esquerdo
-    drawPositionMarker(18, 0);  // Canto superior direito  
-    drawPositionMarker(0, 18);  // Canto inferior esquerdo
-    
-    // Padrão de dados simulado baseado no hash do valor
-    let hash = 0;
-    for (let i = 0; i < value.length; i++) {
-      hash = ((hash << 5) - hash + value.charCodeAt(i)) & 0xffffffff;
-    }
-    
-    // Gerar padrão baseado no hash
-    for (let y = 9; y < 16; y++) {
-      for (let x = 9; x < 16; x++) {
-        if ((hash >> (y + x)) & 1) {
-          ctx.fillRect(x * moduleSize, y * moduleSize, moduleSize, moduleSize);
-        }
+  const TAXA_IVA = 0.14; // 14% IVA em Angola
+
+  // Processar os tipos de licença que podem vir em diferentes formatos
+  let tiposParaCalcular = [];
+
+  // Primeiro, tentar pegar de tiposLicenca (formato já processado)
+  if (dadosFormulario.tiposLicenca && Array.isArray(dadosFormulario.tiposLicenca)) {
+    tiposParaCalcular = dadosFormulario.tiposLicenca;
+    console.log('✅ Usando tiposLicenca:', tiposParaCalcular);
+  }
+  // Se não tiver, tentar pegar de tipoDeLicencaFlorestal (formato da API)
+  else if (dadosFormulario.tipoDeLicencaFlorestal && Array.isArray(dadosFormulario.tipoDeLicencaFlorestal)) {
+    try {
+      const tiposString = dadosFormulario.tipoDeLicencaFlorestal[0];
+      if (typeof tiposString === 'string') {
+        tiposParaCalcular = JSON.parse(tiposString);
+        console.log('✅ Processando tipoDeLicencaFlorestal:', tiposParaCalcular);
+      } else if (Array.isArray(tiposString)) {
+        tiposParaCalcular = tiposString;
       }
+    } catch (e) {
+      console.warn('⚠️ Erro ao processar tipoDeLicencaFlorestal:', e);
+      tiposParaCalcular = [];
     }
-    
-    // Converter canvas para data URL
-    const dataURL = canvas.toDataURL('image/png');
-    resolve(dataURL);
-  });
-};
+  }
 
-// Função para gerar QR code do certificado
-const gerarQRCodeCertificado = async (dados) => {
-  const nomeEntidade = obterNomeEntidade(dados);
-  const numeroCertificado = dados?.dadosProdutor?.numeroLicencaExploracao || gerarNumeroCertificado();
-  
-  const dadosQR = {
-    tipo: 'CERTIFICADO_FLORESTAL',
-    numero: numeroCertificado,
-    entidade: nomeEntidade,
-    validade: dados?.dadosProdutor?.validadeFim,
-    emissao: new Date().toISOString().split('T')[0],
-    verificacao: `https://rnpa.gov.ao/verificar-certificado/${numeroCertificado}`
-  };
+  console.log('🎯 Tipos para calcular:', tiposParaCalcular);
 
-  try {
-    return await qrCodeToDataURL(JSON.stringify(dadosQR), 200);
-  } catch (error) {
-    console.error('Erro ao gerar QR Code do certificado:', error);
+  if (!Array.isArray(tiposParaCalcular) || tiposParaCalcular.length === 0) {
+    console.log('⚠️ Nenhum tipo de licença encontrado para calcular');
+    return { subtotal: 0, iva: 0, total: 0, itens: [] };
+  }
+
+  const itens = tiposParaCalcular.map(tipoLicenca => {
+    const tipoValue = typeof tipoLicenca === 'object' ? tipoLicenca.value : tipoLicenca;
+    const licenca = tiposLicencaOptions.find(opt => opt.value === tipoValue);
+
+    if (licenca) {
+      const precoUnitario = licenca.preco;
+      const quantidade = 1;
+      const subtotalItem = precoUnitario * quantidade;
+      const ivaItem = subtotalItem * TAXA_IVA;
+      const totalItem = subtotalItem + ivaItem;
+
+      console.log(`💰 Item calculado: ${licenca.label} - Preço: ${precoUnitario} AOA`);
+
+      return {
+        produto: licenca.label,
+        codigo: licenca.value,
+        unidade: 'UN',
+        quantidade,
+        precoUnitario,
+        subtotal: subtotalItem,
+        iva: ivaItem,
+        total: totalItem
+      };
+    } else {
+      console.warn(`❌ Licença não encontrada para: ${tipoValue}`);
+    }
     return null;
-  }
+  }).filter(Boolean);
+
+  const subtotal = itens.reduce((acc, item) => acc + item.subtotal, 0);
+  const iva = itens.reduce((acc, item) => acc + item.iva, 0);
+  const total = subtotal + iva;
+
+  console.log('📊 Valores calculados:', { subtotal, iva, total, itens: itens.length });
+
+  return { subtotal, iva, total, itens };
 };
 
-// Função para gerar QR code da fatura
-const gerarQRCodeFatura = async (dados, totalComIVA) => {
-  const numeroFatura = `FAT-${dados.dadosProdutor?.numeroProcesso || Date.now()}`;
-  
-  const dadosQRFatura = {
-    tipo: 'FATURA_FLORESTAL',
-    numero: numeroFatura,
-    valor: totalComIVA,
-    entidade: '11604',
-    referencia: numeroFatura,
-    multicaixa: `https://multicaixa.ao/pagamento?ref=${numeroFatura}&valor=${totalComIVA}&entidade=11604`,
-    estado: 'NAO_PAGO'
-  };
-
+// Função para gerar QR Code com os dados do certificado
+const gerarQRCode = async (dados) => {
   try {
-    return await qrCodeToDataURL(JSON.stringify(dadosQRFatura), 200);
+    const numeroCertificado = dados?.numeroLicencaExploracao || gerarNumeroCertificado();
+
+    // Dados que serão codificados no QR Code
+    const dadosQR = {
+      certificado: numeroCertificado,
+      empresa: dados?.nomeEmpresa || dados?.nomeEntidade || dados?.nomeCompleto || '',
+      licenca: dados?.numeroLicencaExploracao || '',
+      tipo: dados?.tipoLicenca || '',
+      validadeInicio: formatDate(dados?.validadeInicio || dados?.validoDe) || '',
+      validadeFim: formatDate(dados?.validadeFim || dados?.validoAte) || '',
+      tecnico: dados?.tecnicoResponsavel || dados?.nomeDoTecnicoResponsavel || '',
+      dataEmissao: formatDate(new Date()),
+      verificacao: `https://rnpa.gov.ao/verificar/${numeroCertificado}`,
+      // Adicionar resumo das áreas e espécies
+      totalAreas: dados?.areasFlorestais?.length || 0,
+      totalEspecies: dados?.especiesAutorizadas?.length || 0,
+      volumeTotal: dados?.especiesAutorizadas?.reduce((acc, esp) =>
+        acc + (parseFloat(esp.volumeAutorizado) || 0), 0).toFixed(1) || '0.0'
+    };
+
+    // Converter para JSON string
+    const dadosString = `Certificado: ${dadosQR.certificado}
+Empresa: ${dadosQR.empresa}
+Licença: ${dadosQR.licenca}
+Tipo: ${dadosQR.tipo}
+Válido de: ${dadosQR.validadeInicio}
+Válido até: ${dadosQR.validadeFim}
+Técnico: ${dadosQR.tecnico}
+Emitido em: ${dadosQR.dataEmissao}
+Verificar: ${dadosQR.verificacao}`;
+
+    // Gerar QR Code como base64
+    const qrCodeDataURL = await QRCode.toDataURL(dadosString, {
+      width: 200,
+      margin: 1,
+      color: {
+        dark: '#000000',
+        light: '#FFFFFF'
+      },
+      errorCorrectionLevel: 'M'
+    });
+
+    return qrCodeDataURL;
   } catch (error) {
-    console.error('Erro ao gerar QR Code da fatura:', error);
+    console.error('Erro ao gerar QR Code:', error);
     return null;
-  }
-};
-
-// Função para determinar o nome da entidade baseado no tipo
-const obterNomeEntidade = (dados) => {
-  const { tipoEntidade, dadosProdutor, entidadeSelecionada, produtorSelecionado } = dados;
-  
-  switch (tipoEntidade) {
-    case 'produtor':
-      return dadosProdutor?.nomeCompleto || produtorSelecionado?.nome_do_Produtor || '';
-    case 'empresa':
-    case 'cooperativa':
-    case 'associacao':
-      return dadosProdutor?.nomeEntidade || entidadeSelecionada?.nomeEntidade || '';
-    default:
-      return dadosProdutor?.nomeCompleto || dadosProdutor?.nomeEntidade || '';
-  }
-};
-
-// Função para obter identificação da entidade
-const obterIdentificacaoEntidade = (dados) => {
-  const { tipoEntidade, produtorSelecionado, entidadeSelecionada } = dados;
-  
-  switch (tipoEntidade) {
-    case 'produtor':
-      return produtorSelecionado?.bI_NIF || '';
-    case 'empresa':
-    case 'cooperativa':
-    case 'associacao':
-      return entidadeSelecionada?.nif || '';
-    default:
-      return '';
   }
 };
 
@@ -652,24 +496,71 @@ const HeaderSection = () => (
   </View>
 );
 
-// Componente da tabela principal de dados
+// Função para processar tipos de licença e gerar texto
+const processarTiposLicenca = (dados) => {
+  let tiposProcessados = [];
+
+  // Processar tipos de licença
+  if (dados?.tiposLicenca && Array.isArray(dados.tiposLicenca)) {
+    tiposProcessados = dados.tiposLicenca;
+  } else if (dados?.tipoDeLicencaFlorestal && Array.isArray(dados.tipoDeLicencaFlorestal)) {
+    try {
+      const tiposString = dados.tipoDeLicencaFlorestal[0];
+      if (typeof tiposString === 'string') {
+        tiposProcessados = JSON.parse(tiposString);
+      } else if (Array.isArray(tiposString)) {
+        tiposProcessados = tiposString;
+      }
+    } catch (e) {
+      console.warn('Erro ao processar tipos de licença no certificado:', e);
+    }
+  }
+
+  if (tiposProcessados.length > 0) {
+    const nomesLicencas = tiposProcessados.map(tipo => {
+      const tipoValue = typeof tipo === 'object' ? tipo.value : tipo;
+      const licenca = tiposLicencaOptions.find(opt => opt.value === tipoValue);
+      return licenca ? licenca.label : tipoValue.replace(/_/g, ' ');
+    });
+
+    // Formatação elegante da lista
+    if (nomesLicencas.length === 1) {
+      return nomesLicencas[0];
+    } else if (nomesLicencas.length === 2) {
+      return `${nomesLicencas[0]} e ${nomesLicencas[1]}`;
+    } else {
+      const ultimaLicenca = nomesLicencas.pop();
+      return `${nomesLicencas.join(', ')}, e ${ultimaLicenca}`;
+    }
+  }
+
+  return null;
+};
+
+// Componente da tabela principal de dados - ATUALIZADA SEM TIPOS DE LICENÇA
 const TabelaDadosSection = ({ dados }) => {
   // Preparar dados das áreas florestais
-  const areasInfo = dados?.areasFlorestais?.length > 0 
-    ? dados.areasFlorestais.map(area => `${area.nomeArea} (${area.areaHectares}ha)`).join(', ')
+  const areasInfo = dados?.areasFlorestais?.length > 0
+    ? dados.areasFlorestais.map(area =>
+      `${area.nomeOuIdDaArea || area.nomeArea || 'Área'} (${area.area || area.areaHectares || 0}ha)`
+    ).join(', ')
     : '________________________________';
 
   const localizacaoInfo = dados?.areasFlorestais?.length > 0
-    ? dados.areasFlorestais.map(area => area.localizacao).join(', ')
+    ? dados.areasFlorestais.map(area => area.localizacao || 'Localização não informada').join(', ')
     : '________________________________';
 
   // Preparar dados das espécies
   const especiesInfo = dados?.especiesAutorizadas?.length > 0
-    ? dados.especiesAutorizadas.map(esp => esp.especie).join(', ')
+    ? dados.especiesAutorizadas.map(esp =>
+      esp.nomeCientifico || esp.nomeComum || esp.especie || 'Espécie não informada'
+    ).join(', ')
     : '________________________________';
 
   const volumeTotal = dados?.especiesAutorizadas?.length > 0
-    ? dados.especiesAutorizadas.reduce((acc, esp) => acc + (parseFloat(esp.volumeAutorizado) || 0), 0).toFixed(1)
+    ? dados.especiesAutorizadas.reduce((acc, esp) =>
+      acc + (parseFloat(esp.volumeAutorizado) || 0), 0
+    ).toFixed(1)
     : '________';
 
   return (
@@ -702,10 +593,10 @@ const TabelaDadosSection = ({ dados }) => {
         </View>
         <View style={[styles.tabelaRow, { borderBottomWidth: 0 }]}>
           <Text style={styles.celulaConteudoEsquerda}>
-            {formatDate(dados?.dadosProdutor?.validadeInicio) || '____/____/______'}
+            {formatDate(dados?.validadeInicio || dados?.validoDe) || '____/____/______'}
           </Text>
           <Text style={styles.celulaConteudoDireita}>
-            {formatDate(dados?.dadosProdutor?.validadeFim) || '____/____/______'}
+            {formatDate(dados?.validadeFim || dados?.validoAte) || '____/____/______'}
           </Text>
         </View>
       </View>
@@ -721,8 +612,8 @@ const CondicoesSection = ({ dados }) => (
     </View>
     <View style={styles.condicoesContent}>
       <Text style={styles.condicoesText}>
-        {dados?.dadosProdutor?.condicoesEspeciais || dados?.dadosProdutor?.observacoes || 
-         'A licença é válida para exploração das espécies indicadas, respeitando os volumes autorizados e prazos estabelecidos. O transporte de produtos florestais deve estar acompanhado deste certificado.'}
+        {dados?.condicoesEspeciais || dados?.observacoes ||
+          'A licença é válida para exploração das espécies indicadas, respeitando os volumes autorizados e prazos estabelecidos. O transporte de produtos florestais deve estar acompanhado deste certificado.'}
       </Text>
     </View>
   </View>
@@ -734,22 +625,22 @@ const EmissaoSection = ({ dados }) => (
     <View style={styles.emissaoEsquerda}>
       <Text style={styles.emissaoTitulo}>Local e Data de Emissão</Text>
       <Text style={styles.emissaoInfo}>
-        {dados?.dadosProdutor?.municipio || '________________________'}
+        {dados?.municipio || '________________________'}
       </Text>
       <Text style={styles.emissaoInfo}>
         {formatDate(new Date())}
       </Text>
     </View>
-    
+
     <View style={styles.emissaoDireita}>
       <Text style={styles.emissaoTitulo}>Emitido por (DNF)</Text>
       <Text style={styles.emissaoInfo}>
         <Text style={styles.emissaoLabel}>Nome: </Text>
-        {dados?.dadosProdutor?.tecnicoResponsavel || '__________________________'}
+        {dados?.tecnicoResponsavel || dados?.nomeDoTecnicoResponsavel || '__________________________'}
       </Text>
       <Text style={styles.emissaoInfo}>
         <Text style={styles.emissaoLabel}>Cargo: </Text>
-        {dados?.dadosProdutor?.cargoTecnico || '__________________________'}
+        {dados?.cargoTecnico || dados?.cargo || '__________________________'}
       </Text>
       <Text style={styles.emissaoInfo}>
         <Text style={styles.emissaoLabel}>Assinatura: </Text>
@@ -759,15 +650,47 @@ const EmissaoSection = ({ dados }) => (
   </View>
 );
 
+// Componente da seção do QR Code
+const QRCodeSection = ({ qrCodeData, numeroCertificado }) => (
+  <View style={styles.qrCodeContainer}>
+    <View style={styles.qrCodeSection}>
+      {qrCodeData && (
+        <>
+          <Image src={qrCodeData} style={styles.qrCodeImage} />
+          <Text style={styles.qrCodeText}>Verificação Digital</Text>
+          <Text style={styles.numeroCertificado}>{numeroCertificado}</Text>
+        </>
+      )}
+    </View>
+
+    <View style={styles.verificacaoSection}>
+      <Text style={styles.verificacaoTitulo}>Verificação de Autenticidade:</Text>
+      <Text style={styles.verificacaoTexto}>
+        1. Escaneie o QR Code com seu dispositivo móvel
+      </Text>
+      <Text style={styles.verificacaoTexto}>
+        2. Ou acesse: https://rnpa.gov.ao/verificar/{numeroCertificado}
+      </Text>
+      <Text style={styles.verificacaoTexto}>
+        3. Confirme os dados apresentados com este certificado
+      </Text>
+      <Text style={styles.verificacaoTexto}>
+        <Text style={styles.rodapeDestaque}>Atenção:</Text> Certificados adulterados ou falsificados
+        não passarão na verificação digital.
+      </Text>
+    </View>
+  </View>
+);
+
 // Componente do rodapé
 const RodapeSection = () => (
   <View>
     <Text style={styles.rodape}>
-      <Text style={styles.rodapeDestaque}>A licença é pessoal e intransmissível.</Text> O transporte de produtos florestais deve estar acompanhado deste 
+      <Text style={styles.rodapeDestaque}>A licença é pessoal e intransmissível.</Text> O transporte de produtos florestais deve estar acompanhado deste
       certificado e do respectivo comprovativo de origem.
     </Text>
     <Text style={styles.rodape}>
-      <Text style={styles.rodapeDestaque}>Verificação pública:</Text> aceda ao portal RNPA e introduza o número/QR da licença para confirmar a autenticidade. 
+      <Text style={styles.rodapeDestaque}>Verificação pública:</Text> aceda ao portal RNPA e introduza o número/QR da licença para confirmar a autenticidade.
       Qualquer alteração de estado (suspensão, revogação, expiração) torna-se efectiva a partir do registo no sistema.
     </Text>
     <Text style={styles.documentoEletronico}>
@@ -776,10 +699,15 @@ const RodapeSection = () => (
   </View>
 );
 
-// Componente principal do certificado florestal
-const CertificadoFlorestalDocument = ({ dados, qrCodeCertificado }) => {
-  const numeroCertificado = dados?.dadosProdutor?.numeroLicencaExploracao || gerarNumeroCertificado();
-  const nomeEntidade = obterNomeEntidade(dados);
+// Componente principal do certificado florestal - ATUALIZADO
+const CertificadoFlorestalDocument = ({ dados, qrCodeData }) => {
+  const numeroCertificado = dados?.numeroLicencaExploracao || gerarNumeroCertificado();
+
+  // Determinar o nome da entidade baseado no tipo
+  const nomeEntidade = dados?.nomeEntidade || dados?.nomeCompleto || '________________________________________';
+
+  // Processar tipos de licença para o texto principal
+  const tiposLicencaTexto = processarTiposLicenca(dados);
 
   return (
     <Document>
@@ -791,10 +719,19 @@ const CertificadoFlorestalDocument = ({ dados, qrCodeCertificado }) => {
           <HeaderSection />
 
           <Text style={styles.textoPrincipal}>
-            Nos termos da legislação florestal em vigor, certifica-se que a licença acima identificada autoriza {dados?.tipoEntidade === 'produtor' ? 'o produtor' : 'a entidade'} <Text style={styles.destaque}>{nomeEntidade}</Text>, Portador(a) da Licença de Exploração 
-            Nº<Text style={styles.destaque}>{numeroCertificado}</Text> exercer a actividade de Produtor florestal especificada, limitada às 
+            Nos termos da legislação florestal em vigor, certifica-se que a licença acima identificada autoriza a
+            empresa <Text style={styles.destaque}>{nomeEntidade}</Text>, Portadora da Licença de Exploração
+            Nº<Text style={styles.destaque}>{numeroCertificado}</Text> exercer a actividade de Produtor florestal especificada, limitada às
             espécies, volumes e prazos indicados.
           </Text>
+
+          {/* Texto das licenças autorizadas */}
+          {tiposLicencaTexto && (
+            <Text style={styles.textoLicencas}>
+              Esta licença serve para efeito de <Text style={styles.destaque}>{tiposLicencaTexto}</Text>,
+              conforme especificado na legislação florestal vigente e mediante o cumprimento das condições estabelecidas.
+            </Text>
+          )}
 
           <TabelaDadosSection dados={dados} />
 
@@ -802,170 +739,158 @@ const CertificadoFlorestalDocument = ({ dados, qrCodeCertificado }) => {
 
           <EmissaoSection dados={dados} />
 
+          {/* Seção do QR Code */}
+          <QRCodeSection qrCodeData={qrCodeData} numeroCertificado={numeroCertificado} />
+
           <RodapeSection />
         </View>
-
-        {/* QR Code para verificação */}
-        {qrCodeCertificado && (
-          <View style={styles.qrCodeContainer}>
-            <Image src={qrCodeCertificado} style={styles.qrCodeImage} />
-            <Text style={styles.qrCodeText}>Verificação</Text>
-          </View>
-        )}
       </Page>
     </Document>
   );
 };
 
-// Componente da fatura
-const FaturaDocument = ({ dados, tiposLicencaOptions, qrCodeFatura }) => {
-  const nomeEntidade = obterNomeEntidade(dados);
-  const identificacao = obterIdentificacaoEntidade(dados);
-  const numeroFatura = `FAT-${dados.dadosProdutor?.numeroProcesso || Date.now()}`;
-  const dataEmissao = new Date().toLocaleDateString('pt-PT');
-
-  // Preparar itens da fatura baseado nos tipos de licença selecionados
-  const itens = [];
-  
-  if (dados.dadosProdutor?.tiposLicenca && Array.isArray(dados.dadosProdutor.tiposLicenca)) {
-    dados.dadosProdutor.tiposLicenca.forEach(tipo => {
-      const tipoValue = typeof tipo === 'object' ? tipo.value : tipo;
-      const licenca = tiposLicencaOptions.find(opt => opt.value === tipoValue);
-      
-      if (licenca) {
-        itens.push({
-          produto: licenca.label,
-          unidade: 1,
-          precoUnitario: licenca.preco,
-          total: licenca.preco
-        });
-      }
-    });
-  }
-
-  // Cálculos
-  const subtotal = itens.reduce((acc, item) => acc + item.total, 0);
-  const taxaIVA = 0.14; // 14% IVA em Angola
-  const valorIVA = subtotal * taxaIVA;
-  const totalComIVA = subtotal + valorIVA;
+// Componente da Fatura em PDF - ATUALIZADA
+const FaturaDocument = ({ dadosFatura, valoresFatura }) => {
+  const numeroFatura = `FAT-${dadosFatura.numeroProcesso}-${Date.now()}`;
 
   return (
     <Document>
-      <Page size="A4" style={faturaStyles.page}>
-        {/* Cabeçalho */}
-        <View style={faturaStyles.header}>
-          <Image src={emblema} style={styles.logoHeader} />
-          <Text style={faturaStyles.tituloFatura}>FATURA DE LICENCIAMENTO FLORESTAL</Text>
-          <Text style={faturaStyles.subtituloFatura}>Direcção Nacional de Florestas - DNF</Text>
-        </View>
-
-        {/* Informações Cliente e Fatura */}
-        <View style={faturaStyles.infoContainer}>
-          <View style={faturaStyles.clienteInfo}>
-            <Text style={faturaStyles.sectionTitle}>DADOS DO CLIENTE</Text>
-            <Text style={faturaStyles.infoText}><Text style={styles.destaque}>Nome:</Text> {nomeEntidade}</Text>
-            <Text style={faturaStyles.infoText}><Text style={styles.destaque}>Identificação:</Text> {identificacao}</Text>
-            <Text style={faturaStyles.infoText}><Text style={styles.destaque}>Tipo:</Text> {dados.tipoEntidade?.toUpperCase()}</Text>
-            <Text style={faturaStyles.infoText}><Text style={styles.destaque}>Telefone:</Text> {dados.dadosProdutor?.telefone || 'N/A'}</Text>
-            <Text style={faturaStyles.infoText}><Text style={styles.destaque}>Localização:</Text> {dados.dadosProdutor?.provincia} - {dados.dadosProdutor?.municipio}</Text>
+      <Page size="A4" style={styles.page}>
+        <View style={styles.content}>
+          {/* Cabeçalho da Fatura */}
+          <View style={styles.header}>
+            <Image src={emblema} style={styles.logoHeader} />
+            <Text style={styles.republica}>REPÚBLICA DE ANGOLA</Text>
+            <Text style={styles.ministerio}>MINISTÉRIO DA AGRICULTURA E FLORESTAS</Text>
+            <Text style={styles.dnf}>DIRECÇÃO NACIONAL DE FLORESTAS (DNF)</Text>
+            <Text style={styles.tituloDocumento}>FATURA DE LICENCIAMENTO FLORESTAL</Text>
           </View>
 
-          <View style={faturaStyles.faturaInfo}>
-            <Text style={faturaStyles.sectionTitle}>DADOS DA FATURA</Text>
-            <Text style={faturaStyles.infoText}><Text style={styles.destaque}>Número:</Text> {numeroFatura}</Text>
-            <Text style={faturaStyles.infoText}><Text style={styles.destaque}>Data:</Text> {dataEmissao}</Text>
-            <Text style={faturaStyles.infoText}><Text style={styles.destaque}>Processo:</Text> {dados.dadosProdutor?.numeroProcesso}</Text>
-          </View>
-        </View>
+          {/* Informações da Fatura */}
+          <View style={{ marginBottom: 20, flexDirection: 'row', justifyContent: 'space-between' }}>
+            <View style={{ width: '48%' }}>
+              <Text style={{ fontSize: 10, marginBottom: 3, fontWeight: 'bold' }}>Número da Fatura:</Text>
+              <Text style={{ fontSize: 10, marginBottom: 8 }}>{numeroFatura}</Text>
 
-        {/* Estado de Pagamento */}
-        <View style={faturaStyles.estadoPagamento}>
-          <Text style={faturaStyles.estadoText}>ESTADO: NÃO PAGO</Text>
-        </View>
+              <Text style={{ fontSize: 10, marginBottom: 3, fontWeight: 'bold' }}>Data de Emissão:</Text>
+              <Text style={{ fontSize: 10, marginBottom: 8 }}>{new Date().toLocaleDateString('pt-PT')}</Text>
 
-        {/* Tabela de Produtos/Serviços */}
-        <View style={faturaStyles.tabelaFatura}>
-          <View style={faturaStyles.tabelaHeader}>
-            <Text style={[faturaStyles.colProduto, faturaStyles.headerText]}>PRODUTO/SERVIÇO</Text>
-            <Text style={[faturaStyles.colUnidade, faturaStyles.headerText]}>QTD</Text>
-            <Text style={[faturaStyles.colPreco, faturaStyles.headerText]}>PREÇO UNIT.</Text>
-            <Text style={[faturaStyles.colTotal, faturaStyles.headerText]}>TOTAL</Text>
-          </View>
-
-          {itens.map((item, index) => (
-            <View key={index} style={faturaStyles.tabelaRow}>
-              <Text style={faturaStyles.colProduto}>{item.produto}</Text>
-              <Text style={faturaStyles.colUnidade}>{item.unidade}</Text>
-              <Text style={faturaStyles.colPreco}>{formatarMoeda(item.precoUnitario)}</Text>
-              <Text style={faturaStyles.colTotal}>{formatarMoeda(item.total)}</Text>
+              <Text style={{ fontSize: 10, marginBottom: 3, fontWeight: 'bold' }}>Estado:</Text>
+              <Text style={{ fontSize: 10, color: '#dc2626', fontWeight: 'bold' }}>NÃO PAGO</Text>
             </View>
-          ))}
-        </View>
 
-        {/* Totais */}
-        <View style={faturaStyles.totaisContainer}>
-          <View style={faturaStyles.totalRow}>
-            <Text style={faturaStyles.totalLabel}>Subtotal:</Text>
-            <Text style={faturaStyles.totalValue}>{formatarMoeda(subtotal)}</Text>
-          </View>
-          <View style={faturaStyles.totalRow}>
-            <Text style={faturaStyles.totalLabel}>IVA (14%):</Text>
-            <Text style={faturaStyles.totalValue}>{formatarMoeda(valorIVA)}</Text>
-          </View>
-          <View style={[faturaStyles.totalRow, faturaStyles.totalFinal]}>
-            <Text style={[faturaStyles.totalLabel, { fontWeight: 'bold', fontSize: 11 }]}>TOTAL A PAGAR:</Text>
-            <Text style={[faturaStyles.totalValue, { fontSize: 12 }]}>{formatarMoeda(totalComIVA)}</Text>
-          </View>
-        </View>
-
-        {/* Informações de Pagamento */}
-        <View style={faturaStyles.pagamentoContainer}>
-          <Text style={faturaStyles.pagamentoTitle}>INFORMAÇÕES DE PAGAMENTO</Text>
-          
-          <Text style={[faturaStyles.pagamentoInfo, faturaStyles.pagamentoDestaque]}>TRANSFERÊNCIA BANCÁRIA:</Text>
-          <Text style={faturaStyles.pagamentoInfo}>Banco: BIC - Banco de Investimento e Crédito</Text>
-          <Text style={faturaStyles.pagamentoInfo}>IBAN: AO06 0040 0000 1234 5678 1014 5</Text>
-          <Text style={faturaStyles.pagamentoInfo}>Titular: Ministério da Agricultura e Florestas</Text>
-          
-          <Text style={[faturaStyles.pagamentoInfo, faturaStyles.pagamentoDestaque, { marginTop: 10 }]}>MULTICAIXA EXPRESS:</Text>
-          <Text style={faturaStyles.pagamentoInfo}>Referência: {numeroFatura}</Text>
-          <Text style={faturaStyles.pagamentoInfo}>Entidade: 11604 (MINAGRI)</Text>
-          <Text style={faturaStyles.pagamentoInfo}>Valor: {formatarMoeda(totalComIVA)}</Text>
-          
-          <Text style={[faturaStyles.pagamentoInfo, { marginTop: 15, textAlign: 'center', fontStyle: 'italic' }]}>
-            Após o pagamento, envie o comprovativo para licenciamento.florestal@minagri.gov.ao
-          </Text>
-        </View>
-
-        {/* QR Code para pagamento */}
-        {qrCodeFatura && (
-          <View style={faturaStyles.qrCodeFaturaContainer}>
-            <View style={faturaStyles.qrCodeFaturaInfo}>
-              <Text style={[faturaStyles.pagamentoInfo, faturaStyles.pagamentoDestaque]}>PAGAMENTO RÁPIDO:</Text>
-              <Text style={faturaStyles.pagamentoInfo}>Escaneie o QR Code para</Text>
-              <Text style={faturaStyles.pagamentoInfo}>pagamento via Multicaixa</Text>
-              <Text style={faturaStyles.pagamentoInfo}>ou verificação da fatura</Text>
-            </View>
-            <View style={faturaStyles.qrCodeFaturaImage}>
-              <Image src={qrCodeFatura} style={faturaStyles.qrImage} />
-              <Text style={faturaStyles.qrText}>QR Pagamento</Text>
+            <View style={{ width: '48%' }}>
+              <Text style={{ fontSize: 10, marginBottom: 3, fontWeight: 'bold' }}>Cliente:</Text>
+              <Text style={{ fontSize: 10, marginBottom: 2 }}>{dadosFatura.nomeEntidade}</Text>
+              <Text style={{ fontSize: 10, marginBottom: 2 }}>Tipo: {dadosFatura.tipoEntidade}</Text>
+              <Text style={{ fontSize: 10, marginBottom: 2 }}>Processo Nº: {dadosFatura.numeroProcesso}</Text>
             </View>
           </View>
-        )}
+
+          {/* Tabela de Itens - Verifica se há itens antes de renderizar */}
+          {valoresFatura.itens && valoresFatura.itens.length > 0 && (
+            <View style={{ marginBottom: 20 }}>
+              <View style={{ flexDirection: 'row', backgroundColor: '#f3f4f6', padding: 8, borderWidth: 1, borderColor: '#000' }}>
+                <Text style={{ width: '40%', fontSize: 9, fontWeight: 'bold' }}>Produto/Licença</Text>
+                <Text style={{ width: '10%', fontSize: 9, fontWeight: 'bold' }}>Unid.</Text>
+                <Text style={{ width: '10%', fontSize: 9, fontWeight: 'bold' }}>Qtd.</Text>
+                <Text style={{ width: '15%', fontSize: 9, fontWeight: 'bold' }}>Preço Unit.</Text>
+                <Text style={{ width: '12.5%', fontSize: 9, fontWeight: 'bold' }}>Subtotal</Text>
+                <Text style={{ width: '12.5%', fontSize: 9, fontWeight: 'bold' }}>Total</Text>
+              </View>
+
+              {valoresFatura.itens.map((item, index) => (
+                <View key={index} style={{ flexDirection: 'row', padding: 8, borderLeftWidth: 1, borderRightWidth: 1, borderBottomWidth: 1, borderColor: '#000' }}>
+                  <Text style={{ width: '40%', fontSize: 8 }}>{item.produto}</Text>
+                  <Text style={{ width: '10%', fontSize: 8 }}>{item.unidade}</Text>
+                  <Text style={{ width: '10%', fontSize: 8 }}>{item.quantidade}</Text>
+                  <Text style={{ width: '15%', fontSize: 8 }}>{item.precoUnitario.toLocaleString('pt-AO', { style: 'currency', currency: 'AOA' })}</Text>
+                  <Text style={{ width: '12.5%', fontSize: 8 }}>{item.subtotal.toLocaleString('pt-AO', { style: 'currency', currency: 'AOA' })}</Text>
+                  <Text style={{ width: '12.5%', fontSize: 8 }}>{item.total.toLocaleString('pt-AO', { style: 'currency', currency: 'AOA' })}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Mostrar mensagem se não há itens */}
+          {(!valoresFatura.itens || valoresFatura.itens.length === 0) && (
+            <View style={{ marginBottom: 20, padding: 20, borderWidth: 1, borderColor: '#000', textAlign: 'center' }}>
+              <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#dc2626' }}>
+                ATENÇÃO: Nenhum tipo de licença foi processado para esta fatura.
+              </Text>
+              <Text style={{ fontSize: 10, marginTop: 5 }}>
+                Verifique se os tipos de licença foram corretamente informados no sistema.
+              </Text>
+            </View>
+          )}
+
+          {/* Totais - só mostrar se há valores */}
+          {valoresFatura.total > 0 && (
+            <View style={{ marginLeft: 'auto', width: '40%', marginBottom: 20 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
+                <Text style={{ fontSize: 9 }}>Subtotal:</Text>
+                <Text style={{ fontSize: 9 }}>{valoresFatura.subtotal.toLocaleString('pt-AO', { style: 'currency', currency: 'AOA' })}</Text>
+              </View>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
+                <Text style={{ fontSize: 9 }}>IVA (14%):</Text>
+                <Text style={{ fontSize: 9 }}>{valoresFatura.iva.toLocaleString('pt-AO', { style: 'currency', currency: 'AOA' })}</Text>
+              </View>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderTopWidth: 1, borderColor: '#000', paddingTop: 3 }}>
+                <Text style={{ fontSize: 10, fontWeight: 'bold' }}>Total:</Text>
+                <Text style={{ fontSize: 10, fontWeight: 'bold' }}>{valoresFatura.total.toLocaleString('pt-AO', { style: 'currency', currency: 'AOA' })}</Text>
+              </View>
+            </View>
+          )}
+
+          {/* Informações de Pagamento - só mostrar se há valor total */}
+          {valoresFatura.total > 0 && (
+            <View style={{ marginBottom: 20, borderWidth: 1, borderColor: '#000', padding: 10 }}>
+              <Text style={{ fontSize: 11, fontWeight: 'bold', marginBottom: 10, textAlign: 'center' }}>INFORMAÇÕES DE PAGAMENTO</Text>
+
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <View style={{ width: '48%' }}>
+                  <Text style={{ fontSize: 9, fontWeight: 'bold', marginBottom: 5 }}>TRANSFERÊNCIA BANCÁRIA:</Text>
+                  <Text style={{ fontSize: 8, marginBottom: 2 }}>Banco: Banco de Poupança e Crédito</Text>
+                  <Text style={{ fontSize: 8, marginBottom: 2 }}>Conta: 45.156.000.000.100.101.12</Text>
+                  <Text style={{ fontSize: 8, marginBottom: 2 }}>IBAN: AO06.0045.0000.4515.6174.1012.1</Text>
+                  <Text style={{ fontSize: 8, marginBottom: 2 }}>Titular: Ministério da Agricultura</Text>
+                  <Text style={{ fontSize: 8, marginBottom: 2 }}>Descrição: Licença Florestal - {dadosFatura.numeroProcesso}</Text>
+                </View>
+
+                <View style={{ width: '48%' }}>
+                  <Text style={{ fontSize: 9, fontWeight: 'bold', marginBottom: 5 }}>MULTICAIXA EXPRESS:</Text>
+                  <Text style={{ fontSize: 8, marginBottom: 2 }}>Código da Entidade: 10524</Text>
+                  <Text style={{ fontSize: 8, marginBottom: 2 }}>Referência: {dadosFatura.numeroProcesso}</Text>
+                  <Text style={{ fontSize: 8, marginBottom: 2 }}>Valor: {valoresFatura.total.toLocaleString('pt-AO', { style: 'currency', currency: 'AOA' })}</Text>
+                  <Text style={{ fontSize: 8, marginBottom: 2 }}>Terminal: Qualquer terminal Multicaixa</Text>
+                  <Text style={{ fontSize: 8, marginBottom: 2 }}>Validade: 30 dias</Text>
+                </View>
+              </View>
+            </View>
+          )}
+
+          {/* Instruções */}
+          <View style={{ marginBottom: 20 }}>
+            <Text style={{ fontSize: 9, fontWeight: 'bold', marginBottom: 5 }}>INSTRUÇÕES IMPORTANTES:</Text>
+            <Text style={{ fontSize: 8, marginBottom: 2 }}>1. Guarde o comprovativo de pagamento para levantamento do certificado.</Text>
+            <Text style={{ fontSize: 8, marginBottom: 2 }}>2. O certificado será emitido após confirmação do pagamento (até 48h úteis).</Text>
+            <Text style={{ fontSize: 8, marginBottom: 2 }}>3. Para pagamento por transferência, envie o comprovativo para: licencas.florestais@minagrif.gov.ao</Text>
+            <Text style={{ fontSize: 8, marginBottom: 2 }}>4. Em caso de dúvidas, contacte: +244 222 322 037</Text>
+          </View>
+
+          {/* Rodapé da Fatura */}
+          <View style={{ borderTopWidth: 1, borderColor: '#000', paddingTop: 10 }}>
+            <Text style={{ fontSize: 7, textAlign: 'center', marginBottom: 2 }}>Ministério da Agricultura e Florestas - Direcção Nacional de Florestas</Text>
+            <Text style={{ fontSize: 7, textAlign: 'center', marginBottom: 2 }}>Luanda - Angola | Tel: +244 222 322 037 | Email: dnf@minagrif.gov.ao</Text>
+            <Text style={{ fontSize: 6, textAlign: 'center', fontStyle: 'italic', color: '#666' }}>
+              Documento gerado eletronicamente em {new Date().toLocaleString('pt-PT')}
+            </Text>
+          </View>
+        </View>
       </Page>
     </Document>
   );
 };
-
-// Tipos de licença com preços
-const tiposLicencaOptions = [
-  { label: 'Licença de exploração de Madeira em toro', value: 'MADEIRA_TORO', preco: 50000 },
-  { label: 'Licença de exploração de lenha', value: 'LENHA', preco: 15000 },
-  { label: 'Licença de exploração de carvão vegetal', value: 'CARVAO', preco: 20000 },
-  { label: 'Licença de exploração de produtos não lenhosos', value: 'NAO_LENHOSOS', preco: 25000 },
-  { label: 'Licença de exploração Comunitária', value: 'COMUNITARIA', preco: 10000 },
-  { label: 'Licença de aproveitamento de desperdícios', value: 'DESPERDICIOS', preco: 8000 }
-];
 
 // Função para verificar se há dados válidos
 const temDadosValidos = (lista) => {
@@ -976,118 +901,96 @@ const temDadosValidos = (lista) => {
     });
 };
 
-// Componente para exibir QR Code na interface (usando react-qr-code)
-const QRCodeDisplay = ({ value, size = 128, level = 'L' }) => {
-  if (!value) return null;
-
-  return (
-    <div style={{ 
-      display: 'flex', 
-      flexDirection: 'column', 
-      alignItems: 'center', 
-      padding: '10px',
-      border: '1px solid #ddd',
-      borderRadius: '8px',
-      backgroundColor: '#f9f9f9'
-    }}>
-      <QRCode
-        size={size}
-        style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-        value={value}
-        viewBox={`0 0 256 256`}
-        level={level}
-      />
-      <small style={{ marginTop: '8px', color: '#666', fontSize: '12px' }}>
-        QR Code de Verificação
-      </small>
-    </div>
-  );
-};
-
-// Função principal para gerar certificado e fatura
+// Função principal para enviar dados para API e gerar certificado florestal
 export const gerarCertificadoFlorestal = async (dadosFormulario) => {
   try {
-    console.log('Verificando dados florestais disponíveis:', dadosFormulario);
+    console.log('🔍 Verificando dados florestais disponíveis:', dadosFormulario);
 
     // Verificar se há dados necessários
     const temAreas = temDadosValidos(dadosFormulario.areasFlorestais);
     const temEspecies = temDadosValidos(dadosFormulario.especiesAutorizadas);
-    const temLicencas = dadosFormulario.dadosProdutor?.tiposLicenca && 
-                        Array.isArray(dadosFormulario.dadosProdutor.tiposLicenca) && 
-                        dadosFormulario.dadosProdutor.tiposLicenca.length > 0;
 
-    console.log('Tem áreas florestais:', temAreas);
-    console.log('Tem espécies autorizadas:', temEspecies);
-    console.log('Tem licenças selecionadas:', temLicencas);
+    console.log('✅ Tem áreas florestais:', temAreas);
+    console.log('✅ Tem espécies autorizadas:', temEspecies);
 
     if (!temAreas || !temEspecies) {
       throw new Error('É necessário ter pelo menos uma área florestal e uma espécie autorizada para gerar o certificado florestal.');
     }
 
-    if (!temLicencas) {
-      throw new Error('É necessário selecionar pelo menos um tipo de licença florestal.');
+    // Dados preparados para o certificado
+    const dadosCertificado = {
+      ...dadosFormulario.dadosProdutor,
+      areasFlorestais: dadosFormulario.areasFlorestais,
+      especiesAutorizadas: dadosFormulario.especiesAutorizadas,
+      historicoExploracoes: dadosFormulario.historicoExploracoes || []
+    };
+
+    console.log('📋 Dados do certificado preparados:', dadosCertificado);
+
+    // Calcular valores da fatura
+    const valoresFatura = calcularValoresFatura(dadosCertificado);
+    console.log('💰 Valores da fatura calculados:', valoresFatura);
+
+    // Dados da fatura
+    const dadosFatura = {
+      numeroProcesso: dadosCertificado.numeroProcesso || `PROC-${Date.now()}`,
+      nomeEntidade: dadosCertificado.nomeEntidade || dadosCertificado.nomeCompleto || 'Entidade',
+      tipoEntidade: dadosFormulario.tipoSelecionado || 'Produtor',
+      tiposLicenca: dadosCertificado.tiposLicenca || dadosCertificado.tipoDeLicencaFlorestal || [],
+      dataEmissao: new Date().toLocaleDateString('pt-PT')
+    };
+
+    // Gerar QR Code com os dados do certificado
+    console.log('🔄 Gerando QR Code com dados do certificado...');
+    const qrCodeData = await gerarQRCode(dadosCertificado);
+
+    if (!qrCodeData) {
+      console.warn('⚠️ Não foi possível gerar o QR Code, continuando sem ele...');
     }
 
-    // Calcular total da fatura para o QR code
-    const subtotal = dadosFormulario.dadosProdutor.tiposLicenca.reduce((acc, tipo) => {
-      const tipoValue = typeof tipo === 'object' ? tipo.value : tipo;
-      const licenca = tiposLicencaOptions.find(opt => opt.value === tipoValue);
-      return acc + (licenca ? licenca.preco : 0);
-    }, 0);
-    const totalComIVA = subtotal * 1.14;
-
-    // Gerar QR codes
-    console.log('Gerando QR codes...');
-    const qrCodeCertificado = await gerarQRCodeCertificado(dadosFormulario);
-    const qrCodeFatura = await gerarQRCodeFatura(dadosFormulario, totalComIVA);
-
-    // Primeiro, gerar a fatura
-    console.log('Gerando fatura...');
+    // Gerar fatura PDF primeiro
+    console.log('📄 Gerando PDF da fatura...');
     const faturaBlob = await pdf(
-      <FaturaDocument 
-        dados={dadosFormulario} 
-        tiposLicencaOptions={tiposLicencaOptions}
-        qrCodeFatura={qrCodeFatura}
-      />
+      <FaturaDocument dadosFatura={dadosFatura} valoresFatura={valoresFatura} />
     ).toBlob();
 
+    // Download da fatura
     const faturaUrl = URL.createObjectURL(faturaBlob);
     const faturaLink = document.createElement('a');
     faturaLink.href = faturaUrl;
-    faturaLink.download = `fatura_licenciamento_florestal_${dadosFormulario.dadosProdutor?.numeroProcesso || Date.now()}.pdf`;
+    faturaLink.download = `fatura_florestal_${dadosFatura.numeroProcesso}_${new Date().toISOString().split('T')[0]}.pdf`;
     document.body.appendChild(faturaLink);
     faturaLink.click();
     document.body.removeChild(faturaLink);
     URL.revokeObjectURL(faturaUrl);
 
-    // Depois, gerar o certificado
-    console.log('Gerando certificado florestal...');
+    // Gerar certificado PDF
+    console.log('📜 Gerando PDF do certificado florestal...');
     const certificadoBlob = await pdf(
-      <CertificadoFlorestalDocument 
-        dados={dadosFormulario} 
-        qrCodeCertificado={qrCodeCertificado}
-      />
+      <CertificadoFlorestalDocument dados={dadosCertificado} qrCodeData={qrCodeData} />
     ).toBlob();
 
+    // Download do certificado
     const certificadoUrl = URL.createObjectURL(certificadoBlob);
     const certificadoLink = document.createElement('a');
     certificadoLink.href = certificadoUrl;
-    certificadoLink.download = `certificado_florestal_${dadosFormulario.dadosProdutor?.numeroProcesso || Date.now()}.pdf`;
+    certificadoLink.download = `certificado_florestal_${dadosFatura.numeroProcesso}_${new Date().toISOString().split('T')[0]}.pdf`;
     document.body.appendChild(certificadoLink);
     certificadoLink.click();
     document.body.removeChild(certificadoLink);
     URL.revokeObjectURL(certificadoUrl);
 
-    console.log('Certificado e fatura com QR codes gerados com sucesso');
+    console.log('✅ Download da fatura e certificado florestal concluídos');
 
-    return { 
-      success: true, 
-      message: 'Certificado de Licença Florestal e Fatura com QR codes gerados com sucesso!' 
+    return {
+      success: true,
+      message: `Fatura e Certificado de Licença Florestal gerados com sucesso! ${valoresFatura.total > 0 ? 'Valor total: ' + valoresFatura.total.toLocaleString('pt-AO', { style: 'currency', currency: 'AOA' }) : ''}`,
+      valorTotal: valoresFatura.total
     };
 
   } catch (error) {
-    console.error('Erro ao gerar certificado florestal:', error);
-    throw new Error(`Erro ao gerar documentos: ${error.message}`);
+    console.error('❌ Erro ao gerar certificado florestal:', error);
+    throw new Error(`Erro ao gerar certificado florestal: ${error.message}`);
   }
 };
 
@@ -1098,8 +1001,8 @@ const CertificadoFlorestalGenerator = ({ dados, onSuccess, onError }) => {
   const handleGerar = async () => {
     setGerando(true);
     try {
-      await gerarCertificadoFlorestal(dados);
-      onSuccess?.('Certificado e Fatura com QR codes gerados com sucesso!');
+      const resultado = await gerarCertificadoFlorestal(dados);
+      onSuccess?.(resultado.message);
     } catch (error) {
       onError?.(error.message);
     } finally {
@@ -1110,45 +1013,13 @@ const CertificadoFlorestalGenerator = ({ dados, onSuccess, onError }) => {
   // Verificar se pode gerar certificado
   const temAreas = dados?.areasFlorestais && dados.areasFlorestais.length > 0;
   const temEspecies = dados?.especiesAutorizadas && dados.especiesAutorizadas.length > 0;
-  const temLicencas = dados?.dadosProdutor?.tiposLicenca && 
-                      Array.isArray(dados.dadosProdutor.tiposLicenca) && 
-                      dados.dadosProdutor.tiposLicenca.length > 0;
-  const podeGerar = dados && temAreas && temEspecies && temLicencas;
+  const podeGerar = dados && temAreas && temEspecies;
 
-  // Calcular total da fatura
-  const calcularTotal = () => {
-    if (!temLicencas) return 0;
-    
-    const subtotal = dados.dadosProdutor.tiposLicenca.reduce((acc, tipo) => {
-      const tipoValue = typeof tipo === 'object' ? tipo.value : tipo;
-      const licenca = tiposLicencaOptions.find(opt => opt.value === tipoValue);
-      return acc + (licenca ? licenca.preco : 0);
-    }, 0);
-    
-    return subtotal * 1.14; // Com IVA 14%
-  };
-
-  const nomeEntidade = obterNomeEntidade(dados);
-  const totalComIVA = calcularTotal();
-
-  // Preparar dados para preview dos QR codes
-  const dadosQRCertificado = dados && podeGerar ? JSON.stringify({
-    tipo: 'CERTIFICADO_FLORESTAL',
-    entidade: nomeEntidade,
-    numero: dados.dadosProdutor?.numeroLicencaExploracao || 'DNF/XXXX/2025',
-    verificacao: 'https://rnpa.gov.ao/verificar-certificado'
-  }) : '';
-
-  const dadosQRFatura = dados && podeGerar ? JSON.stringify({
-    tipo: 'FATURA_FLORESTAL',
-    numero: `FAT-${dados.dadosProdutor?.numeroProcesso}`,
-    valor: totalComIVA,
-    multicaixa: 'https://multicaixa.ao/pagamento',
-    estado: 'NAO_PAGO'
-  }) : '';
+  // Calcular valores da fatura para preview
+  const valoresFatura = dados ? calcularValoresFatura(dados.dadosProdutor || dados) : { subtotal: 0, iva: 0, total: 0, itens: [] };
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: '20px', textAlign: 'center' }}>
       {!podeGerar && dados && (
         <div style={{
           backgroundColor: '#fff3cd',
@@ -1159,13 +1030,68 @@ const CertificadoFlorestalGenerator = ({ dados, onSuccess, onError }) => {
           fontSize: '14px',
           color: '#856404'
         }}>
-          ⚠️ {!temAreas && 'Adicione pelo menos uma área florestal. '}
-          {!temEspecies && 'Adicione pelo menos uma espécie autorizada. '}
-          {!temLicencas && 'Selecione pelo menos um tipo de licença.'}
+          ⚠️ Adicione pelo menos uma área florestal e uma espécie autorizada para gerar o certificado
         </div>
       )}
 
-      {/* Informações da entidade e fatura */}
+      {/* Preview da Fatura */}
+      {dados && podeGerar && valoresFatura.itens && valoresFatura.itens.length > 0 && (
+        <div style={{
+          backgroundColor: '#f8f9fa',
+          border: '1px solid #dee2e6',
+          borderRadius: '6px',
+          padding: '15px',
+          marginBottom: '15px',
+          fontSize: '12px',
+          color: '#495057',
+          textAlign: 'left'
+        }}>
+          <strong>💰 Resumo da Fatura:</strong>
+          <div style={{ marginTop: '10px' }}>
+            {valoresFatura.itens.map((item, index) => (
+              <div key={index} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                <span>{item.produto}</span>
+                <span>{item.total.toLocaleString('pt-AO', { style: 'currency', currency: 'AOA' })}</span>
+              </div>
+            ))}
+            <hr style={{ margin: '10px 0' }} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+              <span>Subtotal:</span>
+              <span>{valoresFatura.subtotal.toLocaleString('pt-AO', { style: 'currency', currency: 'AOA' })}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+              <span>IVA (14%):</span>
+              <span>{valoresFatura.iva.toLocaleString('pt-AO', { style: 'currency', currency: 'AOA' })}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '14px' }}>
+              <span>Total:</span>
+              <span style={{ color: '#28a745' }}>{valoresFatura.total.toLocaleString('pt-AO', { style: 'currency', currency: 'AOA' })}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Aviso se não há tipos de licença */}
+      {dados && podeGerar && (!valoresFatura.itens || valoresFatura.itens.length === 0) && (
+        <div style={{
+          backgroundColor: '#f8d7da',
+          border: '1px solid #f5c2c7',
+          borderRadius: '6px',
+          padding: '15px',
+          marginBottom: '15px',
+          fontSize: '12px',
+          color: '#721c24',
+          textAlign: 'left'
+        }}>
+          <strong>⚠️ Aviso:</strong>
+          <div style={{ marginTop: '10px' }}>
+            Nenhum tipo de licença foi detectado nos dados. A fatura pode não conter informações de preços.
+            Verifique se o campo <strong>tipoDeLicencaFlorestal</strong> ou <strong>tiposLicenca</strong> está presente nos dados.
+          </div>
+        </div>
+      )}
+
+      {/* Debug: Mostrar dados que serão enviados para API */}
       {dados && podeGerar && (
         <div style={{
           backgroundColor: '#e8f4fd',
@@ -1177,83 +1103,56 @@ const CertificadoFlorestalGenerator = ({ dados, onSuccess, onError }) => {
           color: '#0066cc',
           textAlign: 'left'
         }}>
-          <strong>📋 Resumo da Certificação:</strong>
+          <strong>🌲 Dados para Certificação:</strong>
           <ul style={{ margin: '8px 0', paddingLeft: '20px' }}>
-            <li><strong>Entidade:</strong> {nomeEntidade}</li>
-            <li><strong>Tipo:</strong> {dados.tipoEntidade?.toUpperCase()}</li>
-            <li><strong>Áreas Florestais:</strong> {dados.areasFlorestais?.length || 0} registradas</li>
-            <li><strong>Espécies Autorizadas:</strong> {dados.especiesAutorizadas?.length || 0} registradas</li>
-            <li><strong>Tipos de Licença:</strong> {dados.dadosProdutor?.tiposLicenca?.length || 0} selecionados</li>
-            <li><strong>Valor Total (c/ IVA):</strong> {formatarMoeda(totalComIVA)}</li>
-            <li><strong>Estado:</strong> <span style={{ color: '#dc3545', fontWeight: 'bold' }}>NÃO PAGO</span></li>
+            <li><strong>Entidade:</strong> {dados.dadosProdutor?.nomeEntidade || dados.dadosProdutor?.nomeCompleto || 'N/A'}</li>
+            <li><strong>Tipo:</strong> {dados.tipoSelecionado || 'N/A'}</li>
+            <li><strong>Licenças:</strong> {
+              dados.dadosProdutor?.tiposLicenca?.length ||
+              dados.dadosProdutor?.tipoDeLicencaFlorestal?.length ||
+              0
+            } tipos</li>
+            <li><strong>Áreas Florestais:</strong> {dados.areasFlorestais?.length || 0} itens</li>
+            <li><strong>Espécies Autorizadas:</strong> {dados.especiesAutorizadas?.length || 0} itens</li>
+            <li><strong>Histórico:</strong> {dados.historicoExploracoes?.length || 0} itens</li>
+            <li><strong>Técnico:</strong> {dados.dadosProdutor?.tecnicoResponsavel || dados.dadosProdutor?.nomeDoTecnicoResponsavel || 'N/A'}</li>
+            <li><strong>QR Code:</strong> ✅ Será gerado com dados do certificado</li>
           </ul>
         </div>
       )}
 
-      {/* Preview dos QR Codes */}
-      {dados && podeGerar && (
+      <button
+        onClick={handleGerar}
+        disabled={gerando || !podeGerar}
+        style={{
+          padding: '12px 24px',
+          backgroundColor: gerando || !podeGerar ? '#6c757d' : '#2d5a27',
+          color: 'white',
+          border: 'none',
+          borderRadius: '6px',
+          cursor: gerando || !podeGerar ? 'not-allowed' : 'pointer',
+          fontSize: '16px',
+          fontWeight: 'bold',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          opacity: gerando || !podeGerar ? 0.7 : 1
+        }}
+      >
+        {gerando ? (
+          <>⏳ Gerando Fatura e Certificado...</>
+        ) : (
+          '🌲 Gerar Fatura e Certificado Florestal'
+        )}
+      </button>
+
+      {gerando && (
         <div style={{
-          display: 'flex',
-          justifyContent: 'space-around',
-          marginBottom: '20px',
-          gap: '20px'
+          marginTop: '10px',
+          fontSize: '12px',
+          color: '#666'
         }}>
-          <div style={{ textAlign: 'center' }}>
-            <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', color: '#333' }}>QR Certificado</h4>
-            <QRCodeDisplay value={dadosQRCertificado} size={120} />
-          </div>
-          <div style={{ textAlign: 'center' }}>
-            <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', color: '#333' }}>QR Fatura</h4>
-            <QRCodeDisplay value={dadosQRFatura} size={120} />
-          </div>
+          📄 Gerando fatura com IVA e certificado com QR Code...
         </div>
       )}
-
-      <div style={{ textAlign: 'center' }}>
-        <button
-          onClick={handleGerar}
-          disabled={gerando || !podeGerar}
-          style={{
-            padding: '12px 24px',
-            backgroundColor: gerando || !podeGerar ? '#6c757d' : '#2d5a27',
-            color: 'white',
-            border: 'none',
-            borderRadius: '6px',
-            cursor: gerando || !podeGerar ? 'not-allowed' : 'pointer',
-            fontSize: '16px',
-            fontWeight: 'bold',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            opacity: gerando || !podeGerar ? 0.7 : 1
-          }}
-        >
-          {gerando ? (
-            <>⏳ Gerando Documentos...</>
-          ) : (
-            '📄 Gerar Certificado e Fatura com QR'
-          )}
-        </button>
-
-        {gerando && (
-          <div style={{
-            marginTop: '10px',
-            fontSize: '12px',
-            color: '#666'
-          }}>
-            📊 Gerando certificado florestal e fatura com QR codes...
-          </div>
-        )}
-
-        {podeGerar && (
-          <div style={{
-            marginTop: '15px',
-            fontSize: '11px',
-            color: '#666',
-            fontStyle: 'italic'
-          }}>
-            💡 Serão gerados 2 PDFs: Certificado Florestal e Fatura (ambos com QR codes)
-          </div>
-        )}
-      </div>
     </div>
   );
 };

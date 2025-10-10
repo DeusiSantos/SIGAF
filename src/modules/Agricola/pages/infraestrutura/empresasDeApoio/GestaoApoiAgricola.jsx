@@ -24,6 +24,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CustomInput from '../../../../../core/components/CustomInput';
 
+
 //import { useCooperativas } from '../../hooks/useCooperativas';
 
 // Dados estáticos das empresas

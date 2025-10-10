@@ -24,6 +24,7 @@ import { useNavigate } from 'react-router-dom';
 import CustomInput from '../../../../core/components/CustomInput';
 
 
+
 // Hook personalizado para buscar produtores florestais com certificados
 const useCertificadosFlorestais = () => {
     const [produtoresFlorestais, setProdutoresFlorestais] = useState([]);
@@ -217,7 +218,7 @@ const CertificadosFlorestalGestao = () => {
 
     // Navegação para visualizar certificados do produtor florestal
     const handleViewCertificado = (produtorId) => {
-        navigate(`/GerenciaRNPA/certificados-florestais/visualizar/${produtorId}`);
+        navigate(`/GerenciaRNPA/gestao-florestal/visualizarCertificado/${produtorId}`);
     };
 
     const ProdutorAvatar = ({

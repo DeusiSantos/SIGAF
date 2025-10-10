@@ -305,7 +305,7 @@ const ProdutoresFlorestaisGestao = () => {
 
     // Navegação para diferentes telas
     const handleViewProdutor = (produtorId) => {
-        navigate(`/GerenciaRNPA/produtores-florestais/visualizar/${produtorId}`);
+        navigate(`/GerenciaRNPA/gestao-florestal/visualizarprodutorflorestal/${produtorId}`);
     };
 
     const handleHistoricoProducao = (produtorId) => {

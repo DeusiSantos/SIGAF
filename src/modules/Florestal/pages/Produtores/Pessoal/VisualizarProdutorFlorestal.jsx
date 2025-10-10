@@ -32,8 +32,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
-import CustomInput from '../core/components/CustomInput';
-import api from '../core/services/api';
+import CustomInput from '../../../../../core/components/CustomInput';
+import api from '../../../../../core/services/api';
+
 
 
 // Corrigir ícones do Leaflet

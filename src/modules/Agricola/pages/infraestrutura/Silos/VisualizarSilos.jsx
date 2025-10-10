@@ -1,4 +1,3 @@
-import axios from 'axios';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
@@ -26,9 +25,10 @@ import {
 import React, { useEffect, useState } from 'react';
 import { MapContainer, Marker, Popup, TileLayer, useMapEvents } from 'react-leaflet';
 import { useNavigate, useParams } from 'react-router-dom';
+
+import axios from 'axios';
 import CustomInput from '../../../../../core/components/CustomInput';
 import provinciasData from '../../../../../core/components/Provincias.json';
-import api from '../../../../../core/services/api';
 import { useSilo } from '../../../hooks/useSilo';
 
 

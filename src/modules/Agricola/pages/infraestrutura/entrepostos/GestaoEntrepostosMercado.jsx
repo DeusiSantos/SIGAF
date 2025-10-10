@@ -26,6 +26,7 @@ import {
 import CustomInput from '../../../../../core/components/CustomInput';
 
 
+
 // Dados fictícios dos entrepostos e mercados - estrutura baseada no formulário de cadastro
 const entrepostosMercados = [
     {

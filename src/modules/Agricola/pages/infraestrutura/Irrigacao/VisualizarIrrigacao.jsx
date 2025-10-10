@@ -24,9 +24,12 @@ import {
 import React, { useEffect, useState } from 'react';
 import { MapContainer, Marker, Popup, TileLayer, useMapEvents } from 'react-leaflet';
 import { useNavigate, useParams } from 'react-router-dom';
+
+
 import CustomInput from '../../../../../core/components/CustomInput';
 import provinciasData from '../../../../../core/components/Provincias.json';
 import { useIrrigacao } from '../../../hooks/useIrrigacao ';
+
 
 const VisualizarIrrigacao = () => {
     const { id } = useParams();

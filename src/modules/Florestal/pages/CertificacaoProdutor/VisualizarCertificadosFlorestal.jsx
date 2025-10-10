@@ -1,33 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import {
+    AlertCircle,
+    AlertTriangle,
     ArrowLeft,
     Award,
     Calendar,
-    MapPin,
-    User,
-    Phone,
-    IdCard,
-    Printer,
-    Download,
-    Eye,
     CheckCircle,
-    AlertTriangle,
-    X,
     Clock,
-    AlertCircle,
+    Download,
     FileText,
-    Tractor,
-    Activity,
+    IdCard,
     Info,
-    Globe
+    MapPin,
+    Phone,
+    User,
+    X
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import api from '../../services/api';
+
 // CORREÇÃO: Importar a função correta, não o componente
-import { gerarCertificadoValidacao } from './CertificadoGeneratorBaixar';
 import axios from 'axios';
-import CertificadoFlorestalGenerator from './CertificadoFlorestalGenerator';
+import api from '../../../../core/services/api';
 
 const VisualizarCertificadosFlorestal = () => {
     const { produtorId } = useParams();
@@ -280,7 +274,7 @@ const VisualizarCertificadosFlorestal = () => {
             // Buscar dados completos do certificado da API
             const responseCertificado = await api.get(`/certificaoDoProdutorFlorestal/${certificado.id}`);
             const dadosCompletos = responseCertificado.data;
-            
+
             console.log('📋 Dados completos do certificado:', dadosCompletos);
 
             // Processar tipoDeLicencaFlorestal que vem como string JSON dentro de array
@@ -307,16 +301,16 @@ const VisualizarCertificadosFlorestal = () => {
                 provincia: dadosCompletos.provincia || produtor?.provincia || 'N/A',
                 municipio: dadosCompletos.municipio || produtor?.municipio || 'N/A',
                 comuna: dadosCompletos.comuna || produtor?.comuna || 'N/A',
-                
+
                 // Dados da licença
                 numeroProcesso: certificado.numeroProcesso || `PROC-${certificado.id}`,
                 numeroLicencaExploracao: certificado.numeroProcesso || `LIC-${certificado.id}`,
                 tiposLicenca: tiposLicenca,
                 totalDeCustos: dadosCompletos.totalDeCustos || 0,
-                
+
                 // Áreas florestais
                 areasFlorestais: dadosCompletos.areaFlorestalLicenciadas || [],
-                
+
                 // Espécies autorizadas
                 especiesAutorizadas: (dadosCompletos.especieciesFlorestaisAutorizadas || []).map(especie => ({
                     especie: especie.nomeCientifico || especie.nomeComum || 'Espécie não informada',
@@ -326,30 +320,30 @@ const VisualizarCertificadosFlorestal = () => {
                     unidade: especie.unidade || 'm³',
                     observacoes: especie.observacoes || ''
                 })),
-                
+
                 // Histórico
                 historicoExploracoes: dadosCompletos.historicoDeExploracao || [],
-                
+
                 // Validade
                 validadeInicio: dadosCompletos.validadeDe,
                 validadeFim: dadosCompletos.validadeAte,
                 validoDe: dadosCompletos.validadeDe,
                 validoAte: dadosCompletos.validadeAte,
-                
+
                 // Técnico responsável
                 tecnicoResponsavel: dadosCompletos.nomeDoTecnicoResponsavel || 'Não informado',
                 nomeDoTecnicoResponsavel: dadosCompletos.nomeDoTecnicoResponsavel || 'Não informado',
                 cargo: dadosCompletos.cargo || 'Técnico Florestal',
                 cargoTecnico: dadosCompletos.cargo || 'Técnico Florestal',
-                
+
                 // Condições e observações
                 condicoesEspeciais: dadosCompletos.condicoesEspeciais || '',
                 observacoes: dadosCompletos.observacoes || certificado.observacoesTecnicas || '',
-                
+
                 // IDs
                 produtorFlorestalId: dadosCompletos.produtorFlorestalId || produtorId,
                 organizacaoId: dadosCompletos.organizacaoId || null,
-                
+
                 // Anexos
                 attachmentCertificadoFlorestals: dadosCompletos.attachmentCertificadoFlorestals || []
             };
@@ -358,7 +352,7 @@ const VisualizarCertificadosFlorestal = () => {
 
             // Importar e chamar a função geradora correta
             const { gerarCertificadoFlorestal } = await import('./CertificadoFlorestalGenerator');
-            
+
             // Chamar a função de geração
             const resultado = await gerarCertificadoFlorestal({
                 dadosProdutor: dadosParaCertificado,

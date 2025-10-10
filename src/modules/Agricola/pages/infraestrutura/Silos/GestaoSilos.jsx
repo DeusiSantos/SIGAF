@@ -23,10 +23,9 @@ import {
     Warehouse,
     X
 } from 'lucide-react';
-import CustomInput from '../../../../../core/components/CustomInput';
-import { useSilo } from '../../../hooks/useSilo';
 
-
+import CustomInput from '../../components/CustomInput';
+import { useSilo } from '../../hooks/useSilo';
 
 // Dados fictícios dos silos - estrutura baseada no formulário de cadastro
 const silosData = [

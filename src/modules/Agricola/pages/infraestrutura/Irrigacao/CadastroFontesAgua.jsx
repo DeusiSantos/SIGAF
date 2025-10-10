@@ -1,4 +1,3 @@
-import axios from "axios";
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
@@ -19,9 +18,10 @@ import {
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { MapContainer, Marker, Popup, TileLayer, useMapEvents } from 'react-leaflet';
-import CustomInput from "../../../../../core/components/CustomInput";
-import provinciasData from '../../../../../core/components/Provincias.json';
 
+import axios from "axios";
+import CustomInput from '../../../../../core/components/CustomInput';
+import provinciasData from '../../../../../core/components/Provincias.json';
 
 // Configuração do ícone do Leaflet
 const defaultIcon = L.icon({
