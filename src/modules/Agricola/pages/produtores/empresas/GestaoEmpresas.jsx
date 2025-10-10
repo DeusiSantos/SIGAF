@@ -24,9 +24,9 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import CustomInput from '../../../../../core/components/CustomInput';
+import api from '../../../../../core/services/api';
 
-import CustomInput from '../../components/CustomInput';
-import api from '../../services/api';
 
 // Dados estáticos das administrações regionais
 const administracoesEstaticas = [
