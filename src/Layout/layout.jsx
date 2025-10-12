@@ -100,7 +100,6 @@ const rnpaRoutes = {
           { text: 'Empresas de Apoio Agrícola', icon: Tractor, path: '/GerenciaRNPA/gestao-agricultores/produtores/apoio-agricola' },
         ]
       },
-
       {
         text: 'Painel e Monitoramento',
         icon: TrendingUp,
@@ -132,34 +131,31 @@ const rnpaRoutes = {
           { text: 'Associação', path: '/GerenciaRNPA/gestao-florestal/produtores/associacao' }
         ]
       },
-      // {
-      //   text: 'Infraestrutura',
-      //   icon: Sprout,
-      //   path: '/GerenciaRNPA/gestao-florestal/produtoresFlorestais',
-      //   hasDropdown: true,
-      //   dropdownItems: [
-      //     { text: 'Irrigação', icon: Sprout, path: '/GerenciaRNPA/gestao-florestal/produtores/irrigacao' },
-      //     { text: 'Silos e Centro de Armazenamento', icon: Archive, path: '/GerenciaRNPA/gestao-florestal/produtores/silos-armazenamento' },
-      //     { text: 'Entrepostos e Mercado', icon: Building2, path: '/GerenciaRNPA/gestao-florestal/produtores/entrepostosMercado' },
-      //     { text: 'Empresas de Apoio Agrícola', icon: Tractor, path: '/GerenciaRNPA/gestao-florestal/produtores/apoio-agricola' }
-      //   ]
-      // },
-      // {
-      //   text: 'Painel e Monitoramento',
-      //   icon: TrendingUp,
-      //   path: '/GerenciaRNPA/painel-monitoramento',
-      //   hasDropdown: true,
-      //   dropdownItems: [
-      //     { text: 'Controle de Pragas', icon: ShieldAlert, path: '/GerenciaRNPA/painel-monitoramento/indicadores' },
-      //     { text: 'Meteorologia', icon: Globe, path: '/GerenciaRNPA/painel-monitoramento/meteorologia' },
-      //     { text: 'Hidrografia', icon: MapPin, path: '/GerenciaRNPA/painel-monitoramento/hidrografia' }
-      //   ]
-      // },
-      // { text: 'Programas e Benefícios', icon: Award, path: '/GerenciaRNPA/gestao-florestal/programas' },
-      // { text: 'Incentivos', icon: TrendingUp, path: '/GerenciaRNPA/gestao-florestal/incentivos' },
+      {
+        text: 'Infraestrutura',
+        icon: Sprout,
+        path: '/GerenciaRNPA/gestao-florestal/produtoresFlorestais',
+        hasDropdown: true,
+        dropdownItems: [
+          { text: 'Armazenamento', icon: Archive, path: '/GerenciaRNPA/gestao-florestal/produtores/armazenamento' },
+          { text: 'Entrepostos e Mercado', icon: Building2, path: '/GerenciaRNPA/gestao-florestal/produtores/entrepostosMercado' },
+          { text: 'Empresas de Apoio Florestal', icon: Tractor, path: '/GerenciaRNPA/gestao-florestal/produtores/empresas-apoio-florestal' },
+          { text: 'Infraestrutura de Apoio Florestal', icon: Tractor, path: '/GerenciaRNPA/gestao-florestal/produtores/intraestrutura-apoio-florestal' }
+        ]
+      },
+      {
+        text: 'Painel e Monitoramento',
+        icon: TrendingUp,
+        path: '/GerenciaRNPA/painel-monitoramento',
+        hasDropdown: true,
+        dropdownItems: [
+          { text: 'Controle de Pragas', icon: ShieldAlert, path: '/GerenciaRNPA/painel-monitoramento/indicadores' },
+        ]
+      },
+      { text: 'Programas e Benefícios', icon: Award, path: '/GerenciaRNPA/gestao-florestal/programas' },
       { text: 'Certificação Florestal', icon: File, path: '/GerenciaRNPA/gestao-florestal/certificacaoFlorestal' },
-      { text: 'Transgreções', icon: Gavel, path: '/GerenciaRNPA/sancoes' },
-      // { text: 'Amostra de Solo', icon: TestTube, path: '/GerenciaRNPA/gestao-agricultores/AmostrasDeSolo' }
+      { text: 'Transgreções', icon: Gavel, path: '/GerenciaRNPA/gestao-florestal/sancoes' },
+      { text: 'Amostra de Solo', icon: TestTube, path: '/GerenciaRNPA/gestao-florestal/AmostrasDeSolo' }
 
     ],
 

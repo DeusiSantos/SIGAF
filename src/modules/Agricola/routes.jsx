@@ -27,6 +27,7 @@ import VisualizarAmostra from './pages/AmostraSolo/VisualizarAmostra';
 
 // Geolocalização
 import Geolocalizacao from '../../pages/Geolocalizacao';
+import LancamentoResultadosSolo from './pages/AmostraSolo/LancamentoResultadosSolo';
 import VisualizarIncentivo from './pages/incentivo/VisualizarIncentivo';
 import VisualizarInfraestrutura from './pages/infraestrutura/infraestruturaDeApoio/VisualizarInfraestrutura';
 import VisualizarSilos from './pages/infraestrutura/Silos/VisualizarSilos';
@@ -84,6 +85,9 @@ const AgricolaRoutes = () => {
                 {/* ======================================= */}
                 <Route path="AmostrasDeSolo" element={<AmostrasDeSoloMenu />} />
                 <Route path="AmostraDeSolo/visualizar/:id" element={<VisualizarAmostra />} />
+                <Route path="lancamento-resultados/:id" element={<LancamentoResultadosSolo />} />
+
+
 
                 {/* ======================================= */}
                 {/* INCENTIVOS */}

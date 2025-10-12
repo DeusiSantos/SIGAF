@@ -283,7 +283,7 @@ const GestaoTestesSolo = () => {
   };
 
   const handleLancarResultados = (amostraId) => {
-    navigate(`/GerenciaRNPA/lancamento-resultados/${amostraId}`);
+    navigate(`/GerenciaRNPA/gestao-agricultores/lancamento-resultados/${amostraId}`);
   };
 
   // Componente Toast
