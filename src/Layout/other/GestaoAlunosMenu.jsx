@@ -6,7 +6,7 @@ import ProdutoresGestao from '../../modules/Agricola/pages/produtores/pessoal/Pr
 
 
 
-const GestaoAlunosMenu = () => {
+const  GestaoAlunosMenu = () => {
     const [activeSection, setActiveSection] = useState('gestao');
     const [showInfoModal, setShowInfoModal] = useState(false);
 

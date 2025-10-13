@@ -28,6 +28,7 @@ import {
   Users,
   Wheat,
   X,
+  Coffee,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
@@ -61,7 +62,7 @@ const rnpaRoutes = {
     },
     {
       text: "Inca",
-      icon: TreePine,
+      icon: Coffee,
       path: "/GerenciaRNPA/test",
       submenu: true,
     },
