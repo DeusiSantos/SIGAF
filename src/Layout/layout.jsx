@@ -61,9 +61,9 @@ const rnpaRoutes = {
       submenu: true,
     },
     {
-      text: "Inca",
+      text: "Produtores de Café",
       icon: Coffee,
-      path: "/GerenciaRNPA/test",
+      path: "/GerenciaRNPA/gestao-de-cafe",
       submenu: true,
     },
 
@@ -291,6 +291,20 @@ const rnpaRoutes = {
         text: "Incentivos",
         icon: Award,
         path: "/GerenciaRNPA/programas-beneficios/incentivos",
+      },
+    ],
+    "Produtores de Café": [
+      {
+        text: "Produtores",
+        icon: Users,
+        path: "/GerenciaRNPA/produtores",
+        hasDropdown: true,
+        dropdownItems: [
+          {
+            text: "Pessoal",
+            path: "produtores/pessoal",
+          },
+        ],
       },
     ],
   },

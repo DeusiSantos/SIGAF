@@ -31,9 +31,7 @@ const PageHeader = ({
             </div>
           )}
         </div>
-       
       </div>
-      
     </>
   );
 };

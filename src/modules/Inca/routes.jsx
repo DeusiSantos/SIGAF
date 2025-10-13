@@ -1,11 +1,14 @@
 import { Route } from "react-router-dom";
-import Test from "./pages/test";
+import Index from "./pages/produtores/pessoal";
 
 const IncaRoutes = () => {
   return (
     <>
-      <Route path="test">
-        <Route index element={<Test />} />
+      <Route path="gestao-de-cafe">
+        <Route index element={<Index />} />
+        <Route path="produtores" element={<Index />}>
+          <Route path="pessoal" element={<Index />} />
+        </Route>
       </Route>
     </>
   );
