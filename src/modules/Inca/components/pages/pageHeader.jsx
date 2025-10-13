@@ -1,17 +1,11 @@
 import React from "react";
 import { Download } from "lucide-react";
 
-const PageHeader = ({
-  title,
-  gradientFrom = "blue-700",
-  gradientTo = "blue-500",
-  onExport,
-  subtitle,
-}) => {
+const PageHeader = ({ title, gradient, onExport, subtitle }) => {
   return (
     <>
       <div
-        className={`bg-gradient-to-r from-${gradientFrom} to-${gradientTo} p-6 text-white shadow-md mb-6 rounded`}
+        className={`bg-gradient-to-r ${gradient} p-6 text-white shadow-md mb-6 rounded`}
       >
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
           <div>

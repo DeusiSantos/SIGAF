@@ -80,12 +80,11 @@ export default function Index() {
       <div className="mt-6">
         <PageHeader
           title="Gestão de Produtores "
-          gradientFrom="amber-800"
-          gradientTo="amber-900"
+          gradient="from-amber-800 to-amber-900"
         />
       </div>
 
-      <div>
+      <div className="mt-6">
         {activeTab === "gestao" && (
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h2>Conteúdo da Gestão</h2>
