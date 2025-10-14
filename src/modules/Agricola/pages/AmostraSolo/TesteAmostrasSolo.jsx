@@ -971,9 +971,9 @@ const TesteAmostrasSolo = () => {
                                                 { param: "Mn", unit: "mg/dm³" },
                                             ].map((item, index) => (
                                                 <tr key={index}>
-                                                    <td className="border border-gray-400 font-semibold text-gray-700 p-1 text-center text-[11px] " style={{lineHeight: 0.8}}>{item.param}</td>
-                                                    <td className="border border-gray-400 p-1 text-center"></td>
-                                                    <td className="border border-gray-400 p-1 font-semibold text-gray-700 text-center text-[11px]" style={{lineHeight: 0.8}}>{item.unit}</td>
+                                                    <td className="border border-gray-400 font-semibold text-gray-700 p-1 text-center text-[11px] align-middle" style={{lineHeight: 0.8}}>{item.param}</td>
+                                                    <td className="border border-gray-400 p-1 text-center align-middle"></td>
+                                                    <td className="border border-gray-400 p-1 font-semibold text-gray-700 text-center text-[11px] align-middle" style={{lineHeight: 0.8}}>{item.unit}</td>
                                                 </tr>
                                             ))}
                                         </tbody>

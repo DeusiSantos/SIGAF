@@ -39,6 +39,7 @@ export const useAssociacaoRural = () => {
     setLoading(true);
     try {
       const response = await api.put(`/organizacao/${id}`, associacaoRuralData);
+      
       await fetchAssociacoesRurais(); // Atualizar a lista
       return response.data;
     } catch (err) {

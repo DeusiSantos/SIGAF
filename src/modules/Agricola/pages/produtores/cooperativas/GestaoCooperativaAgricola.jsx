@@ -8,6 +8,7 @@ import {
     Eye,
     Factory,
     FileText,
+    History,
     Loader,
     Mail,
     MapPin,
@@ -187,17 +188,14 @@ const GestaoCooperativaAgricola = () => {
         navigate(`/GerenciaRNPA/gestao-agricultores/produtores/visualizar-entidade/${empresaId}`);
     };
 
-    const handleTransferencia = (empresaId) => {
-        // Navegar para a rota de cadastro de produção passando o ID
-        navigate(`/GerenciaRNPA/gestao-empresas/cadastro-producao-empresa/${empresaId}`);
+     const handleHistoricoProducao = (produtorId) => {
+        navigate(`/GerenciaRNPA/gestao-agricultores/produtores/historico-entidade/${produtorId}`);
     };
 
     // Ações do menu dropdown
     const actionItems = [
-        { label: 'Cadastro da Produção', icon: <PlusCircle size={16} />, action: handleTransferencia },
-        { label: 'Relatórios', icon: <FileText size={16} />, action: handleRelatorios },
-        { label: 'Infraestrutura', icon: <Building size={16} />, action: handleInfraestrutura },
-        { label: 'Gestão de Pessoal', icon: <User size={16} />, action: handlePessoal }
+        { label: 'Histórico', icon: <History size={16} />, action: handleHistoricoProducao },
+       
     ];
 
     // Formatar atividades para exibição

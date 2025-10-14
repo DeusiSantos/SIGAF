@@ -25,7 +25,7 @@ import CustomInput from '../../../core/components/CustomInput';
 import api from '../../../core/services/api';
 
 
-const AddHistoricoProducao = () => {
+const AddHistoricoEntidade = () => {
     const { id: produtorId } = useParams();
     const navigate = useNavigate();
     const [activeStepInModal, setActiveStepInModal] = useState(0);
@@ -909,7 +909,7 @@ const AddHistoricoProducao = () => {
                                 <MoveLeft className="w-6 h-6 text-gray-600" />
                             </button>
                             <h2 className="text-4xl font-bold mb-3 text-gray-800 flex items-center justify-center w-full">
-                                Novo Registo de Produção 
+                                Novo Registo de Produção
                             </h2>
                         </div>
 
@@ -954,4 +954,4 @@ const AddHistoricoProducao = () => {
     );
 };
 
-export default AddHistoricoProducao; 
+export default AddHistoricoEntidade; 
