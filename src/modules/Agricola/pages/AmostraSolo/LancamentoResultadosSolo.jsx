@@ -18,7 +18,8 @@ import {
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import CustomInput from '../../core/components/CustomInput';
+import CustomInput from '../../../../core/components/CustomInput';
+
 
 const LancamentoResultadosSolo = () => {
     const { id } = useParams();

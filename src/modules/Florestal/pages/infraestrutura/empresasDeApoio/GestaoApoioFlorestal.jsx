@@ -1,15 +1,15 @@
 import {
     AlertCircle,
+    Award,
+    Briefcase,
     Building,
     CheckCircle,
     ChevronLeft,
     ChevronRight,
     Download,
     Eye,
-    Factory,
-    File,
-    Loader,
-    Mail,
+    FileText,
+    GraduationCap,
     MapPin,
     MoreVertical,
     Phone,
@@ -23,9 +23,133 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CustomInput from '../../../../../core/components/CustomInput';
-import api from '../../../../../core/services/api';
 
 
+//import { useCooperativas } from '../../hooks/useCooperativas';
+
+// Dados estáticos das empresas
+const empresasAdaptadas = [
+    {
+        id: 1,
+        nomeEmpresa: "AgroTech Angola Lda",
+        tipoEntidade: "EMPRESA_PRIVADA",
+        nif: "5417890123",
+        anoFundacao: "2015",
+        enderecoSede: "Rua da Missão, 123, Ingombota",
+        provincia: "LUANDA",
+        municipio: "Luanda",
+        pessoaContacto: "Maria Santos Costa",
+        cargo: "Diretora Geral",
+        telefone: "222567890",
+        email: "info@agrotech.ao",
+        website: "www.agrotech.ao",
+        servicosPrestados: ["Fornecimento de Insumos Agrícolas", "Assistência Técnica"],
+        principaisBeneficiarios: "PEQUENOS_PRODUTORES",
+        numeroFuncionarios: 85,
+        areaCobertura: "PROVINCIAL",
+        volumeClientes: 250,
+        licencaOperacao: "SIM",
+        registoComercial: "SIM",
+        certificacoesEspecificas: "ISO 9001",
+        status: "ATIVO"
+    },
+    {
+        id: 2,
+        nomeEmpresa: "Pecuária do Sul SA",
+        tipoEntidade: "EMPRESA_PRIVADA",
+        nif: "5418901234",
+        anoFundacao: "2012",
+        enderecoSede: "Av. Norton de Matos, 456, Arimba",
+        provincia: "HUÍLA",
+        municipio: "Lubango",
+        pessoaContacto: "António Ferreira",
+        cargo: "Presidente",
+        telefone: "261234567",
+        email: "geral@pecuariasul.ao",
+        website: "www.pecuariasul.ao",
+        servicosPrestados: ["Mecanização Agrícola", "Comercialização e Logística"],
+        principaisBeneficiarios: "MEDIOS_PRODUTORES",
+        numeroFuncionarios: 120,
+        areaCobertura: "NACIONAL",
+        volumeClientes: 500,
+        licencaOperacao: "SIM",
+        registoComercial: "SIM",
+        certificacoesEspecificas: "HACCP",
+        status: "ATIVO"
+    },
+    {
+        id: 3,
+        nomeEmpresa: "Benguela Agro Empresa",
+        tipoEntidade: "COOPERATIVA",
+        nif: "5419012345",
+        anoFundacao: "2018",
+        enderecoSede: "Rua 4 de Fevereiro, 789, Centro",
+        provincia: "BENGUELA",
+        municipio: "Benguela",
+        pessoaContacto: "Carlos Mendes",
+        cargo: "Coordenador",
+        telefone: "272345678",
+        email: "comercial@benguelaagro.ao",
+        website: "www.benguelaagro.ao",
+        servicosPrestados: ["Transformação/Agroindústria", "Formação e Capacitação"],
+        principaisBeneficiarios: "ASSOCIACOES_COOPERATIVAS",
+        numeroFuncionarios: 65,
+        areaCobertura: "LOCAL_DISTRITAL",
+        volumeClientes: 180,
+        licencaOperacao: "SIM",
+        registoComercial: "SIM",
+        certificacoesEspecificas: "ISO 14001",
+        status: "ATIVO"
+    },
+    {
+        id: 4,
+        nomeEmpresa: "Florestal Cabinda Lda",
+        tipoEntidade: "ONG",
+        nif: "5420123456",
+        anoFundacao: "2020",
+        enderecoSede: "Bairro Tchiowa, Lote 15",
+        provincia: "CABINDA",
+        municipio: "Cabinda",
+        pessoaContacto: "Isabel Rodrigues",
+        cargo: "Diretora Executiva",
+        telefone: "231456789",
+        email: "florestal@cabinda.ao",
+        website: "www.florestalcabinda.org",
+        servicosPrestados: ["Pesquisa e Inovação", "Assistência Técnica"],
+        principaisBeneficiarios: "PROJETOS_GOVERNAMENTAIS",
+        numeroFuncionarios: 40,
+        areaCobertura: "PROVINCIAL",
+        volumeClientes: 300,
+        licencaOperacao: "SIM",
+        registoComercial: "SIM",
+        certificacoesEspecificas: "FSC",
+        status: "ATIVO"
+    },
+    {
+        id: 5,
+        nomeEmpresa: "Huambo Agropecuária SA",
+        tipoEntidade: "ASSOCIACAO",
+        nif: "5421234567",
+        anoFundacao: "2016",
+        enderecoSede: "Rua Deolinda Rodrigues, 321",
+        provincia: "HUAMBO",
+        municipio: "Huambo",
+        pessoaContacto: "Pedro Nunes",
+        cargo: "Secretário Geral",
+        telefone: "241567890",
+        email: "huambo@agropecuaria.ao",
+        website: "www.huamboagro.ao",
+        servicosPrestados: ["Crédito Rural/Microfinanças", "Comercialização e Logística"],
+        principaisBeneficiarios: "GRANDES_PRODUTORES",
+        numeroFuncionarios: 95,
+        areaCobertura: "REGIONAL_INTERNACIONAL",
+        volumeClientes: 220,
+        licencaOperacao: "NAO",
+        registoComercial: "SIM",
+        certificacoesEspecificas: "ISO 22000",
+        status: "INATIVO"
+    }
+];
 
 // Dados estáticos das administrações regionais
 const administracoesEstaticas = [
@@ -36,8 +160,7 @@ const administracoesEstaticas = [
     { id: 5, nome: "Administração Regional de Cabinda" }
 ];
 
-const GestaoEmpresasFlorestal = () => {
-
+const GestaoApoioFlorestal = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedRegion, setSelectedRegion] = useState('');
@@ -47,54 +170,14 @@ const GestaoEmpresasFlorestal = () => {
     const [toastMessage, setToastMessage] = useState(null);
     const [toastTimeout, setToastTimeout] = useState(null);
     const [contentHeight, setContentHeight] = useState('calc(100vh - 12rem)');
-    const itemsPerPage = 6;
     const containerRef = useRef(null);
-
-    // Estados para dados da API
-    const [empresas, setEmpresas] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
-    // Estados para o modal de exclusão
+    const itemsPerPage = 3;
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [empresaToDelete, setEmpresaToDelete] = useState(null);
+    const [empresasToDelete, setempresasToDelete] = useState(null);
 
-    // Função para buscar empresas da API
-    const fetchEmpresas = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-            const response = await api.get('/organizacao/empresasFlorestais');
+    // Usar dados estáticos para empresas
+    const empresass = empresasAdaptadas;
 
-            console.log('📊 Dados recebidos da API:', response.data);
-
-            const data = Array.isArray(response.data) ? response.data : response.data.data || [];
-            setEmpresas(data);
-        } catch (err) {
-            console.error('❌ Erro ao buscar empresas:', err);
-            setError(err.message || 'Erro ao carregar dados');
-            showToast('error', 'Erro', 'Não foi possível carregar os dados das empresas');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // Função para deletar empresa
-    const deleteEmpresa = async (empresaId) => {
-        try {
-            await api.delete(`/organizacao/${empresaId}`);
-            await fetchEmpresas();
-            return true;
-        } catch (error) {
-            console.error('Erro ao deletar empresa:', error);
-            throw error;
-        }
-    };
-
-    // Carregar dados ao montar componente
-    useEffect(() => {
-        fetchEmpresas();
-    }, []);
 
     // Ajustar altura do conteúdo
     useEffect(() => {
@@ -142,18 +225,16 @@ const GestaoEmpresasFlorestal = () => {
         setToastTimeout(timeout);
     };
 
+
+
     // Filtragem das empresas
-    const filteredEscolas = empresas.filter(empresa => {
-        const matchesSearch = empresa.nomeEntidade?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            empresa.nomePresidente?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const filteredEscolas = empresass.filter(empresa => {
+        const matchesSearch = empresa.nomeEmpresa?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            empresa.pessoaContacto?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             empresa.email?.toLowerCase().includes(searchTerm.toLowerCase());
-
         const matchesRegion = !selectedRegion || empresa.provincia === selectedRegion;
-
-        const matchesTipo = !selectedTipo || (empresa.atividades &&
-            empresa.atividades.some(atividade => atividade.includes(selectedTipo)));
-
-        const matchesStatus = !selectedStatus || empresa.estado === selectedStatus;
+        const matchesTipo = !selectedTipo || (empresa.servicosPrestados && empresa.servicosPrestados.some(s => s.includes(selectedTipo)));
+        const matchesStatus = !selectedStatus || empresa.status === selectedStatus;
 
         return matchesSearch && matchesRegion && matchesTipo && matchesStatus;
     });
@@ -166,33 +247,69 @@ const GestaoEmpresasFlorestal = () => {
         return filteredEscolas.slice(startIndex, endIndex);
     };
 
-    // Navegação para visualizar empresa
-    const handleViewOrganizacao = (empresaId) => {
-        navigate(`/GerenciaRNPA/gestao-florestal/produtores/visualizar-organizacao/${empresaId}`);
-    };
-    const handleCadastroProducao = (empresaId) => {
-        // Navegar para a rota de cadastro de produção passando o ID
-        navigate(`/GerenciaRNP/gestao-florestal/produtores/cadastro-producao-organizacao/${empresaId}`);
+    // Navegação (simulada)
+    const handleViewEscola = (empresasId) => {
+        navigate(`/GerenciaRNPA/gestao-empresas/empresas/visualizar/${empresasId}`);
     };
 
-    const handleGerarLicenca = (empresaId) => {
+
+    const handleTransferencia = (empresasId) => {
         // Navegar para a rota de cadastro de produção passando o ID
-        navigate(`/GerenciaRNPA/gestao-florestal/produtores/gerar-licenca/empresa/${empresaId}`);
+        navigate(`/GerenciaRNPA/entidades-associativas/cadastro-producao-empresas/${empresasId}`);
+    };
+
+
+
+    // Função para abrir modal de confirmação
+    const openDeleteModal = (empresasId) => {
+        setempresasToDelete(empresasId);
+        setShowDeleteModal(true);
+    };
+
+    // Função para fechar modal
+    const closeDeleteModal = () => {
+        setShowDeleteModal(false);
+        setempresasToDelete(null);
+    };
+
+    // Função para deletar empresas após confirmação
+    const handleConfirmDelete = async () => {
+        if (!empresasToDelete) return;
+        try {
+            await deleteempresas(empresasToDelete);
+            showToast('success', 'Excluído', 'Empresa excluída com sucesso!');
+        } catch (erro) {
+            showToast('error', 'Erro', 'Erro ao excluir empresa.');
+            console(erro)
+        } finally {
+            closeDeleteModal();
+        }
     };
 
     // Ações do menu dropdown
     const actionItems = [
-        { label: 'Cadastro da Produção', icon: <PlusCircle size={16} />, action: handleCadastroProducao },
-        { label: 'Gerar Licença', icon: <File size={16} />, action: handleGerarLicenca },
+        { label: 'Cadastro de Produção', icon: <PlusCircle size={16} />, action: handleTransferencia },
+        { label: 'Relatóriosn', icon: <FileText size={16} />, action: "" },
+        {/* label: 'Infraestrutura', icon: <Building size={16} />, action: handleInfraestrutura */ },
+        { /*label: 'Gestão de Pessoal', icon: <User size={16} />, action: handlePessoal*/ }
     ];
 
-    // Formatar atividades para exibição
-    const formatAtividades = (atividades) => {
-        if (!atividades || !Array.isArray(atividades)) return [];
-        return atividades.map(atividade =>
-            atividade.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1').trim()
-        );
+    // Formatar data
+    const formatDate = (dateString) => {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('pt-BR');
     };
+
+    // Obter label do tipo de ensino
+    { /* const getTipoEnsinoLabel = (tipo) => {
+        const tipos = {
+            'GERAL': 'Ensino Geral',
+            'TECNICO_PROFISSIONAL': 'Técnico-Profissional',
+            'MISTO': 'Misto'
+        };
+        return tipos[tipo] || tipo;
+    };*/}
 
     // Componente Toast
     const Toast = () => {
@@ -275,39 +392,15 @@ const GestaoEmpresasFlorestal = () => {
         );
     };
 
+
+
     // Extrair regiões únicas para o filtro
-    const uniqueRegions = [...new Set(empresas.map(empresa => empresa.provincia))].filter(Boolean);
-
-    // Função para abrir modal de confirmação
-    const openDeleteModal = (empresaId) => {
-        setEmpresaToDelete(empresaId);
-        setShowDeleteModal(true);
-    };
-
-    // Função para fechar modal
-    const closeDeleteModal = () => {
-        setShowDeleteModal(false);
-        setEmpresaToDelete(null);
-    };
-
-    // Função para deletar empresa após confirmação
-    const handleConfirmDelete = async () => {
-        if (!empresaToDelete) return;
-        try {
-            await deleteEmpresa(empresaToDelete);
-            showToast('success', 'Excluído', 'Empresa excluída com sucesso!');
-        } catch (err) {
-            showToast('error', 'Erro', 'Erro ao excluir empresa.');
-            console.error(err);
-        } finally {
-            closeDeleteModal();
-        }
-    };
+    const uniqueRegions = [...new Set(empresass.map(escola => escola.provincia))].filter(Boolean);
 
     // Modal de confirmação visual
     const DeleteConfirmModal = () => {
         if (!showDeleteModal) return null;
-        const empresa = empresas.find(c => c.id === empresaToDelete);
+        const empresas = empresass.find(c => c.id === empresasToDelete);
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
                 <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm flex flex-col items-center">
@@ -316,7 +409,7 @@ const GestaoEmpresasFlorestal = () => {
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Confirmar Exclusão</h3>
                     <p className="text-gray-600 text-center text-sm mb-4">
-                        Tem certeza que deseja excluir a empresa <span className="font-semibold text-red-600">{empresa?.nomeEntidade || 'Selecionada'}</span>?<br />
+                        Tem certeza que deseja excluir a empresa <span className="font-semibold text-red-600">{empresas?.nomeEmpresa || 'Selecionada'}</span>?<br />
                         Esta ação não pode ser desfeita. Todos os dados da empresa serão removidos permanentemente.
                     </p>
                     <div className="flex gap-3 mt-2 w-full">
@@ -338,50 +431,20 @@ const GestaoEmpresasFlorestal = () => {
         );
     };
 
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="flex flex-col items-center">
-                    <Loader className="w-8 h-8 animate-spin text-blue-600 mb-4" />
-                    <p className="text-gray-600">Carregando empresas...</p>
-                </div>
-            </div>
-        );
-    }
-
-    if (error && empresas.length === 0) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="flex flex-col items-center">
-                    <AlertCircle className="w-16 h-16 text-red-400 mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Erro ao carregar dados</h3>
-                    <p className="text-gray-600 mb-4">{error}</p>
-                    <button
-                        onClick={fetchEmpresas}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                        Tentar novamente
-                    </button>
-                </div>
-            </div>
-        );
-    }
-
     return (
         <div className="min-h-screen" ref={containerRef}>
             <Toast />
             <DeleteConfirmModal />
-
-            {/* Estatísticas das empresas */}
+            {/* Estatísticas das empresass */}
             <div className="mt-6 mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-white rounded-xl shadow-md p-6">
                     <div className="flex items-center">
                         <div className="p-3 bg-blue-100 rounded-full">
-                            <Factory className="w-6 h-6 text-blue-600" />
+                            <Users className="w-6 h-6 text-blue-600" />
                         </div>
                         <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-500">Total de Empresas</p>
-                            <p className="text-2xl font-bold text-gray-900">{empresas.length}</p>
+                            <p className="text-sm font-medium text-gray-500">Total</p>
+                            <p className="text-2xl font-bold text-gray-900">{empresass.length}</p>
                         </div>
                     </div>
                 </div>
@@ -392,9 +455,9 @@ const GestaoEmpresasFlorestal = () => {
                             <CheckCircle className="w-6 h-6 text-green-600" />
                         </div>
                         <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-500">Empresas Activas</p>
+                            <p className="text-sm font-medium text-gray-500">Activos</p>
                             <p className="text-2xl font-bold text-gray-900">
-                                {empresas.filter(c => c.estado === 'Ativo').length}
+                                {empresass.filter(c => c.status === 'ATIVO').length}
                             </p>
                         </div>
                     </div>
@@ -403,12 +466,12 @@ const GestaoEmpresasFlorestal = () => {
                 <div className="bg-white rounded-xl shadow-md p-6">
                     <div className="flex items-center">
                         <div className="p-3 bg-purple-100 rounded-full">
-                            <Building className="w-6 h-6 text-purple-600" />
+                            <GraduationCap className="w-6 h-6 text-purple-600" />
                         </div>
                         <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-500">Empresas Agrícolas</p>
+                            <p className="text-sm font-medium text-gray-500">Funcionários</p>
                             <p className="text-2xl font-bold text-gray-900">
-                                {empresas.filter(e => e.tipoDeEntidade === 'EmpresaAgricola').length}
+                                0
                             </p>
                         </div>
                     </div>
@@ -417,12 +480,12 @@ const GestaoEmpresasFlorestal = () => {
                 <div className="bg-white rounded-xl shadow-md p-6">
                     <div className="flex items-center">
                         <div className="p-3 bg-yellow-100 rounded-full">
-                            <Users className="w-6 h-6 text-yellow-600" />
+                            <Building className="w-6 h-6 text-yellow-600" />
                         </div>
                         <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-500">Cooperativas</p>
+                            <p className="text-sm font-medium text-gray-500">Área (ha)</p>
                             <p className="text-2xl font-bold text-gray-900">
-                                {empresas.filter(e => e.tipoDeEntidade === 'CooperativaAgricola').length}
+                                0
                             </p>
                         </div>
                     </div>
@@ -431,16 +494,18 @@ const GestaoEmpresasFlorestal = () => {
 
             <div className="w-full bg-white rounded-xl shadow-md overflow-visible z-10">
                 {/* Cabeçalho */}
-                <div className="bg-gradient-to-r rounded-t-xl from-blue-700 to-blue-500 p-6 text-white">
-                    <div className="flex flex-col  md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
-                        <div className=''>
-                            <h1 className="text-2xl font-bold">Gestão de Empresas Florestais</h1>
+                <div className="bg-gradient-to-r from-slate-700 to-slate-400 p-6 text-white rounded-t-xl">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
+                        <div>
+                            <h1 className="text-2xl font-bold">Gestão de Empresas de Apoio à Agricultura
+                            </h1>
+                            {/* <p className="text-blue-100 mt-1">SistGestão Geral e Técnico-Profissional - Angola</p> */}
                         </div>
                         <div className="flex gap-4">
 
                             <button
                                 onClick={() => showToast('info', 'Função', 'Exportar dados das empresas')}
-                                className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
+                                className="inline-flex items-center px-4 py-2 bg-white text-slate-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
                             >
                                 <Download className="w-5 h-5 mr-2" />
                                 Exportar
@@ -450,13 +515,13 @@ const GestaoEmpresasFlorestal = () => {
                 </div>
 
                 {/* Barra de ferramentas */}
-                <div className="p-6 border-b  border-gray-200 bg-white">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div className="p-6 border-b border-gray-200 bg-white">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         {/* Busca */}
                         <div className="lg:col-span-2">
                             <CustomInput
                                 type="text"
-                                placeholder="Buscar por nome, diretor ou email..."
+                                placeholder="Buscar por nome, gestor ou email..."
                                 value={searchTerm}
                                 onChange={(value) => setSearchTerm(value)}
                                 iconStart={<Search size={18} />}
@@ -469,13 +534,13 @@ const GestaoEmpresasFlorestal = () => {
                                 type="select"
                                 placeholder="Região"
                                 value={selectedRegion ? {
-                                    label: selectedRegion,
+                                    label: getAdminRegionalName(selectedRegion),
                                     value: selectedRegion
                                 } : null}
                                 options={[
                                     { label: 'Todas as Regiões', value: '' },
                                     ...uniqueRegions.map(region => ({
-                                        label: region,
+                                        label: getAdminRegionalName(region),
                                         value: region
                                     }))
                                 ]}
@@ -490,32 +555,18 @@ const GestaoEmpresasFlorestal = () => {
                                 placeholder="Tipo de Actividade"
                                 value={selectedTipo ? { label: selectedTipo, value: selectedTipo } : null}
                                 options={[
-                                    { label: 'Todas as Actividades', value: '' },
-                                    { label: 'Produção Agrícola', value: 'PRODUCAO_AGRICOLA' },
-                                    { label: 'Produção Pecuária', value: 'PRODUCAO_PECUARIA' },
-                                    { label: 'Agroindústria', value: 'AGROINDUSTRIA' },
-                                    { label: 'Comercialização', value: 'COMERCIALIZACAO' },
-                                    { label: 'Assistência Técnica', value: 'ASSISTENCIA_TECNICA' }
+                                    { label: 'Todas as Atividades', value: '' },
+                                    { label: 'Agricultura', value: 'Agricultura' },
+                                    { label: 'Pecuária', value: 'Pecuária' },
+                                    { label: 'Agropecuária', value: 'Agropecuária' },
+                                    { label: 'Aquicultura', value: 'Aquicultura' },
+                                    { label: 'Produtos florestais', value: 'Produtos florestais' }
                                 ]}
                                 onChange={(option) => setSelectedTipo(option?.value || '')}
                                 iconStart={<School size={18} />}
                             />
                         </div>
 
-                        <div>
-                            <CustomInput
-                                type="select"
-                                placeholder="Status"
-                                value={selectedStatus ? { label: selectedStatus, value: selectedStatus } : null}
-                                options={[
-                                    { label: 'Todos os Status', value: '' },
-                                    { label: 'Ativo', value: 'Ativo' },
-                                    { label: 'Inativo', value: 'Inativo' }
-                                ]}
-                                onChange={(option) => setSelectedStatus(option?.value || '')}
-                                iconStart={<CheckCircle size={18} />}
-                            />
-                        </div>
                     </div>
                 </div>
 
@@ -528,13 +579,17 @@ const GestaoEmpresasFlorestal = () => {
                                     Empresa
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                    Actividades
+                                    Tipo & Serviços
                                 </th>
+
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                     Localização
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                    Gestão
+                                    Contacto & Capacidade
+                                </th>
+                                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                                    Situação Legal
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                     Acção
@@ -544,47 +599,38 @@ const GestaoEmpresasFlorestal = () => {
                         <tbody className="divide-y divide-gray-200 bg-white text-left">
                             {getCurrentItems().map((empresa) => (
                                 <tr key={empresa.id} className="hover:bg-blue-50 transition-colors">
-                                    <td className="px-6 py-4 whitespace-nowrap">
+                                    <td className="px-6 py-4 whitespace-nowrap" >
                                         <div className="flex items-start">
+                                            <div className="flex-shrink-0 h-12 w-12 bg-gradient-to-br from-slate-700 to-slate-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
+                                                {empresa.nomeEmpresa.charAt(0)}{empresa.nomeEmpresa.split(' ').pop().charAt(0)}
+                                            </div>
                                             <div className="ml-4">
-                                                <div className="text-sm font-semibold text-gray-900 break-words whitespace-pre-line max-w-[290px]">
-                                                    {empresa.nomeEntidade || 'Nome não informado'}
-                                                </div>
+                                                <div className="text-sm font-semibold text-gray-900 break-words whitespace-pre-line max-w-[200px]">{empresa.nomeEmpresa}</div>
                                                 <div className="text-xs text-gray-500 mt-1">NIF: {empresa.nif}</div>
-                                                <div className="text-xs text-gray-500">Pres.: {empresa.nomePresidente}</div>
+                                                <div className="text-xs text-gray-500">Fundada: {empresa.anoFundacao}</div>
                                             </div>
                                         </div>
                                     </td>
 
-                                    <td className="px-6 py-4">
-                                        <div className="space-y-1 max-w-[200px]">
-                                            {/* mostra apenas a primeira atividade */}
-                                            {empresa.atividades?.length > 0 && (
-                                                <div className="inline-block">
-                                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-1 mb-1">
-                                                        {empresa.atividades[0]}
-                                                    </span>
-                                                </div>
-                                            )}
-
-                                            {/* mostra o "+X mais" se houver mais de 1 atividade */}
-                                            {empresa.atividades?.length > 1 && (
-                                                <div className="text-gray-400 text-xs">
-                                                    +{empresa.atividades.length - 1} mais
-                                                </div>
-                                            )}
+                                    <td className="px-6 py-4 whitespace-nowrap ">
+                                        <div className="space-y-2">
+                                            <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                {empresa.tipoEntidade.replace(/_/g, ' ')}
+                                            </div>
+                                            <div className="text-xs text-gray-600 break-before-all whitespace-pre-line max-w-[250px]">
+                                                {empresa.servicosPrestados.slice(0, 2).join(',\n')}
+                                                {empresa.servicosPrestados.length > 2 && (
+                                                    <span className="text-gray-400 block break-before-all"> +{empresa.servicosPrestados.length - 2}</span>
+                                                )}
+                                            </div>
                                         </div>
                                     </td>
-
 
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="space-y-2">
                                             <div className="flex items-center text-xs text-gray-700">
                                                 <MapPin className="w-4 h-4 mr-2 text-blue-500" />
                                                 {empresa.municipio}, {empresa.provincia}
-                                            </div>
-                                            <div className="text-xs text-gray-600">
-                                                {empresa.comuna}
                                             </div>
                                         </div>
                                     </td>
@@ -593,19 +639,44 @@ const GestaoEmpresasFlorestal = () => {
                                         <div className="space-y-2">
                                             <div className="flex items-center text-xs text-gray-700">
                                                 <Phone className="w-4 h-4 mr-2 text-blue-500" />
-                                                {empresa.telefone || 'N/A'}
+                                                {empresa.telefone}
                                             </div>
                                             <div className="flex items-center text-xs text-gray-700">
-                                                <Mail className="w-4 h-4 mr-2 text-blue-500" />
-                                                {empresa.email || 'N/A'}
+                                                <Users className="w-4 h-4 mr-2 text-blue-500" />
+                                                {empresa.numeroFuncionarios} funcionários
+                                            </div>
+                                            <div className="text-xs text-gray-600">
+                                                {empresa.volumeClientes} clientes/ano
                                             </div>
                                         </div>
                                     </td>
 
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="flex items-center justify-center space-x-1">
+                                        <div className="space-y-2">
+                                            <div className="flex items-center text-xs">
+
+                                                <CheckCircle className="w-3.5 h-3.5 mr-1 text-green-500" />
+                                                <span className="text-gray-700">Licença: {empresa.licencaOperacao}</span>
+                                            </div>
+                                            <div className="flex items-center text-xs">
+                                                <Briefcase className="w-3.5 h-3.5 mr-1 text-blue-500" />
+                                                <span className="text-gray-700">Registo: {empresa.registoComercial}</span>
+                                            </div>
+                                            {empresa.certificacoesEspecificas && (
+                                                <div className="text-xs text-gray-600">
+                                                    <Award className="w-3.5 h-3.5 inline-block mr-1 text-yellow-500" />
+                                                    {empresa.certificacoesEspecificas}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </td>
+
+
+
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <div className="flex items-center justify-start space-x-1">
                                             <button
-                                                onClick={() => handleViewOrganizacao(empresa.id)}
+                                                onClick={() => handleViewEscola(empresa.id)}
                                                 className="p-2 hover:bg-blue-100 text-blue-600 hover:text-blue-800 rounded-full transition-colors"
                                                 title="Visualizar"
                                             >
@@ -624,11 +695,12 @@ const GestaoEmpresasFlorestal = () => {
                                 </tr>
                             ))}
                         </tbody>
-                        <tfoot className=''>
+
+                        <tfoot>
                             <tr>
-                                <td colSpan={5}>
+                                <td colSpan={6}>
                                     {/* Paginação */}
-                                    <div className="px-6 rounded-b-xl py-4 border-t border-gray-200 bg-white">
+                                    <div className="px-6 py-4 border-t border-gray-200 bg-white">
                                         <div className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
                                             <div className="text-sm text-gray-700">
                                                 Mostrando{' '}
@@ -647,7 +719,7 @@ const GestaoEmpresasFlorestal = () => {
                                                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                                     disabled={currentPage === 1}
                                                     className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
-                                                        ${currentPage === 1
+                                    ${currentPage === 1
                                                             ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                                             : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
                                                         }`}
@@ -660,7 +732,7 @@ const GestaoEmpresasFlorestal = () => {
                                                     onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                                     disabled={currentPage === totalPages || totalPages === 0}
                                                     className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
-                                                        ${currentPage === totalPages || totalPages === 0
+                                    ${currentPage === totalPages || totalPages === 0
                                                             ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                                             : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
                                                         }`}
@@ -682,16 +754,20 @@ const GestaoEmpresasFlorestal = () => {
                     {getCurrentItems().map((empresa) => (
                         <div key={empresa.id} className="p-4 border-b border-gray-200 hover:bg-blue-50 transition-colors">
                             <div className="flex items-start">
-                                <div className="flex-shrink-0 h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <Factory className="h-8 w-8 text-blue-600" />
+                                <div className="flex-shrink-0 h-16 w-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-md">
+                                    {empresa.nomeEmpresa.charAt(0)}{empresa.nomeEmpresa.split(' ').pop().charAt(0)}
                                 </div>
                                 <div className="flex-1 ml-4">
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <h3 className="text-sm font-semibold text-gray-900">{empresa.nomeEntidade}</h3>
+                                            <h3 className="text-sm font-semibold text-gray-900">{empresa.nomeEmpresa}</h3>
                                             <div className="text-xs text-gray-500 mt-1">NIF: {empresa.nif}</div>
-                                            <div className="text-xs text-gray-500">Pres.: {empresa.nomePresidente}</div>
+                                            <div className="text-xs text-gray-500">Contato: {empresa.pessoaContacto}</div>
                                         </div>
+                                        {/* <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${tipoColors[escola.tipoEnsino] || 'bg-gray-100 text-gray-800 border-gray-200'
+                                            }`}>
+                                            {getTipoEnsinoLabel(escola.tipoEnsino)}
+                                        </div> */}
                                     </div>
 
                                     <div className="mt-3 grid grid-cols-2 gap-2">
@@ -700,23 +776,23 @@ const GestaoEmpresasFlorestal = () => {
                                             <span className="truncate">{empresa.municipio}</span>
                                         </div>
                                         <div className="flex items-center text-xs text-gray-700">
+                                            <Users className="w-3.5 h-3.5 mr-1 text-blue-500" />
+                                            {empresa.numeroFuncionarios} Funcionários
+                                        </div>
+                                        <div className="flex items-center text-xs text-gray-700">
                                             <Phone className="w-3.5 h-3.5 mr-1 text-blue-500" />
                                             {empresa.telefone}
                                         </div>
                                         <div className="flex items-center text-xs text-gray-700">
-                                            <Mail className="w-3.5 h-3.5 mr-1 text-blue-500" />
-                                            <span className="truncate">{empresa.email}</span>
-                                        </div>
-                                        <div className="flex items-center text-xs text-gray-700">
-                                            <CheckCircle className="w-3.5 h-3.5 mr-1 text-blue-500" />
-                                            {empresa.estado}
+                                            <Building className="w-3.5 h-3.5 mr-1 text-blue-500" />
+                                            {empresa.volumeClientes} Clientes/ano
                                         </div>
                                     </div>
 
                                     <div className="mt-3 flex justify-between items-center">
                                         <div className="flex space-x-1">
                                             <button
-                                                onClick={() => handleViewOrganizacao(empresa.id)}
+                                                onClick={() => handleViewEscola(empresa.id)}
                                                 className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-full transition-colors"
                                                 title="Visualizar"
                                             >
@@ -730,13 +806,36 @@ const GestaoEmpresasFlorestal = () => {
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
                                         </div>
-                                        <ActionMenu escola={empresa} />
+
+                                        <div className="flex items-center space-x-3">
+                                            <div className="flex items-center">
+                                                <span className={`w-2.5 h-2.5 rounded-full mr-1.5 ${empresa.status === 'ATIVO' ? 'bg-green-500' : 'bg-gray-400'
+                                                    }`}></span>
+                                                <span className={`text-xs font-medium ${empresa.status === 'ATIVO' ? 'text-green-600' : 'text-gray-500'
+                                                    }`}>
+                                                    {empresa.status}
+                                                </span>
+                                            </div>
+                                            <button
+                                                onClick={() => toggleStatus(empresa.id, empresa.status)}
+                                                className={`relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${empresa.status === 'ATIVO' ? 'bg-green-500' : 'bg-gray-200'
+                                                    }`}
+                                            >
+                                                <span
+                                                    className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${empresa.status === 'ATIVO' ? 'translate-x-5' : 'translate-x-0'
+                                                        }`}
+                                                />
+                                            </button>
+                                            <ActionMenu escola={empresa} />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     ))}
                 </div>
+
+
 
                 {/* Nenhum resultado encontrado */}
                 {filteredEscolas.length === 0 && (
@@ -758,12 +857,18 @@ const GestaoEmpresasFlorestal = () => {
                             >
                                 Limpar filtros
                             </button>
-                        ) : null}
+                        ) : (
+                            <p />
+
+                        )}
                     </div>
                 )}
             </div>
+
+            {/* Estatísticas das escolas */}
+
         </div>
     );
 };
 
-export default GestaoEmpresasFlorestal;
+export default GestaoApoioFlorestal;
