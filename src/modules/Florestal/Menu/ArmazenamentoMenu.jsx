@@ -1,26 +1,29 @@
 import { UserPlus, Users } from 'lucide-react';
 import { useState } from 'react';
-import GestaoMultasApreensoes from '../../modules/Florestal/pages/Transgressoes/GestaoMultasApreensoes';
-import HistoricoMultasApreensoes from '../../modules/Florestal/pages/Transgressoes/HistoricoMultasApreensoes';
+import CadastroArmazenamento from '../pages/infraestrutura/Armazenamento/CadastroArmazenamento';
+import GestaoArmazenamento from '../pages/infraestrutura/Armazenamento/GestaoArmazenamento';
 
 
 
-const SancoesMenu = () => {
+
+
+
+const ArmazenamentoMenu = () => {
     const [activeSection, setActiveSection] = useState('cadastro');
 
     const menuItems = [
         {
             id: 'gestao',
-            title: 'Gestão',
+            title: 'Gestão ',
             icon: Users,
-            description: 'Gerenciar Sanções',
+            description: 'Gerenciar Centro de Armazenamento',
             color: 'green'
         },
         {
             id: 'cadastro',
-            title: 'Aplicar Sanção',
+            title: 'Cadastrar ',
             icon: UserPlus,
-            description: 'Nova Sanção',
+            description: 'Novo Centro de Armazenamento',
             color: 'blue'
         },
     ];
@@ -52,7 +55,7 @@ const SancoesMenu = () => {
                 return (
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
                         <div className="text-center">
-                            <GestaoMultasApreensoes />
+                            <GestaoArmazenamento />
                         </div>
                     </div>
                 );
@@ -61,7 +64,7 @@ const SancoesMenu = () => {
                 return (
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
                         <div className="text-center">
-                            <HistoricoMultasApreensoes />
+                            <CadastroArmazenamento />
                         </div>
                     </div>
                 );
@@ -107,4 +110,4 @@ const SancoesMenu = () => {
     );
 };
 
-export default SancoesMenu;
+export default ArmazenamentoMenu;

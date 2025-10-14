@@ -30,14 +30,15 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+import { useParams } from 'react-router-dom';
 import CustomInput from '../../../../core/components/CustomInput';
 import provinciasData from '../../../../core/components/Provincias.json';
 
 
 // Hook para buscar produtores florestais
 const useProdutoresFlorestais = () => {
+  const [loading, setLoading] = useState(true)
   const [produtores, setProdutores] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProdutores = async () => {
@@ -96,7 +97,11 @@ const useEntidades = () => {
   return { empresas, cooperativas, associacoes, loadingEntidades };
 };
 
+
+
 const CertificacaoProdutorFlorestal = () => {
+  const { tipo, id } = useParams()
+  const [identificandoTipo, setIdentificandoTipo] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [municipiosOptions, setMunicipiosOptions] = useState([]);
@@ -187,6 +192,113 @@ const CertificacaoProdutorFlorestal = () => {
     'Licença Ambiental e Estudo de Impacto Ambiental',
     'Relatório de atividade desenvolvida'
   ];
+
+
+  // ✅ ADICIONAR ESTA FUNÇÃO COMPLETA após os hooks useEntidades
+  const identificarEBuscarEntidadePorId = async (tipoEntidade, idEntidade) => {
+    setIdentificandoTipo(true);
+    setLoading(true);
+
+    try {
+      console.log("🔍 Buscando:", tipoEntidade, "com ID:", idEntidade);
+
+      // ✅ Busca diretamente no tipo correto
+      if (tipoEntidade === 'produtor') {
+        const resProdutores = await fetch('https://mwangobrainsa-001-site2.mtempurl.com/api/produtorFlorestal/all');
+        const produtores = await resProdutores.json();
+        const produtorEncontrado = produtores.find(p => p._id === parseInt(idEntidade));
+
+        if (produtorEncontrado) {
+          console.log("✅ Produtor encontrado:", produtorEncontrado);
+          setProdutorSelecionado(produtorEncontrado);
+          setTipoSelecionado('produtor');
+
+          setFormData(prev => ({
+            ...prev,
+            nomeCompleto: produtorEncontrado.nome_do_Produtor || '',
+            bi: produtorEncontrado.bI_NIF || '',
+            telefone: produtorEncontrado.contacto || '',
+            provincia: produtorEncontrado.provincia || '',
+            municipio: produtorEncontrado.municipio || '',
+            comuna: produtorEncontrado.comuna || ''
+          }));
+
+          if (produtorEncontrado.provincia) {
+            const provinciaSelected = provinciasData.find(
+              p => p.nome.toUpperCase() === produtorEncontrado.provincia?.toUpperCase()
+            );
+            if (provinciaSelected) {
+              try {
+                const municipiosArray = JSON.parse(provinciaSelected.municipios);
+                const municipios = municipiosArray.map(mun => ({ label: mun, value: mun }));
+                setMunicipiosOptions(municipios);
+              } catch (error) {
+                console.error("Erro ao processar municípios:", error);
+              }
+            }
+          }
+
+          showToast('success', 'Produtor Identificado', 'Dados carregados automaticamente!');
+        } else {
+          showToast('error', 'Não encontrado', 'Produtor não encontrado');
+        }
+      }
+      else if (tipoEntidade === 'empresa') {
+        const res = await fetch('https://mwangobrainsa-001-site2.mtempurl.com/api/organizacao/empresasFlorestais');
+        const empresas = await res.json();
+        const empresaEncontrada = empresas.find(e => e.id === parseInt(idEntidade));
+
+        if (empresaEncontrada) {
+          console.log("✅ Empresa encontrada:", empresaEncontrada);
+          selecionarEntidade('empresa', empresaEncontrada);
+        } else {
+          showToast('error', 'Não encontrado', 'Empresa não encontrada');
+        }
+      }
+      else if (tipoEntidade === 'cooperativa') {
+        const res = await fetch('https://mwangobrainsa-001-site2.mtempurl.com/api/organizacao/cooperativasFlorestais');
+        const cooperativas = await res.json();
+        const cooperativaEncontrada = cooperativas.find(c => c.id === parseInt(idEntidade));
+
+        if (cooperativaEncontrada) {
+          console.log("✅ Cooperativa encontrada:", cooperativaEncontrada);
+          selecionarEntidade('cooperativa', cooperativaEncontrada);
+        } else {
+          showToast('error', 'Não encontrado', 'Cooperativa não encontrada');
+        }
+      }
+      else if (tipoEntidade === 'associacao') {
+        const res = await fetch('https://mwangobrainsa-001-site2.mtempurl.com/api/organizacao/AssociacoesFlorestais');
+        const associacoes = await res.json();
+        const associacaoEncontrada = associacoes.find(a => a.id === parseInt(idEntidade));
+
+        if (associacaoEncontrada) {
+          console.log("✅ Associação encontrada:", associacaoEncontrada);
+          selecionarEntidade('associacao', associacaoEncontrada);
+        } else {
+          showToast('error', 'Não encontrado', 'Associação não encontrada');
+        }
+      }
+      else {
+        showToast('error', 'Tipo inválido', 'Tipo de entidade não reconhecido');
+      }
+
+    } catch (error) {
+      console.error('❌ Erro ao identificar entidade:', error);
+      showToast('error', 'Erro', 'Erro ao identificar entidade');
+    } finally {
+      setIdentificandoTipo(false);
+      setLoading(false);
+    }
+  };
+
+  // ✅ useEffect ATUALIZADO - Passa o TIPO
+  useEffect(() => {
+    if (tipo && id) {
+      console.log("🆔 Tipo e ID detectados na URL:", tipo, id);
+      identificarEBuscarEntidadePorId(tipo, id);
+    }
+  }, [tipo, id]); // ✅ Observa ambos
 
   const showToast = (severity, summary, detail, duration = 3000) => {
     setToastMessage({ severity, summary, detail, visible: true });
@@ -291,6 +403,7 @@ const CertificacaoProdutorFlorestal = () => {
 
     showToast('success', 'Entidade Selecionada', `${tipo} selecionada com sucesso!`);
   };
+
 
   const buscarProdutor = (produtorOption) => {
     const produtorId = typeof produtorOption === 'object' ? produtorOption.value : produtorOption;
@@ -451,6 +564,79 @@ const CertificacaoProdutorFlorestal = () => {
   const renderStepContent = (index) => {
     switch (index) {
       case 0: // Tipo de Entidade
+
+        if (identificandoTipo) {
+          return (
+            <div className="w-full mx-auto">
+              <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center">
+                <Loader className="animate-spin w-12 h-12 text-green-600 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                  Identificando Entidade...
+                </h3>
+                <p className="text-gray-600">
+                  Aguarde enquanto buscamos as informações do ID {id}
+                </p>
+              </div>
+            </div>
+          );
+        }
+
+        // ✅ ADICIONAR ESTA MENSAGEM se já tiver entidade selecionada via URL
+        if (id && (produtorSelecionado || entidadeSelecionada)) {
+          return (
+            <div className="w-full mx-auto">
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 mb-8 border border-green-100">
+                <div className="flex items-center space-x-3 mb-3">
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <CheckCircle className="w-6 h-6 text-green-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800">Entidade Identificada Automaticamente</h3>
+                </div>
+
+              </div>
+
+              <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                <div className="p-6 bg-green-50 rounded-xl border border-green-200">
+                  <div className="flex items-center mb-4">
+                    <CheckCircle className="w-6 h-6 text-green-600 mr-2" />
+                    <h5 className="font-semibold text-green-800 text-lg">
+                      {tipoSelecionado === 'produtor' ? 'Produtor Florestal Selecionado' : 'Organização Selecionada'}
+                    </h5>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-white p-4 rounded-lg">
+                      <span className="text-sm text-gray-500">Nome:</span>
+                      <p className="font-semibold text-gray-800">
+                        {tipoSelecionado === 'produtor'
+                          ? produtorSelecionado?.nome_do_Produtor
+                          : entidadeSelecionada?.nomeEntidade}
+                      </p>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg">
+                      <span className="text-sm text-gray-500">Identificação:</span>
+                      <p className="font-semibold text-gray-800">
+                        {tipoSelecionado === 'produtor'
+                          ? produtorSelecionado?.bI_NIF
+                          : entidadeSelecionada?.nif}
+                      </p>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg">
+                      <span className="text-sm text-gray-500">Tipo:</span>
+                      <p className="font-semibold text-gray-800 capitalize">
+                        {tipoSelecionado}
+                      </p>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg">
+                      <span className="text-sm text-gray-500">ID:</span>
+                      <p className="font-semibold text-gray-800">{id}</p>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          );
+        }
         return (
           <div className="w-full mx-auto">
             <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 mb-8 border border-green-100">
