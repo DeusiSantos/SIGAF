@@ -38,6 +38,7 @@ import VisualizarCertificados from './pages/validacaoCertificado/VisualizarCerti
 import AddHistoricoProducao from './public/AddHistoricoProducao';
 import GerarCartaoRNPAAgricola from './public/GerarCartaoRNPAAgricola';
 import HistoricoProducao from './public/HistoricoProducao';
+import LancamentoResultadosSolo from './pages/AmostraSolo/LancamentoResultadosSolo';
 
 
 const AgricolaRoutes = () => {
@@ -55,7 +56,7 @@ const AgricolaRoutes = () => {
                 <Route path="produtores/cooperativa" element={<CooperativaMenuAgricola />} />
                 <Route path="produtores/associacao" element={<AssociacaoMenuAgricola />} />
                 <Route path="produtores/visualizar/:id" element={<VisualizarProdutor />} />
-                <Route path="gestao-empresas/visualizar-empresa/:id" element={<VisualizarAssociacaoRural />} />
+                <Route path="produtores/visualizar-entidade/:id" element={<VisualizarAssociacaoRural />} />
                 <Route path="produtores/historico-producao/:id" element={<HistoricoProducao />} />
                 <Route path="produtores/historico-producao/:id/novo" element={<AddHistoricoProducao />} />
                 <Route path="produtores/gerar-cartao/:id" element={<GerarCartaoRNPAAgricola />} />
@@ -84,7 +85,7 @@ const AgricolaRoutes = () => {
                 {/* ======================================= */}
                 <Route path="AmostrasDeSolo" element={<AmostrasDeSoloMenu />} />
                 <Route path="AmostraDeSolo/visualizar/:id" element={<VisualizarAmostra />} />
-
+                <Route path='lancamento-resultados/:id'   element={<LancamentoResultadosSolo />} />  
                 {/* ======================================= */}
                 {/* INCENTIVOS */}
                 {/* ======================================= */}

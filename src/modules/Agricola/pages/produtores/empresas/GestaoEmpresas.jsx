@@ -182,8 +182,8 @@ const EmpresaGestao = () => {
     };
 
     // Navegação para visualizar empresa
-    const handleViewEscola = (empresaId) => {
-        navigate(`/GerenciaRNPA/gestao-empresas/visualizar-empresa/${empresaId}`);
+    const handleViewEscola = (id) => {
+        navigate(`/GerenciaRNPA/gestao-agricultores/produtores/visualizar-entidade/${id}`);
     };
 
     const handleTransferencia = (empresaId) => {
@@ -450,13 +450,7 @@ const EmpresaGestao = () => {
                             <h1 className="text-2xl font-bold">Gestão de Empresas Agrícolas</h1>
                         </div>
                         <div className="flex gap-4">
-                            <button
-                                onClick={() => navigate('/GerenciaRNPA/cadastro-empresas')}
-                                className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
-                            >
-                                <Plus className="w-5 h-5 mr-2" />
-                                Nova Empresa
-                            </button>
+                            
                             <button
                                 onClick={() => showToast('info', 'Função', 'Exportar dados das empresas')}
                                 className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
