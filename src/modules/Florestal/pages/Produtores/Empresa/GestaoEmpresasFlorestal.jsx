@@ -7,7 +7,7 @@ import {
     Download,
     Eye,
     Factory,
-    FileText,
+    File,
     Loader,
     Mail,
     MapPin,
@@ -17,7 +17,6 @@ import {
     School,
     Search,
     Trash2,
-    User,
     Users,
     X
 } from 'lucide-react';
@@ -38,20 +37,6 @@ const administracoesEstaticas = [
 ];
 
 const GestaoEmpresasFlorestal = () => {
-    // Função para navegação de gestão de pessoal
-    const handlePessoal = (empresaId) => {
-        navigate(`/GerenciaRNPA/gestao-empresas/pessoal/${empresaId}`);
-    };
-
-    // Função para navegação de infraestrutura
-    const handleInfraestrutura = (empresaId) => {
-        navigate(`/GerenciaRNPA/gestao-empresas/infraestrutura/${empresaId}`);
-    };
-
-    // Função para navegação de relatórios
-    const handleRelatorios = (empresaId) => {
-        navigate(`/GerenciaRNPA/gestao-empresas/relatorios/${empresaId}`);
-    };
 
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
@@ -182,21 +167,23 @@ const GestaoEmpresasFlorestal = () => {
     };
 
     // Navegação para visualizar empresa
-    const handleViewEscola = (empresaId) => {
-        navigate(`/GerenciaRNPA/gestao-empresas/visualizar-empresa/${empresaId}`);
+    const handleViewOrganizacao = (empresaId) => {
+        navigate(`/GerenciaRNPA/gestao-florestal/produtores/visualizar-organizacao/${empresaId}`);
+    };
+    const handleCadastroProducao = (empresaId) => {
+        // Navegar para a rota de cadastro de produção passando o ID
+        navigate(`/GerenciaRNP/gestao-florestal/produtores/cadastro-producao-organizacao/${empresaId}`);
     };
 
-    const handleTransferencia = (empresaId) => {
+    const handleGerarLicenca = (empresaId) => {
         // Navegar para a rota de cadastro de produção passando o ID
-        navigate(`/GerenciaRNPA/gestao-empresas/cadastro-producao-empresa/${empresaId}`);
+        navigate(`/GerenciaRNPA/gestao-florestal/produtores/gerar-licenca/empresa/${empresaId}`);
     };
 
     // Ações do menu dropdown
     const actionItems = [
-        { label: 'Cadastro da Produção', icon: <PlusCircle size={16} />, action: handleTransferencia },
-        { label: 'Relatórios', icon: <FileText size={16} />, action: handleRelatorios },
-        { label: 'Infraestrutura', icon: <Building size={16} />, action: handleInfraestrutura },
-        { label: 'Gestão de Pessoal', icon: <User size={16} />, action: handlePessoal }
+        { label: 'Cadastro da Produção', icon: <PlusCircle size={16} />, action: handleCadastroProducao },
+        { label: 'Gerar Licença', icon: <File size={16} />, action: handleGerarLicenca },
     ];
 
     // Formatar atividades para exibição
@@ -618,7 +605,7 @@ const GestaoEmpresasFlorestal = () => {
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-center justify-center space-x-1">
                                             <button
-                                                onClick={() => handleViewEscola(empresa.id)}
+                                                onClick={() => handleViewOrganizacao(empresa.id)}
                                                 className="p-2 hover:bg-blue-100 text-blue-600 hover:text-blue-800 rounded-full transition-colors"
                                                 title="Visualizar"
                                             >
@@ -729,7 +716,7 @@ const GestaoEmpresasFlorestal = () => {
                                     <div className="mt-3 flex justify-between items-center">
                                         <div className="flex space-x-1">
                                             <button
-                                                onClick={() => handleViewEscola(empresa.id)}
+                                                onClick={() => handleViewOrganizacao(empresa.id)}
                                                 className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-full transition-colors"
                                                 title="Visualizar"
                                             >

@@ -7,6 +7,7 @@ import ValidacoesCerificadosFlorestaisMenu from '../../Layout/other/ValidacoesCe
 import GestaoFiscalizacao from '../../pages/Fiscalizacao/GestaoFiscalizacao';
 import Geolocalizacao from '../../pages/Geolocalizacao';
 import LicencaMenu from '../../pages/Licencas/LicencaMenu';
+import VisualizarOrganizacao from '../../pages/VisualizarOrganizacao';
 import LancamentoResultadosSolo from '../Agricola/pages/AmostraSolo/LancamentoResultadosSolo';
 import VisualizarProjeto from '../Agricola/pages/ProgramaBeneficio/VisualizarProjeto';
 import ArmazenamentoMenu from './Menu/ArmazenamentoMenu';
@@ -16,7 +17,10 @@ import EmpresasMenuFlorestal from './Menu/EmpresasMenuFlorestal';
 import EntrepostosMercadoFlorestalMenu from './Menu/EntrepostosMercadoFlorestalMenu';
 import MenuEmpresasApoio from './Menu/MenuEmpresasApoio';
 import MenuInfraestruturaFlorestal from './Menu/MenuInfraestruturaFlorestal';
+import CertificacaoProdutorFlorestal from './pages/CertificacaoProdutor/CertificacaoProdutorFlorestal';
 import VisualizarCertificadosFlorestal from './pages/CertificacaoProdutor/VisualizarCertificadosFlorestal';
+import AddHistoricoProducaoFlorestal from './pages/Produtores/Pessoal/AddHistoricoProducaoFlorestal';
+import HistoricoProducaoFlorestal from './pages/Produtores/Pessoal/HistoricoProducaoFlorestal';
 import VisualizarProdutorFlorestal from './pages/Produtores/Pessoal/VisualizarProdutorFlorestal';
 
 
@@ -34,21 +38,23 @@ const FlorestalRoutes = () => {
             <Route path="produtores/cooperativa" element={<CooperativaMenuFlorestal />} />
             <Route path="produtores/associacao" element={<AssociacaoMenuFlorestal />} />
             <Route path="certificacaoFlorestal" element={<ValidacoesCerificadosFlorestaisMenu />} />
+            <Route path="produtores/historico-producao/:id" element={<HistoricoProducaoFlorestal />} />
+            <Route path="produtores/historico-producao/:id/novo" element={<AddHistoricoProducaoFlorestal />} />
 
             {/* ======================================= */}
             {/* LICENÇAS E FISCALIZAÇÃO */}
             {/* ======================================= */}
             <Route path="licencas" element={<LicencaMenu />} />
             <Route path="fiscalizacao" element={<GestaoFiscalizacao />} />
+            <Route path="produtores/gerar-licenca/:tipo/:id" element={<CertificacaoProdutorFlorestal />} />
+            <Route path="produtores/visualizar-organizacao/:id" element={<VisualizarOrganizacao />} />
 
             {/* ======================================= */}
             {/* VISUALIZAR PRODUTOR */}
             {/* ======================================= */}
+
             <Route path="visualizarprodutorflorestal/:id" element={<VisualizarProdutorFlorestal />} />
             <Route path="visualizarCertificado/:produtorId" element={<VisualizarCertificadosFlorestal />} />
-
-
-
             <Route path="programas" element={<GestaoProgramasBeneficiosMenu />} />
             <Route path="programas-beneficios/visualizar/:id" element={<VisualizarProjeto />} />
 
@@ -60,12 +66,18 @@ const FlorestalRoutes = () => {
             <Route path="produtores/entrepostosMercado" element={<EntrepostosMercadoFlorestalMenu />} />
             <Route path="produtores/empresas-apoio-florestal" element={<MenuEmpresasApoio />} />
             <Route path="produtores/intraestrutura-apoio-florestal" element={<MenuInfraestruturaFlorestal />} />
-
             <Route path='sancoes' element={<SancoesMenu />} />
 
             {/* ======================================= */}
             {/* OUTRAS ROTAS */}
             {/* ======================================= */}
+
+
+
+            <Route path="produtores/cadastro-producao-organizacao/:id" element={<HistoricoProducaoFlorestal />} />
+            <Route path="produtores/historico-producao/:id/novo" element={<AddHistoricoProducaoFlorestal />} />
+
+
             <Route path="AmostrasDeSolo" element={<AmostrasDeSoloMenu />} />
             <Route path="lancamento-resultados/:id" element={<LancamentoResultadosSolo />} />
             <Route path="registo-individual" element={<h1 className="text-2xl font-semibold">Registo Individual de Produtor</h1>} />
