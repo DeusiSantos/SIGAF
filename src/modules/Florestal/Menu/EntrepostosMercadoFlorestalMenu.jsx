@@ -1,26 +1,25 @@
 import { UserPlus, Users } from 'lucide-react';
 import { useState } from 'react';
-import GestaoMultasApreensoes from '../../modules/Florestal/pages/Transgressoes/GestaoMultasApreensoes';
-import HistoricoMultasApreensoes from '../../modules/Florestal/pages/Transgressoes/HistoricoMultasApreensoes';
+import CadastroEntrepostosMercado from '../pages/infraestrutura/entrepostos/CadastroEntrepostosMercado';
+import GestaoEntrepostosMercado from '../pages/infraestrutura/entrepostos/GestaoEntrepostosMercado';
 
 
-
-const SancoesMenu = () => {
+const EntrepostosMercadoFlorestalMenu = () => {
     const [activeSection, setActiveSection] = useState('cadastro');
 
     const menuItems = [
         {
             id: 'gestao',
-            title: 'Gestão',
+            title: 'Gestão ',
             icon: Users,
-            description: 'Gerenciar Sanções',
+            description: 'Gerenciar ',
             color: 'green'
         },
         {
             id: 'cadastro',
-            title: 'Aplicar Sanção',
+            title: 'Cadastrar ',
             icon: UserPlus,
-            description: 'Nova Sanção',
+            description: 'Novo Entreposto e Mercado',
             color: 'blue'
         },
     ];
@@ -52,7 +51,7 @@ const SancoesMenu = () => {
                 return (
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
                         <div className="text-center">
-                            <GestaoMultasApreensoes />
+                            <GestaoEntrepostosMercado />
                         </div>
                     </div>
                 );
@@ -61,7 +60,7 @@ const SancoesMenu = () => {
                 return (
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
                         <div className="text-center">
-                            <HistoricoMultasApreensoes />
+                            <CadastroEntrepostosMercado />
                         </div>
                     </div>
                 );
@@ -107,4 +106,4 @@ const SancoesMenu = () => {
     );
 };
 
-export default SancoesMenu;
+export default EntrepostosMercadoFlorestalMenu;
