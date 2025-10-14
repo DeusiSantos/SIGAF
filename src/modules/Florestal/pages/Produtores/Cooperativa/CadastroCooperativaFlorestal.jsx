@@ -1253,35 +1253,35 @@ const CadastroCooperativaFlorestal = () => {
                 <div className="p-2 bg-orange-100 rounded-lg">
                   <Users className="w-6 h-6 text-orange-600" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-800">Quadro de Empregados</h3>
+                <h3 className="text-xl font-bold text-gray-800">Quadro de Funcionários</h3>
               </div>
               <p className="text-gray-600">
-                Informações sobre os empregados da empresa.
+                Informações sobre os funcionários da empresa.
               </p>
             </div>
 
             <div className="bg-white rounded-2xl border border-gray-200 p-6">
               <h4 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
                 <Users className="w-5 h-5 mr-2 text-orange-600" />
-                Composição dos Empregados
+                Composição dos Funcionários
               </h4>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <CustomInput
                   type="number"
-                  label="Número de Empregados"
+                  label="Número de Funcionários"
                   value={formData.NumeroCooperados}
                   onChange={(value) => handleInputChange('NumeroCooperados', parseInt(value) || 0)}
                   required
                   errorMessage={errors.NumeroCooperados}
-                  placeholder="Quantidade total de empregados"
+                  placeholder="Quantidade total de funcionários"
                   iconStart={<Users size={18} />}
                   min="0"
                 />
 
                 <CustomInput
                   type="multiselect"
-                  label="Perfil dos Empregados"
+                  label="Perfil dos Funcionários"
                   value={formData.PerfilCooperados || []}
                   options={[
                     { label: 'Técnicos Agrícolas', value: 'TECNICOS_AGRICOLAS' },
@@ -1292,17 +1292,17 @@ const CadastroCooperativaFlorestal = () => {
                   onChange={(value) => handleInputChange('PerfilCooperados', value)}
                   required
                   errorMessage={errors.PerfilCooperados}
-                  placeholder="Selecione o perfil dos empregados"
+                  placeholder="Selecione o perfil dos funcionários"
                 />
 
                 {Array.isArray(formData.PerfilCooperados) && formData.PerfilCooperados.some(p => p === 'OUTROS' || (p && p.value === 'OUTROS')) && (
                   <div className="md:col-span-2">
                     <CustomInput
                       type="textarea"
-                      label="Descreva o perfil dos empregados (Outros)"
+                      label="Descreva o perfil dos funcionários (Outros)"
                       value={formData.OutrosPerfilCooperados || ''}
                       onChange={(value) => handleInputChange('OutrosPerfilCooperados', value)}
-                      placeholder="Descreva o perfil personalizado dos empregados..."
+                      placeholder="Descreva o perfil personalizado dos funcionários..."
                       rows={3}
                     />
                   </div>

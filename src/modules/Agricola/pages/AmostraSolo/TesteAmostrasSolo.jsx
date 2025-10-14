@@ -1,4 +1,5 @@
 import axios from 'axios';
+import html2canvas from 'html2canvas';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
@@ -6,16 +7,19 @@ import {
     CheckCircle,
     ChevronLeft,
     ChevronRight,
+    Download,
     Info,
     Loader,
     MapPin,
     TestTube,
     User
 } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import QRCode from 'qrcode';
+import React, { useEffect, useRef, useState } from 'react';
 import { MapContainer, Marker, Popup, TileLayer, useMapEvents } from 'react-leaflet';
 import CustomInput from '../../../../core/components/CustomInput';
-
+import insiginia from '../../../../assets/emblema.png';
+import SIGAF from '../../../../assets/SIGAF.png';
 
 // Configuração do ícone do Leaflet
 const defaultIcon = L.icon({
@@ -78,6 +82,9 @@ const TesteAmostrasSolo = () => {
     const [saving, setSaving] = useState(false);
     const [produtores, setProdutores] = useState([]);
     const [loadingProdutores, setLoadingProdutores] = useState(false);
+    const [qrCodeUrl, setQrCodeUrl] = useState('');
+    const cardRef = useRef(null);
+    const [produtorSelected, setProdutorSelected] = useState({});
 
     const provincias = [
         { label: "Bengo", value: "BENGO" },
@@ -160,10 +167,48 @@ const TesteAmostrasSolo = () => {
         observacoesGerais: '',
         codigoTecnicoResponsavel: '',
         codigoSupervisor: '',
-        dataColeta: new Date().toISOString().split('T')[0]
+        dataColeta: new Date().toISOString().split('T')[0],
+
+        // Análise do Solo
+        ph: '',
+        materiaOrganica: '',
+        nitrogenio: '',
+        fosforo: '',
+        potassio: '',
+        calcio: '',
+        magnesio: '',
+        ctc: '',
+        saturacaoBases: '',
+        aluminio: '',
+        boro: '',
+        ferro: '',
+        zinco: '',
+        manganes: ''
     };
 
     const [formData, setFormData] = useState(initialState);
+
+    // Generate QR Code when identificacaoMostra changes
+    useEffect(() => {
+        const generateQRCode = async () => {
+            if (formData.identificacaoMostra) {
+                try {
+                    const url = await QRCode.toDataURL(formData.identificacaoMostra, {
+                        width: 80,
+                        margin: 1,
+                        color: {
+                            dark: '#000000',
+                            light: '#FFFFFF'
+                        }
+                    });
+                    setQrCodeUrl(url);
+                } catch (error) {
+                    console.error('Erro ao gerar QR Code:', error);
+                }
+            }
+        };
+        generateQRCode();
+    }, [formData.identificacaoMostra]);
 
     // Buscar produtores da API
     useEffect(() => {
@@ -202,6 +247,8 @@ const TesteAmostrasSolo = () => {
         return baseSteps;
     };
 
+
+
     const steps = getSteps();
 
     const handleInputChange = (field, value) => {
@@ -236,6 +283,28 @@ const TesteAmostrasSolo = () => {
                     latitude: coords[0] || '',
                     longitude: coords[1] || ''
                 }));
+            }
+        }
+    };
+
+    // Function to download card as image
+    const downloadCard = async () => {
+        if (cardRef.current) {
+            try {
+                const canvas = await html2canvas(cardRef.current, {
+                    backgroundColor: '#ffffff',
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true
+                });
+
+                const link = document.createElement('a');
+                link.download = `cartao-coleta-${formData.identificacaoMostra || 'amostra'}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+            } catch (error) {
+                console.error('Erro ao gerar imagem:', error);
+                alert('Erro ao gerar imagem do cartão');
             }
         }
     };
@@ -316,6 +385,7 @@ const TesteAmostrasSolo = () => {
 
             console.log('✅ Resposta da API:', response.data);
             alert('✅ Coleta de amostra registrada com sucesso!');
+            downloadCard();
             setFormData(initialState);
             setActiveIndex(0);
         } catch (error) {
@@ -337,6 +407,14 @@ const TesteAmostrasSolo = () => {
             setSaving(false);
         }
     };
+
+    useEffect(() => {
+        if (produtores?.length && formData?.produtorSelecionado?.value) {
+            const produtor = produtores.find(p => p._id === parseInt(formData.produtorSelecionado.value));
+            setProdutorSelected(produtor);
+        }
+    }, [produtores, formData]);
+
 
     const renderStepContent = (index) => {
         const stepType = steps[index]?.label;
@@ -396,6 +474,8 @@ const TesteAmostrasSolo = () => {
                                         </div>
                                         {(() => {
                                             const produtor = produtores.find(p => p._id === parseInt(formData.produtorSelecionado.value));
+
+                                            console.log('Produtor selecionado:', produtor.provincia);
                                             if (!produtor) return null;
                                             return (
                                                 <div className="grid grid-cols-2 gap-3 text-sm mt-3">
@@ -754,20 +834,174 @@ const TesteAmostrasSolo = () => {
                         />
                     </div>
 
-                    <div className="bg-blue-50 rounded-2xl p-6 border border-blue-200">
-                        <h4 className="text-lg font-semibold mb-4 text-blue-900">Resumo da Coleta</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                            <div><strong>Identificação:</strong> {formData.identificacaoMostra || 'Não informado'}</div>
-                            <div><strong>Data:</strong> {formData.dataColeta}</div>
-                            <div><strong>Pertence a Produtor:</strong> {formData.pertenceProdutor?.label || 'Não informado'}</div>
-                            {formData.pertenceProdutor?.value === 'sim' && formData.produtorSelecionado && (
-                                <div><strong>Produtor:</strong> {formData.produtorSelecionado.label?.split(' - ')[0] || 'N/A'}</div>
-                            )}
-                            <div><strong>Profundidade:</strong> {formData.profundidadeColeta?.label || 'Não informado'}</div>
-                            <div><strong>Método:</strong> {formData.metodoColeta?.label || 'Não informado'}</div>
-                            <div><strong>Tipo de Solo:</strong> {formData.tipoSolo?.label || 'Não informado'}</div>
-                            <div><strong>Técnico:</strong> {formData.codigoTecnicoResponsavel || 'Não informado'}</div>
+                    {/* Cartão de Coleta de Solo */}
+                    {<div className="relative z-20 p-6 pt-4 pb-12">
+                        <div className="flex justify-center mb-6">
+                            <div
+                                ref={cardRef}
+                                className="w-[1063 px] h-[700px] bg-white border-2 border-gray-300 rounded-lg shadow-lg overflow-hidden relative"
+                                style={{
+                                    background: 'linear-gradient(135deg, rgb(232, 244, 253) 0%, rgb(240, 249, 255) 25%, rgb(255, 255, 255) 50%, rgb(240, 249, 255) 75%, rgb(232, 244, 253) 100%)'
+                                }}
+                            >
+                                {/* Padrão de fundo */}
+                                <div className="absolute inset-0 opacity-10">
+                                    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                                        <defs>
+                                            <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                                                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e5e7eb" strokeWidth="0.5" />
+                                            </pattern>
+                                        </defs>
+                                        <rect width="100%" height="100%" fill="url(#grid)" />
+                                    </svg>
+                                </div>
+
+                                {/* Marca d'água */}
+                                <div className="absolute inset-0 bottom-12 flex items-center justify-center pointer-events-none">
+                                    <div className="w-64 h-64 opacity-25  flex items-center justify-center">
+                                        <img src={SIGAF} alt="" srcset="" />
+                                    </div>
+                                </div>
+
+                                {/* QR Code no topo direito */}
+                                <div className="absolute top-4 right-4 z-30">
+                                    {qrCodeUrl && (
+                                        <div className="bg-white p-2 rounded border ">
+                                            <img src={qrCodeUrl} alt="QR Code" className="w-8 h-8" />
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Conteúdo */}
+                                <div className="relative z-20 p-6 pt-4 h-full">
+                                    {/* Cabeçalho */}
+                                    <div className="flex flex-col mb-8 items-center text-center">
+                                        <div className="w-10 h-10 mb-2 bg-green-800 rounded-full flex items-center justify-center">
+                                            <img src={insiginia} alt="" srcset="" />
+                                        </div>
+                                        <h1 className="text-[11px] font-bold text-green-800">REPÚBLICA DE ANGOLA</h1>
+                                        <p className="text-[11px] font-bold text-green-800">MINISTÉRIO DA AGRICULTURA E FLORESTAS</p>
+                                        <p className="text-[11px] font-bold text-green-800">INSTITUTO DE DESENVOLVIMENTO AGRÁRIO</p>
+
+                                        <p className="text-[11px] font-bold text-gray-600">Sistema Integrado de Gestão Agro-Florestal</p>
+
+                                    </div>
+
+                                    {/* Dados principais */}
+                                    <div className="space-y-3 mb-4">
+                                        <div className="grid grid-cols-[auto_1fr_auto]  ">
+                                            <span className="text-[11px] font-semibold text-gray-700">Identificação da Amostra:</span>
+                                            <div className="flex-1 border-b border-dashed border-gray-400 mx-2"></div>
+                                            <span className="text-[11px] font-bold text-gray-900">{formData.identificacaoMostra || 'Não informado'}</span>
+                                        </div>
+
+                                        <div className="grid grid-cols-[auto_1fr_auto]  ">
+                                            <span className="text-xs font-semibold text-gray-700">Nome do Produtor:</span>
+                                            <div className="flex-1 border-b border-dashed border-gray-400 mx-2"></div>
+                                            <span className="grid grid-cols-[auto_1fr_auto] text-xs font-bold text-gray-900 text-right max-w-[200px] ">
+                                                {formData.pertenceProdutor?.value === 'sim' && formData.produtorSelecionado
+                                                    ? formData.produtorSelecionado.label?.split(' - ')[0]
+                                                    : 'Não informado'}
+                                            </span>
+                                        </div>
+
+                                        <div className="grid grid-cols-[auto_1fr_auto]">
+                                            <span className="text-xs font-semibold text-gray-700">Localização:</span>
+                                            <div className="flex-1 border-b border-dashed border-gray-400 mx-2"></div>
+                                            <span className="grid grid-cols-[auto_1fr_auto] text-xs font-bold text-gray-900 text-right max-w-[200px]">
+                                                {[
+                                                    produtorSelected?.provincia,
+                                                    produtorSelected?.municipio
+                                                ].filter(Boolean).join(', ') || 'Não informado'}
+                                            </span>
+                                        </div>
+
+                                        <div className="grid grid-cols-[auto_1fr_auto]  ">
+                                            <span className="text-xs font-semibold text-gray-700">Data da Coleta:</span>
+                                            <div className="flex-1 border-b border-dashed border-gray-400 mx-2"></div>
+                                            <span className="text-xs font-bold text-gray-900">{formData.dataColeta || 'Não informado'}</span>
+                                        </div>
+
+                                        <div className="grid grid-cols-[auto_1fr_auto]  ">
+                                            <span className="text-xs font-semibold text-gray-700">Método de Coleta:</span>
+                                            <div className="flex-1 border-b border-dashed border-gray-400 mx-2"></div>
+                                            <span className="text-xs font-bold text-gray-900">{formData.metodoColeta?.label || 'Não informado'}</span>
+                                        </div>
+
+                                        <div className="grid grid-cols-[auto_1fr_auto]  ">
+                                            <span className="text-xs font-semibold text-gray-700">Tipo de Solo:</span>
+                                            <div className="flex-1 border-b border-dashed border-gray-400 mx-2"></div>
+                                            <span className="text-xs font-bold text-gray-900">{formData.tipoSolo?.label || 'Não informado'}</span>
+                                        </div>
+
+                                        <div className="grid grid-cols-[auto_1fr_auto]  ">
+                                            <span className="text-xs font-semibold text-gray-700">Técnico Responsável:</span>
+                                            <div className="flex-1 border-b border-dashed border-gray-400 mx-2"></div>
+                                            <span className="text-xs font-bold text-gray-900">{formData.codigoTecnicoResponsavel || 'Não informado'}</span>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <span className=" flex justify-center items-center  text-xs align-middle  w-full  p-1 font-semibold bg-emerald-600 text-white ">Análise do Solo </span>
+                                    </div>
+
+                                    {/* Campos de Análise do Solo */}
+                                    <table className="w-full text-[11px] mt-2 border-collapse mb-5 " >
+                                        <thead>
+                                            <tr>
+                                                <th className="border border-gray-400 p-1 text-center w-20 font-semibold" >Parâmetro</th>
+                                                <th className="border border-gray-400 p-1 text-center font-semibold">Valor</th>
+                                                <th className="border w-20 border-gray-400 p-1 text-center font-semibold">Unidade</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody style={{lineHeight: 0.2}}>
+                                            {[
+                                                { param: "pH", unit: "-" },
+                                                { param: "MO", unit: "g/dm³" },
+                                                { param: "P", unit: "mg/dm³" },
+                                                { param: "K", unit: "cmolc/dm³" },
+                                                { param: "Ca", unit: "cmolc/dm³" },
+                                                { param: "Mg", unit: "cmolc/dm³" },
+                                                { param: "CTC", unit: "cmolc/dm³" },
+                                                { param: "V", unit: "%" },
+                                                { param: "Al", unit: "cmolc/dm³" },
+                                                { param: "B", unit: "mg/dm³" },
+                                                { param: "Fe", unit: "mg/dm³" },
+                                                { param: "Zn", unit: "mg/dm³" },
+                                                { param: "Mn", unit: "mg/dm³" },
+                                            ].map((item, index) => (
+                                                <tr key={index}>
+                                                    <td className="border border-gray-400 font-semibold text-gray-700 p-1 text-center text-[11px] " style={{lineHeight: 0.8}}>{item.param}</td>
+                                                    <td className="border border-gray-400 p-1 text-center"></td>
+                                                    <td className="border border-gray-400 p-1 font-semibold text-gray-700 text-center text-[11px]" style={{lineHeight: 0.8}}>{item.unit}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+
+
+
+
+
+                                    {/* Rodapé */}
+                                    <div className="absolute bottom-4 left-4 text-xs text-gray-500">
+                                        <p>SIGAF - {new Date().getFullYear()}</p>
+
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                    </div>}
+
+                    {/* Botão para baixar */}
+                    <div className="flex justify-center">
+                        <button
+                            onClick={downloadCard}
+                            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                        >
+                            <Download className="w-5 h-5" />
+                            Baixar Cartão PNG
+                        </button>
                     </div>
                 </div>
             );
@@ -793,9 +1027,9 @@ const TesteAmostrasSolo = () => {
                     >
                         <div
                             className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${idx < activeIndex
-                                ? 'bg-cyan-500 text-white'
+                                ? 'bg-gradient-to-r from-emerald-700 to-emerald-500 text-white'
                                 : idx === activeIndex
-                                    ? 'bg-cyan-600 text-white'
+                                    ? 'bg-gradient-to-r from-emerald-700 to-emerald-500 text-white'
                                     : 'bg-gray-200 text-gray-500'
                                 }`}
                         >
@@ -838,8 +1072,8 @@ const TesteAmostrasSolo = () => {
 
                 <button
                     className={`px-8 py-3 rounded-xl flex items-center transition-all font-medium ${activeIndex === steps.length - 1
-                        ? (saving ? 'bg-cyan-400 cursor-not-allowed' : 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg')
-                        : 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg'
+                        ? (saving ? 'bg-gradient-to-r from-emerald-700 to-emerald-500 cursor-not-allowed' : 'bg-gradient-to-r from-emerald-700 to-emerald-500 hover:bg-emerald-700 text-white shadow-lg')
+                        : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg'
                         }`}
                     onClick={() => {
                         if (activeIndex === steps.length - 1) {
