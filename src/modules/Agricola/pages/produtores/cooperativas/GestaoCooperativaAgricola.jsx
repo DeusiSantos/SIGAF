@@ -184,7 +184,7 @@ const GestaoCooperativaAgricola = () => {
 
     // Navegação para visualizar empresa
     const handleViewEscola = (empresaId) => {
-        navigate(`/GerenciaRNPA/gestao-empresas/visualizar-empresa/${empresaId}`);
+        navigate(`/GerenciaRNPA/gestao-agricultores/produtores/visualizar-entidade/${empresaId}`);
     };
 
     const handleTransferencia = (empresaId) => {

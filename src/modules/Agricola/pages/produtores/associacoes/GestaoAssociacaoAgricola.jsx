@@ -180,10 +180,11 @@ const GestaoAssociacaoAgricola = () => {
         return filteredEscolas.slice(startIndex, endIndex);
     };
 
-    // Navegação para visualizar empresa
+     // Navegação para visualizar empresa
     const handleViewEscola = (empresaId) => {
-        navigate(`/GerenciaRNPA/gestao-empresas/visualizar-empresa/${empresaId}`);
+        navigate(`/GerenciaRNPA/gestao-agricultores/produtores/visualizar-entidade/${empresaId}`);
     };
+
 
     const handleTransferencia = (empresaId) => {
         // Navegar para a rota de cadastro de produção passando o ID

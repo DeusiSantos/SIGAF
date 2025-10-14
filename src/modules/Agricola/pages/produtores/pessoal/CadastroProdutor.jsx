@@ -3687,7 +3687,7 @@ const CadastroProdutor = () => {
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      <ScrollToTop activeIndex={activeIndex} />
+      
       {/* Toast Message */}
       {toastMessage && (
         <div className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all ${toastMessage.severity === 'success' ? 'bg-green-100 border-l-4 border-green-500 text-green-700' :

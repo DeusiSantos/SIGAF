@@ -56,7 +56,7 @@ const AgricolaRoutes = () => {
                 <Route path="produtores/cooperativa" element={<CooperativaMenuAgricola />} />
                 <Route path="produtores/associacao" element={<AssociacaoMenuAgricola />} />
                 <Route path="produtores/visualizar/:id" element={<VisualizarProdutor />} />
-                <Route path="gestao-empresas/visualizar-empresa/:id" element={<VisualizarAssociacaoRural />} />
+                <Route path="produtores/visualizar-entidade/:id" element={<VisualizarAssociacaoRural />} />
                 <Route path="produtores/historico-producao/:id" element={<HistoricoProducao />} />
                 <Route path="produtores/historico-producao/:id/novo" element={<AddHistoricoProducao />} />
                 <Route path="produtores/gerar-cartao/:id" element={<GerarCartaoRNPAAgricola />} />
