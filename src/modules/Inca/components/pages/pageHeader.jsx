@@ -17,7 +17,7 @@ const PageHeader = ({ title, gradient, onExport, subtitle }) => {
             <div className="flex gap-4">
               <button
                 onClick={onExport}
-                className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
+                className="inline-flex items-center px-4 py-2 bg-white text-amber-800 rounded-lg hover:bg-amber-50 transition-colors shadow-sm font-medium"
               >
                 <Download className="w-5 h-5 mr-2" />
                 Exportar
