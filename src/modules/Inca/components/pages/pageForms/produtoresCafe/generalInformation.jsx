@@ -23,9 +23,9 @@ export default function InformacoesGerais({ formData, setFormData, errors }) {
         <Input
           type="select"
           label="Tipo de registo"
-          value={formData.dataRegisto || ""}
-          onChange={(value) => handleInputChange("dataRegisto", value)}
-          errorMessage={errors.dataRegisto}
+          value={formData.tipoRegisto || ""}
+          onChange={(value) => handleInputChange("tipoRegisto", value)}
+          errorMessage={errors.tipoRegisto}
           placeholder="Insira o tipo registo"
           iconStart={<Database size={18} />}
           options={[
@@ -35,7 +35,26 @@ export default function InformacoesGerais({ formData, setFormData, errors }) {
           ]}
         />
       </div>
-      <div></div>
+      <div>
+        <div>
+          <Input
+            type="select"
+            label="Tipo de envestimento"
+            value={formData.tipoInvestimento || ""}
+            onChange={(value) => handleInputChange("tipoInvestimento", value)}
+            errorMessage={errors.tipoInvestimento}
+            placeholder="Insira o tipo de envestimento"
+            iconStart={<Database size={18} />}
+            options={[
+              { label: "Comerciante", value: "Comerciante" },
+              { label: "Investidor", value: "Investidor" },
+              { label: "Processador", value: "Processador" },
+              { label: "Produtor", value: "Produtor" },
+              { label: "Parceiros", value: "Parceiros" },
+            ]}
+          />
+        </div>
+      </div>
     </div>
   );
 }
