@@ -140,7 +140,6 @@ const rnpaRoutes = {
           },
         ],
       },
-
       {
         text: "Painel e Monitoramento",
         icon: TrendingUp,

@@ -1034,25 +1034,6 @@ const VisualizarProdutorFlorestal = () => {
         );
     }
 
-    // Produtor não encontrado
-    if (!produtor) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-center">
-                    <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">Produtor não encontrado</h1>
-                    <p className="text-gray-600 mb-6">O produtor solicitado não foi encontrado no sistema.</p>
-                    <button
-                        onClick={() => navigate('/GerenciaRNPA/gestao-florestal/produtoresFlorestais')}
-                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                    >
-                        Voltar à lista
-                    </button>
-                </div>
-            </div>
-        );
-    }
-
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Toast Message */}
