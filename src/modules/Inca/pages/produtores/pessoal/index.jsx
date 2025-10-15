@@ -10,16 +10,19 @@ import {
   Eye,
   EllipsisVertical,
   Edit,
+  FileText,
 } from "lucide-react";
 import { TreePine, Shield, UserCheck, Activity } from "lucide-react";
 import { Users, UserPlus } from "lucide-react";
-import FilterBar from "../../../components/pages/filterBar";
-import StatCard from "../../../components/pages/statCard";
-import PageHeader from "../../../components/pages/pageHeader";
-import TabNavigation from "../../../components/pages/tabNavigation";
-import GenericTable from "../../../components/pages/genericTable";
+import FilterBar from "../../../components/pages/shared/filterBar";
+import StatCard from "../../../components/pages/shared/statCard";
+import PageHeader from "../../../components/pages/shared/pageHeader";
+import TabNavigation from "../../../components/pages/shared/tabNavigation";
+import GenericTable from "../../../components/pages/shared/genericTable";
 import { getInitials } from "../../../utils/getInitials";
-import MultiStepForm from "../../../components/pages/multiStepForm";
+import MultiStepForm from "../../../components/pages/shared/multiStepForm";
+import InformacoesGerais from "../../../components/pages/pageForms/produtoresCafe/generalInformation";
+import InfoSection from "../../../components/pages/shared/infoSection";
 
 export default function Index() {
   const [isLoading, setIsLoading] = useState(true);
@@ -30,7 +33,13 @@ export default function Index() {
     selectedProvince: "",
     selectedActivity: "",
   });
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({
+    dataRegisto: "",
+    referenciaRegisto: "",
+    tipoRegisto: "",
+    tipoInvestimento: "",
+    produtorProprietario: "",
+  });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -287,9 +296,22 @@ export default function Index() {
 
   const steps = [
     {
-      label: "Inventário",
-      icon: TreePine,
-      content: <div>josue</div>,
+      label: "Informações gerais",
+      icon: FileText,
+      content: (
+        <div>
+          <InfoSection
+            title="Informações Gerais"
+            description="Dados básicos sobre o registro da fonte de água para irrigação."
+            color="amber"
+          />
+          <InformacoesGerais
+            formData={formData}
+            setFormData={setFormData}
+            errors={errors}
+          />
+        </div>
+      ),
     },
     {
       label: "Licenciamento",

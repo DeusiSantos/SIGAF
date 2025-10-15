@@ -1,5 +1,5 @@
-import PageHeader from "../components/pages/pageHeader";
-import StatCard from "../components/pages/statCard";
+import PageHeader from "../components/pages/shared/pageHeader";
+import StatCard from "../components/pages/shared/statCard";
 import { Users, DollarSign, Package } from "lucide-react";
 export default function Test() {
   const handleExport = () => {

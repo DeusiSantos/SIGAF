@@ -1,5 +1,5 @@
 import React from 'react';
-import CustomInput from '../../../../core/components/CustomInput';
+import CustomInput from '../../../../../core/components/CustomInput';
 import { Search, Filter, MapPin, Tractor } from 'lucide-react';
 
 /**

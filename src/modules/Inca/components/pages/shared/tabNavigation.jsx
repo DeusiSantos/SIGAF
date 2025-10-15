@@ -1,5 +1,3 @@
-import React, { useState } from "react";
-
 /**
  * Sistema de navegação por tabs reutilizável (apenas os botões)
  *
