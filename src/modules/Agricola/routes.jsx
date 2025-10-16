@@ -14,6 +14,13 @@ import MenuApoioAgricolaAgricola from './Menu/MenuApoioAgricola';
 import MenuEntrepostosMercadoAgricola from './Menu/MenuEntrepostosMercado';
 import MenuInfraestruturaAgricola from './Menu/MenuInfraestruturaAgricola';
 import MenuSilosAgricola from './Menu/MenuSilos';
+
+// Laboratório de Solo Menus
+import MetodosEnsaiosMenu from './Menu/MetodosEnsaiosMenu';
+import AmostraSoloMenu from './Menu/AmostraSoloMenu';
+import ResultadosAnalisesMenu from './Menu/ResultadosAnalisesMenu';
+import RelatoriosLaudosMenu from './Menu/RelatoriosLaudosMenu';
+import GestaoLaboratoriosMenu from './Menu/GestaoLaboratoriosMenu';
 import CertificadosGestao from './pages/validacaoCertificado/CertificadosGestao';
 
 // Componentes de Irrigação
@@ -23,11 +30,11 @@ import VisualizarIrrigacao from './pages/infraestrutura/Irrigacao/VisualizarIrri
 import VisualizarProjeto from './pages/ProgramaBeneficio/VisualizarProjeto';
 
 // Componentes de Amostras de Solo
-import VisualizarAmostra from './pages/AmostraSolo/VisualizarAmostra';
+import VisualizarAmostra from './pages/LaboratorioDeSolo/VisualizarAmostra';
 
 // Geolocalização
 import Geolocalizacao from '../../pages/Geolocalizacao';
-import LancamentoResultadosSolo from './pages/AmostraSolo/LancamentoResultadosSolo';
+import LancamentoResultadosSolo from './pages/LaboratorioDeSolo/LancamentoResultadosSolo';
 import VisualizarIncentivo from './pages/incentivo/VisualizarIncentivo';
 import VisualizarInfraestrutura from './pages/infraestrutura/infraestruturaDeApoio/VisualizarInfraestrutura';
 import VisualizarSilos from './pages/infraestrutura/Silos/VisualizarSilos';
@@ -41,6 +48,7 @@ import GerarCartaoRNPAAgricola from './public/GerarCartaoRNPAAgricola';
 import HistoricoProducao from './public/HistoricoProducao';
 import HistoricoEntidade from './public/HistoricoEntidade';
 import AddHistoricoEntidade from './public/AddHistoricoEntidade';
+import VisualizarOrganizacao from '@/pages/VisualizarOrganizacao';
 
 const AgricolaRoutes = () => {
     return (
@@ -57,7 +65,7 @@ const AgricolaRoutes = () => {
                 <Route path="produtores/cooperativa" element={<CooperativaMenuAgricola />} />
                 <Route path="produtores/associacao" element={<AssociacaoMenuAgricola />} />
                 <Route path="produtores/visualizar/:id" element={<VisualizarProdutor />} />
-                <Route path="produtores/visualizar-entidade/:id" element={<VisualizarAssociacaoRural />} />
+                <Route path="produtores/visualizar-entidade/:id" element={<VisualizarOrganizacao />} />
                 <Route path="produtores/historico-producao/:id" element={<HistoricoProducao />} />
                 <Route path="produtores/historico-entidade/:id" element={<HistoricoEntidade />} />
                 <Route path="produtores/historico-producao/:id/novo" element={<AddHistoricoProducao />} />
@@ -114,6 +122,17 @@ const AgricolaRoutes = () => {
                 <Route path="verificacao" element={<h1 className="text-2xl font-semibold">Certificação da Qualidade do Produto</h1>} />
                 <Route path="geolocalizacao" element={<Geolocalizacao />} />
                 <Route path="categorizacao" element={<h1 className="text-2xl font-semibold">Categorização Automática (UFPAs, Empreendimentos, Associações)</h1>} />
+            </Route>
+
+            {/* ======================================= */}
+            {/* LABORATÓRIO DE SOLO - ROTAS PRINCIPAIS */}
+            {/* ======================================= */}
+            <Route path="LaboratorioDeSolo">
+                <Route path="MetodosEnsaios" element={<MetodosEnsaiosMenu />} />
+                <Route path="AmostraSolo" element={<AmostraSoloMenu />} />
+                <Route path="ResultadosAnalises" element={<ResultadosAnalisesMenu />} />
+                <Route path="RelatoriosLaudos" element={<RelatoriosLaudosMenu />} />
+                <Route path="GestaoLaboratorios" element={<GestaoLaboratoriosMenu />} />
             </Route>
 
             <Route path="painel-monitoramento">

@@ -1,26 +1,24 @@
-import { UserPlus, Users } from 'lucide-react';
+import { FlaskConical, PlusCircle } from 'lucide-react';
 import { useState } from 'react';
-import GestaoTestesSolo from '../../modules/Agricola/pages/LaboratorioDeSolo/GestaoTestesSolo';
-import TesteAmostrasSolo from '../../modules/Agricola/pages/LaboratorioDeSolo/TesteAmostrasSolo';
+import CadastroMetodosEnsaios from './../pages/LaboratorioDeSolo/MetodosEnsaios/CadastroMetodosEnsaios';
+import GestaoMetodosEnsaios from '../pages/LaboratorioDeSolo/MetodosEnsaios/GestaoMetodosEnsaios';
 
-
-
-const AmostrasDeSoloMenu = () => {
+const MetodosEnsaiosMenu = () => {
     const [activeSection, setActiveSection] = useState('gestao');
 
     const menuItems = [
         {
             id: 'gestao',
-            title: 'Gestão ',
-            icon: Users,
-            description: 'Gerenciar ',
-            color: 'green'
+            title: 'Gestão de Métodos e Ensaios',
+            icon: FlaskConical,
+            description: 'Gerenciar métodos e ensaios existentes',
+            color: 'blue'
         },
         {
             id: 'cadastro',
-            title: 'Cadastrar ',
-            icon: UserPlus,
-            description: 'Nova Amostra de Solo',
+            title: 'Cadastro de Novo Método/Ensaio',
+            icon: PlusCircle,
+            description: 'Registrar novo método ou ensaio',
             color: 'blue'
         },
     ];
@@ -47,24 +45,11 @@ const AmostrasDeSoloMenu = () => {
 
     const renderContent = () => {
         switch (activeSection) {
-
             case 'gestao':
-                return (
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-                        <div className="text-center">
-                            <GestaoTestesSolo />
-                        </div>
-                    </div>
-                );
+                return <GestaoMetodosEnsaios />;
 
             case 'cadastro':
-                return (
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-                        <div className="text-center">
-                            <TesteAmostrasSolo />
-                        </div>
-                    </div>
-                );
+                return <CadastroMetodosEnsaios />;
 
             default:
                 return null;
@@ -73,7 +58,6 @@ const AmostrasDeSoloMenu = () => {
 
     return (
         <div className="min-h-full">
-
             {/* Menu de Navegação */}
             <div className="mb-8">
                 <div className="flex flex-wrap gap-4">
@@ -107,4 +91,4 @@ const AmostrasDeSoloMenu = () => {
     );
 };
 
-export default AmostrasDeSoloMenu;
+export default MetodosEnsaiosMenu;

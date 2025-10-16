@@ -1,26 +1,24 @@
-import { UserPlus, Users } from 'lucide-react';
+import { Users, UserPlus } from 'lucide-react';
 import { useState } from 'react';
-import GestaoTestesSolo from '../../modules/Agricola/pages/LaboratorioDeSolo/GestaoTestesSolo';
-import TesteAmostrasSolo from '../../modules/Agricola/pages/LaboratorioDeSolo/TesteAmostrasSolo';
+import CadastroDeSolo from '../pages/LaboratorioDeSolo/AmostraDeSolo/CadastroDeSolo';
+import GestaoAmostrasDeSolo from '../pages/LaboratorioDeSolo/AmostraDeSolo/GestaoAmostrasDeSolo';
 
-
-
-const AmostrasDeSoloMenu = () => {
-    const [activeSection, setActiveSection] = useState('gestao');
+const AmostraSoloMenu = () => {
+    const [activeSection, setActiveSection] = useState('cadastro');
 
     const menuItems = [
         {
             id: 'gestao',
-            title: 'Gestão ',
+            title: ' Gestão de Amostras',
             icon: Users,
-            description: 'Gerenciar ',
-            color: 'green'
+            description: 'Gerenciar amostras de solo existentes',
+            color: 'blue'
         },
         {
             id: 'cadastro',
-            title: 'Cadastrar ',
+            title: 'Cadastrar Amostra de Solo',
             icon: UserPlus,
-            description: 'Nova Amostra de Solo',
+            description: 'Registrar nova amostra de solo',
             color: 'blue'
         },
     ];
@@ -47,24 +45,10 @@ const AmostrasDeSoloMenu = () => {
 
     const renderContent = () => {
         switch (activeSection) {
-
             case 'gestao':
-                return (
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-                        <div className="text-center">
-                            <GestaoTestesSolo />
-                        </div>
-                    </div>
-                );
-
+                return <GestaoAmostrasDeSolo />;
             case 'cadastro':
-                return (
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-                        <div className="text-center">
-                            <TesteAmostrasSolo />
-                        </div>
-                    </div>
-                );
+               return <CadastroDeSolo />;
 
             default:
                 return null;
@@ -73,7 +57,6 @@ const AmostrasDeSoloMenu = () => {
 
     return (
         <div className="min-h-full">
-
             {/* Menu de Navegação */}
             <div className="mb-8">
                 <div className="flex flex-wrap gap-4">
@@ -107,4 +90,4 @@ const AmostrasDeSoloMenu = () => {
     );
 };
 
-export default AmostrasDeSoloMenu;
+export default AmostraSoloMenu;

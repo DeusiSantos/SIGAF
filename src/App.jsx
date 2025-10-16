@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage';
 import Layout from './Layout/layout';
 import AgricolaRoutes from './modules/Agricola/routes';
 import FlorestalRoutes from './modules/Florestal/routes';
+import IncaRoutes from './modules/Inca/routes';
 
 // Outros imports...
 
@@ -24,6 +25,9 @@ function App() {
 
           {/* Rotas do módulo Florestal */}
           {FlorestalRoutes()}
+
+          {/* Rotas do módulo Inca */}
+          {IncaRoutes()}
 
           {/* Outras rotas gerais... */}
         </Route>

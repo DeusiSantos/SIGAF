@@ -8,7 +8,7 @@ import GestaoFiscalizacao from '../../pages/Fiscalizacao/GestaoFiscalizacao';
 import Geolocalizacao from '../../pages/Geolocalizacao';
 import LicencaMenu from '../../pages/Licencas/LicencaMenu';
 import VisualizarOrganizacao from '../../pages/VisualizarOrganizacao';
-import LancamentoResultadosSolo from '../Agricola/pages/AmostraSolo/LancamentoResultadosSolo';
+import LancamentoResultadosSolo from '../Agricola/pages/LaboratorioDeSolo/LancamentoResultadosSolo';
 import VisualizarProjeto from '../Agricola/pages/ProgramaBeneficio/VisualizarProjeto';
 import ArmazenamentoMenu from './Menu/ArmazenamentoMenu';
 import AssociacaoMenuFlorestal from './Menu/AssociacaoMenuFlorestal';
