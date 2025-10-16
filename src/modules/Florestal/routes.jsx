@@ -44,6 +44,7 @@ const FlorestalRoutes = () => {
             {/* ======================================= */}
             {/* LICENÇAS E FISCALIZAÇÃO */}
             {/* ======================================= */}
+
             <Route path="licencas" element={<LicencaMenu />} />
             <Route path="fiscalizacao" element={<GestaoFiscalizacao />} />
             <Route path="produtores/gerar-licenca/:tipo/:id" element={<CertificacaoProdutorFlorestal />} />
@@ -54,7 +55,7 @@ const FlorestalRoutes = () => {
             {/* ======================================= */}
 
             <Route path="visualizarprodutorflorestal/:id" element={<VisualizarProdutorFlorestal />} />
-            <Route path="visualizarCertificado/:produtorId" element={<VisualizarCertificadosFlorestal />} />
+            <Route path="visualizarCertificado/:tipo/:produtorId" element={<VisualizarCertificadosFlorestal />} />
             <Route path="programas" element={<GestaoProgramasBeneficiosMenu />} />
             <Route path="programas-beneficios/visualizar/:id" element={<VisualizarProjeto />} />
 
@@ -71,8 +72,6 @@ const FlorestalRoutes = () => {
             {/* ======================================= */}
             {/* OUTRAS ROTAS */}
             {/* ======================================= */}
-
-
 
             <Route path="produtores/cadastro-producao-organizacao/:id" element={<HistoricoProducaoFlorestal />} />
             <Route path="produtores/historico-producao/:id/novo" element={<AddHistoricoProducaoFlorestal />} />
