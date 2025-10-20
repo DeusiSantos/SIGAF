@@ -29,11 +29,31 @@ export default function InformacoesGerais({ formData, setFormData, errors }) {
           placeholder="Insira o tipo registo"
           iconStart={<Database size={18} />}
           options={[
-            { label: "Exploração familiar", value: "PUBLICA" },
-            { label: "Exploração empresárial", value: "PUBLICA" },
-            { label: "Cooperariva", value: "PUBLICA" },
+            { label: "Exploração familiar", value: "familiar" },
+            { label: "Exploração empresárial", value: "empresarial" },
+            { label: "Cooperariva", value: "cooperativa" },
           ]}
         />
+      </div>
+      <div>
+        <div>
+          <Input
+            type="select"
+            label="Tipo de envestimento"
+            value={formData.tipoInvestimento || ""}
+            onChange={(value) => handleInputChange("tipoInvestimento", value)}
+            errorMessage={errors.tipoInvestimento}
+            placeholder="Insira o tipo de envestimento"
+            iconStart={<Database size={18} />}
+            options={[
+              { label: "Comerciante", value: "Comerciante" },
+              { label: "Investidor", value: "Investidor" },
+              { label: "Processador", value: "Processador" },
+              { label: "Produtor", value: "Produtor" },
+              { label: "Parceiros", value: "Parceiros" },
+            ]}
+          />
+        </div>
       </div>
       <div>
         <div>
