@@ -12,7 +12,9 @@ import LancamentoResultadosSolo from '../Agricola/pages/AmostraSolo/LancamentoRe
 import VisualizarProjeto from '../Agricola/pages/ProgramaBeneficio/VisualizarProjeto';
 import ArmazenamentoMenu from './Menu/ArmazenamentoMenu';
 import AssociacaoMenuFlorestal from './Menu/AssociacaoMenuFlorestal';
+import CertificadoFitossanitarioMenu from './Menu/CertificadoFitossanitarioMenu';
 import CooperativaMenuFlorestal from './Menu/CooperativaMenuFlorestal';
+import EmitidoParaExploracaoMenu from './Menu/EmitidoParaExploracaoMenu';
 import EmpresasMenuFlorestal from './Menu/EmpresasMenuFlorestal';
 import EntrepostosMercadoFlorestalMenu from './Menu/EntrepostosMercadoFlorestalMenu';
 import MenuEmpresasApoio from './Menu/MenuEmpresasApoio';
@@ -38,6 +40,9 @@ const FlorestalRoutes = () => {
             <Route path="produtores/cooperativa" element={<CooperativaMenuFlorestal />} />
             <Route path="produtores/associacao" element={<AssociacaoMenuFlorestal />} />
             <Route path="certificacaoFlorestal" element={<ValidacoesCerificadosFlorestaisMenu />} />
+            <Route path="EmitidoExploracao" element={<EmitidoParaExploracaoMenu />} />
+            <Route path="CertificadoFitossanitário" element={<CertificadoFitossanitarioMenu />} />
+            <Route path="CertificadodeOrigem" element={<ValidacoesCerificadosFlorestaisMenu />} />
             <Route path="produtores/historico-producao/:id" element={<HistoricoProducaoFlorestal />} />
             <Route path="produtores/historico-producao/:id/novo" element={<AddHistoricoProducaoFlorestal />} />
 
@@ -72,6 +77,8 @@ const FlorestalRoutes = () => {
             {/* ======================================= */}
             {/* OUTRAS ROTAS */}
             {/* ======================================= */}
+
+            /gestao-florestal/produtores/CertificadodeOrigem
 
             <Route path="produtores/cadastro-producao-organizacao/:id" element={<HistoricoProducaoFlorestal />} />
             <Route path="produtores/historico-producao/:id/novo" element={<AddHistoricoProducaoFlorestal />} />

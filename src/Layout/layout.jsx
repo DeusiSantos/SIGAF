@@ -223,6 +223,18 @@ const rnpaRoutes = {
         ]
       },
       {
+        text: 'Certificação Florestal',
+        icon: File,
+        path: '',
+        hasDropdown: true,
+        dropdownItems: [
+          { text: 'Licença Florestal', icon: Archive, path: '/GerenciaRNPA/gestao-florestal/certificacaoFlorestal' },
+          { text: 'Emitido Para Exploração', icon: Building2, path: '/GerenciaRNPA/gestao-florestal/EmitidoExploracao' },
+          { text: 'Certificado Fitossanitário', icon: Tractor, path: '/GerenciaRNPA/gestao-florestal/CertificadoFitossanitário' },
+          { text: 'Certificado de Origem', icon: Tractor, path: '/GerenciaRNPA/gestao-florestal/CertificadodeOrigem' }
+        ]
+      },
+      {
         text: 'Painel e Monitoramento',
         icon: TrendingUp,
         path: '/GerenciaRNPA/painel-monitoramento',
@@ -232,7 +244,6 @@ const rnpaRoutes = {
         ]
       },
       { text: 'Programas e Benefícios', icon: Award, path: '/GerenciaRNPA/gestao-florestal/programas' },
-      { text: 'Certificação Florestal', icon: File, path: '/GerenciaRNPA/gestao-florestal/certificacaoFlorestal' },
       { text: 'Transgreções', icon: Gavel, path: '/GerenciaRNPA/gestao-florestal/sancoes' },
       { text: 'Amostra de Solo', icon: TestTube, path: '/GerenciaRNPA/gestao-florestal/AmostrasDeSolo' }
     ],
