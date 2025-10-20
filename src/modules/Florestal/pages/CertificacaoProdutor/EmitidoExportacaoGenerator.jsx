@@ -36,8 +36,6 @@ const styles = StyleSheet.create({
 
   // Cabeçalho oficial
   header: {
-    width: '100%',
-    display: 'hidden',
     textAlign: 'center',
     marginBottom: 15,
     paddingBottom: 10,
@@ -997,7 +995,7 @@ export const gerarCertificadoFlorestal = async (dadosFormulario) => {
 };
 
 // Componente React para interface
-const CertificadoFlorestalGenerator = ({ dados, onSuccess, onError }) => {
+const EmitidoExportacaoGenerator = ({ dados, onSuccess, onError }) => {
   const [gerando, setGerando] = useState(false);
 
   const handleGerar = async () => {
@@ -1159,4 +1157,4 @@ const CertificadoFlorestalGenerator = ({ dados, onSuccess, onError }) => {
   );
 };
 
-export default CertificadoFlorestalGenerator;
+export default EmitidoExportacaoGenerator;

@@ -6,6 +6,7 @@ import {
   Building2,
   ChevronLeft,
   ChevronRight,
+  Coffee,
   EyeOff,
   File,
   Gavel,
@@ -28,7 +29,6 @@ import {
   Users,
   Wheat,
   X,
-  Coffee,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
@@ -210,38 +210,42 @@ const rnpaRoutes = {
           },
         ],
       },
-      // {
-      //   text: 'Infraestrutura',
-      //   icon: Sprout,
-      //   path: '/GerenciaRNPA/gestao-florestal/produtoresFlorestais',
-      //   hasDropdown: true,
-      //   dropdownItems: [
-      //     { text: 'Irrigação', icon: Sprout, path: '/GerenciaRNPA/gestao-florestal/produtores/irrigacao' },
-      //     { text: 'Silos e Centro de Armazenamento', icon: Archive, path: '/GerenciaRNPA/gestao-florestal/produtores/silos-armazenamento' },
-      //     { text: 'Entrepostos e Mercado', icon: Building2, path: '/GerenciaRNPA/gestao-florestal/produtores/entrepostosMercado' },
-      //     { text: 'Empresas de Apoio Agrícola', icon: Tractor, path: '/GerenciaRNPA/gestao-florestal/produtores/apoio-agricola' }
-      //   ]
-      // },
-      // {
-      //   text: 'Painel e Monitoramento',
-      //   icon: TrendingUp,
-      //   path: '/GerenciaRNPA/painel-monitoramento',
-      //   hasDropdown: true,
-      //   dropdownItems: [
-      //     { text: 'Controle de Pragas', icon: ShieldAlert, path: '/GerenciaRNPA/painel-monitoramento/indicadores' },
-      //     { text: 'Meteorologia', icon: Globe, path: '/GerenciaRNPA/painel-monitoramento/meteorologia' },
-      //     { text: 'Hidrografia', icon: MapPin, path: '/GerenciaRNPA/painel-monitoramento/hidrografia' }
-      //   ]
-      // },
-      // { text: 'Programas e Benefícios', icon: Award, path: '/GerenciaRNPA/gestao-florestal/programas' },
-      // { text: 'Incentivos', icon: TrendingUp, path: '/GerenciaRNPA/gestao-florestal/incentivos' },
       {
-        text: "Certificação Florestal",
-        icon: File,
-        path: "/GerenciaRNPA/gestao-florestal/certificacaoFlorestal",
+        text: 'Infraestrutura',
+        icon: Sprout,
+        path: '/GerenciaRNPA/gestao-florestal/produtoresFlorestais',
+        hasDropdown: true,
+        dropdownItems: [
+          { text: 'Armazenamento', icon: Archive, path: '/GerenciaRNPA/gestao-florestal/produtores/armazenamento' },
+          { text: 'Entrepostos e Mercado', icon: Building2, path: '/GerenciaRNPA/gestao-florestal/produtores/entrepostosMercado' },
+          { text: 'Empresas de Apoio Florestal', icon: Tractor, path: '/GerenciaRNPA/gestao-florestal/produtores/empresas-apoio-florestal' },
+          { text: 'Infraestrutura de Apoio Florestal', icon: Tractor, path: '/GerenciaRNPA/gestao-florestal/produtores/intraestrutura-apoio-florestal' }
+        ]
       },
-      { text: "Transgreções", icon: Gavel, path: "/GerenciaRNPA/sancoes" },
-      // { text: 'Amostra de Solo', icon: TestTube, path: '/GerenciaRNPA/gestao-agricultores/AmostrasDeSolo' }
+      {
+        text: 'Certificação Florestal',
+        icon: File,
+        path: '',
+        hasDropdown: true,
+        dropdownItems: [
+          { text: 'Licença Florestal', icon: Archive, path: '/GerenciaRNPA/gestao-florestal/certificacaoFlorestal' },
+          { text: 'Emitido Para Exploração', icon: Building2, path: '/GerenciaRNPA/gestao-florestal/EmitidoExploracao' },
+          { text: 'Certificado Fitossanitário', icon: Tractor, path: '/GerenciaRNPA/gestao-florestal/CertificadoFitossanitário' },
+          { text: 'Certificado de Origem', icon: Tractor, path: '/GerenciaRNPA/gestao-florestal/CertificadodeOrigem' }
+        ]
+      },
+      {
+        text: 'Painel e Monitoramento',
+        icon: TrendingUp,
+        path: '/GerenciaRNPA/painel-monitoramento',
+        hasDropdown: true,
+        dropdownItems: [
+          { text: 'Controle de Pragas', icon: ShieldAlert, path: '/GerenciaRNPA/painel-monitoramento/indicadores' },
+        ]
+      },
+      { text: 'Programas e Benefícios', icon: Award, path: '/GerenciaRNPA/gestao-florestal/programas' },
+      { text: 'Transgreções', icon: Gavel, path: '/GerenciaRNPA/gestao-florestal/sancoes' },
+      { text: 'Amostra de Solo', icon: TestTube, path: '/GerenciaRNPA/gestao-florestal/AmostrasDeSolo' }
     ],
 
     "Painel e Monitoramento": [
@@ -328,25 +332,22 @@ const DropdownMenuItem = ({ item, isActive, onItemClick, onDropdownClick }) => {
     <div className="relative">
       <button
         onClick={handleMainClick}
-        className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 ${
-          isActive
-            ? "text-blue-600 bg-blue-50 font-semibold shadow-sm"
-            : "text-gray-600 hover:bg-blue-50 hover:text-blue-600"
-        }`}
+        className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 ${isActive
+          ? "text-blue-600 bg-blue-50 font-semibold shadow-sm"
+          : "text-gray-600 hover:bg-blue-50 hover:text-blue-600"
+          }`}
       >
         <div className="flex items-center min-w-0">
           <item.icon
-            className={`w-5 h-5 flex-shrink-0 ${
-              isActive ? "text-blue-600" : ""
-            }`}
+            className={`w-5 h-5 flex-shrink-0 ${isActive ? "text-blue-600" : ""
+              }`}
           />
           <span className="ml-3 text-sm truncate">{item.text}</span>
         </div>
         {item.hasDropdown && (
           <ChevronRight
-            className={`w-4 h-4 flex-shrink-0 transition-transform ${
-              isDropdownOpen ? "rotate-90" : ""
-            }`}
+            className={`w-4 h-4 flex-shrink-0 transition-transform ${isDropdownOpen ? "rotate-90" : ""
+              }`}
           />
         )}
         {isActive && !item.hasDropdown && (
@@ -512,9 +513,8 @@ const Layout = () => {
 
       <button
         onClick={toggleSidebarCollapse}
-        className={`mt-3 p-2 rounded-lg text-gray-600 hover:bg-blue-100 hover:text-blue-600 transition-all duration-200 ${
-          isSidebarCollapsed ? "mx-auto" : ""
-        }`}
+        className={`mt-3 p-2 rounded-lg text-gray-600 hover:bg-blue-100 hover:text-blue-600 transition-all duration-200 ${isSidebarCollapsed ? "mx-auto" : ""
+          }`}
         title={isSidebarCollapsed ? "Expandir sidebar" : "Recolher sidebar"}
       >
         {isSidebarCollapsed ? (
@@ -537,20 +537,18 @@ const Layout = () => {
               <li key={index} className="px-2">
                 <button
                   onClick={() => handleMenuClick(item.text)}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 ${
-                    activeMenu === item.text && !isInSubmenu
-                      ? "text-blue-600 bg-blue-50 font-semibold shadow-sm"
-                      : "text-gray-600 hover:bg-blue-50 hover:text-blue-600"
-                  }`}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200 ${activeMenu === item.text && !isInSubmenu
+                    ? "text-blue-600 bg-blue-50 font-semibold shadow-sm"
+                    : "text-gray-600 hover:bg-blue-50 hover:text-blue-600"
+                    }`}
                   title={isSidebarCollapsed ? item.text : ""}
                 >
                   <div className="flex items-center min-w-0">
                     <item.icon
-                      className={`w-5 h-5 flex-shrink-0 ${
-                        activeMenu === item.text && !isInSubmenu
-                          ? "text-blue-600"
-                          : ""
-                      }`}
+                      className={`w-5 h-5 flex-shrink-0 ${activeMenu === item.text && !isInSubmenu
+                        ? "text-blue-600"
+                        : ""
+                        }`}
                     />
                     {!isSidebarCollapsed && (
                       <span className="ml-3 font-medium text-sm truncate">
@@ -560,9 +558,8 @@ const Layout = () => {
                   </div>
                   {!isSidebarCollapsed && item.submenu && (
                     <ChevronRight
-                      className={`w-4 h-4 flex-shrink-0 transition-transform ${
-                        activeMenu === item.text ? "rotate-90" : ""
-                      }`}
+                      className={`w-4 h-4 flex-shrink-0 transition-transform ${activeMenu === item.text ? "rotate-90" : ""
+                        }`}
                     />
                   )}
                 </button>
@@ -644,17 +641,15 @@ const Layout = () => {
                   ) : (
                     <button
                       onClick={() => handleSubmenuItemClick(item.text)}
-                      className={`w-full flex items-center px-4 py-3 rounded-lg transition-all duration-200 ${
-                        activeSubmenuItem === item.text
-                          ? "text-blue-600 bg-blue-50 font-semibold shadow-sm"
-                          : "text-gray-600 hover:bg-blue-50 hover:text-blue-600"
-                      }`}
+                      className={`w-full flex items-center px-4 py-3 rounded-lg transition-all duration-200 ${activeSubmenuItem === item.text
+                        ? "text-blue-600 bg-blue-50 font-semibold shadow-sm"
+                        : "text-gray-600 hover:bg-blue-50 hover:text-blue-600"
+                        }`}
                       title={isSidebarCollapsed ? item.text : ""}
                     >
                       <item.icon
-                        className={`w-5 h-5 flex-shrink-0 ${
-                          activeSubmenuItem === item.text ? "text-blue-600" : ""
-                        }`}
+                        className={`w-5 h-5 flex-shrink-0 ${activeSubmenuItem === item.text ? "text-blue-600" : ""
+                          }`}
                       />
                       {!isSidebarCollapsed && (
                         <>
@@ -683,20 +678,17 @@ const Layout = () => {
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
       <div
-        className={`fixed xl:static inset-y-0 left-0 z-50 bg-white shadow-lg transform transition-all duration-300 ease-in-out ${
-          isSidebarCollapsed ? "w-16" : "w-64"
-        } ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
-        }`}
+        className={`fixed xl:static inset-y-0 left-0 z-50 bg-white shadow-lg transform transition-all duration-300 ease-in-out ${isSidebarCollapsed ? "w-16" : "w-64"
+          } ${isSidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
+          }`}
       >
         <div
-          className={`h-full overflow-hidden ${
-            menuTransition === "entering"
-              ? "animate-fade-in"
-              : menuTransition === "exiting"
+          className={`h-full overflow-hidden ${menuTransition === "entering"
+            ? "animate-fade-in"
+            : menuTransition === "exiting"
               ? "animate-fade-out"
               : ""
-          }`}
+            }`}
         >
           {isInSubmenu ? renderSubMenu() : renderMainMenu()}
         </div>
@@ -808,9 +800,8 @@ const Layout = () => {
 
         {/* DashboardStats com animação */}
         <div
-          className={`transition-all z-[10] duration-500 ease-in-out overflow-hidden ${
-            showDashboardStats ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-          }`}
+          className={`transition-all z-[10] duration-500 ease-in-out overflow-hidden ${showDashboardStats ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+            }`}
         >
           <DashboardStats produtor={produtor} loading={loadingProdutor} />
         </div>
