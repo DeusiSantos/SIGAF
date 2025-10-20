@@ -301,8 +301,8 @@ const GestaoRelatoriosLaudos = () => {
                                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Produtor</th>
                                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Data</th>
                                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Técnico</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acções</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
@@ -729,7 +729,7 @@ const GestaoRelatoriosLaudos = () => {
                                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Valor</th>
                                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Método</th>
                                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Data</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
                                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Técnico</th>
                                 </tr>
                             </thead>
@@ -792,8 +792,8 @@ const GestaoRelatoriosLaudos = () => {
 
                     <CustomInput
                         type="text"
-                        label="Cliente"
-                        placeholder="Nome do cliente"
+                        label="Produtor"
+                        placeholder="Nome do produtor"
                         iconStart={<User size={18} />}
                     />
 
@@ -809,8 +809,8 @@ const GestaoRelatoriosLaudos = () => {
 
                     <CustomInput
                         type="select"
-                        label="Status"
-                        placeholder="Status da fatura"
+                        label="Estado"
+                        placeholder="Estado da fatura"
                         options={[
                             { label: 'Pendente', value: 'PENDENTE' },
                             { label: 'Pago', value: 'PAGO' },
@@ -826,13 +826,13 @@ const GestaoRelatoriosLaudos = () => {
                             <thead className="bg-gray-50">
                                 <tr>
                                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Número</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cliente</th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Produtor</th>
                                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amostra</th>
                                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
                                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Valor</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
                                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Data</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acções</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">

@@ -49,6 +49,14 @@ import HistoricoProducao from './public/HistoricoProducao';
 import HistoricoEntidade from './public/HistoricoEntidade';
 import AddHistoricoEntidade from './public/AddHistoricoEntidade';
 import VisualizarOrganizacao from '@/pages/VisualizarOrganizacao';
+import VisualizarEntreposto from './pages/infraestrutura/entrepostos/VisualizarEntreposto';
+import MenuExportacao from './Menu/MenuExportacao';
+import Dashboard from './pages/Exportacao/Dashboard';
+import BatchForm from '../Agricola/pages/Exportacao/BatchForm';
+import BatchList from '../Agricola/pages/Exportacao/BatchList';
+import BatchTracking from '../Agricola/pages/Exportacao/BatchTracking';
+import PublicBatch from '../Agricola/pages/Exportacao/PublicBatch';
+
 
 const AgricolaRoutes = () => {
     return (
@@ -83,7 +91,7 @@ const AgricolaRoutes = () => {
                 <Route path="produtores/infraestrutura-agricola" element={<MenuInfraestruturaAgricola />} />
                 <Route path="produtores/infraestruturas/visualizar/:id" element={<VisualizarInfraestrutura />} />
                 <Route path="produtores/silos-armazenamento/visualizar/:id" element={<VisualizarSilos />} />
-
+                <Route path="produtores/entrepostos-mercados/visualizar/:id" element={<VisualizarEntreposto />} />
                 {/* ======================================= */}
                 {/* PROGRAMAS E BENEFÍCIOS */}
                 {/* ======================================= */}
@@ -91,6 +99,15 @@ const AgricolaRoutes = () => {
                 <Route path="programas" element={<GestaoProgramasBeneficiosMenu />} />
                 <Route path="programas-beneficios/visualizar/:id" element={<VisualizarProjeto />} />
 
+                {/* ======================================= */}
+                {/* EXPORTAÇÃO */}
+                {/* ======================================= */}
+
+                <Route path="Exportacao" element={<MenuExportacao />} />
+                <Route path="Exportacao/criar-lote" element={<BatchForm />} />
+                <Route path="Exportacao/lotes" element={<BatchList />} />
+                <Route path="Exportacao/lote/:batchId" element={<BatchTracking />} />
+                <Route path="Exportacao/publico/:batchId" element={<PublicBatch />} />
                 {/* ======================================= */}
                 {/* AMOSTRAS DE SOLO */}
                 {/* ======================================= */}

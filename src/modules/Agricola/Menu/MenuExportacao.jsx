@@ -1,17 +1,24 @@
-import { FilePlus, FileText } from 'lucide-react';
+import { Users, UserPlus } from 'lucide-react';
 import { useState } from 'react';
-import GestaoRelatoriosLaudos from '../pages/LaboratorioDeSolo/RelatoriosLaudos/GestaoRelatoriosLaudos';
+import Dashboard from '../pages/Exportacao/Dashboard';
+import BatchForm from '../pages/Exportacao/BatchForm';
 
-const RelatoriosLaudosMenu = () => {
-    const [activeSection, setActiveSection] = useState('gerar');
+const MenuExportacao = () => {
+    const [activeSection, setActiveSection] = useState('cadastro');
 
     const menuItems = [
-        
         {
-            id: 'gerar',
-            title: 'Histórico de Relatórios',
-            icon: FileText,
-            description: 'Consultar relatórios e laudos existentes',
+            id: 'gestao',
+            title: ' Visão Geral',
+            icon: Users,
+            description: 'Gerenciar amostras de solo existentes',
+            color: 'blue'
+        },
+        {
+            id: 'cadastro',
+            title: 'Criar Lote',
+            icon: UserPlus,
+            description: 'Registrar nova amostra de solo',
             color: 'blue'
         },
     ];
@@ -38,10 +45,11 @@ const RelatoriosLaudosMenu = () => {
 
     const renderContent = () => {
         switch (activeSection) {
-            case 'gerar':
-                return <GestaoRelatoriosLaudos />;
+            case 'gestao':
+                return <Dashboard />;
+            case 'cadastro':
+               return <BatchForm/>;
 
-           
             default:
                 return null;
         }
@@ -82,4 +90,4 @@ const RelatoriosLaudosMenu = () => {
     );
 };
 
-export default RelatoriosLaudosMenu;
+export default  MenuExportacao ;

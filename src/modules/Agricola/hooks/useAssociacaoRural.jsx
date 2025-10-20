@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import api from '../../../core/services/api';
 
 export const useAssociacaoRural = () => {
@@ -39,7 +39,6 @@ export const useAssociacaoRural = () => {
     setLoading(true);
     try {
       const response = await api.put(`/organizacao/${id}`, associacaoRuralData);
-      
       await fetchAssociacoesRurais(); // Atualizar a lista
       return response.data;
     } catch (err) {

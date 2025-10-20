@@ -31,17 +31,17 @@ import api from '../../../../../core/services/api';
 
 
 // Dados estáticos das administrações regionais
-const administracoesEstaticas = [
+{/*const administracoesEstaticas = [
     { id: 1, nome: "Administração Regional de Luanda" },
     { id: 2, nome: "Administração Regional de Benguela" },
     { id: 3, nome: "Administração Regional de Huambo" },
     { id: 4, nome: "Administração Regional de Huíla" },
     { id: 5, nome: "Administração Regional de Cabinda" }
-];
+];*/}
 
 const GestaoCooperativaAgricola = () => {
     // Função para navegação de gestão de pessoal
-    const handlePessoal = (empresaId) => {
+    {/**const handlePessoal = (empresaId) => {
         navigate(`/GerenciaRNPA/gestao-empresas/pessoal/${empresaId}`);
     };
 
@@ -53,7 +53,7 @@ const GestaoCooperativaAgricola = () => {
     // Função para navegação de relatórios
     const handleRelatorios = (empresaId) => {
         navigate(`/GerenciaRNPA/gestao-empresas/relatorios/${empresaId}`);
-    };
+    };*/}
 
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
@@ -139,10 +139,10 @@ const GestaoCooperativaAgricola = () => {
     }, [toastTimeout]);
 
     // Função para obter o nome da administração regional
-    const getAdminRegionalName = (adminRegionalId) => {
+    {/*const getAdminRegionalName = (adminRegionalId) => {
         const admin = administracoesEstaticas.find(a => a.id === adminRegionalId);
         return admin ? admin.nome : `Região ${adminRegionalId}`;
-    };
+    */};
 
     // Função para mostrar toast
     const showToast = (type, title, message, duration = 5000) => {

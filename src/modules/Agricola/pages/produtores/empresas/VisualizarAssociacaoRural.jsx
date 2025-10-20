@@ -1,41 +1,38 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
-    Activity,
-    AlertCircle,
-    AlertTriangle,
     ArrowLeft,
-    BarChart2,
-    Briefcase,
-    Building,
     Calendar,
-    CheckCircle,
-    CreditCard,
-    Download,
-    FileText,
-    Info,
-    Mail,
-    Map,
     MapPin,
-    Navigation,
-    Phone,
-    Save,
-    SquarePen,
-    Tractor,
     User,
-    UserCheck,
+    Phone,
+    Download,
+    CheckCircle,
+    AlertTriangle,
+    X,
+    AlertCircle,
+    FileText,
+    Tractor,
+    Activity,
+    Info,
     Users,
-    X
+    SquarePen,
+    Building,
+    CreditCard,
+    Briefcase,
+    Mail,
+    UserCheck,
+    Map,
+    Navigation,
+    BarChart2,
+    Save
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-
-
-
-import axios from 'axios';
-import { RefreshCw } from 'lucide-react';
-import CustomInput from '../../../../../core/components/CustomInput';
-import provinciasData from '../../../../../core/components/Provincias.json';
 import api from '../../../../../core/services/api';
+import CustomInput from '../../../../../core/components/CustomInput';
 import { useAssociacaoRural } from '../../../hooks/useAssociacaoRural';
+import axios from 'axios';
+import provinciasData from '../../../../../core/components/Provincias.json';
+import { RefreshCw } from 'lucide-react';
 
 // Toast deve ser definido fora do componente principal
 const Toast = ({ toastMessage, onClose }) => {
@@ -116,7 +113,7 @@ const VisualizarAssociacaoRural = () => {
     const [estado, setEstado] = useState('ATIVO');
     const [showStatusModal, setShowStatusModal] = useState(false);
     const [pendingStatusValue, setPendingStatusValue] = useState(null);
-
+    
     useEffect(() => {
         if (associacao && associacao.status) {
             setStatus(associacao.status);
@@ -138,6 +135,7 @@ const VisualizarAssociacaoRural = () => {
                 setAssociacao(response.data);
             } catch (error) {
                 setErroAssociacao('Erro ao buscar dados da associação.');
+                console.error('Erro ao buscar associação:', error);
             } finally {
                 setLoadingAssociacao(false);
             }
@@ -317,7 +315,7 @@ const VisualizarAssociacaoRural = () => {
     };
 
     // Formatar data
-    const formatDate = (dateString) => {
+    {/*const formatDate = (dateString) => {
         if (!dateString) return 'N/A';
         const date = new Date(dateString);
         return date.toLocaleDateString('pt-BR');
@@ -331,7 +329,7 @@ const VisualizarAssociacaoRural = () => {
         const diffTime = dataFim - hoje;
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
-    };
+   */};
 
     const confirmCancelEdit = () => {
         setIsEditing(false);
@@ -341,7 +339,7 @@ const VisualizarAssociacaoRural = () => {
     };
 
     // Cores para diferentes status
-    const getStatusColor = (status) => {
+   {/*const getStatusColor = (status) => {
         const statusColors = {
             'ATIVO': 'bg-blue-100 text-blue-800 border-blue-300',
             'EXPIRADO': 'bg-red-100 text-red-800 border-red-300',
@@ -360,7 +358,7 @@ const VisualizarAssociacaoRural = () => {
             'AGUARDANDO_VIGENCIA': 'Aguardando Vigência'
         };
         return statusLabels[status] || status;
-    };
+    */};
 
     // Componente Toast
     // Remover variáveis e estados não usados
@@ -803,7 +801,7 @@ const VisualizarAssociacaoRural = () => {
                                 {isEditing ? (
                                     <CustomInput
                                         type="multiselect"
-                                        value={Array.isArray(formData?.equipamentosAgricolas) ? formData.equipamentosAgricolas.map(e => ({ value: e, label: e})) : []}
+                                        value={Array.isArray(formData?.equipamentosAgricolas) ? formData.equipamentosAgricolas.map(e => ({ value: e, label: e.replace(/[_-]/g, ' ') })) : []}
                                         options={[
                                             { value: 'Trator', label: 'Trator' },
                                             { value: 'Plantadeira', label: 'Plantadeira' },
@@ -818,7 +816,7 @@ const VisualizarAssociacaoRural = () => {
                                     <div className="flex flex-wrap gap-2">
                                         {(associacao.equipamentosAgricolas || []).map((item, idx) => (
                                             <span key={idx} className="bg-yellow-50 border border-yellow-200 text-yellow-600 px-2 py-1 rounded text-xs">
-                                                {item}
+                                                {item.replace(/[-_]/g, ' ')}
                                             </span>
                                         ))}
                                     </div>
@@ -829,7 +827,7 @@ const VisualizarAssociacaoRural = () => {
                                 {isEditing ? (
                                     <CustomInput
                                         type="multiselect"
-                                        value={(formData?.equipamentosInfraestrutura || []).map(e => ({ value: e, label: e }))}
+                                        value={(formData?.equipamentosInfraestrutura || []).map(e => ({ value: e, label: e.replace(/[_-]/g, ' ') }))}
                                         options={[
                                             { value: 'Armazém', label: 'Armazém' },
                                             { value: 'Silo', label: 'Silo' },
@@ -843,7 +841,7 @@ const VisualizarAssociacaoRural = () => {
                                     <div className="flex flex-wrap gap-2">
                                         {(associacao.equipamentosInfraestrutura || []).map((item, idx) => (
                                             <span key={idx} className="bg-yellow-50 border border-yellow-200 text-yellow-600 px-2 py-1 rounded text-xs">
-                                                {item}
+                                                {item.replace(/[-_]/g, ' ')}
                                             </span>
                                         ))}
                                     </div>
@@ -854,7 +852,7 @@ const VisualizarAssociacaoRural = () => {
                                 {isEditing ? (
                                     <CustomInput
                                         type="multiselect"
-                                        value={(formData?.materiaisProducao || []).map(e => ({ value: e, label: e }))}
+                                        value={(formData?.materiaisProducao || []).map(e => ({ value: e, label: e.replace(/[_-]/g, ' ') }))}
                                         options={[
                                             { value: 'Sementes', label: 'Sementes' },
                                             { value: 'Adubo', label: 'Adubo' },
@@ -868,7 +866,7 @@ const VisualizarAssociacaoRural = () => {
                                     <div className="flex flex-wrap gap-2">
                                         {(associacao.materiaisProducao || []).map((item, idx) => (
                                             <span key={idx} className="bg-yellow-50 border border-yellow-200 text-yellow-600 px-2 py-1 rounded text-xs">
-                                                {item}
+                                                {item.replace(/[-_]/g, ' ')}
                                             </span>
                                         ))}
                                     </div>
@@ -879,7 +877,7 @@ const VisualizarAssociacaoRural = () => {
                                 {isEditing ? (
                                     <CustomInput
                                         type="multiselect"
-                                        value={(formData?.ferramentasManuais || []).map(e => ({ value: e, label: e}))}
+                                        value={(formData?.ferramentasManuais || []).map(e => ({ value: e, label: e.replace(/[_-]/g, ' ') }))}
                                         options={[
                                             { value: 'Enxada', label: 'Enxada' },
                                             { value: 'Pá', label: 'Pá' },
@@ -893,7 +891,7 @@ const VisualizarAssociacaoRural = () => {
                                     <div className="flex flex-wrap gap-2">
                                         {(associacao.ferramentasManuais || []).map((item, idx) => (
                                             <span key={idx} className="bg-yellow-50 border border-yellow-200 text-yellow-600 px-2 py-1 rounded text-xs">
-                                                {item}
+                                                {item.replace(/[-_]/g, ' ')}
                                             </span>
                                         ))}
                                     </div>
@@ -904,7 +902,7 @@ const VisualizarAssociacaoRural = () => {
                                 {isEditing ? (
                                     <CustomInput
                                         type="multiselect"
-                                        value={(formData?.equipamentosMedicao || []).map(e => ({ value: e, label: e }))}
+                                        value={(formData?.equipamentosMedicao || []).map(e => ({ value: e, label: e.replace(/[_-]/g, ' ') }))}
                                         options={[
                                             { value: 'Balança', label: 'Balança' },
                                             { value: 'Trena', label: 'Trena' },
@@ -917,7 +915,7 @@ const VisualizarAssociacaoRural = () => {
                                     <div className="flex flex-wrap gap-2">
                                         {(associacao.equipamentosMedicao || []).map((item, idx) => (
                                             <span key={idx} className="bg-yellow-50 border border-yellow-200 text-yellow-600 px-2 py-1 rounded text-xs">
-                                                {item}
+                                                {item.replace(/[-_]/g, ' ')}
                                             </span>
                                         ))}
                                     </div>
@@ -928,7 +926,7 @@ const VisualizarAssociacaoRural = () => {
                                 {isEditing ? (
                                     <CustomInput
                                         type="multiselect"
-                                        value={(formData?.materiaisHigiene || []).map(e => ({ value: e, label: e }))}
+                                        value={(formData?.materiaisHigiene || []).map(e => ({ value: e, label: e.replace(/[_-]/g, ' ') }))}
                                         options={[
                                             { value: 'Álcool', label: 'Álcool' },
                                             { value: 'Sabão', label: 'Sabão' },
@@ -942,7 +940,7 @@ const VisualizarAssociacaoRural = () => {
                                     <div className="flex flex-wrap gap-2">
                                         {(associacao.materiaisHigiene || []).map((item, idx) => (
                                             <span key={idx} className="bg-yellow-50 border border-yellow-200 text-yellow-600 px-2 py-1 rounded text-xs">
-                                                {item}
+                                                {item.replace(/[-_]/g, ' ')}
                                             </span>
                                         ))}
                                     </div>
@@ -953,7 +951,7 @@ const VisualizarAssociacaoRural = () => {
                                 {isEditing ? (
                                     <CustomInput
                                         type="multiselect"
-                                        value={(formData?.materiaisEscritorio || []).map(e => ({ value: e, label: e }))}
+                                        value={(formData?.materiaisEscritorio || []).map(e => ({ value: e, label: e.replace(/[_-]/g, ' ') }))}
                                         options={[
                                             { value: 'Papel', label: 'Papel' },
                                             { value: 'Caneta', label: 'Caneta' },
@@ -967,7 +965,7 @@ const VisualizarAssociacaoRural = () => {
                                     <div className="flex flex-wrap gap-2">
                                         {(associacao.materiaisEscritorio || []).map((item, idx) => (
                                             <span key={idx} className="bg-yellow-50 border border-yellow-200 text-yellow-600 px-2 py-1 rounded text-xs">
-                                                {item}
+                                                {item.replace(/[-_]/g, ' ')}
                                             </span>
                                         ))}
                                     </div>
@@ -978,7 +976,7 @@ const VisualizarAssociacaoRural = () => {
                                 {isEditing ? (
                                     <CustomInput
                                         type="multiselect"
-                                        value={(formData?.equipamentosTransporte || []).map(e => ({ value: e, label: e }))}
+                                        value={(formData?.equipamentosTransporte || []).map(e => ({ value: e, label: e.replace(/[_-]/g, ' ') }))}
                                         options={[
                                             { value: 'Caminhão', label: 'Caminhão' },
                                             { value: 'Carro', label: 'Carro' },
@@ -992,7 +990,7 @@ const VisualizarAssociacaoRural = () => {
                                     <div className="flex flex-wrap gap-2">
                                         {(associacao.equipamentosTransporte || []).map((item, idx) => (
                                             <span key={idx} className="bg-yellow-50 border border-yellow-200 text-yellow-600 px-2 py-1 rounded text-xs">
-                                                {item}
+                                                {item.replace(/[-_]/g, ' ')}
                                             </span>
                                         ))}
                                     </div>
@@ -1003,7 +1001,7 @@ const VisualizarAssociacaoRural = () => {
                                 {isEditing ? (
                                     <CustomInput
                                         type="multiselect"
-                                        value={(formData?.equipamentosPecuarios || []).map(e => ({ value: e, label: e}))}
+                                        value={(formData?.equipamentosPecuarios || []).map(e => ({ value: e, label: e.replace(/[_-]/g, ' ') }))}
                                         options={[
                                             { value: 'Ordenhadeira', label: 'Ordenhadeira' },
                                             { value: 'Cercas', label: 'Cercas' },
@@ -1017,7 +1015,7 @@ const VisualizarAssociacaoRural = () => {
                                     <div className="flex flex-wrap gap-2">
                                         {(associacao.equipamentosPecuarios || []).map((item, idx) => (
                                             <span key={idx} className="bg-yellow-50 border border-yellow-200 text-yellow-600 px-2 py-1 rounded text-xs">
-                                                {item}
+                                                {item.replace(/[-_]/g, ' ')}
                                             </span>
                                         ))}
                                     </div>

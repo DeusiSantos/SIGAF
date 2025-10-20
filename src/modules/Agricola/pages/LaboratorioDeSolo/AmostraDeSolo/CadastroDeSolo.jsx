@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { User, TestTube, MapPin, FlaskConical, Camera, ChevronLeft, ChevronRight, Check, CheckCircle, AlertCircle, Copy, Trash2 } from 'lucide-react';
 import CustomInput from '../../../../../core/components/CustomInput';
+import { useFaturas } from '../../../hooks/useFaturas';
 
 const CadastroDeSolo = () => {
     const [activeIndex, setActiveIndex] = useState(0);
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
     const [toastMessage, setToastMessage] = useState(null);
+    const { gerarFaturaAutomatica } = useFaturas();
 
     const [formData, setFormData] = useState({
         // Identificação do Produtor
@@ -257,7 +259,19 @@ const CadastroDeSolo = () => {
 
         try {
             console.log('Dados da amostra:', formData);
-            showToast('success', 'Sucesso', 'Amostra de solo cadastrada com sucesso!');
+            
+            // Gerar fatura automática se houver ensaios selecionados
+            if (formData.ensaiosSelecionados.length > 0) {
+                try {
+                    await gerarFaturaAutomatica(formData);
+                    showToast('success', 'Sucesso', 'Amostra cadastrada e Fatura Pro-Forma gerada automaticamente!');
+                } catch (faturaError) {
+                    console.error('Erro ao gerar fatura:', faturaError);
+                    showToast('success', 'Sucesso', 'Amostra cadastrada com sucesso! (Erro na geração da fatura)');
+                }
+            } else {
+                showToast('success', 'Sucesso', 'Amostra de solo cadastrada com sucesso!');
+            }
 
             // Reset form
             setFormData({

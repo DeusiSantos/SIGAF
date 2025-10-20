@@ -39,7 +39,7 @@ const laboratoriosData = [
         email: "labcentral@agricultura.gov.ao",
         tiposAnalise: ["QUIMICA", "FISICA", "MINERALOGICA"],
         capacidadeProcessamento: 50,
-        status: "ATIVO",
+        status: "ACTIVO",
         observacoes: "Laboratório principal com equipamentos de última geração",
         dataCadastro: "2024-01-15"
     },
@@ -56,7 +56,7 @@ const laboratoriosData = [
         email: "iia.huambo@agricultura.gov.ao",
         tiposAnalise: ["QUIMICA", "FISICA"],
         capacidadeProcessamento: 30,
-        status: "ATIVO",
+        status: "ACTIVO",
         observacoes: "Especializado em análises de fertilidade do solo",
         dataCadastro: "2024-02-10"
     },
@@ -73,7 +73,7 @@ const laboratoriosData = [
         email: "contato@siglab.ao",
         tiposAnalise: ["QUIMICA", "AMBIENTAL"],
         capacidadeProcessamento: 25,
-        status: "ATIVO",
+        status: "ACTIVO",
         observacoes: "Laboratório privado certificado ISO 17025",
         dataCadastro: "2024-03-05"
     },
@@ -107,7 +107,7 @@ const laboratoriosData = [
         email: "agrolab.norte@gmail.com",
         tiposAnalise: ["QUIMICA"],
         capacidadeProcessamento: 15,
-        status: "ATIVO",
+        status: "ACTIVO",
         observacoes: "Laboratório regional especializado em análises químicas",
         dataCadastro: "2024-04-12"
     }
@@ -171,7 +171,7 @@ const GestaoDeLaboratorios = () => {
     // Função para obter status badge
     const getStatusBadge = (status) => {
         switch (status) {
-            case 'ATIVO':
+            case 'ACTIVO':
                 return 'bg-green-100 text-green-800';
             case 'INATIVO':
                 return 'bg-red-100 text-red-800';
@@ -183,7 +183,7 @@ const GestaoDeLaboratorios = () => {
     // Função para obter ícone do status
     const getStatusIcon = (status) => {
         switch (status) {
-            case 'ATIVO':
+            case 'ACTIVO':
                 return '';
             case 'INATIVO':
                 return '';
@@ -433,7 +433,7 @@ const GestaoDeLaboratorios = () => {
                         <div className="ml-4">
                             <p className="text-sm font-medium text-gray-500">Laboratórios Ativos</p>
                             <p className="text-2xl font-bold text-gray-900">
-                                {laboratoriosData.filter(l => l.status === 'ATIVO').length}
+                                {laboratoriosData.filter(l => l.status === 'ACTIVO').length}
                             </p>
                         </div>
                     </div>
@@ -447,7 +447,7 @@ const GestaoDeLaboratorios = () => {
                         <div className="ml-4">
                             <p className="text-sm font-medium text-gray-500">Capacidade Total</p>
                             <p className="text-2xl font-bold text-gray-900">
-                                {laboratoriosData.reduce((total, l) => total + l.capacidadeProcessamento, 0)} amostras/dia
+                                {laboratoriosData.reduce((total, l) => total + l.capacidadeProcessamento, 0)} /dia
                             </p>
                         </div>
                     </div>
@@ -577,16 +577,16 @@ const GestaoDeLaboratorios = () => {
                                     Localização
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                    Responsável & Contato
+                                    Responsável & Contacto
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                     Tipos de Análise
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                    Status & Capacidade
+                                    Estado & Capacidade
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                    Ações
+                                    Acções
                                 </th>
                             </tr>
                         </thead>
@@ -651,13 +651,6 @@ const GestaoDeLaboratorios = () => {
                                                 title="Visualizar"
                                             >
                                                 <Eye className="w-5 h-5" />
-                                            </button>
-                                            <button
-                                                onClick={() => handleEditLaboratorio(laboratorio.id)}
-                                                className="p-2 hover:bg-yellow-100 text-yellow-600 hover:text-yellow-800 rounded-full transition-colors"
-                                                title="Editar"
-                                            >
-                                                <Edit className="w-5 h-5" />
                                             </button>
                                             <button
                                                 onClick={() => openDeleteModal(laboratorio.id)}

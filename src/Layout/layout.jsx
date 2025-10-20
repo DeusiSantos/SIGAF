@@ -32,6 +32,15 @@ import {
   Microchip,
   Microscope,
   FileText,
+  PlaneTakeoff,
+  Truck,
+  ArrowRight,
+  Upload,
+  PackageX,
+  PackageCheckIcon,
+  PlaneTakeoffIcon,
+  Plane,
+  LucideTicketsPlane,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
@@ -202,17 +211,23 @@ const rnpaRoutes = {
             icon: MapPin,
             path: "/GerenciaRNPA/LaboratorioDeSolo/ResultadosAnalises",
           },
+           {
+            text: "Gestão de Laboratórios",
+            icon: Building2,
+            path: "/GerenciaRNPA/LaboratorioDeSolo/GestaoLaboratorios",
+          },
           {
             text: "Relatórios e Laudos",
             icon: FileText,
             path: "/GerenciaRNPA/LaboratorioDeSolo/RelatoriosLaudos",
           },
-          {
-            text: "Gestão de Laboratórios",
-            icon: Building2,
-            path: "/GerenciaRNPA/LaboratorioDeSolo/GestaoLaboratorios",
-          },
+         
         ],
+      },
+      {
+        text: "Exportação",
+        icon: LucideTicketsPlane,
+        path: "/GerenciaRNPA/gestao-agricultores/exportacao",
       },
     ],
 

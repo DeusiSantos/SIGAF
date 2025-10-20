@@ -611,13 +611,7 @@ const GestaoAmostrasDeSolo = () => {
                                             >
                                                 <Eye className="w-5 h-5" />
                                             </button>
-                                            <button
-                                                onClick={() => handleEditAmostra(amostra.id)}
-                                                className="p-2 hover:bg-yellow-100 text-yellow-600 hover:text-yellow-800 rounded-full transition-colors"
-                                                title="Editar"
-                                            >
-                                                <Edit className="w-5 h-5" />
-                                            </button>
+                                           
                                             <button
                                                 onClick={() => openDeleteModal(amostra.id)}
                                                 className="p-2 hover:bg-red-100 text-red-600 hover:text-red-800 rounded-full transition-colors"

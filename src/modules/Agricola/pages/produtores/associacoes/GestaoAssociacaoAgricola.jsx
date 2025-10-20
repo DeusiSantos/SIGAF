@@ -38,7 +38,7 @@ import api from '../../../../../core/services/api';
 
 const GestaoAssociacaoAgricola = () => {
     // Função para navegação de gestão de pessoal
-    const handlePessoal = (empresaId) => {
+    {/*const handlePessoal = (empresaId) => {
         navigate(`/GerenciaRNPA/gestao-empresas/pessoal/${empresaId}`);
     };
 
@@ -50,7 +50,7 @@ const GestaoAssociacaoAgricola = () => {
     // Função para navegação de relatórios
     const handleRelatorios = (empresaId) => {
         navigate(`/GerenciaRNPA/gestao-empresas/relatorios/${empresaId}`);
-    };
+    };*/}
 
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
@@ -193,9 +193,7 @@ const GestaoAssociacaoAgricola = () => {
     // Ações do menu dropdown
     const actionItems = [
         { label: 'Histórico', icon: <PlusCircle size={16} />, action: handleHistoricoProducao },
-        { label: 'Relatórios', icon: <FileText size={16} />, action: handleRelatorios },
-        { label: 'Infraestrutura', icon: <Building size={16} />, action: handleInfraestrutura },
-        { label: 'Gestão de Pessoal', icon: <User size={16} />, action: handlePessoal }
+     
     ];
 
     // Formatar atividades para exibição
@@ -626,6 +624,7 @@ const GestaoAssociacaoAgricola = () => {
                                             >
                                                 <Trash2 className="w-5 h-5" />
                                             </button>
+                                              <ActionMenu escola={empresa} />
 
                                         </div>
                                     </td>
