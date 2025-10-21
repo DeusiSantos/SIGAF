@@ -1,10 +1,10 @@
 import { UserPlus, Users } from 'lucide-react';
 import { useState } from 'react';
-import CadastroEmpresasFlorestal from '../pages/Produtores/Empresa/CadastroEmpresasFlorestal';
+import RegistroCertificadoOrigem from '../pages/CertificacaoProdutor/RegistroCertificadoOrigem';
 import GestaoEmpresasFlorestal from '../pages/Produtores/Empresa/GestaoEmpresasFlorestal';
 
 
-const CertificadoOrigem = () => {
+const CertificadoOrigemMenu = () => {
     const [activeSection, setActiveSection] = useState('cadastro');
 
     const menuItems = [
@@ -60,7 +60,7 @@ const CertificadoOrigem = () => {
                 return (
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
                         <div className="text-center">
-                            <CadastroEmpresasFlorestal />
+                            <RegistroCertificadoOrigem />
                         </div>
                     </div>
                 );
@@ -106,4 +106,4 @@ const CertificadoOrigem = () => {
     );
 };
 
-export default CertificadoOrigem;
+export default CertificadoOrigemMenu;
