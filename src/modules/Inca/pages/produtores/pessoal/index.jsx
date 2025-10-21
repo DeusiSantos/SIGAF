@@ -11,6 +11,7 @@ import {
   EllipsisVertical,
   Edit,
   FileText,
+  CircleUserRound,
 } from "lucide-react";
 import { TreePine, Shield, UserCheck, Activity } from "lucide-react";
 import { Users, UserPlus } from "lucide-react";
@@ -23,6 +24,8 @@ import { getInitials } from "../../../utils/getInitials";
 import MultiStepForm from "../../../components/pages/shared/multiStepForm";
 import InformacoesGerais from "../../../components/pages/pageForms/produtoresCafe/generalInformation";
 import InfoSection from "../../../components/pages/shared/infoSection";
+import Owner from "../../../components/pages/pageForms/produtoresCafe/owner";
+import Producer from "@/modules/Inca/components/pages/pageForms/produtoresCafe/producer";
 
 export default function Index() {
   const [isLoading, setIsLoading] = useState(true);
@@ -33,13 +36,43 @@ export default function Index() {
     selectedProvince: "",
     selectedActivity: "",
   });
+
   const [formData, setFormData] = useState({
-    dataRegisto: "",
-    referenciaRegisto: "",
-    tipoRegisto: "",
-    tipoInvestimento: "",
-    produtorProprietario: "",
+    dadosGerais: {
+      dataRegisto: new Date().toISOString().split("T")[0],
+      referenciaRegisto: "2025",
+      tipoRegisto: { label: "Produtor", value: "produtor" },
+      tipoInvestimento: { label: "", value: "" },
+      produtorProprietario: { label: "Não", value: "nao" },
+    },
+    produtor: {
+      nome: "",
+      idade: "",
+      genero: { label: "", value: "" },
+      temConjuge: { label: "Não", value: "nao" },
+      idadeConjuge: "",
+      generoConjuge: { label: "", value: "" },
+      conjugeApoia: { label: "Não", value: "nao" },
+      agregadoTotal: "",
+      quantosFeminino: "",
+      adultos: "",
+      adultosMasculino: "",
+      email: "",
+      telefone: "",
+      moradia: "",
+    },
+
+    proprietario: {
+      nome: "",
+      genero: { label: "", value: "" },
+      idade: "",
+      profissao: "",
+      telefone: "",
+      email: "",
+      quantasPropriedades: "",
+    },
   });
+
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -314,15 +347,46 @@ export default function Index() {
       ),
     },
     {
-      label: "Licenciamento",
-      icon: Shield,
-      content: <div>josue</div>,
-    },
-    {
-      label: "Fiscalização",
+      label: "Identificação do produtor",
       icon: UserCheck,
-      content: <div>josue</div>,
+      content: (
+        <div>
+          <InfoSection
+            title="Informações do produtor"
+            description="Dados para identificação do produtor."
+            color="amber"
+          />
+          <Producer
+            formData={formData}
+            setFormData={setFormData}
+            errors={errors}
+          />
+        </div>
+      ),
     },
+    ...(formData.dadosGerais.produtorProprietario.value === "nao"
+      ? [
+          {
+            label: "Proprietário",
+            icon: CircleUserRound,
+            content: (
+              <div>
+                <InfoSection
+                  title="Informações do Proprietário"
+                  description="Dados básicos sobre o proprietário."
+                  color="amber"
+                />
+                <Owner
+                  formData={formData}
+                  setFormData={setFormData}
+                  errors={errors}
+                />
+              </div>
+            ),
+          },
+        ]
+      : []),
+
     {
       label: "Resumo",
       icon: Activity,
