@@ -26,6 +26,7 @@ import InformacoesGerais from "../../../components/pages/pageForms/produtoresCaf
 import InfoSection from "../../../components/pages/shared/infoSection";
 import Owner from "../../../components/pages/pageForms/produtoresCafe/owner";
 import Producer from "@/modules/Inca/components/pages/pageForms/produtoresCafe/producer";
+import PropertyOwner from "@/modules/Inca/components/pages/pageForms/produtoresCafe/propertyOwner";
 
 export default function Index() {
   const [isLoading, setIsLoading] = useState(true);
@@ -70,6 +71,22 @@ export default function Index() {
       telefone: "",
       email: "",
       quantasPropriedades: "",
+    },
+
+    propriedade: {
+      nome: "",
+      localidade: "",
+      moradia: "",
+      telefone: "",
+      email: "",
+      provincia: "",
+      municipio: "",
+      comuna: "",
+      latitude: "",
+      longitude: "",
+      altitude: "",
+      accuracy: "",
+      fotoEspaco: null,
     },
   });
 
@@ -388,9 +405,23 @@ export default function Index() {
       : []),
 
     {
-      label: "Resumo",
+      label: "Dados da propriedade",
       icon: Activity,
-      content: <div>josue</div>,
+      content: (
+        <div>
+          <InfoSection
+            title="Dados da propriedade"
+            description="Dados básicos sobre a sua propriedade."
+            color="amber"
+          />
+
+          <PropertyOwner
+            formData={formData}
+            setFormData={setFormData}
+            errors={errors}
+          />
+        </div>
+      ),
     },
   ];
 
