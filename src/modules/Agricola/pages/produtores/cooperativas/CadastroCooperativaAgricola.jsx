@@ -1763,8 +1763,8 @@ const CadastroCooperativaAgricola = () => {
       <div className="mx-auto px-4 py-8">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200">
           {/* Header */}
-          <div className="text-center mb-8 p-8 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-emerald-50">
-            <h1 className="text-4xl font-bold mb-3 text-gray-800">Cadastro de Cooperativa Agricolas</h1>
+          <div className="text-center mb-8 p-8 border-b border-gray-100 bg-gradient-to-r from-blue-700 to-blue-500 rounded-t-2xl">
+            <h1 className="text-4xl font-bold mb-3 text-white">Cadastro de Cooperativa Agricolas</h1>
           </div>
 
           {/* Stepper */}
@@ -1782,9 +1782,9 @@ const CadastroCooperativaAgricola = () => {
                   onClick={() => setActiveIndex(index)}
                 >
                   <div className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${isActive
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-blue-600 text-white shadow-lg'
                     : isCompleted
-                      ? 'bg-green-500 text-white'
+                      ? 'bg-blue-600 text-white shadow-lg'
                       : 'bg-gray-200 text-gray-500'
                     }`}>
                     {isCompleted ? (
@@ -1793,7 +1793,7 @@ const CadastroCooperativaAgricola = () => {
                       <Icon size={24} />
                     )}
                   </div>
-                  <span className={`text-sm text-center font-medium ${isActive ? 'text-blue-700' : isCompleted ? 'text-green-600' : 'text-gray-500'
+                  <span className={`text-sm text-center font-medium ${isActive ? 'text-blue-700' : isCompleted ? 'text-blue-600' : 'text-gray-500'
                     }`}>
                     {step.label}
                   </span>

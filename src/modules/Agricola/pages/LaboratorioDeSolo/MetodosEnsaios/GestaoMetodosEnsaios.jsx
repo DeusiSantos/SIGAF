@@ -409,13 +409,7 @@ const GestaoMetodosEnsaios = () => {
                             <p className="text-blue-100 mt-1">Administre métodos analíticos e parâmetros de solo</p>
                         </div>
                         <div className="flex gap-4">
-                            <button
-                                onClick={handleNovoMetodo}
-                                className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
-                            >
-                                <PlusCircle className="w-5 h-5 mr-2" />
-                                Novo Método
-                            </button>
+                           
                             <button
                                 onClick={() => showToast('info', 'Função', 'Exportar dados dos métodos')}
                                 className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"

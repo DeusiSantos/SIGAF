@@ -191,6 +191,11 @@ const rnpaRoutes = {
         path: "/GerenciaRNPA/gestao-agricultores/incentivos",
       },
       {
+        text: "Amostra de Solo",
+        icon: TestTube,
+        path: "/GerenciaRNPA/gestao-agricultores/AmostrasDeSolo",
+      },
+      {
         text: "Laboratório de Solo",
         icon: Microscope,
         path: "/GerenciaRNPA/gestao-agricultores/LaboratorioDeSolo",

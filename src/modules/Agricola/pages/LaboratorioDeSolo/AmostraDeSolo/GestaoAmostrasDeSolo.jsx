@@ -445,13 +445,7 @@ const GestaoAmostrasDeSolo = () => {
                             <p className="text-green-100 mt-1">Acompanhe o status das coletas e análises realizadas</p>
                         </div>
                         <div className="flex gap-4">
-                            <button
-                                onClick={handleNovaAmostra}
-                                className="inline-flex items-center px-4 py-2 bg-white text-green-700 rounded-lg hover:bg-green-50 transition-colors shadow-sm font-medium"
-                            >
-                                <PlusCircle className="w-5 h-5 mr-2" />
-                                Nova Amostra
-                            </button>
+                           
                             <button
                                 onClick={() => showToast('info', 'Função', 'Exportar dados das amostras')}
                                 className="inline-flex items-center px-4 py-2 bg-white text-green-700 rounded-lg hover:bg-green-50 transition-colors shadow-sm font-medium"

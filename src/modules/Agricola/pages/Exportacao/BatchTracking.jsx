@@ -214,7 +214,7 @@ export default function BatchTracking() {
     window.open(link, '_blank')
   }
 
-  function renderDecodedData(data, batchId) {
+  function renderDecodedData(data, batchId) {   
     const lines = data.split('\n')
     return lines.map((line, index) => {
       if (line.trim() === 'Veja o portal público') {

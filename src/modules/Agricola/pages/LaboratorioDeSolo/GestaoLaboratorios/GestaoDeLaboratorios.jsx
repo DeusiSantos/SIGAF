@@ -477,13 +477,7 @@ const GestaoDeLaboratorios = () => {
                             <p className="text-orange-100 mt-1">Gerencie laboratórios parceiros e suas capacidades técnicas</p>
                         </div>
                         <div className="flex gap-4">
-                            <button
-                                onClick={handleNovoLaboratorio}
-                                className="inline-flex items-center px-4 py-2 bg-white text-orange-700 rounded-lg hover:bg-orange-50 transition-colors shadow-sm font-medium"
-                            >
-                                <PlusCircle className="w-5 h-5 mr-2" />
-                                Novo Laboratório
-                            </button>
+                           
                             <button
                                 onClick={() => showToast('info', 'Função', 'Exportar dados dos laboratórios')}
                                 className="inline-flex items-center px-4 py-2 bg-white text-orange-700 rounded-lg hover:bg-orange-50 transition-colors shadow-sm font-medium"
