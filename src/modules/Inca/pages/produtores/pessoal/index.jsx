@@ -13,6 +13,7 @@ import {
   FileText,
   CircleUserRound,
   Sprout,
+  ClipboardCheck,
 } from "lucide-react";
 import { TreePine, Shield, UserCheck, Activity } from "lucide-react";
 import { Users, UserPlus } from "lucide-react";
@@ -28,6 +29,8 @@ import InfoSection from "../../../components/pages/shared/infoSection";
 import Owner from "../../../components/pages/pageForms/produtoresCafe/owner";
 import Producer from "@/modules/Inca/components/pages/pageForms/produtoresCafe/producer";
 import PropertyOwner from "@/modules/Inca/components/pages/pageForms/produtoresCafe/propertyOwner";
+import Responsible from "@/modules/Inca/components/pages/pageForms/produtoresCafe/responsibleI";
+import LandUseAndExplorationForm from "@/modules/Inca/components/pages/pageForms/produtoresCafe/landUseAndExplorationForm";
 
 export default function Index() {
   const [isLoading, setIsLoading] = useState(true);
@@ -88,6 +91,50 @@ export default function Index() {
       altitude: "",
       accuracy: "",
       fotoEspaco: null,
+    },
+    usoExploracaoTerra: {
+      // 🏡 Forma de Aquisição
+      formaAquisicao: null, // herança, comprada, outras
+      areaTotal: "",
+      descricaoOutraAquisicao: "",
+
+      // 🌿 Modo de Exploração
+      modoExploracao: null, // com sombra / sem sombra
+
+      // 📏 Área Total (ha)
+      area_2020: "",
+      area_2021: "",
+      area_2022: "",
+      area_2023: "",
+      area_2024: "",
+      area_2025: "",
+
+      // ☕ Área com Café
+      areaCafe: "",
+      areaCafe_2020: "",
+      areaCafe_2021: "",
+      areaCafe_2022: "",
+      areaCafe_2023: "",
+      areaCafe_2024: "",
+      areaCafe_2025: "",
+
+      // 🌾 Outras Culturas
+      outrasCulturas: null, // sim / nao
+      culturasAssociadas: [], // multiselect
+      outraArea_Total: "",
+      outraArea_2020: "",
+      outraArea_2021: "",
+      outraArea_2022: "",
+      outraArea_2023: "",
+      outraArea_2024: "",
+      outraArea_2025: "",
+    },
+
+    responsavel: {
+      nome: "",
+      funcao: "",
+      telefone: "",
+      email: "",
     },
   });
 
@@ -382,7 +429,7 @@ export default function Index() {
         </div>
       ),
     },
-    ...(formData.dadosGerais.produtorProprietario.value === "nao"
+    ...(formData?.dadosGerais?.produtorProprietario?.value === "nao"
       ? [
           {
             label: "Proprietário",
@@ -427,7 +474,39 @@ export default function Index() {
     {
       label: "Uso e Exploração da Terra",
       icon: Sprout,
-      content: <>josue</>,
+      content: (
+        <div>
+          <InfoSection
+            title="Uso e Exploração da Terra"
+            description="Dados sobre aquisição das terras, usso e exploração."
+            color="amber"
+          />
+          <LandUseAndExplorationForm
+            formData={formData}
+            setFormData={setFormData}
+            errors={errors}
+          />
+        </div>
+      ),
+    },
+    {
+      label: "Registador",
+      icon: ClipboardCheck,
+      content: (
+        <div>
+          <InfoSection
+            title="Dados do resgistador"
+            description="Dados básicos sobre o responsavel pelo registro."
+            color="amber"
+          />
+
+          <Responsible
+            formData={formData}
+            setFormData={setFormData}
+            errors={errors}
+          />
+        </div>
+      ),
     },
   ];
 
