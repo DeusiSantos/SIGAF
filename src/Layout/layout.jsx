@@ -6,15 +6,17 @@ import {
   Building2,
   ChevronLeft,
   ChevronRight,
-  Coffee,
   EyeOff,
   File,
+  FileText,
   Gavel,
   Globe,
   Home,
   Landmark,
+  LucideTicketsPlane,
   MapPin,
   Menu,
+  Microscope,
   PanelLeftClose,
   PanelLeftOpen,
   Plus,
@@ -28,20 +30,7 @@ import {
   TrendingUp,
   Users,
   Wheat,
-  X,
-  Coffee,
-  Microchip,
-  Microscope,
-  FileText,
-  PlaneTakeoff,
-  Truck,
-  ArrowRight,
-  Upload,
-  PackageX,
-  PackageCheckIcon,
-  PlaneTakeoffIcon,
-  Plane,
-  LucideTicketsPlane,
+  X
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
@@ -73,12 +62,12 @@ const rnpaRoutes = {
       path: "/GerenciaRNPA/gestao-florestal",
       submenu: true,
     },
-    {
-      text: "Produtores de Café",
-      icon: Coffee,
-      path: "/GerenciaRNPA/gestao-de-cafe",
-      submenu: true,
-    },
+    // {
+    //   text: "Produtores de Café",
+    //   icon: Coffee,
+    //   path: "/GerenciaRNPA/gestao-de-cafe",
+    //   submenu: true,
+    // },
 
     // {
     //   text: 'Entidades Associativas',
@@ -217,7 +206,7 @@ const rnpaRoutes = {
             icon: MapPin,
             path: "/GerenciaRNPA/LaboratorioDeSolo/ResultadosAnalises",
           },
-           {
+          {
             text: "Gestão de Laboratórios",
             icon: Building2,
             path: "/GerenciaRNPA/LaboratorioDeSolo/GestaoLaboratorios",
@@ -227,7 +216,7 @@ const rnpaRoutes = {
             icon: FileText,
             path: "/GerenciaRNPA/LaboratorioDeSolo/RelatoriosLaudos",
           },
-         
+
         ],
       },
       {
