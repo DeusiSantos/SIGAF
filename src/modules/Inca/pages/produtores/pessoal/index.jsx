@@ -12,6 +12,7 @@ import {
   Edit,
   FileText,
   CircleUserRound,
+  Sprout,
 } from "lucide-react";
 import { TreePine, Shield, UserCheck, Activity } from "lucide-react";
 import { Users, UserPlus } from "lucide-react";
@@ -422,6 +423,11 @@ export default function Index() {
           />
         </div>
       ),
+    },
+    {
+      label: "Uso e Exploração da Terra",
+      icon: Sprout,
+      content: <>josue</>,
     },
   ];
 
