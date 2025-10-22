@@ -245,7 +245,7 @@ const ProdutoresGestao = () => {
     const [toastMessage, setToastMessage] = useState(null);
     const [toastTimeout, setToastTimeout] = useState(null);
     const [contentHeight, setContentHeight] = useState('calc(100vh - 12rem)');
-    const itemsPerPage = 5;
+    const itemsPerPage = 4;
     const containerRef = useRef(null);
     const { produtor, loading: loadingProdutor } = useProdutores();
     const { produtor: produtoresAprovados, loading: loadingAprovados } = useProdutoresAprovados();

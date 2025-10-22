@@ -467,7 +467,7 @@ const GestaoTestesSolo = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen ">
       <Toast />
       <DetailsModal />
 
@@ -538,13 +538,7 @@ const GestaoTestesSolo = () => {
             </div>
 
             <div className="flex gap-4">
-              <button
-                onClick={handleNovoTeste}
-                className="inline-flex items-center px-4 py-2 bg-white text-emerald-700 rounded-lg hover:bg-emerald-50 transition-colors shadow-sm font-medium"
-              >
-                <Plus className="w-5 h-5 mr-2" />
-                Novo Teste
-              </button>
+             
 
               <button
                 onClick={handleExportData}
@@ -613,7 +607,7 @@ const GestaoTestesSolo = () => {
                     Estado
                   </th>
                   <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                    Ações
+                    Acções
                   </th>
                 </tr>
               </thead>

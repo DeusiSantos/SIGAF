@@ -1,26 +1,24 @@
-import { UserPlus, Users } from 'lucide-react';
+import { Building2, Plus } from 'lucide-react';
 import { useState } from 'react';
-import GestaoTestesSolo from '../../modules/Agricola/pages/LaboratorioDeSolo/GestaoTestesSolo';
-import TesteAmostrasSolo from '../../modules/Agricola/pages/LaboratorioDeSolo/TesteAmostrasSolo';
+import CadastroLaboratorio from '../pages/LaboratorioDeSolo/GestaoLaboratorios/CadastroLaboratorio';
+import GestaoDeLaboratorios from '../pages/LaboratorioDeSolo/GestaoLaboratorios/GestaoDeLaboratorios';
 
-
-
-const AmostrasDeSoloMenu = () => {
-    const [activeSection, setActiveSection] = useState('gestao');
+const GestaoLaboratoriosMenu = () => {
+    const [activeSection, setActiveSection] = useState('cadastro');
 
     const menuItems = [
         {
             id: 'gestao',
-            title: 'Gestão ',
-            icon: Users,
-            description: 'Gerenciar ',
-            color: 'green'
+            title: 'Gestão de Laboratórios',
+            icon: Building2,
+            description: 'Gerenciar laboratórios existentes',
+            color: 'blue'
         },
         {
             id: 'cadastro',
-            title: 'Cadastrar ',
-            icon: UserPlus,
-            description: 'Nova Amostra de Solo',
+            title: 'Cadastrar Laboratório',
+            icon: Plus,
+            description: 'Registrar novo laboratório',
             color: 'blue'
         },
     ];
@@ -47,24 +45,11 @@ const AmostrasDeSoloMenu = () => {
 
     const renderContent = () => {
         switch (activeSection) {
-
             case 'gestao':
-                return (
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-                        <div className="text-center">
-                            <GestaoTestesSolo />
-                        </div>
-                    </div>
-                );
+                return <GestaoDeLaboratorios />;
 
             case 'cadastro':
-                return (
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-                        <div className="text-center">
-                            <TesteAmostrasSolo />
-                        </div>
-                    </div>
-                );
+                return <CadastroLaboratorio/>
 
             default:
                 return null;
@@ -73,7 +58,6 @@ const AmostrasDeSoloMenu = () => {
 
     return (
         <div className="min-h-full">
-
             {/* Menu de Navegação */}
             <div className="mb-8">
                 <div className="flex flex-wrap gap-4">
@@ -107,4 +91,4 @@ const AmostrasDeSoloMenu = () => {
     );
 };
 
-export default AmostrasDeSoloMenu;
+export default GestaoLaboratoriosMenu;

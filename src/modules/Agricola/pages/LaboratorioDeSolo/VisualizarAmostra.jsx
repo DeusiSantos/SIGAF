@@ -285,20 +285,20 @@ const VisualizarAmostra = () => {
     try {
       const payload = {
         id: parseInt(id),
-        este_solo_pertence_a_um_produt: formData.este_solo_pertence_a_um_produt || "",
+        este_solo_pertence_a_um_produt: typeof formData.este_solo_pertence_a_um_produt === 'object' ? formData.este_solo_pertence_a_um_produt?.value || "" : formData.este_solo_pertence_a_um_produt || "",
         c_digo_do_: formData.c_digo_do_ || 0,
-        profundidade_da_Coleta: formData.profundidade_da_Coleta || "",
-        m_todo_de_Coleta: formData.m_todo_de_Coleta || "",
+        profundidade_da_Coleta: typeof formData.profundidade_da_Coleta === 'object' ? formData.profundidade_da_Coleta?.value || "" : formData.profundidade_da_Coleta || "",
+        m_todo_de_Coleta: typeof formData.m_todo_de_Coleta === 'object' ? formData.m_todo_de_Coleta?.value || "" : formData.m_todo_de_Coleta || "",
         cultura_Actual: Array.isArray(formData.cultura_Actual)
-          ? formData.cultura_Actual
+          ? formData.cultura_Actual.map(item => typeof item === 'object' ? item.value : item)
           : [],
         cultura_Anterior: Array.isArray(formData.cultura_Anterior)
-          ? formData.cultura_Anterior
+          ? formData.cultura_Anterior.map(item => typeof item === 'object' ? item.value : item)
           : [formData.cultura_Anterior || ""],
-        tipo_de_Solo: formData.tipo_de_Solo || "",
-        cor_do_Solo: formData.cor_do_Solo || "",
-        textura: formData.textura || "",
-        drenagem: formData.drenagem || "",
+        tipo_de_Solo: typeof formData.tipo_de_Solo === 'object' ? formData.tipo_de_Solo?.value || "" : formData.tipo_de_Solo || "",
+        cor_do_Solo: typeof formData.cor_do_Solo === 'object' ? formData.cor_do_Solo?.value || "" : formData.cor_do_Solo || "",
+        textura: typeof formData.textura === 'object' ? formData.textura?.value || "" : formData.textura || "",
+        drenagem: typeof formData.drenagem === 'object' ? formData.drenagem?.value || "" : formData.drenagem || "",
         upload_da_Fotografia_da_Amostra: formData.upload_da_Fotografia_da_Amostra || "",
         observa_es_Gerais: formData.observa_es_Gerais || "",
         tecnico_Responsavel: formData.tecnico_Responsavel || "",
@@ -320,11 +320,23 @@ const VisualizarAmostra = () => {
       );
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Erro ao salvar');
+        let errorMessage = 'Erro ao salvar';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch {
+          errorMessage = `Erro ${response.status}: ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
       }
 
-      const updatedData = await response.json();
+      let updatedData;
+      try {
+        updatedData = await response.json();
+      } catch {
+        // Se não conseguir fazer parse do JSON, usar os dados do formData
+        updatedData = { ...formData, id: parseInt(id) };
+      }
       setAmostra(updatedData);
       setFormData(updatedData);
       setEditMode(false);
@@ -431,76 +443,7 @@ const VisualizarAmostra = () => {
           </div>
         </div>
 
-        {/* Fotografia da Amostra */}
-        <div className="bg-white rounded-xl shadow p-6 mb-6">
-          <h2 className="font-semibold text-lg mb-4 flex items-center gap-2">
-            <Camera className="w-5 h-5 text-purple-600" />
-            Fotografia da Amostra
-          </h2>
 
-          <div className="bg-gray-50 rounded-lg p-4">
-            {loadingFoto && (
-              <div className="flex items-center justify-center p-8 text-gray-500">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-                <span className="ml-3">Carregando foto...</span>
-              </div>
-            )}
-
-            {!loadingFoto && (imagemUrl || previewFoto) && (
-              <img
-                src={previewFoto || imagemUrl}
-                alt="Fotografia da Amostra"
-                className="w-full h-auto rounded-lg max-h-96 object-cover"
-                onError={(e) => {
-                  console.error('❌ Erro ao carregar imagem:', e);
-                  setImagemUrl('');
-                }}
-              />
-            )}
-
-            {!loadingFoto && !imagemUrl && !previewFoto && (
-              <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <Camera className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                  <p className="text-sm text-gray-500">Nenhuma fotografia disponível</p>
-                </div>
-              </div>
-            )}
-
-            {editMode && (
-              <div className="mt-4">
-                <label className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors inline-block">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFotoChange}
-                    className="hidden"
-                  />
-                  {imagemUrl || previewFoto ? 'Alterar Foto' : 'Adicionar Foto'}
-                </label>
-
-                {novaFoto && (
-                  <div className="flex gap-2 mt-3">
-                    <button
-                      onClick={() => uploadFoto(novaFoto)}
-                      disabled={uploadingFoto}
-                      className="flex-1 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded text-sm transition-colors disabled:bg-green-300"
-                    >
-                      {uploadingFoto ? 'Enviando...' : 'Confirmar Upload'}
-                    </button>
-                    <button
-                      onClick={cancelarFoto}
-                      disabled={uploadingFoto}
-                      className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded text-sm transition-colors"
-                    >
-                      Cancelar
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
 
         {/* Informações da Amostra */}
         <div className="bg-white rounded-xl shadow p-6 mb-6">
@@ -707,13 +650,13 @@ const VisualizarAmostra = () => {
             )}
           </div>
         </div>
-
         {/* Culturas */}
         <div className="bg-white rounded-xl shadow p-6 mb-6">
           <h2 className="font-semibold text-lg mb-4 flex items-center gap-2">
             <Leaf className="w-5 h-5 text-green-600" />
             Culturas
           </h2>
+
           <div className="grid grid-cols-1 gap-6">
             {/* Culturas Atuais */}
             {editMode ? (
@@ -729,25 +672,155 @@ const VisualizarAmostra = () => {
               <label className="text-sm font-medium text-gray-700">
                 Culturas Atuais
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {getSelectedLabels(amostra.cultura_Actual, culturasOptions).map((label, idx) => (
-                    <span key={`cultura-${idx}`} className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs flex items-center gap-1">
-                      <Leaf size={14} />
-                      {label}
-                    </span>
-                  ))}
+                  {(() => {
+                    let culturasAtuais = amostra.cultura_Actual;
+                    if (typeof culturasAtuais === 'string') {
+                      try {
+                        culturasAtuais = JSON.parse(culturasAtuais);
+                      } catch {
+                        return <span className="text-gray-600">{culturasAtuais}</span>;
+                      }
+                    }
+
+                    if (Array.isArray(culturasAtuais)) {
+                      return culturasAtuais.map((item, idx) => {
+                        const nome =
+                          typeof item === 'object'
+                            ? item.value || item.label
+                            : item;
+                        return (
+                          <span
+                            key={`cultura-${idx}`}
+                            className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs flex items-center gap-1"
+                          >
+                            <Leaf size={14} />
+                            {nome}
+                          </span>
+                        );
+                      });
+                    }
+                    return <span className="text-gray-600">N/A</span>;
+                  })()}
                 </div>
               </label>
             )}
 
             {/* Cultura Anterior */}
-            <CustomInput
-              type="text"
-              label="Cultura Anterior"
-              value={editMode ? formData.cultura_Anterior || '' : amostra.cultura_Anterior || ''}
-              onChange={value => handleInputChange('cultura_Anterior', value)}
-              disabled={!editMode}
-              iconStart={<Leaf size={18} />}
-            />
+            {editMode ? (
+              <CustomInput
+                type="text"
+                label="Cultura Anterior"
+                value={formData.cultura_Anterior || ''}
+                onChange={value => handleInputChange('cultura_Anterior', value)}
+                iconStart={<Leaf size={18} />}
+              />
+            ) : (
+              <label className="text-sm font-medium text-gray-700">
+                Cultura Anterior
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {(() => {
+                    let culturaAnterior = amostra.cultura_Anterior;
+                    if (typeof culturaAnterior === 'string') {
+                      try {
+                        culturaAnterior = JSON.parse(culturaAnterior);
+                      } catch {
+                        return <span className="text-gray-600">{culturaAnterior}</span>;
+                      }
+                    }
+
+                    if (Array.isArray(culturaAnterior)) {
+                      return culturaAnterior.map((item, idx) => {
+                        const nome =
+                          typeof item === 'object'
+                            ? item.value || item.label
+                            : item;
+                        return (
+                          <span
+                            key={`cultura-ant-${idx}`}
+                            className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs flex items-center gap-1"
+                          >
+                            <Leaf size={14} />
+                            {nome}
+                          </span>
+                        );
+                      });
+                    }
+                    return <span className="text-gray-600">{culturaAnterior || 'N/A'}</span>;
+                  })()}
+                </div>
+              </label>
+            )}
+          </div>
+        </div>
+
+        {/* Fotografia da Amostra */}
+        <div className="bg-white rounded-xl shadow p-6 mb-6">
+          <h2 className="font-semibold text-lg mb-4 flex items-center gap-2">
+            <Camera className="w-5 h-5 text-purple-600" />
+            Fotografia da Amostra
+          </h2>
+
+          <div className="bg-gray-50 rounded-lg p-4">
+            {loadingFoto && (
+              <div className="flex items-center justify-center p-8 text-gray-500">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                <span className="ml-3">Carregando foto...</span>
+              </div>
+            )}
+
+            {!loadingFoto && (imagemUrl || previewFoto) && (
+              <img
+                src={previewFoto || imagemUrl}
+                alt="Fotografia da Amostra"
+                className="w-full h-auto rounded-lg max-h-96 object-cover"
+                onError={(e) => {
+                  console.error('❌ Erro ao carregar imagem:', e);
+                  setImagemUrl('');
+                }}
+              />
+            )}
+
+            {!loadingFoto && !imagemUrl && !previewFoto && (
+              <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+                <div className="text-center">
+                  <Camera className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                  <p className="text-sm text-gray-500">Nenhuma fotografia disponível</p>
+                </div>
+              </div>
+            )}
+
+            {editMode && (
+              <div className="mt-4">
+                <label className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors inline-block">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFotoChange}
+                    className="hidden"
+                  />
+                  {imagemUrl || previewFoto ? 'Alterar Foto' : 'Adicionar Foto'}
+                </label>
+
+                {novaFoto && (
+                  <div className="flex gap-2 mt-3">
+                    <button
+                      onClick={() => uploadFoto(novaFoto)}
+                      disabled={uploadingFoto}
+                      className="flex-1 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded text-sm transition-colors disabled:bg-green-300"
+                    >
+                      {uploadingFoto ? 'Enviando...' : 'Confirmar Upload'}
+                    </button>
+                    <button
+                      onClick={cancelarFoto}
+                      disabled={uploadingFoto}
+                      className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded text-sm transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 

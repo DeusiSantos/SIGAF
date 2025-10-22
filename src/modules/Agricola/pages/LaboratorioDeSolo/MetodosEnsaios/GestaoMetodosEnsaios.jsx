@@ -1,117 +1,113 @@
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
+    Activity,
     AlertCircle,
-    Building,
     CheckCircle,
     ChevronLeft,
     ChevronRight,
     Download,
     Eye,
-    Factory,
     FileText,
-    History,
-    Loader,
-    Mail,
-    MapPin,
+    Filter,
     MoreVertical,
-    Phone,
-    Plus,
     PlusCircle,
-    School,
     Search,
+    TestTube,
     Trash2,
-    User,
-    Users,
-    X
+    X,
+    Edit
 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import CustomInput from '../../../../../core/components/CustomInput';
-import api from '../../../../../core/services/api';
 
+// Dados fictícios dos métodos de ensaio
+const metodosData = [
+    {
+        id: 1,
+        tipoAnalise: "Físico-química",
+        tipoAmostra: "Solo",
+        parametroAnalise: "pH",
+        formulaQuimica: "H+",
+        metodoAnalise: "Potenciométrico",
+        laboratorio: "Lab Central Luanda",
+        limiteInferior: 4.5,
+        limiteSuperior: 7.5,
+        unidade: "—",
+        preco: 1500,
+        status: "ATIVO"
+    },
+    {
+        id: 2,
+        tipoAnalise: "Físico-química",
+        tipoAmostra: "Solo",
+        parametroAnalise: "Fósforo (P)",
+        formulaQuimica: "P",
+        metodoAnalise: "Fotocolorimetria",
+        laboratorio: "Lab Central Luanda",
+        limiteInferior: 15.0,
+        limiteSuperior: 40.0,
+        unidade: "mg/dm³",
+        preco: 2000,
+        status: "ATIVO"
+    },
+    {
+        id: 3,
+        tipoAnalise: "Físico-química",
+        tipoAmostra: "Solo",
+        parametroAnalise: "Potássio (K)",
+        formulaQuimica: "K",
+        metodoAnalise: "Fotometria de Chama",
+        laboratorio: "Lab Benguela",
+        limiteInferior: 0.15,
+        limiteSuperior: 0.40,
+        unidade: "cmolc/dm³",
+        preco: 1800,
+        status: "ATIVO"
+    },
+    {
+        id: 4,
+        tipoAnalise: "Físico-química",
+        tipoAmostra: "Solo",
+        parametroAnalise: "Matéria Orgânica",
+        formulaQuimica: "MO",
+        metodoAnalise: "Walkley-Black",
+        laboratorio: "Lab Central Luanda",
+        limiteInferior: 2.0,
+        limiteSuperior: 5.0,
+        unidade: "%",
+        preco: 2500,
+        status: "ATIVO"
+    },
+    {
+        id: 5,
+        tipoAnalise: "Físico-química",
+        tipoAmostra: "Solo",
+        parametroAnalise: "Cálcio (Ca)",
+        formulaQuimica: "Ca",
+        metodoAnalise: "Espectrofotometria",
+        laboratorio: "Lab Huambo",
+        limiteInferior: 1.0,
+        limiteSuperior: 4.0,
+        unidade: "cmolc/dm³",
+        preco: 1700,
+        status: "INATIVO"
+    }
+];
 
-
-// Dados estáticos das administrações regionais
-{/*const administracoesEstaticas = [
-    { id: 1, nome: "Administração Regional de Luanda" },
-    { id: 2, nome: "Administração Regional de Benguela" },
-    { id: 3, nome: "Administração Regional de Huambo" },
-    { id: 4, nome: "Administração Regional de Huíla" },
-    { id: 5, nome: "Administração Regional de Cabinda" }
-];*/}
-
-const GestaoCooperativaAgricola = () => {
-    // Função para navegação de gestão de pessoal
-    {/**const handlePessoal = (empresaId) => {
-        navigate(`/GerenciaRNPA/gestao-empresas/pessoal/${empresaId}`);
-    };
-
-    // Função para navegação de infraestrutura
-    const handleInfraestrutura = (empresaId) => {
-        navigate(`/GerenciaRNPA/gestao-empresas/infraestrutura/${empresaId}`);
-    };
-
-    // Função para navegação de relatórios
-    const handleRelatorios = (empresaId) => {
-        navigate(`/GerenciaRNPA/gestao-empresas/relatorios/${empresaId}`);
-    };*/}
-
+const GestaoMetodosEnsaios = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedRegion, setSelectedRegion] = useState('');
-    const [selectedTipo, setSelectedTipo] = useState('');
-    const [selectedStatus, setSelectedStatus] = useState('');
+    const [selectedTipoAnalise, setSelectedTipoAnalise] = useState('');
+    const [selectedTipoAmostra, setSelectedTipoAmostra] = useState('');
+    const [selectedLaboratorio, setSelectedLaboratorio] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [toastMessage, setToastMessage] = useState(null);
     const [toastTimeout, setToastTimeout] = useState(null);
     const [contentHeight, setContentHeight] = useState('calc(100vh - 12rem)');
     const itemsPerPage = 6;
     const containerRef = useRef(null);
-
-    // Estados para dados da API
-    const [empresas, setEmpresas] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
-    // Estados para o modal de exclusão
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [empresaToDelete, setEmpresaToDelete] = useState(null);
-
-    // Função para buscar empresas da API
-    const fetchEmpresas = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-            const response = await api.get('/organizacao/cooperativasAgricolas');
-
-            console.log('📊 Dados recebidos da API:', response.data);
-
-            const data = Array.isArray(response.data) ? response.data : response.data.data || [];
-            setEmpresas(data);
-        } catch (err) {
-            console.error('❌ Erro ao buscar empresas:', err);
-            setError(err.message || 'Erro ao carregar dados');
-            showToast('error', 'Erro', 'Não foi possível carregar os dados das empresas');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // Função para deletar empresa
-    const deleteEmpresa = async (empresaId) => {
-        try {
-            await api.delete(`/organizacao/${empresaId}`);
-            await fetchEmpresas();
-            return true;
-        } catch (error) {
-            console.error('Erro ao deletar empresa:', error);
-            throw error;
-        }
-    };
-
-    // Carregar dados ao montar componente
-    useEffect(() => {
-        fetchEmpresas();
-    }, []);
+    const [metodoDelete, setMetodoDelete] = useState(null);
 
     // Ajustar altura do conteúdo
     useEffect(() => {
@@ -138,12 +134,6 @@ const GestaoCooperativaAgricola = () => {
         };
     }, [toastTimeout]);
 
-    // Função para obter o nome da administração regional
-    {/*const getAdminRegionalName = (adminRegionalId) => {
-        const admin = administracoesEstaticas.find(a => a.id === adminRegionalId);
-        return admin ? admin.nome : `Região ${adminRegionalId}`;
-    */};
-
     // Função para mostrar toast
     const showToast = (type, title, message, duration = 5000) => {
         if (toastTimeout) {
@@ -159,51 +149,72 @@ const GestaoCooperativaAgricola = () => {
         setToastTimeout(timeout);
     };
 
-    // Filtragem das empresas
-    const filteredEscolas = empresas.filter(empresa => {
-        const matchesSearch = empresa.nomeEntidade?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            empresa.nomePresidente?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            empresa.email?.toLowerCase().includes(searchTerm.toLowerCase());
+    // Filtragem dos métodos
+    const filteredMetodos = metodosData.filter(metodo => {
+        const matchesSearch = !searchTerm ||
+            metodo.parametroAnalise?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            metodo.metodoAnalise?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            metodo.laboratorio?.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesTipoAnalise = !selectedTipoAnalise || metodo.tipoAnalise === selectedTipoAnalise;
+        const matchesTipoAmostra = !selectedTipoAmostra || metodo.tipoAmostra === selectedTipoAmostra;
+        const matchesLaboratorio = !selectedLaboratorio || metodo.laboratorio === selectedLaboratorio;
 
-        const matchesRegion = !selectedRegion || empresa.provincia === selectedRegion;
-
-        const matchesTipo = !selectedTipo || (empresa.atividades &&
-            empresa.atividades.some(atividade => atividade.includes(selectedTipo)));
-
-        const matchesStatus = !selectedStatus || empresa.estado === selectedStatus;
-
-        return matchesSearch && matchesRegion && matchesTipo && matchesStatus;
+        return matchesSearch && matchesTipoAnalise && matchesTipoAmostra && matchesLaboratorio;
     });
 
     // Paginação
-    const totalPages = Math.ceil(filteredEscolas.length / itemsPerPage);
+    const totalPages = Math.ceil(filteredMetodos.length / itemsPerPage);
     const getCurrentItems = () => {
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
-        return filteredEscolas.slice(startIndex, endIndex);
+        return filteredMetodos.slice(startIndex, endIndex);
     };
 
-    // Navegação para visualizar empresa
-    const handleViewEscola = (empresaId) => {
-        navigate(`/GerenciaRNPA/gestao-agricultores/produtores/visualizar-entidade/${empresaId}`);
+    // Navegação para visualizar método
+    const handleViewMetodo = (metodoId) => {
+        navigate(`/GerenciaRNPA/laboratorio-solo/metodos-ensaios/visualizar/${metodoId}`);
     };
 
-     const handleHistoricoProducao = (produtorId) => {
-        navigate(`/GerenciaRNPA/gestao-agricultores/produtores/historico-entidade/${produtorId}`);
+    // Navegação para editar método
+    const handleEditMetodo = (metodoId) => {
+        navigate(`/GerenciaRNPA/laboratorio-solo/metodos-ensaios/editar/${metodoId}`);
     };
 
-    // Ações do menu dropdown
-    const actionItems = [
-        { label: 'Histórico', icon: <History size={16} />, action: handleHistoricoProducao },
-       
-    ];
+    // Navegação para novo método
+    const handleNovoMetodo = () => {
+        navigate('/GerenciaRNPA/laboratorio-solo/metodos-ensaios/cadastro');
+    };
 
-    // Formatar atividades para exibição
-    const formatAtividades = (atividades) => {
-        if (!atividades || !Array.isArray(atividades)) return [];
-        return atividades.map(atividade =>
-            atividade.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1').trim()
-        );
+    // Extrair valores únicos para filtros
+    const uniqueTiposAnalise = [...new Set(metodosData.map(m => m.tipoAnalise))].filter(Boolean);
+    const uniqueTiposAmostra = [...new Set(metodosData.map(m => m.tipoAmostra))].filter(Boolean);
+    const uniqueLaboratorios = [...new Set(metodosData.map(m => m.laboratorio))].filter(Boolean);
+
+    // Função para abrir modal de confirmação
+    const openDeleteModal = (metodoId) => {
+        setMetodoDelete(metodoId);
+        setShowDeleteModal(true);
+    };
+
+    // Função para fechar modal
+    const closeDeleteModal = () => {
+        setShowDeleteModal(false);
+        setMetodoDelete(null);
+    };
+
+    // Função para deletar método após confirmação
+    const handleConfirmDelete = async () => {
+        if (!metodoDelete) return;
+        try {
+            // Simular exclusão - substituir pela API real
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            showToast('success', 'Excluído', 'Método de ensaio excluído com sucesso!');
+        } catch (err) {
+            showToast('error', 'Erro', 'Erro ao excluir método de ensaio.');
+            console.error(err);
+        } finally {
+            closeDeleteModal();
+        }
     };
 
     // Componente Toast
@@ -251,8 +262,14 @@ const GestaoCooperativaAgricola = () => {
     };
 
     // Menu dropdown de ações
-    const ActionMenu = ({ escola }) => {
+    const ActionMenu = ({ metodo }) => {
         const [isOpen, setIsOpen] = useState(false);
+
+        const actionItems = [
+            { label: 'Visualizar', icon: <Eye size={16} />, action: () => handleViewMetodo(metodo.id) },
+            { label: 'Editar', icon: <Edit size={16} />, action: () => handleEditMetodo(metodo.id) },
+            { label: 'Excluir', icon: <Trash2 size={16} />, action: () => openDeleteModal(metodo.id) }
+        ];
 
         return (
             <div className="relative">
@@ -265,14 +282,14 @@ const GestaoCooperativaAgricola = () => {
                 </button>
 
                 {isOpen && (
-                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg z-[999] ring-1 ring-black ring-opacity-5">
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-[999] ring-1 ring-black ring-opacity-5">
                         <div className="py-1">
                             {actionItems.map((item, index) => (
                                 <button
                                     key={index}
                                     className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
                                     onClick={() => {
-                                        item.action(escola.id);
+                                        item.action();
                                         setIsOpen(false);
                                     }}
                                 >
@@ -287,39 +304,10 @@ const GestaoCooperativaAgricola = () => {
         );
     };
 
-    // Extrair regiões únicas para o filtro
-    const uniqueRegions = [...new Set(empresas.map(empresa => empresa.provincia))].filter(Boolean);
-
-    // Função para abrir modal de confirmação
-    const openDeleteModal = (empresaId) => {
-        setEmpresaToDelete(empresaId);
-        setShowDeleteModal(true);
-    };
-
-    // Função para fechar modal
-    const closeDeleteModal = () => {
-        setShowDeleteModal(false);
-        setEmpresaToDelete(null);
-    };
-
-    // Função para deletar empresa após confirmação
-    const handleConfirmDelete = async () => {
-        if (!empresaToDelete) return;
-        try {
-            await deleteEmpresa(empresaToDelete);
-            showToast('success', 'Excluído', 'Empresa excluída com sucesso!');
-        } catch (err) {
-            showToast('error', 'Erro', 'Erro ao excluir empresa.');
-            console.error(err);
-        } finally {
-            closeDeleteModal();
-        }
-    };
-
     // Modal de confirmação visual
     const DeleteConfirmModal = () => {
         if (!showDeleteModal) return null;
-        const empresa = empresas.find(c => c.id === empresaToDelete);
+        const metodo = metodosData.find(m => m.id === metodoDelete);
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
                 <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm flex flex-col items-center">
@@ -328,19 +316,19 @@ const GestaoCooperativaAgricola = () => {
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Confirmar Exclusão</h3>
                     <p className="text-gray-600 text-center text-sm mb-4">
-                        Tem certeza que deseja excluir a empresa <span className="font-semibold text-red-600">{empresa?.nomeEntidade || 'Selecionada'}</span>?<br />
-                        Esta ação não pode ser desfeita. Todos os dados da empresa serão removidos permanentemente.
+                        Tem certeza que deseja excluir o método <span className="font-semibold text-red-600">{metodo?.parametroAnalise || 'Selecionado'}</span>?<br />
+                        Esta ação não pode ser desfeita.
                     </p>
                     <div className="flex gap-3 mt-2 w-full">
                         <button
                             onClick={handleConfirmDelete}
-                            className="flex-1 p-2 bg-red-600 hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 text-white rounded-lg transition-all duration-200 transform hover:-translate-y-0.5"
+                            className="flex-1 p-2 bg-red-600 hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 text-white rounded-lg transition-all duration-200"
                         >
                             Sim, excluir
                         </button>
                         <button
                             onClick={closeDeleteModal}
-                            className="flex-1 p-2 bg-gray-100 hover:bg-gray-200 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 text-gray-700 rounded-lg transition-all duration-200 transform hover:-translate-y-0.5"
+                            className="flex-1 p-2 bg-gray-100 hover:bg-gray-200 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 text-gray-700 rounded-lg transition-all duration-200"
                         >
                             Cancelar
                         </button>
@@ -350,50 +338,21 @@ const GestaoCooperativaAgricola = () => {
         );
     };
 
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="flex flex-col items-center">
-                    <Loader className="w-8 h-8 animate-spin text-blue-600 mb-4" />
-                    <p className="text-gray-600">Carregando empresas...</p>
-                </div>
-            </div>
-        );
-    }
-
-    if (error && empresas.length === 0) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="flex flex-col items-center">
-                    <AlertCircle className="w-16 h-16 text-red-400 mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Erro ao carregar dados</h3>
-                    <p className="text-gray-600 mb-4">{error}</p>
-                    <button
-                        onClick={fetchEmpresas}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                        Tentar novamente
-                    </button>
-                </div>
-            </div>
-        );
-    }
-
     return (
         <div className="min-h-screen" ref={containerRef}>
             <Toast />
             <DeleteConfirmModal />
 
-            {/* Estatísticas das empresas */}
+            {/* Estatísticas dos métodos */}
             <div className="mt-6 mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-white rounded-xl shadow-md p-6">
                     <div className="flex items-center">
                         <div className="p-3 bg-blue-100 rounded-full">
-                            <Factory className="w-6 h-6 text-blue-600" />
+                            <TestTube className="w-6 h-6 text-blue-600" />
                         </div>
                         <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-500">Total de Empresas</p>
-                            <p className="text-2xl font-bold text-gray-900">{empresas.length}</p>
+                            <p className="text-sm font-medium text-gray-500">Total de Métodos</p>
+                            <p className="text-2xl font-bold text-gray-900">{metodosData.length}</p>
                         </div>
                     </div>
                 </div>
@@ -404,9 +363,9 @@ const GestaoCooperativaAgricola = () => {
                             <CheckCircle className="w-6 h-6 text-green-600" />
                         </div>
                         <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-500">Empresas Activas</p>
+                            <p className="text-sm font-medium text-gray-500">Métodos Ativos</p>
                             <p className="text-2xl font-bold text-gray-900">
-                                {empresas.filter(c => c.estado === 'Ativo').length}
+                                {metodosData.filter(m => m.status === 'ATIVO').length}
                             </p>
                         </div>
                     </div>
@@ -415,12 +374,12 @@ const GestaoCooperativaAgricola = () => {
                 <div className="bg-white rounded-xl shadow-md p-6">
                     <div className="flex items-center">
                         <div className="p-3 bg-purple-100 rounded-full">
-                            <Building className="w-6 h-6 text-purple-600" />
+                            <Activity className="w-6 h-6 text-purple-600" />
                         </div>
                         <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-500">Empresas Agrícolas</p>
+                            <p className="text-sm font-medium text-gray-500">Laboratórios</p>
                             <p className="text-2xl font-bold text-gray-900">
-                                {empresas.filter(e => e.tipoDeEntidade === 'EmpresaAgricola').length}
+                                {uniqueLaboratorios.length}
                             </p>
                         </div>
                     </div>
@@ -429,29 +388,30 @@ const GestaoCooperativaAgricola = () => {
                 <div className="bg-white rounded-xl shadow-md p-6">
                     <div className="flex items-center">
                         <div className="p-3 bg-yellow-100 rounded-full">
-                            <Users className="w-6 h-6 text-yellow-600" />
+                            <FileText className="w-6 h-6 text-yellow-600" />
                         </div>
                         <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-500">Cooperativas</p>
+                            <p className="text-sm font-medium text-gray-500">Preço Médio</p>
                             <p className="text-2xl font-bold text-gray-900">
-                                {empresas.filter(e => e.tipoDeEntidade === 'CooperativaAgricola').length}
+                                {Math.round(metodosData.reduce((sum, m) => sum + m.preco, 0) / metodosData.length).toLocaleString()} Kz
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="w-full bg-white rounded-xl shadow-md overflow-visible z-10">
+            <div className="w-full bg-white rounded-2xl shadow-md overflow-visible z-10">
                 {/* Cabeçalho */}
                 <div className="bg-gradient-to-r from-blue-700 to-blue-500 p-6 text-white rounded-t-xl">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
                         <div>
-                            <h1 className="text-2xl font-bold">Gestão de Cooperativa Agrícolas</h1>
+                            <h1 className="text-2xl font-bold">Gestão de Métodos e Ensaios</h1>
+                            <p className="text-blue-100 mt-1">Administre métodos analíticos e parâmetros de solo</p>
                         </div>
                         <div className="flex gap-4">
                            
                             <button
-                                onClick={() => showToast('info', 'Função', 'Exportar dados das empresas')}
+                                onClick={() => showToast('info', 'Função', 'Exportar dados dos métodos')}
                                 className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
                             >
                                 <Download className="w-5 h-5 mr-2" />
@@ -463,69 +423,69 @@ const GestaoCooperativaAgricola = () => {
 
                 {/* Barra de ferramentas */}
                 <div className="p-6 border-b border-gray-200 bg-white">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         {/* Busca */}
-                        <div className="lg:col-span-2">
+                        <div className="lg:col-span-1">
                             <CustomInput
                                 type="text"
-                                placeholder="Buscar por nome, diretor ou email..."
+                                placeholder="Buscar por parâmetro, método ou laboratório..."
                                 value={searchTerm}
                                 onChange={(value) => setSearchTerm(value)}
                                 iconStart={<Search size={18} />}
                             />
                         </div>
 
-                        {/* Filtro Região */}
+                        {/* Filtro Tipo de Análise */}
                         <div>
                             <CustomInput
                                 type="select"
-                                placeholder="Região"
-                                value={selectedRegion ? {
-                                    label: selectedRegion,
-                                    value: selectedRegion
-                                } : null}
+                                placeholder="Tipo de Análise"
+                                value={selectedTipoAnalise ? { label: selectedTipoAnalise, value: selectedTipoAnalise } : null}
                                 options={[
-                                    { label: 'Todas as Regiões', value: '' },
-                                    ...uniqueRegions.map(region => ({
-                                        label: region,
-                                        value: region
+                                    { label: 'Todos os Tipos', value: '' },
+                                    ...uniqueTiposAnalise.map(tipo => ({
+                                        label: tipo,
+                                        value: tipo
                                     }))
                                 ]}
-                                onChange={(option) => setSelectedRegion(option?.value || '')}
-                                iconStart={<MapPin size={18} />}
+                                onChange={(option) => setSelectedTipoAnalise(option?.value || '')}
+                                iconStart={<Filter size={18} />}
                             />
                         </div>
 
+                        {/* Filtro Tipo de Amostra */}
                         <div>
                             <CustomInput
                                 type="select"
-                                placeholder="Tipo de Actividade"
-                                value={selectedTipo ? { label: selectedTipo, value: selectedTipo } : null}
+                                placeholder="Tipo de Amostra"
+                                value={selectedTipoAmostra ? { label: selectedTipoAmostra, value: selectedTipoAmostra } : null}
                                 options={[
-                                    { label: 'Todas as Actividades', value: '' },
-                                    { label: 'Produção Agrícola', value: 'PRODUCAO_AGRICOLA' },
-                                    { label: 'Produção Pecuária', value: 'PRODUCAO_PECUARIA' },
-                                    { label: 'Agroindústria', value: 'AGROINDUSTRIA' },
-                                    { label: 'Comercialização', value: 'COMERCIALIZACAO' },
-                                    { label: 'Assistência Técnica', value: 'ASSISTENCIA_TECNICA' }
+                                    { label: 'Todos os Tipos', value: '' },
+                                    ...uniqueTiposAmostra.map(tipo => ({
+                                        label: tipo,
+                                        value: tipo
+                                    }))
                                 ]}
-                                onChange={(option) => setSelectedTipo(option?.value || '')}
-                                iconStart={<School size={18} />}
+                                onChange={(option) => setSelectedTipoAmostra(option?.value || '')}
+                                iconStart={<TestTube size={18} />}
                             />
                         </div>
 
+                        {/* Filtro Laboratório */}
                         <div>
                             <CustomInput
                                 type="select"
-                                placeholder="Status"
-                                value={selectedStatus ? { label: selectedStatus, value: selectedStatus } : null}
+                                placeholder="Laboratório"
+                                value={selectedLaboratorio ? { label: selectedLaboratorio, value: selectedLaboratorio } : null}
                                 options={[
-                                    { label: 'Todos os Status', value: '' },
-                                    { label: 'Ativo', value: 'Ativo' },
-                                    { label: 'Inativo', value: 'Inativo' }
+                                    { label: 'Todos os Laboratórios', value: '' },
+                                    ...uniqueLaboratorios.map(lab => ({
+                                        label: lab,
+                                        value: lab
+                                    }))
                                 ]}
-                                onChange={(option) => setSelectedStatus(option?.value || '')}
-                                iconStart={<CheckCircle size={18} />}
+                                onChange={(option) => setSelectedLaboratorio(option?.value || '')}
+                                iconStart={<Activity size={18} />}
                             />
                         </div>
                     </div>
@@ -537,110 +497,111 @@ const GestaoCooperativaAgricola = () => {
                         <thead className="bg-gray-50 sticky top-0 z-10">
                             <tr>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                    Empresa
+                                    Parâmetro & Método
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                    Actividades
+                                    Tipo & Amostra
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                    Localização
+                                    Laboratório
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                    Gestão
+                                    Limites & Unidade
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                    Acção
+                                    Preço
+                                </th>
+                                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                                    Ações
                                 </th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-200 bg-white text-left">
-                            {getCurrentItems().map((empresa) => (
-                                <tr key={empresa.id} className="hover:bg-blue-50 transition-colors">
+                        <tbody className="divide-y divide-gray-200 bg-white text-start">
+                            {getCurrentItems().map((metodo) => (
+                                <tr key={metodo.id} className="hover:bg-blue-50 transition-colors">
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-start">
+                                            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-600 to-blue-500 flex items-center justify-center font-semibold text-sm">
+                                                <span className='text-white'>{metodo.formulaQuimica || metodo.parametroAnalise?.substring(0, 2).toUpperCase()}</span>
+                                            </div>
                                             <div className="ml-4">
-                                                <div className="text-sm font-semibold text-gray-900 break-words whitespace-pre-line max-w-[290px]">
-                                                    {empresa.nomeEntidade || 'Nome não informado'}
-                                                </div>
-                                                <div className="text-xs text-gray-500 mt-1">NIF: {empresa.nif}</div>
-                                                <div className="text-xs text-gray-500">Pres.: {empresa.nomePresidente}</div>
+                                                <div className="text-sm font-semibold text-gray-900">{metodo.parametroAnalise}</div>
+                                                <div className="text-xs text-gray-500 mt-1">{metodo.metodoAnalise}</div>
                                             </div>
                                         </div>
                                     </td>
 
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="space-y-2">
-                                            <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                {formatAtividades(empresa.atividades).slice(0, 1).join(', ')}
-                                            </div>
-                                            {empresa.atividades && empresa.atividades.length > 1 && (
-                                                <span className="text-gray-400 text-xs"> +{empresa.atividades.length - 1}</span>
-                                            )}
-                                        </div>
-                                    </td>
-
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="space-y-2">
-                                            <div className="flex items-center text-xs text-gray-700">
-                                                <MapPin className="w-4 h-4 mr-2 text-blue-500" />
-                                                {empresa.municipio}, {empresa.provincia}
+                                            <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                                                {metodo.tipoAnalise}
                                             </div>
                                             <div className="text-xs text-gray-600">
-                                                {empresa.comuna}
+                                                Amostra: {metodo.tipoAmostra}
                                             </div>
                                         </div>
                                     </td>
 
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="space-y-2">
-                                            <div className="flex items-center text-xs text-gray-700">
-                                                <Phone className="w-4 h-4 mr-2 text-blue-500" />
-                                                {empresa.telefone || 'N/A'}
-                                            </div>
-                                            <div className="flex items-center text-xs text-gray-700">
-                                                <Mail className="w-4 h-4 mr-2 text-blue-500" />
-                                                {empresa.email || 'N/A'}
-                                            </div>
+                                        <div className="text-sm text-gray-900">{metodo.laboratorio}</div>
+                                        <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mt-1 ${
+                                            metodo.status === 'ATIVO' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                        }`}>
+                                            {metodo.status}
+                                        </div>
+                                    </td>
+
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <div className="text-sm text-gray-900">
+                                            {metodo.limiteInferior} - {metodo.limiteSuperior}
+                                        </div>
+                                        <div className="text-xs text-gray-500">{metodo.unidade}</div>
+                                    </td>
+
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <div className="text-sm font-semibold text-gray-900">
+                                            {metodo.preco.toLocaleString()} Kz
                                         </div>
                                     </td>
 
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-center justify-center space-x-1">
                                             <button
-                                                onClick={() => handleViewEscola(empresa.id)}
+                                                onClick={() => handleViewMetodo(metodo.id)}
                                                 className="p-2 hover:bg-blue-100 text-blue-600 hover:text-blue-800 rounded-full transition-colors"
                                                 title="Visualizar"
                                             >
                                                 <Eye className="w-5 h-5" />
                                             </button>
                                             <button
-                                                onClick={() => openDeleteModal(empresa.id)}
+                                                onClick={() => openDeleteModal(metodo.id)}
                                                 className="p-2 hover:bg-red-100 text-red-600 hover:text-red-800 rounded-full transition-colors"
                                                 title="Remover"
                                             >
                                                 <Trash2 className="w-5 h-5" />
                                             </button>
-                                            <ActionMenu escola={empresa} />
+                                            <ActionMenu metodo={metodo} />
                                         </div>
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
+
                         <tfoot>
                             <tr>
-                                <td colSpan={5}>
+                                <td colSpan={6}>
                                     {/* Paginação */}
                                     <div className="px-6 py-4 border-t border-gray-200 bg-white">
                                         <div className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
                                             <div className="text-sm text-gray-700">
                                                 Mostrando{' '}
-                                                <span className="font-medium">{filteredEscolas.length > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0}</span>
+                                                <span className="font-medium">{filteredMetodos.length > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0}</span>
                                                 {' '}a{' '}
                                                 <span className="font-medium">
-                                                    {Math.min(currentPage * itemsPerPage, filteredEscolas.length)}
+                                                    {Math.min(currentPage * itemsPerPage, filteredMetodos.length)}
                                                 </span>
                                                 {' '}de{' '}
-                                                <span className="font-medium">{filteredEscolas.length}</span>
+                                                <span className="font-medium">{filteredMetodos.length}</span>
                                                 {' '}resultados
                                             </div>
 
@@ -649,7 +610,7 @@ const GestaoCooperativaAgricola = () => {
                                                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                                     disabled={currentPage === 1}
                                                     className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
-                                                        ${currentPage === 1
+                                    ${currentPage === 1
                                                             ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                                             : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
                                                         }`}
@@ -662,7 +623,7 @@ const GestaoCooperativaAgricola = () => {
                                                     onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                                     disabled={currentPage === totalPages || totalPages === 0}
                                                     className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
-                                                        ${currentPage === totalPages || totalPages === 0
+                                    ${currentPage === totalPages || totalPages === 0
                                                             ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                                             : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
                                                         }`}
@@ -681,91 +642,78 @@ const GestaoCooperativaAgricola = () => {
 
                 {/* Visualização em cards para mobile */}
                 <div className="md:hidden overflow-visible" style={{ maxHeight: contentHeight }}>
-                    {getCurrentItems().map((empresa) => (
-                        <div key={empresa.id} className="p-4 border-b border-gray-200 hover:bg-blue-50 transition-colors">
+                    {getCurrentItems().map((metodo) => (
+                        <div key={metodo.id} className="p-4 border-b border-gray-200 hover:bg-blue-50 transition-colors">
                             <div className="flex items-start">
                                 <div className="flex-shrink-0 h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <Factory className="h-8 w-8 text-blue-600" />
+                                    <TestTube className="h-8 w-8 text-blue-600" />
                                 </div>
                                 <div className="flex-1 ml-4">
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <h3 className="text-sm font-semibold text-gray-900">{empresa.nomeEntidade}</h3>
-                                            <div className="text-xs text-gray-500 mt-1">NIF: {empresa.nif}</div>
-                                            <div className="text-xs text-gray-500">Pres.: {empresa.nomePresidente}</div>
+                                            <h3 className="text-sm font-semibold text-gray-900">{metodo.parametroAnalise}</h3>
+                                            <div className="text-xs text-gray-500 mt-1">{metodo.metodoAnalise}</div>
+                                            <div className="text-xs text-gray-500">{metodo.laboratorio}</div>
+                                        </div>
+                                        <div className="text-sm font-semibold text-gray-900">
+                                            {metodo.preco.toLocaleString()} Kz
                                         </div>
                                     </div>
 
                                     <div className="mt-3 grid grid-cols-2 gap-2">
-                                        <div className="flex items-center text-xs text-gray-700">
-                                            <MapPin className="w-3.5 h-3.5 mr-1 text-blue-500" />
-                                            <span className="truncate">{empresa.municipio}</span>
+                                        <div className="text-xs text-gray-700">
+                                            <span className="font-medium">Tipo:</span> {metodo.tipoAnalise}
                                         </div>
-                                        <div className="flex items-center text-xs text-gray-700">
-                                            <Phone className="w-3.5 h-3.5 mr-1 text-blue-500" />
-                                            {empresa.telefone}
+                                        <div className="text-xs text-gray-700">
+                                            <span className="font-medium">Amostra:</span> {metodo.tipoAmostra}
                                         </div>
-                                        <div className="flex items-center text-xs text-gray-700">
-                                            <Mail className="w-3.5 h-3.5 mr-1 text-blue-500" />
-                                            <span className="truncate">{empresa.email}</span>
+                                        <div className="text-xs text-gray-700">
+                                            <span className="font-medium">Limites:</span> {metodo.limiteInferior} - {metodo.limiteSuperior}
                                         </div>
-                                        <div className="flex items-center text-xs text-gray-700">
-                                            <CheckCircle className="w-3.5 h-3.5 mr-1 text-blue-500" />
-                                            {empresa.estado}
+                                        <div className="text-xs text-gray-700">
+                                            <span className="font-medium">Unidade:</span> {metodo.unidade}
                                         </div>
                                     </div>
 
                                     <div className="mt-3 flex justify-between items-center">
                                         <div className="flex space-x-1">
                                             <button
-                                                onClick={() => handleViewEscola(empresa.id)}
+                                                onClick={() => handleViewMetodo(metodo.id)}
                                                 className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-full transition-colors"
                                                 title="Visualizar"
                                             >
                                                 <Eye className="w-4 h-4" />
                                             </button>
                                             <button
-                                                onClick={() => openDeleteModal(empresa.id)}
+                                                onClick={() => handleEditMetodo(metodo.id)}
+                                                className="p-1.5 bg-yellow-50 hover:bg-yellow-100 text-yellow-600 rounded-full transition-colors"
+                                                title="Editar"
+                                            >
+                                                <Edit className="w-4 h-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => openDeleteModal(metodo.id)}
                                                 className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-full transition-colors"
                                                 title="Remover"
                                             >
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
                                         </div>
-                                        <ActionMenu escola={empresa} />
+
+                                        <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                            metodo.status === 'ATIVO' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                        }`}>
+                                            {metodo.status}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     ))}
                 </div>
-
-                {/* Nenhum resultado encontrado */}
-                {filteredEscolas.length === 0 && (
-                    <div className="py-12 flex flex-col items-center justify-center text-center px-4">
-                        <Search className="w-16 h-16 text-gray-300 mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-1">Nenhuma informação encontrada</h3>
-                        <p className="text-gray-500 max-w-md mb-6">
-                            Não encontramos resultados para sua busca. Tente outros termos ou remova os filtros aplicados.
-                        </p>
-                        {searchTerm || selectedRegion || selectedTipo || selectedStatus ? (
-                            <button
-                                onClick={() => {
-                                    setSearchTerm('');
-                                    setSelectedRegion('');
-                                    setSelectedTipo('');
-                                    setSelectedStatus('');
-                                }}
-                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                            >
-                                Limpar filtros
-                            </button>
-                        ) : null}
-                    </div>
-                )}
             </div>
         </div>
     );
 };
 
-export default GestaoCooperativaAgricola;
+export default GestaoMetodosEnsaios;

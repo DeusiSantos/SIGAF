@@ -24,162 +24,11 @@ import {
     X
 } from 'lucide-react';
 import CustomInput from '../../../../../core/components/CustomInput';
+import { useEntreposto } from '../../../../Agricola/hooks/useEntreposto';
 
 
 
-// Dados fictícios dos entrepostos e mercados - estrutura baseada no formulário de cadastro
-const entrepostosMercados = [
-    {
-        id: 1,
-        // Identificação
-        nomeEntreposto: "Mercado Central de Luanda",
-        tipoUnidade: "MERCADO_MUNICIPAL",
-        outroTipoUnidade: null,
-        codigoRegistro: "MCL001",
-
-        // Localização
-        endereco: "Rua Direita de Luanda, Ingombota",
-        municipio: "Luanda",
-        provincia: "LUANDA",
-        latitude: "-8.838333",
-        longitude: "13.234444",
-
-        // Responsável/Entidade Gestora
-        nomeCompleto: "António Silva Santos",
-        entidadeGestora: "Administração Municipal de Luanda",
-        nifFiscal: "5417189144",
-        telefone: "222345678",
-        email: "mercado.central@luanda.gov.ao",
-
-        // Estrutura do Mercado/Entreposto
-        numeroBancas: 150,
-        numeroArmazens: 12,
-        numeroLojas: 45,
-        areaTotal: 5000,
-        infraestruturas: ["AGUA_POTAVEL", "ENERGIA", "SANEAMENTO"],
-        outraInfraestrutura: null,
-
-        // Produtos Comercializados
-        produtosComercializados: ["PRODUTOS_AGRICOLAS", "HORTICOLAS_FRUTAS", "PRODUTOS_PECUARIOS"],
-
-        // Capacidade e Funcionamento
-        capacidadeMedia: "2000 pessoas/dia",
-        todosDias: true,
-        diasEspecificos: null,
-        horarioInicio: "06:00",
-        horarioFim: "18:00",
-
-        // Situação Legal
-        licencaFuncionamento: "SIM",
-        certificacaoSanitaria: "SIM",
-        outrasAutorizacoes: "Licença ambiental municipal",
-
-        // Observações Gerais
-        observacoes: "Mercado principal da cidade com grande movimento diário",
-
-        status: "ATIVO"
-    },
-    {
-        id: 2,
-        // Identificação
-        nomeEntreposto: "Entreposto Frigorífico Benguela",
-        tipoUnidade: "ENTREPOSTO",
-        outroTipoUnidade: null,
-        codigoRegistro: "EFB002",
-
-        // Localização
-        endereco: "Zona Industrial, Benguela",
-        municipio: "Benguela",
-        provincia: "BENGUELA",
-        latitude: "-12.576111",
-        longitude: "13.405556",
-
-        // Responsável/Entidade Gestora
-        nomeCompleto: "Maria João Fernandes",
-        entidadeGestora: "Frigorífico Benguela Lda",
-        nifFiscal: "5417189145",
-        telefone: "272123456",
-        email: "entreposto@frigobenguela.ao",
-
-        // Estrutura do Mercado/Entreposto
-        numeroBancas: 0,
-        numeroArmazens: 8,
-        numeroLojas: 0,
-        areaTotal: 3000,
-        infraestruturas: ["FRIO", "CAMARA_CONGELACAO", "ENERGIA"],
-        outraInfraestrutura: null,
-
-        // Produtos Comercializados
-        produtosComercializados: ["PEIXE_FRUTOS_MAR", "PRODUTOS_PECUARIOS"],
-
-        // Capacidade e Funcionamento
-        capacidadeMedia: "500 toneladas/mês",
-        todosDias: false,
-        diasEspecificos: "Segunda a Sexta",
-        horarioInicio: "07:00",
-        horarioFim: "17:00",
-
-        // Situação Legal
-        licencaFuncionamento: "SIM",
-        certificacaoSanitaria: "SIM",
-        outrasAutorizacoes: "Licença sanitária para produtos cárneos",
-
-        // Observações Gerais
-        observacoes: "Entreposto especializado em conservação de produtos pereciveis",
-
-        status: "ATIVO"
-    },
-    {
-        id: 3,
-        // Identificação
-        nomeEntreposto: "Feira Popular do Huambo",
-        tipoUnidade: "MERCADO_INFORMAL",
-        outroTipoUnidade: null,
-        codigoRegistro: "FPH003",
-
-        // Localização
-        endereco: "Bairro Comercial, Huambo",
-        municipio: "Huambo",
-        provincia: "HUAMBO",
-        latitude: "-12.776111",
-        longitude: "15.738889",
-
-        // Responsável/Entidade Gestora
-        nomeCompleto: "José Carlos Mateus",
-        entidadeGestora: "Associação de Comerciantes do Huambo",
-        nifFiscal: "5417189146",
-        telefone: "241987654",
-        email: "feira.huambo@gmail.com",
-
-        // Estrutura do Mercado/Entreposto
-        numeroBancas: 80,
-        numeroArmazens: 3,
-        numeroLojas: 15,
-        areaTotal: 2500,
-        infraestruturas: ["AGUA_POTAVEL", "ENERGIA"],
-        outraInfraestrutura: "Sistema de som ambiente",
-
-        // Produtos Comercializados
-        produtosComercializados: ["PRODUTOS_AGRICOLAS", "HORTICOLAS_FRUTAS", "ARTESANATO_OUTRO"],
-
-        // Capacidade e Funcionamento
-        capacidadeMedia: "800 pessoas/dia",
-        todosDias: false,
-        diasEspecificos: "Terça, Quinta e Sábado",
-        horarioInicio: "05:00",
-        horarioFim: "16:00",
-
-        // Situação Legal
-        licencaFuncionamento: "NAO",
-        certificacaoSanitaria: "NAO",
-        outrasAutorizacoes: null,
-
-        // Observações Gerais
-        observacoes: "Feira tradicional com foco em produtos locais e artesanato",
-
-        status: "ATIVO"
-    }
-];
+// Usaremos dados vindos da API via hook useEntreposto
 
 // Dados estáticos das administrações regionais
 const administracoesEstaticas = [
@@ -191,6 +40,17 @@ const administracoesEstaticas = [
 ];
 
 const GestaoEntrepostosMercado = () => {
+    const { entrepostos, deleteEntreposto } = useEntreposto();
+
+    // Helper para ler campos com fallback entre nomes antigos e novos
+    const getField = (obj, ...keys) => {
+        if (!obj) return '';
+        for (const k of keys) {
+            if (obj[k] !== undefined && obj[k] !== null) return obj[k];
+        }
+        return '';
+    };
+
     // Função para navegação de gestão de pessoal
     const handlePessoal = (cooperativaId) => {
         navigate(`/GerenciaRNPA/entidades-associativas/pessoal/${cooperativaId}`);
@@ -268,13 +128,13 @@ const GestaoEntrepostosMercado = () => {
 
 
     // Filtragem dos entrepostos e mercados
-    const filteredEntrepostos = entrepostosMercados.filter(entreposto => {
-        const matchesSearch = entreposto.nomeEntreposto.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            entreposto.nomeCompleto.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            entreposto.email.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesRegion = !selectedRegion || entreposto.provincia === selectedRegion;
-        const matchesTipo = !selectedTipo || entreposto.tipoUnidade === selectedTipo;
-        const matchesStatus = !selectedStatus || entreposto.status === selectedStatus;
+    const filteredEntrepostos = (entrepostos || []).filter(entreposto => {
+        const matchesSearch = (entreposto.nomeDoEntreposto || entreposto.nomeEntreposto || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (entreposto.nomeCompletoDoResponsavel || entreposto.nomeCompleto || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (entreposto.email || '').toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesRegion = !selectedRegion || (entreposto.provincia || '').toString() === selectedRegion;
+        const matchesTipo = !selectedTipo || (entreposto.tipoDeUnidade || entreposto.tipoUnidade || '').toString() === selectedTipo;
+        const matchesStatus = !selectedStatus || (entreposto.status || '').toString() === selectedStatus;
 
         return matchesSearch && matchesRegion && matchesTipo && matchesStatus;
     });
@@ -289,7 +149,7 @@ const GestaoEntrepostosMercado = () => {
 
     // Navegação para visualizar associação rural
     const handleViewEscola = (associacaoId) => {
-        navigate(`/GerenciaRNPA/entidades-associativas/visualizar-associacao/${associacaoId}`);
+        navigate(`/GerenciaRNPA/gestao-agricultores/produtores/entrepostos-mercados/visualizar/${associacaoId}`);
     };
 
 
@@ -304,11 +164,8 @@ const GestaoEntrepostosMercado = () => {
     // Ações do menu dropdown
     const actionItems = [
         { label: 'Cadastro da Produção', icon: <PlusCircle size={16} />, action: handleTransferencia },
-        // eslint-disable-next-line no-undef
         { label: 'Relatórios', icon: <FileText size={16} />, action: handleRelatorios },
-        // eslint-disable-next-line no-undef
         { label: 'Infraestrutura', icon: <Building size={16} />, action: handleInfraestrutura },
-        // eslint-disable-next-line no-undef
         { label: 'Gestão de Pessoal', icon: <User size={16} />, action: handlePessoal }
     ];
 
@@ -405,7 +262,7 @@ const GestaoEntrepostosMercado = () => {
 
 
     // Extrair regiões únicas para o filtro
-    const uniqueRegions = [...new Set(entrepostosMercados.map(entreposto => entreposto.provincia))].filter(Boolean);
+    const uniqueRegions = [...new Set((entrepostos || []).map(entreposto => entreposto.provincia))].filter(Boolean);
 
     // Função para abrir modal de confirmação
     const openDeleteModal = (associacaoId) => {
@@ -423,11 +280,11 @@ const GestaoEntrepostosMercado = () => {
     const handleConfirmDelete = async () => {
         if (!associacaoToDelete) return;
         try {
-            // TODO: Implementar delete do entreposto
+            await deleteEntreposto(associacaoToDelete);
             showToast('success', 'Excluído', 'Entreposto excluído com sucesso!');
         } catch (err) {
-            showToast('error', 'Erro', 'Erro ao excluir entreposto.');
-            console.error(err);
+            console.error('Erro ao deletar entreposto:', err);
+            showToast('error', 'Erro', err?.response?.data?.message || err?.message || 'Erro ao excluir entreposto.');
         } finally {
             closeDeleteModal();
         }
@@ -436,7 +293,7 @@ const GestaoEntrepostosMercado = () => {
     // Modal de confirmação visual
     const DeleteConfirmModal = () => {
         if (!showDeleteModal) return null;
-        const entreposto = entrepostosMercados.find(c => c.id === associacaoToDelete);
+        const entreposto = (entrepostos || []).find(c => c.id === associacaoToDelete);
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
                 <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm flex flex-col items-center">
@@ -445,7 +302,7 @@ const GestaoEntrepostosMercado = () => {
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Confirmar Exclusão</h3>
                     <p className="text-gray-600 text-center text-sm mb-4">
-                        Tem certeza que deseja excluir o entreposto <span className="font-semibold text-red-600">{entreposto?.nomeEntreposto || 'Selecionado'}</span>?<br />
+                        Tem certeza que deseja excluir o entreposto <span className="font-semibold text-red-600">{getField(entreposto, 'nomeDoEntreposto', 'nomeEntreposto') || 'Selecionado'}</span>?<br />
                         Esta ação não pode ser desfeita. Todos os dados do entreposto serão removidos permanentemente.
                     </p>
                     <div className="flex gap-3 mt-2 w-full">
@@ -481,7 +338,7 @@ const GestaoEntrepostosMercado = () => {
                         </div>
                         <div className="ml-4">
                             <p className="text-sm font-medium text-gray-500">Total de Entrepostos</p>
-                            <p className="text-2xl font-bold text-gray-900">{entrepostosMercados.length}</p>
+                            <p className="text-2xl font-bold text-gray-900">{(entrepostos || []).length}</p>
                         </div>
                     </div>
                 </div>
@@ -494,7 +351,7 @@ const GestaoEntrepostosMercado = () => {
                         <div className="ml-4">
                             <p className="text-sm font-medium text-gray-500">Entrepostos Activos</p>
                             <p className="text-2xl font-bold text-gray-900">
-                                {entrepostosMercados.filter(c => c.status === 'ATIVO').length}
+                                {(entrepostos || []).filter(c => c.status === 'ATIVO').length}
                             </p>
                         </div>
                     </div>
@@ -508,7 +365,7 @@ const GestaoEntrepostosMercado = () => {
                         <div className="ml-4">
                             <p className="text-sm font-medium text-gray-500">Total de Bancas</p>
                             <p className="text-2xl font-bold text-gray-900">
-                                {entrepostosMercados.reduce((total, e) => total + e.numeroBancas, 0)}
+                                {(entrepostos || []).reduce((total, e) => total + (e.numeroDeBancas || e.numeroBancas || 0), 0)}
                             </p>
                         </div>
                     </div>
@@ -522,7 +379,7 @@ const GestaoEntrepostosMercado = () => {
                         <div className="ml-4">
                             <p className="text-sm font-medium text-gray-500">Área Total (m²)</p>
                             <p className="text-2xl font-bold text-gray-900">
-                                {entrepostosMercados.reduce((total, e) => total + e.areaTotal, 0).toLocaleString()}
+                                {(entrepostos || []).reduce((total, e) => total + (e.areaTotal || 0), 0).toLocaleString()}
                             </p>
                         </div>
                     </div>
@@ -554,7 +411,7 @@ const GestaoEntrepostosMercado = () => {
 
                 {/* Barra de ferramentas */}
                 <div className="p-6 border-b border-gray-200 bg-white">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         {/* Busca */}
                         <div className="lg:col-span-2">
                             <CustomInput
@@ -636,12 +493,12 @@ const GestaoEntrepostosMercado = () => {
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-start">
                                             <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-800 to-blue-500 text-white flex items-center justify-center font-semibold text-sm">
-                                                {entreposto.nomeEntreposto.split(' ').map(word => word[0]).join('').substring(0, 2).toUpperCase()}
+                                                {String(getField(entreposto, 'nomeDoEntreposto', 'nomeEntreposto')).split(' ').map(word => word[0] || '').join('').substring(0, 2).toUpperCase()}
                                             </div>
                                             <div className="ml-4">
-                                                <div className="text-sm font-semibold text-gray-900 break-words whitespace-pre-line max-w-[290px]">{entreposto.nomeEntreposto}</div>
-                                                <div className="text-xs text-gray-500 mt-1">Código: {entreposto.codigoRegistro}</div>
-                                                <div className="text-xs text-gray-500">Resp.: {entreposto.nomeCompleto}</div>
+                                                <div className="text-sm font-semibold text-gray-900 break-words whitespace-pre-line max-w-[290px]">{getField(entreposto, 'nomeDoEntreposto', 'nomeEntreposto')}</div>
+                                                <div className="text-xs text-gray-500 mt-1">Código: {getField(entreposto, 'codigoDoRegistro', 'codigoRegistro')}</div>
+                                                <div className="text-xs text-gray-500">Resp.: {getField(entreposto, 'nomeCompletoDoResponsavel', 'nomeCompleto')}</div>
                                             </div>
                                         </div>
                                     </td>
@@ -649,10 +506,10 @@ const GestaoEntrepostosMercado = () => {
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="space-y-2">
                                             <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                {entreposto.tipoUnidade.replace(/[-_]/g, ' ')}
+                                                {String(getField(entreposto, 'tipoDeUnidade', 'tipoUnidade'))}
                                             </div>
                                             <div className="text-xs text-gray-600">
-                                                {entreposto.produtosComercializados.length} produtos
+                                                {Array.isArray(getField(entreposto, 'produtosComercializados')) ? getField(entreposto, 'produtosComercializados').length : (getField(entreposto, 'produtosComercializados') ? String(getField(entreposto, 'produtosComercializados')).split(',').length : 0)} produtos
                                             </div>
                                         </div>
                                     </td>
@@ -661,7 +518,7 @@ const GestaoEntrepostosMercado = () => {
                                         <div className="space-y-2">
                                             <div className="flex items-center text-xs text-gray-700">
                                                 <MapPin className="w-4 h-4 mr-2 text-blue-500" />
-                                                {entreposto.municipio}, {entreposto.provincia}
+                                                {getField(entreposto, 'municipio')}, {getField(entreposto, 'provincia')}
                                             </div>
                                         </div>
                                     </td>
@@ -670,11 +527,11 @@ const GestaoEntrepostosMercado = () => {
                                         <div className="space-y-2">
                                             <div className="flex items-center text-xs text-gray-700">
                                                 <Building className="w-4 h-4 mr-2 text-blue-500" />
-                                                {entreposto.numeroBancas} bancas, {entreposto.areaTotal}m²
+                                                {getField(entreposto, 'numeroDeBancas', 'numeroBancas')} bancas, {getField(entreposto, 'areaTotal')}m²
                                             </div>
                                             <div className="flex items-center text-xs text-gray-700">
-                                                <CheckCircle className={`w-4 h-4 mr-2 ${entreposto.licencaFuncionamento === 'SIM' ? 'text-green-500' : 'text-red-500'}`} />
-                                                Licença: {entreposto.licencaFuncionamento}
+                                                <CheckCircle className={`w-4 h-4 mr-2 ${getField(entreposto, 'licencaDeFuncionamento', 'licencaFuncionamento') === 'SIM' ? 'text-green-500' : 'text-red-500'}`} />
+                                                Licença: {getField(entreposto, 'licencaDeFuncionamento', 'licencaFuncionamento')}
                                             </div>
                                         </div>
                                     </td>
@@ -703,6 +560,59 @@ const GestaoEntrepostosMercado = () => {
                                 </tr>
                             ))}
                         </tbody>
+
+
+                        <tfoot>
+                          <tr>
+                            <td colSpan={5}>
+                                 {/* Paginação */}
+                            <div className="px-6 py-4 border-t border-gray-200 bg-white">
+                                <div className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
+                                    <div className="text-sm text-gray-700">
+                                        Mostrando{' '}
+                                        <span className="font-medium">{filteredEntrepostos.length > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0}</span>
+                                        {' '}a{' '}
+                                        <span className="font-medium">
+                                            {Math.min(currentPage * itemsPerPage, filteredEntrepostos.length)}
+                                        </span>
+                                        {' '}de{' '}
+                                        <span className="font-medium">{filteredEntrepostos.length}</span>
+                                        {' '}resultados
+                                    </div>
+
+                                    <div className="flex space-x-2">
+                                        <button
+                                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                            disabled={currentPage === 1}
+                                            className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
+                                    ${currentPage === 1
+                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                    : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
+                                                }`}
+                                        >
+                                            <ChevronLeft className="w-4 h-4 mr-1" />
+                                            Anterior
+                                        </button>
+
+                                        <button
+                                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                            disabled={currentPage === totalPages || totalPages === 0}
+                                            className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
+                                    ${currentPage === totalPages || totalPages === 0
+                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                    : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
+                                                }`}
+                                        >
+                                            Próximo
+                                            <ChevronRight className="w-4 h-4 ml-1" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            </td>
+                          </tr>
+
+                        </tfoot>
                     </table>
                 </div>
 
@@ -723,22 +633,22 @@ const GestaoEntrepostosMercado = () => {
                                             <div className="text-xs text-gray-500">Resp.: {entreposto.nomeCompleto}</div>
                                         </div>
                                         <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                            {entreposto.tipoUnidade.replace(/[-_]/g, ' ')}
+                                            {entreposto.tipoUnidade}
                                         </div>
                                     </div>
 
                                     <div className="mt-3 grid grid-cols-2 gap-2">
                                         <div className="flex items-center text-xs text-gray-700">
                                             <MapPin className="w-3.5 h-3.5 mr-1 text-blue-500" />
-                                            <span className="truncate">{entreposto.municipio}</span>
+                                            <span className="truncate">{getField(entreposto, 'municipio')}</span>
                                         </div>
                                         <div className="flex items-center text-xs text-gray-700">
                                             <Building className="w-3.5 h-3.5 mr-1 text-blue-500" />
-                                            {entreposto.numeroBancas} bancas
+                                            {getField(entreposto, 'numeroDeBancas', 'numeroBancas')} bancas
                                         </div>
                                         <div className="flex items-center text-xs text-gray-700">
                                             <Phone className="w-3.5 h-3.5 mr-1 text-blue-500" />
-                                            {entreposto.telefone}
+                                            {getField(entreposto, 'telefone')}
                                         </div>
                                         <div className="flex items-center text-xs text-gray-700">
                                             <Activity className="w-3.5 h-3.5 mr-1 text-blue-500" />
@@ -780,50 +690,6 @@ const GestaoEntrepostosMercado = () => {
                     ))}
                 </div>
 
-                {/* Paginação */}
-                <div className="px-6 py-4 border-t border-gray-200 bg-white">
-                    <div className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
-                        <div className="text-sm text-gray-700">
-                            Mostrando{' '}
-                            <span className="font-medium">{filteredEntrepostos.length > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0}</span>
-                            {' '}a{' '}
-                            <span className="font-medium">
-                                {Math.min(currentPage * itemsPerPage, filteredEntrepostos.length)}
-                            </span>
-                            {' '}de{' '}
-                            <span className="font-medium">{filteredEntrepostos.length}</span>
-                            {' '}resultados
-                        </div>
-
-                        <div className="flex space-x-2">
-                            <button
-                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                                disabled={currentPage === 1}
-                                className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
-                                    ${currentPage === 1
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
-                                    }`}
-                            >
-                                <ChevronLeft className="w-4 h-4 mr-1" />
-                                Anterior
-                            </button>
-
-                            <button
-                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                                disabled={currentPage === totalPages || totalPages === 0}
-                                className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
-                                    ${currentPage === totalPages || totalPages === 0
-                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                        : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
-                                    }`}
-                            >
-                                Próximo
-                                <ChevronRight className="w-4 h-4 ml-1" />
-                            </button>
-                        </div>
-                    </div>
-                </div>
 
                 {/* Nenhum resultado encontrado */}
                 {filteredEntrepostos.length === 0 && (

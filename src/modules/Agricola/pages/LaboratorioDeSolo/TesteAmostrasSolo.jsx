@@ -352,10 +352,9 @@ const TesteAmostrasSolo = () => {
                 apiFormData.append('C_digo_do_', 0);
             }
 
-            // Arrays - verificar como a API espera (pode ser JSON string ou múltiplos campos)
-            // Opção 1: Enviar como JSON string
-            apiFormData.append('Cultura_Actual', JSON.stringify(formData.culturasAtuais?.map(c => c.value) || []));
-            apiFormData.append('Cultura_Anterior', JSON.stringify(formData.culturaAnterior || []));
+            // Arrays - enviar apenas os valores/labels
+            apiFormData.append('Cultura_Actual', JSON.stringify(formData.culturasAtuais?.map(c => c.label || c.value || c) || []));
+            apiFormData.append('Cultura_Anterior', JSON.stringify(formData.culturaAnterior?.map ? formData.culturaAnterior.map(c => c.label || c.value || c) : [formData.culturaAnterior || ''].filter(Boolean)));
 
             // OU Opção 2: Enviar cada item separadamente (se a API esperar assim)
             // formData.culturasAtuais?.forEach((cultura, index) => {
@@ -383,8 +382,7 @@ const TesteAmostrasSolo = () => {
                 }
             );
 
-            console.log('✅ Resposta da API:', response.data);
-            alert('✅ Coleta de amostra registrada com sucesso!');
+            showToast('success', 'Sucesso!', 'Coleta de amostra registrada com sucesso!');
             downloadCard();
             setFormData(initialState);
             setActiveIndex(0);
@@ -971,9 +969,9 @@ const TesteAmostrasSolo = () => {
                                                 { param: "Mn", unit: "mg/dm³" },
                                             ].map((item, index) => (
                                                 <tr key={index}>
-                                                    <td className="border border-gray-400 font-semibold text-gray-700 p-1 text-center text-[11px] " style={{lineHeight: 0.8}}>{item.param}</td>
-                                                    <td className="border border-gray-400 p-1 text-center"></td>
-                                                    <td className="border border-gray-400 p-1 font-semibold text-gray-700 text-center text-[11px]" style={{lineHeight: 0.8}}>{item.unit}</td>
+                                                    <td className="border border-gray-400 font-semibold text-gray-700 p-1 text-center text-[11px] align-middle" style={{lineHeight: 0.8}}>{item.param}</td>
+                                                    <td className="border border-gray-400 p-1 text-center align-middle"></td>
+                                                    <td className="border border-gray-400 p-1 font-semibold text-gray-700 text-center text-[11px] align-middle" style={{lineHeight: 0.8}}>{item.unit}</td>
                                                 </tr>
                                             ))}
                                         </tbody>

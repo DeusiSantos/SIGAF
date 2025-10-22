@@ -1,26 +1,24 @@
-import { UserPlus, Users } from 'lucide-react';
+import { Users, UserPlus } from 'lucide-react';
 import { useState } from 'react';
-import GestaoTestesSolo from '../../modules/Agricola/pages/LaboratorioDeSolo/GestaoTestesSolo';
-import TesteAmostrasSolo from '../../modules/Agricola/pages/LaboratorioDeSolo/TesteAmostrasSolo';
+import Dashboard from '../pages/Exportacao/Dashboard';
+import BatchForm from '../pages/Exportacao/BatchForm';
 
-
-
-const AmostrasDeSoloMenu = () => {
-    const [activeSection, setActiveSection] = useState('gestao');
+const MenuExportacao = () => {
+    const [activeSection, setActiveSection] = useState('cadastro');
 
     const menuItems = [
         {
             id: 'gestao',
-            title: 'Gestão ',
+            title: ' Visão Geral',
             icon: Users,
-            description: 'Gerenciar ',
-            color: 'green'
+            description: 'Gerenciar amostras de solo existentes',
+            color: 'blue'
         },
         {
             id: 'cadastro',
-            title: 'Cadastrar ',
+            title: 'Criar Lote',
             icon: UserPlus,
-            description: 'Nova Amostra de Solo',
+            description: 'Registrar nova amostra de solo',
             color: 'blue'
         },
     ];
@@ -47,24 +45,10 @@ const AmostrasDeSoloMenu = () => {
 
     const renderContent = () => {
         switch (activeSection) {
-
             case 'gestao':
-                return (
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-                        <div className="text-center">
-                            <GestaoTestesSolo />
-                        </div>
-                    </div>
-                );
-
+                return <Dashboard />;
             case 'cadastro':
-                return (
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-                        <div className="text-center">
-                            <TesteAmostrasSolo />
-                        </div>
-                    </div>
-                );
+               return <BatchForm/>;
 
             default:
                 return null;
@@ -73,7 +57,6 @@ const AmostrasDeSoloMenu = () => {
 
     return (
         <div className="min-h-full">
-
             {/* Menu de Navegação */}
             <div className="mb-8">
                 <div className="flex flex-wrap gap-4">
@@ -107,4 +90,4 @@ const AmostrasDeSoloMenu = () => {
     );
 };
 
-export default AmostrasDeSoloMenu;
+export default  MenuExportacao ;

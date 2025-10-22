@@ -52,10 +52,10 @@ const CadastroEntrepostosMercado = () => {
 
   const initialState = {
     // Identificação
-    nomeEntreposto: '',
-    tipoUnidade: '',
+    nomeDoEntreposto: '',
+    tipoDeUnidade: '',
     outroTipoUnidade: '',
-    codigoRegistro: '',
+    codigoDoRegistro: '',
 
     // Localização
     endereco: '',
@@ -65,18 +65,18 @@ const CadastroEntrepostosMercado = () => {
     longitude: '',
 
     // Responsável/Entidade Gestora
-    nomeCompleto: '',
-    entidadeGestora: '',
-    nifFiscal: '',
+    nomeCompletoDoResponsavel: '',
+    nomeDaEntidadeGestora: '',
+    nif: '',
     telefone: '',
     email: '',
 
     // Estrutura do Mercado/Entreposto
-    numeroBancas: 0,
-    numeroArmazens: 0,
-    numeroLojas: 0,
+    numeroDeBancas: 0,
+    numeroDeArmazens: 0,
+    numeroDeLojasFixas: 0,
     areaTotal: 0,
-    infraestruturas: [],
+    infraestruturasDeApoio: [],
     outraInfraestrutura: '',
 
     // Produtos Comercializados
@@ -85,12 +85,12 @@ const CadastroEntrepostosMercado = () => {
     // Capacidade e Funcionamento
     capacidadeMedia: '',
     todosDias: false,
-    diasEspecificos: '',
-    horarioInicio: '',
-    horarioFim: '',
+    diasEspecificos: [],
+    horarioDeInicio: '',
+    horarioDoFim: '',
 
     // Situação Legal
-    licencaFuncionamento: '',
+    licencaDeFuncionamento: '',
     certificacaoSanitaria: '',
     outrasAutorizacoes: '',
 
@@ -157,8 +157,8 @@ const CadastroEntrepostosMercado = () => {
 
           setFormData(prev => ({
             ...prev,
-            nomeCompleto: nifInfo.nome_contribuinte || '',
-            entidadeGestora: nifInfo.nome_contribuinte || '',
+            nomeCompletoDoResponsavel: nifInfo.nome_contribuinte || '',
+           nomeDaEntidadeGestora: nifInfo.nome_contribuinte || '',
             telefone: nifInfo.numero_contacto || prev.telefone,
             email: nifInfo.email || prev.email
           }));
@@ -168,6 +168,7 @@ const CadastroEntrepostosMercado = () => {
         }
       } catch (nifError) {
         console.log('NIF não encontrado, tentando ID Fiscal...');
+        console.error(nifError)
       }
 
       // Se NIF não encontrado, tenta como ID Fiscal
@@ -189,8 +190,8 @@ const CadastroEntrepostosMercado = () => {
 
           setFormData(prev => ({
             ...prev,
-            nomeCompleto: idFiscalInfo.nome_contribuinte || '',
-            entidadeGestora: idFiscalInfo.nome_contribuinte || '',
+            nomeCompletoDoResponsavel: idFiscalInfo.nome_contribuinte || '',
+           nomeDaEntidadeGestora: idFiscalInfo.nome_contribuinte || '',
             telefone: idFiscalInfo.numero_contacto || prev.telefone,
             email: idFiscalInfo.email || prev.email
           }));
@@ -244,9 +245,9 @@ const CadastroEntrepostosMercado = () => {
 
     switch (activeIndex) {
       case 0: // Identificação
-        if (!formData.nomeEntreposto) newErrors.nomeEntreposto = 'Campo obrigatório';
-        if (!formData.tipoUnidade) {
-          newErrors.tipoUnidade = 'Selecione um tipo';
+        if (!formData.nomeDoEntreposto) newErrors.nomeDoEntreposto = 'Campo obrigatório';
+        if (!formData.tipoDeUnidade) {
+          newErrors.tipoDeUnidade = 'Selecione um tipo';
         }
         break;
       case 1: // Localização
@@ -255,12 +256,12 @@ const CadastroEntrepostosMercado = () => {
         if (!formData.provincia) newErrors.provincia = 'Campo obrigatório';
         break;
       case 2: // Responsável
-        if (!formData.nomeCompleto) newErrors.nomeCompleto = 'Campo obrigatório';
-        if (!formData.entidadeGestora) newErrors.entidadeGestora = 'Campo obrigatório';
+        if (!formData.nomeCompletoDoResponsavel) newErrors.nomeCompletoDoResponsavel = 'Campo obrigatório';
+        if (!formData.nomeDaEntidadeGestora) newErrors.nomeDaEntidadeGestora = 'Campo obrigatório';
         if (!formData.telefone) newErrors.telefone = 'Campo obrigatório';
         break;
       case 3: // Estrutura
-        if (!formData.numeroBancas && formData.numeroBancas !== 0) newErrors.numeroBancas = 'Campo obrigatório';
+        if (!formData.numeroDeBancas && formData.numeroDeBancas !== 0) newErrors.numeroDeBancas = 'Campo obrigatório';
         if (!formData.areaTotal) newErrors.areaTotal = 'Campo obrigatório';
         break;
       case 4: // Produtos
@@ -270,12 +271,12 @@ const CadastroEntrepostosMercado = () => {
         break;
       case 5: // Funcionamento
         if (!formData.capacidadeMedia) newErrors.capacidadeMedia = 'Campo obrigatório';
-        if (!formData.todosDias && !formData.diasEspecificos) {
+        if (!formData.todosDias && (!formData.diasEspecificos || formData.diasEspecificos.length === 0)) {
           newErrors.diasEspecificos = 'Especifique os dias de funcionamento';
         }
         break;
       case 6: // Situação Legal
-        if (!formData.licencaFuncionamento) newErrors.licencaFuncionamento = 'Campo obrigatório';
+        if (!formData.licencaDeFuncionamento) newErrors.licencaDeFuncionamento = 'Campo obrigatório';
         if (!formData.certificacaoSanitaria) newErrors.certificacaoSanitaria = 'Campo obrigatório';
         break;
     }
@@ -290,43 +291,44 @@ const CadastroEntrepostosMercado = () => {
 
     try {
       const dataToSend = {
-        command: "CREATE",
         id: null,
-        nomeEntreposto: formData.nomeEntreposto,
-        tipoUnidade: typeof formData.tipoUnidade === 'object' ? formData.tipoUnidade.value : formData.tipoUnidade,
+        nomeDoEntreposto: formData.nomeDoEntreposto,
+        tipoDeUnidade: typeof formData.tipoDeUnidade === 'object' ? formData.tipoDeUnidade.value : formData.tipoDeUnidade,
         outroTipoUnidade: formData.outroTipoUnidade || null,
-        codigoRegistro: formData.codigoRegistro,
+        codigoDoRegistro: formData.codigoDoRegistro,
         endereco: formData.endereco,
         municipio: typeof formData.municipio === 'object' ? formData.municipio.value : formData.municipio,
         provincia: typeof formData.provincia === 'object' ? formData.provincia.value : formData.provincia,
         latitude: formData.latitude || null,
         longitude: formData.longitude || null,
-        nomeCompleto: formData.nomeCompleto,
-        entidadeGestora: formData.entidadeGestora,
-        nifFiscal: formData.nifFiscal,
+        nomeCompletoDoResponsavel: formData.nomeCompletoDoResponsavel,
+        nomeDaEntidadeGestora: formData.nomeDaEntidadeGestora,
+        nif: formData.nif,
         telefone: formData.telefone,
         email: formData.email,
-        numeroBancas: String(formData.numeroBancas),
-        numeroArmazens: String(formData.numeroArmazens),
-        numeroLojas: String(formData.numeroLojas),
-        areaTotal: String(formData.areaTotal),
-        infraestruturas: formData.infraestruturas.map(i => typeof i === 'string' ? i : i.value),
+        numeroDeBancas: formData.numeroDeBancas || 0,
+        numeroDeArmazens: formData.numeroDeArmazens || 0,
+        numeroDeLojasFixas: formData.numeroDeLojasFixas || 0,
+        areaTotal: formData.areaTotal || 0,
+        infraestruturasDeApoio: formData.infraestruturasDeApoio?.map(i => typeof i === 'string' ? i : i.value) || [],
         outraInfraestrutura: formData.outraInfraestrutura || null,
-        produtosComercializados: formData.produtosComercializados.map(p => typeof p === 'string' ? p : p.value),
+        produtosComercializados: formData.produtosComercializados?.map(p => typeof p === 'string' ? p : p.value) || [],
         capacidadeMedia: formData.capacidadeMedia,
         todosDias: formData.todosDias ? "true" : "false",
-        diasEspecificos: formData.diasEspecificos || null,
-        horarioInicio: formData.horarioInicio,
-        horarioFim: formData.horarioFim,
-        licencaFuncionamento: formData.licencaFuncionamento,
-        certificacaoSanitaria: formData.certificacaoSanitaria,
+        diasEspecificos: formData.todosDias ? 
+          ['SEGUNDA', 'TERCA', 'QUARTA', 'QUINTA', 'SEXTA', 'SABADO', 'DOMINGO'] : 
+          formData.diasEspecificos?.map(d => typeof d === 'string' ? d : d.value) || null,
+        horarioDeInicio: formData.horarioDeInicio,
+        horarioDoFim: formData.horarioDoFim,
+        licencaDeFuncionamento: typeof formData.licencaDeFuncionamento === 'object' ? formData.licencaDeFuncionamento.value : formData.licencaDeFuncionamento,
+        certificacaoSanitaria: typeof formData.certificacaoSanitaria === 'object' ? formData.certificacaoSanitaria.value : formData.certificacaoSanitaria,
         outrasAutorizacoes: formData.outrasAutorizacoes || null,
         observacoes: formData.observacoes || null
       };
 
       showToast('info', 'Enviando', 'Processando dados do entreposto/mercado...');
 
-      const response = await api.post('/entreposto-mercado', dataToSend, {
+      const response = await api.post('/entreposto', dataToSend, {
         headers: { 'Content-Type': 'application/json' },
         timeout: 30000
       });
@@ -371,14 +373,14 @@ const CadastroEntrepostosMercado = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <CustomInput
                 type="text"
                 label="Nome do Entreposto/Mercado"
-                value={formData.nomeEntreposto}
-                onChange={(value) => handleInputChange('nomeEntreposto', value)}
+                value={formData.nomeDoEntreposto}
+                onChange={(value) => handleInputChange('nomeDoEntreposto', value)}
                 required
-                errorMessage={errors.nomeEntreposto}
+                errorMessage={errors.nomeDoEntreposto}
                 placeholder="Digite o nome do entreposto ou mercado"
                 iconStart={<Building size={18} />}
               />
@@ -386,8 +388,8 @@ const CadastroEntrepostosMercado = () => {
               <CustomInput
                 type="text"
                 label="Código/Registro"
-                value={formData.codigoRegistro}
-                onChange={(value) => handleInputChange('codigoRegistro', value)}
+                value={formData.codigoDoRegistro}
+                onChange={(value) => handleInputChange('codigoDoRegistro', value)}
                 placeholder="Código de registro oficial"
                 iconStart={<FileText size={18} />}
               />
@@ -395,19 +397,19 @@ const CadastroEntrepostosMercado = () => {
               <CustomInput
                 type="select"
                 label="Tipo de Unidade"
-                value={formData.tipoUnidade}
+                value={formData.tipoDeUnidade}
                 options={[
                   { label: 'Entreposto', value: 'ENTREPOSTO' },
                   { label: 'Mercado Municipal', value: 'MERCADO_MUNICIPAL' },
                   { label: 'Mercado Informal/Feira', value: 'MERCADO_INFORMAL' },
                   { label: 'Outro', value: 'OUTRO' }
                 ]}
-                onChange={(value) => handleInputChange('tipoUnidade', value)}
+                onChange={(value) => handleInputChange('tipoDeUnidade', value)}
                 required
-                errorMessage={errors.tipoUnidade}
+                errorMessage={errors.tipoDeUnidade}
               />
 
-              {(formData.tipoUnidade?.value === 'OUTRO' || formData.tipoUnidade === 'OUTRO') && (
+              {(formData.tipoDeUnidade?.value === 'OUTRO' || formData.tipoDeUnidade === 'OUTRO') && (
                 <div className="mt-4">
                   <CustomInput
                     type="text"
@@ -564,10 +566,10 @@ const CadastroEntrepostosMercado = () => {
               <CustomInput
                 type="text"
                 label="Nome Completo"
-                value={formData.nomeCompleto}
-                onChange={(value) => handleInputChange('nomeCompleto', value)}
+                value={formData.nomeCompletoDoResponsavel}
+                onChange={(value) => handleInputChange('nomeCompletoDoResponsavel', value)}
                 required
-                errorMessage={errors.nomeCompleto}
+                errorMessage={errors.nomeCompletoDoResponsavel}
                 placeholder="Nome completo do responsável"
                 iconStart={<User size={18} />}
               />
@@ -575,10 +577,10 @@ const CadastroEntrepostosMercado = () => {
               <CustomInput
                 type="text"
                 label="Entidade Gestora"
-                value={formData.entidadeGestora}
-                onChange={(value) => handleInputChange('entidadeGestora', value)}
+                value={formData.nomeDaEntidadeGestora}
+                onChange={(value) => handleInputChange('nomeDaEntidadeGestora', value)}
                 required
-                errorMessage={errors.entidadeGestora}
+                errorMessage={errors.nomeDaEntidadeGestora}
                 placeholder="Nome da entidade gestora"
                 iconStart={<Building size={18} />}
               />
@@ -587,9 +589,9 @@ const CadastroEntrepostosMercado = () => {
                 <CustomInput
                   type="text"
                   label="NIF/ID Fiscal"
-                  value={formData.nifFiscal}
+                  value={formData.nif}
                   onChange={(value) => {
-                    handleInputChange('nifFiscal', value);
+                    handleInputChange('nif', value);
                     if (value && value.length >= 9) {
                       setTimeout(() => consultarNifOuIdFiscal(value), 1500);
                     }
@@ -644,30 +646,30 @@ const CadastroEntrepostosMercado = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <CustomInput
                 type="number"
                 label="Número de Bancas/Stands"
-                value={formData.numeroBancas}
-                onChange={(value) => handleInputChange('numeroBancas', value)}
+                value={formData.numeroDeBancas}
+                onChange={(value) => handleInputChange('numeroDeBancas', value)}
                 required
-                errorMessage={errors.numeroBancas}
+                errorMessage={errors.numeroDeBancas}
                 placeholder="0"
               />
 
               <CustomInput
                 type="number"
                 label="Número de Armazéns/Salas"
-                value={formData.numeroArmazens}
-                onChange={(value) => handleInputChange('numeroArmazens', value)}
+                value={formData.numeroDeArmazens}
+                onChange={(value) => handleInputChange('numeroDeArmazens', value)}
                 placeholder="0"
               />
 
               <CustomInput
                 type="number"
                 label="Número de Lojas Fixas"
-                value={formData.numeroLojas}
-                onChange={(value) => handleInputChange('numeroLojas', value)}
+                value={formData.numeroDeLojasFixas}
+                onChange={(value) => handleInputChange('numeroDeLojasFixas', value)}
                 placeholder="0"
               />
 
@@ -686,7 +688,7 @@ const CadastroEntrepostosMercado = () => {
               <CustomInput
                 type="multiselect"
                 label="Infraestruturas de Apoio"
-                value={formData.infraestruturas}
+                value={formData.infraestruturasDeApoio}
                 options={[
                   { label: 'Frio', value: 'FRIO' },
                   { label: 'Câmara de Congelação', value: 'CAMARA_CONGELACAO' },
@@ -697,10 +699,10 @@ const CadastroEntrepostosMercado = () => {
                   { label: 'Estacionamento', value: 'ESTACIONAMENTO' },
                   { label: 'Outro', value: 'OUTRO' }
                 ]}
-                onChange={(value) => handleInputChange('infraestruturas', value)}
+                onChange={(value) => handleInputChange('infraestruturasDeApoio', value)}
               />
 
-              {formData.infraestruturas.some(infra => infra.value === 'OUTRO') && (
+              {formData.infraestruturasDeApoio.some(infra => infra.value === 'OUTRO') && (
                 <div className="mt-4">
                   <CustomInput
                     type="text"
@@ -788,12 +790,21 @@ const CadastroEntrepostosMercado = () => {
 
                 {!formData.todosDias && (
                   <CustomInput
-                    type="text"
+                    type="multiselect"
                     label="Dias Específicos"
                     value={formData.diasEspecificos}
+                    options={[
+                      { label: 'Segunda-feira', value: 'SEGUNDA' },
+                      { label: 'Terça-feira', value: 'TERCA' },
+                      { label: 'Quarta-feira', value: 'QUARTA' },
+                      { label: 'Quinta-feira', value: 'QUINTA' },
+                      { label: 'Sexta-feira', value: 'SEXTA' },
+                      { label: 'Sábado', value: 'SABADO' },
+                      { label: 'Domingo', value: 'DOMINGO' }
+                    ]}
                     onChange={(value) => handleInputChange('diasEspecificos', value)}
                     errorMessage={errors.diasEspecificos}
-                    placeholder="Ex: Segunda a Sexta, Sábados"
+                    placeholder="Selecione os dias de funcionamento"
                   />
                 )}
               </div>
@@ -802,16 +813,16 @@ const CadastroEntrepostosMercado = () => {
                 <CustomInput
                   type="time"
                   label="Horário de Início"
-                  value={formData.horarioInicio}
-                  onChange={(value) => handleInputChange('horarioInicio', value)}
+                  value={formData.horarioDeInicio}
+                  onChange={(value) => handleInputChange('horarioDeInicio', value)}
                   placeholder="08:00"
                 />
 
                 <CustomInput
                   type="time"
                   label="Horário de Fim"
-                  value={formData.horarioFim}
-                  onChange={(value) => handleInputChange('horarioFim', value)}
+                  value={formData.horarioDoFim}
+                  onChange={(value) => handleInputChange('horarioDoFim', value)}
                   placeholder="18:00"
                 />
               </div>
@@ -839,14 +850,14 @@ const CadastroEntrepostosMercado = () => {
                 <CustomInput
                   type="select"
                   label="Licença de Funcionamento"
-                  value={formData.licencaFuncionamento}
+                  value={formData.licencaDeFuncionamento}
                   options={[
                     { label: 'Sim', value: 'SIM' },
                     { label: 'Não', value: 'NAO' }
                   ]}
-                  onChange={(value) => handleInputChange('licencaFuncionamento', value)}
+                  onChange={(value) => handleInputChange('licencaDeFuncionamento', value)}
                   required
-                  errorMessage={errors.licencaFuncionamento}
+                  errorMessage={errors.licencaDeFuncionamento}
                   placeholder="Selecione uma opção"
                 />
 

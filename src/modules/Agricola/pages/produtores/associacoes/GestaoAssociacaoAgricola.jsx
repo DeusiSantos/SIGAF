@@ -38,7 +38,7 @@ import api from '../../../../../core/services/api';
 
 const GestaoAssociacaoAgricola = () => {
     // Função para navegação de gestão de pessoal
-    const handlePessoal = (empresaId) => {
+    {/*const handlePessoal = (empresaId) => {
         navigate(`/GerenciaRNPA/gestao-empresas/pessoal/${empresaId}`);
     };
 
@@ -50,7 +50,7 @@ const GestaoAssociacaoAgricola = () => {
     // Função para navegação de relatórios
     const handleRelatorios = (empresaId) => {
         navigate(`/GerenciaRNPA/gestao-empresas/relatorios/${empresaId}`);
-    };
+    };*/}
 
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
@@ -186,17 +186,14 @@ const GestaoAssociacaoAgricola = () => {
     };
 
 
-    const handleTransferencia = (empresaId) => {
-        // Navegar para a rota de cadastro de produção passando o ID
-        navigate(`/GerenciaRNPA/gestao-empresas/cadastro-producao-empresa/${empresaId}`);
+   const handleHistoricoProducao = (produtorId) => {
+        navigate(`/GerenciaRNPA/gestao-agricultores/produtores/historico-producao/${produtorId}`);
     };
 
     // Ações do menu dropdown
     const actionItems = [
-        { label: 'Cadastro da Produção', icon: <PlusCircle size={16} />, action: handleTransferencia },
-        { label: 'Relatórios', icon: <FileText size={16} />, action: handleRelatorios },
-        { label: 'Infraestrutura', icon: <Building size={16} />, action: handleInfraestrutura },
-        { label: 'Gestão de Pessoal', icon: <User size={16} />, action: handlePessoal }
+        { label: 'Histórico', icon: <PlusCircle size={16} />, action: handleHistoricoProducao },
+     
     ];
 
     // Formatar atividades para exibição
@@ -265,7 +262,7 @@ const GestaoAssociacaoAgricola = () => {
                     <MoreVertical className="w-5 h-5 text-gray-600" />
                 </button>
 
-                {/*isOpen && (
+                {isOpen && (
                     <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg z-[999] ring-1 ring-black ring-opacity-5">
                         <div className="py-1">
                             {actionItems.map((item, index) => (
@@ -283,7 +280,7 @@ const GestaoAssociacaoAgricola = () => {
                             ))}
                         </div>
                     </div>
-                )*/}
+                )}
             </div>
         );
     };
@@ -627,6 +624,7 @@ const GestaoAssociacaoAgricola = () => {
                                             >
                                                 <Trash2 className="w-5 h-5" />
                                             </button>
+                                              <ActionMenu escola={empresa} />
 
                                         </div>
                                     </td>
@@ -738,8 +736,9 @@ const GestaoAssociacaoAgricola = () => {
                                             >
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
+                                            <ActionMenu escola={empresa} />
                                         </div>
-                                        <ActionMenu escola={empresa} />
+                                        
                                     </div>
                                 </div>
                             </div>

@@ -29,6 +29,19 @@ import {
   Users,
   Wheat,
   X,
+  Coffee,
+  Microchip,
+  Microscope,
+  FileText,
+  PlaneTakeoff,
+  Truck,
+  ArrowRight,
+  Upload,
+  PackageX,
+  PackageCheckIcon,
+  PlaneTakeoffIcon,
+  Plane,
+  LucideTicketsPlane,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
@@ -182,6 +195,45 @@ const rnpaRoutes = {
         text: "Amostra de Solo",
         icon: TestTube,
         path: "/GerenciaRNPA/gestao-agricultores/AmostrasDeSolo",
+      },
+      {
+        text: "Laboratório de Solo",
+        icon: Microscope,
+        path: "/GerenciaRNPA/gestao-agricultores/LaboratorioDeSolo",
+        hasDropdown: true,
+        dropdownItems: [
+          {
+            text: "Métodos e Ensaios",
+            icon: ShieldAlert,
+            path: "/GerenciaRNPA/LaboratorioDeSolo/MetodosEnsaios",
+          },
+          {
+            text: "Amostra de Solo",
+            icon: Globe,
+            path: "/GerenciaRNPA/LaboratorioDeSolo/AmostraSolo",
+          },
+          {
+            text: "Resultados de Análises",
+            icon: MapPin,
+            path: "/GerenciaRNPA/LaboratorioDeSolo/ResultadosAnalises",
+          },
+           {
+            text: "Gestão de Laboratórios",
+            icon: Building2,
+            path: "/GerenciaRNPA/LaboratorioDeSolo/GestaoLaboratorios",
+          },
+          {
+            text: "Relatórios e Laudos",
+            icon: FileText,
+            path: "/GerenciaRNPA/LaboratorioDeSolo/RelatoriosLaudos",
+          },
+         
+        ],
+      },
+      {
+        text: "Exportação",
+        icon: LucideTicketsPlane,
+        path: "/GerenciaRNPA/gestao-agricultores/exportacao",
       },
     ],
 

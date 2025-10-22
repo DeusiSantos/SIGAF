@@ -1,26 +1,24 @@
-import { UserPlus, Users } from 'lucide-react';
+import { FileInput, FileSearch } from 'lucide-react';
 import { useState } from 'react';
-import GestaoTestesSolo from '../../modules/Agricola/pages/LaboratorioDeSolo/GestaoTestesSolo';
-import TesteAmostrasSolo from '../../modules/Agricola/pages/LaboratorioDeSolo/TesteAmostrasSolo';
+import LancamentoResultados from '../pages/LaboratorioDeSolo/ResultadosAnalises/LancamentoResultados';
+import GestaoResultadosAnalises from '../pages/LaboratorioDeSolo/ResultadosAnalises/GestaoResultadosAnalises';
 
-
-
-const AmostrasDeSoloMenu = () => {
-    const [activeSection, setActiveSection] = useState('gestao');
+const ResultadosAnalisesMenu = () => {
+    const [activeSection, setActiveSection] = useState('lancamento');
 
     const menuItems = [
         {
-            id: 'gestao',
-            title: 'Gestão ',
-            icon: Users,
-            description: 'Gerenciar ',
-            color: 'green'
+            id: 'consulta',
+            title: 'Gestão de Resultados',
+            icon: FileSearch,
+            description: 'Consultar e editar resultados de análises',
+            color: 'blue'
         },
         {
-            id: 'cadastro',
-            title: 'Cadastrar ',
-            icon: UserPlus,
-            description: 'Nova Amostra de Solo',
+            id: 'lancamento',
+            title: 'Lançamento de Resultados',
+            icon: FileInput,
+            description: 'Registrar novos resultados de análises',
             color: 'blue'
         },
     ];
@@ -47,24 +45,11 @@ const AmostrasDeSoloMenu = () => {
 
     const renderContent = () => {
         switch (activeSection) {
+            case 'consulta':
+                return <GestaoResultadosAnalises />
 
-            case 'gestao':
-                return (
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-                        <div className="text-center">
-                            <GestaoTestesSolo />
-                        </div>
-                    </div>
-                );
-
-            case 'cadastro':
-                return (
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-                        <div className="text-center">
-                            <TesteAmostrasSolo />
-                        </div>
-                    </div>
-                );
+            case 'lancamento':
+                return <LancamentoResultados/>
 
             default:
                 return null;
@@ -73,7 +58,6 @@ const AmostrasDeSoloMenu = () => {
 
     return (
         <div className="min-h-full">
-
             {/* Menu de Navegação */}
             <div className="mb-8">
                 <div className="flex flex-wrap gap-4">
@@ -107,4 +91,4 @@ const AmostrasDeSoloMenu = () => {
     );
 };
 
-export default AmostrasDeSoloMenu;
+export default ResultadosAnalisesMenu;
