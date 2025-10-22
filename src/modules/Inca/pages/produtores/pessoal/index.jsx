@@ -14,6 +14,7 @@ import {
   CircleUserRound,
   Sprout,
   ClipboardCheck,
+  Route,
 } from "lucide-react";
 import { TreePine, Shield, UserCheck, Activity } from "lucide-react";
 import { Users, UserPlus } from "lucide-react";
@@ -31,6 +32,7 @@ import Producer from "@/modules/Inca/components/pages/pageForms/produtoresCafe/p
 import PropertyOwner from "@/modules/Inca/components/pages/pageForms/produtoresCafe/propertyOwner";
 import Responsible from "@/modules/Inca/components/pages/pageForms/produtoresCafe/responsibleI";
 import LandUseAndExplorationForm from "@/modules/Inca/components/pages/pageForms/produtoresCafe/landUseAndExplorationForm";
+import AccessInformationForm from "@/modules/Inca/components/pages/pageForms/produtoresCafe/accessInformationForm";
 
 export default function Index() {
   const [isLoading, setIsLoading] = useState(true);
@@ -128,6 +130,16 @@ export default function Index() {
       outraArea_2023: "",
       outraArea_2024: "",
       outraArea_2025: "",
+    },
+    acessos: {
+      // 🚗 Informações de Acesso
+      sedeMunicipalProxima: "",
+      distanciaSedeComunal: "",
+      tempoPercurso: "",
+      moradiasNaUnidade: null, // sim / nao
+      estadoViaSedeComunalLocalidade: null, // boa / regular / má / intransitável
+      localidadeProxima: "",
+      estadoViaLocalidadeUnidade: null, // boa / regular / má / intransitável
     },
 
     responsavel: {
@@ -489,6 +501,25 @@ export default function Index() {
         </div>
       ),
     },
+    {
+      label: "Acessos",
+      icon: Route,
+      content: (
+        <div>
+          <InfoSection
+            title="Uso e Exploração da Terra"
+            description="Dados sobre aquisição das terras, usso e exploração."
+            color="amber"
+          />
+          <AccessInformationForm
+            formData={formData}
+            setFormData={setFormData}
+            errors={errors}
+          />
+        </div>
+      ),
+    },
+
     {
       label: "Registador",
       icon: ClipboardCheck,
