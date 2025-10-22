@@ -12,6 +12,7 @@ import {
   Edit,
   FileText,
   CircleUserRound,
+  ClipboardCheck,
 } from "lucide-react";
 import { TreePine, Shield, UserCheck, Activity } from "lucide-react";
 import { Users, UserPlus } from "lucide-react";
@@ -27,6 +28,7 @@ import InfoSection from "../../../components/pages/shared/infoSection";
 import Owner from "../../../components/pages/pageForms/produtoresCafe/owner";
 import Producer from "@/modules/Inca/components/pages/pageForms/produtoresCafe/producer";
 import PropertyOwner from "@/modules/Inca/components/pages/pageForms/produtoresCafe/propertyOwner";
+import Responsible from "@/modules/Inca/components/pages/pageForms/produtoresCafe/responsibleI";
 
 export default function Index() {
   const [isLoading, setIsLoading] = useState(true);
@@ -87,6 +89,12 @@ export default function Index() {
       altitude: "",
       accuracy: "",
       fotoEspaco: null,
+    },
+    responsavel: {
+      nome: "",
+      funcao: "",
+      telefone: "",
+      email: "",
     },
   });
 
@@ -381,7 +389,7 @@ export default function Index() {
         </div>
       ),
     },
-    ...(formData.dadosGerais.produtorProprietario.value === "nao"
+    ...(formData?.dadosGerais?.produtorProprietario?.value === "nao"
       ? [
           {
             label: "Proprietário",
@@ -416,6 +424,25 @@ export default function Index() {
           />
 
           <PropertyOwner
+            formData={formData}
+            setFormData={setFormData}
+            errors={errors}
+          />
+        </div>
+      ),
+    },
+    {
+      label: "Registador",
+      icon: ClipboardCheck,
+      content: (
+        <div>
+          <InfoSection
+            title="Dados do resgistador"
+            description="Dados básicos sobre o responsavel pelo registro."
+            color="amber"
+          />
+
+          <Responsible
             formData={formData}
             setFormData={setFormData}
             errors={errors}
