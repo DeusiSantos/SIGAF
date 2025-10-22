@@ -6,11 +6,18 @@ const styles = StyleSheet.create({
     page: {
         flexDirection: 'column',
         backgroundColor: '#fff',
-        padding: 15,
+        paddingTop: 30,
+        paddingBottom: 30,
+        paddingLeft: 50,
+        paddingRight: 50,
         fontSize: 7,
         fontFamily: 'Helvetica',
-        lineHeight: 1.2,
+        lineHeight: 1.3,
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box', // importante no render
     },
+
 
     // Cabeçalho principal - compactado
     headerContainer: {
