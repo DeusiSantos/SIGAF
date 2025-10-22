@@ -1,20 +1,19 @@
-import { UserPlus, Users } from 'lucide-react';
+import { UserPlus } from 'lucide-react';
 import { useState } from 'react';
 import CertificadoFitossanitario from '../pages/CertificacaoProdutor/CertificadoFitossanitario';
-import GestaoEmpresasFlorestal from '../pages/Produtores/Empresa/GestaoEmpresasFlorestal';
 
 
 const CertificadoFitossanitarioMenu = () => {
     const [activeSection, setActiveSection] = useState('cadastro');
 
     const menuItems = [
-        {
-            id: 'gestao',
-            title: 'Gestão ',
-            icon: Users,
-            description: 'Gerenciar Certificados ',
-            color: 'green'
-        },
+        // {
+        //     id: 'gestao',
+        //     title: 'Gestão ',
+        //     icon: Users,
+        //     description: 'Gerenciar Certificados ',
+        //     color: 'green'
+        // },
         {
             id: 'cadastro',
             title: 'Cadastrar ',
@@ -47,14 +46,14 @@ const CertificadoFitossanitarioMenu = () => {
     const renderContent = () => {
         switch (activeSection) {
 
-            case 'gestao':
-                return (
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-                        <div className="text-center">
-                            <GestaoEmpresasFlorestal />
-                        </div>
-                    </div>
-                );
+            // case 'gestao':
+            //     return (
+            //         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+            //             <div className="text-center">
+            //                 <GestaoEmpresasFlorestal />
+            //             </div>
+            //         </div>
+            //     );
 
             case 'cadastro':
                 return (
