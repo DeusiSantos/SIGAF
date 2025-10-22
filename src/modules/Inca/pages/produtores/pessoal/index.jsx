@@ -130,6 +130,8 @@ export default function Index() {
       outraArea_2023: "",
       outraArea_2024: "",
       outraArea_2025: "",
+
+      tipoAnimaisFazenda: null,
     },
     acessos: {
       // 🚗 Informações de Acesso
@@ -520,6 +522,63 @@ export default function Index() {
       ),
     },
 
+    {
+      label: "Registador",
+      icon: ClipboardCheck,
+      content: (
+        <div>
+          <InfoSection
+            title="Dados do resgistador"
+            description="Dados básicos sobre o responsavel pelo registro."
+            color="amber"
+          />
+
+          <Responsible
+            formData={formData}
+            setFormData={setFormData}
+            errors={errors}
+          />
+        </div>
+      ),
+    },
+    {
+      label: "Registador",
+      icon: ClipboardCheck,
+      content: (
+        <div>
+          <InfoSection
+            title="Dados do resgistador"
+            description="Dados básicos sobre o responsavel pelo registro."
+            color="amber"
+          />
+
+          <Responsible
+            formData={formData}
+            setFormData={setFormData}
+            errors={errors}
+          />
+        </div>
+      ),
+    },
+    {
+      label: "Registador",
+      icon: ClipboardCheck,
+      content: (
+        <div>
+          <InfoSection
+            title="Dados do resgistador"
+            description="Dados básicos sobre o responsavel pelo registro."
+            color="amber"
+          />
+
+          <Responsible
+            formData={formData}
+            setFormData={setFormData}
+            errors={errors}
+          />
+        </div>
+      ),
+    },
     {
       label: "Registador",
       icon: ClipboardCheck,

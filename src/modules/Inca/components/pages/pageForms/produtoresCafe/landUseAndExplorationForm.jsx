@@ -185,6 +185,24 @@ const LandUseAndExplorationForm = ({ formData, setFormData, errors }) => {
           </div>
         )}
       </div>
+
+      <div className="border border-gray-300 rounded-2xl p-6">
+        <Input
+          type="multiselect"
+          label="Tipo de animais existente na fazenda"
+          options={[
+            { label: "Bovino", value: "Bovino" },
+            { label: "Caprino", value: "Caprino" },
+            { label: "Ovino", value: "Ovino" },
+            { label: "Suíno", value: "Suino" },
+            { label: "Cão", value: "cao" },
+            { label: "Aves diversas", value: "aves" },
+          ]}
+          value={data.culturasAssociadas}
+          onChange={(value) => handleChange("culturasAssociadas", value)}
+          error={errors?.usoExploracaoTerra?.culturasAssociadas}
+        />
+      </div>
     </div>
   );
 };
