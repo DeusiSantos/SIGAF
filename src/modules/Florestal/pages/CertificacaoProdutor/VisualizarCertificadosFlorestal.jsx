@@ -3,6 +3,7 @@ import {
     AlertTriangle,
     ArrowLeft,
     Award,
+    Building2,
     Calendar,
     CheckCircle,
     Clock,
@@ -18,29 +19,35 @@ import {
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-
-// CORREÇÃO: Importar a função correta, não o componente
 import axios from 'axios';
 import api from '../../../../core/services/api';
 
 const VisualizarCertificadosFlorestal = () => {
-    const { produtorId } = useParams();
+    const { tipo, produtorId: id } = useParams();
     const navigate = useNavigate();
 
-    const [produtor, setProdutor] = useState(null);
-    const [certificadosProdutor, setCertificadosProdutor] = useState([]);
+    const [entidade, setEntidade] = useState(null); // Produtor ou Organização
+    const [certificados, setCertificados] = useState([]);
     const [selectedCertificados, setSelectedCertificados] = useState([]);
-    const [loadingProdutor, setLoadingProdutor] = useState(true);
+    const [loadingEntidade, setLoadingEntidade] = useState(true);
     const [loadingCertificados, setLoadingCertificados] = useState(true);
     const [toastMessage, setToastMessage] = useState(null);
     const [toastTimeout, setToastTimeout] = useState(null);
-    const [gerandoCertificado, setGerandoCertificado] = useState(null); // ID do certificado sendo gerado
+    const [gerandoCertificado, setGerandoCertificado] = useState(null);
 
-    console.log('🔍 VISUALIZAR CERTIFICADOS - produtorId:', produtorId);
+    console.log('🔍 VISUALIZAR CERTIFICADOS - tipo:', tipo, 'id:', id);
 
+    // Validar tipo
+    const isProdutor = tipo === 'produtor';
+    const isOrganizacao = tipo === 'organizacao';
 
-    const ProdutorAvatar = ({
-        produtor,
+    if (!isProdutor && !isOrganizacao) {
+        console.error('❌ Tipo inválido:', tipo);
+    }
+
+    const EntidadeAvatar = ({
+        entidade,
+        tipo,
         size = "w-20 h-20",
         textSize = "text-lg",
         showLoadingSpinner = true
@@ -49,9 +56,8 @@ const VisualizarCertificadosFlorestal = () => {
         const [imageLoading, setImageLoading] = useState(true);
         const [imageError, setImageError] = useState(false);
 
-        // Gerar iniciais do nome como fallback
         const getInitials = (nome) => {
-            if (!nome) return 'P';
+            if (!nome) return tipo === 'organizacao' ? 'ORG' : 'P';
             return nome.split(' ')
                 .map(n => n[0])
                 .join('')
@@ -60,8 +66,8 @@ const VisualizarCertificadosFlorestal = () => {
         };
 
         useEffect(() => {
-            const fetchProdutorPhoto = async () => {
-                if (!produtor?.id) {
+            const fetchPhoto = async () => {
+                if (!entidade?.id || tipo === 'organizacao') {
                     setImageLoading(false);
                     setImageError(true);
                     return;
@@ -72,13 +78,11 @@ const VisualizarCertificadosFlorestal = () => {
                     setImageError(false);
 
                     const response = await axios.get(
-                        `https://mwangobrainsa-001-site2.mtempurl.com/api/formulario/${produtor.id}/foto-beneficiary`,
+                        `https://mwangobrainsa-001-site2.mtempurl.com/api/formulario/${entidade.id}/foto-beneficiary`,
                         {
                             responseType: 'blob',
                             timeout: 10000,
-                            headers: {
-                                'Accept': 'image/*'
-                            }
+                            headers: { 'Accept': 'image/*' }
                         }
                     );
 
@@ -89,25 +93,24 @@ const VisualizarCertificadosFlorestal = () => {
                     } else {
                         setImageError(true);
                     }
-
                 } catch (error) {
-                    console.error('Erro ao carregar foto do produtor:', error);
+                    console.error('Erro ao carregar foto:', error);
                     setImageError(true);
                 } finally {
                     setImageLoading(false);
                 }
             };
 
-            fetchProdutorPhoto();
+            fetchPhoto();
 
             return () => {
                 if (imageUrl) {
                     URL.revokeObjectURL(imageUrl);
                 }
             };
-        }, [produtor?.id]);
+        }, [entidade?.id, tipo]);
 
-        if (imageLoading && showLoadingSpinner) {
+        if (imageLoading && showLoadingSpinner && tipo !== 'organizacao') {
             return (
                 <div className={`${size} rounded-full bg-gray-200 flex items-center justify-center shadow-sm animate-pulse`}>
                     <User className="w-6 h-6 text-gray-400" />
@@ -115,12 +118,12 @@ const VisualizarCertificadosFlorestal = () => {
             );
         }
 
-        if (imageUrl && !imageError) {
+        if (imageUrl && !imageError && tipo === 'produtor') {
             return (
                 <div className={`${size} rounded-full overflow-hidden shadow-sm border-2 border-white`}>
                     <img
                         src={imageUrl}
-                        alt={`Foto de ${produtor.nome}`}
+                        alt={`Foto de ${entidade.nome}`}
                         className="w-full h-full object-cover"
                         onError={() => {
                             setImageError(true);
@@ -134,68 +137,83 @@ const VisualizarCertificadosFlorestal = () => {
             );
         }
 
+        const gradientColor = tipo === 'organizacao'
+            ? 'from-purple-400 to-purple-600'
+            : 'from-blue-400 to-blue-600';
+
         return (
-            <div className={`${size} rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold ${textSize} shadow-sm`}>
-                {getInitials(produtor?.nome_do_Produtor)}
+            <div className={`${size} rounded-full bg-gradient-to-r ${gradientColor} flex items-center justify-center text-white font-bold ${textSize} shadow-sm`}>
+                {tipo === 'organizacao' ? (
+                    <Building2 className="w-8 h-8" />
+                ) : (
+                    getInitials(entidade?.nome_do_Produtor || entidade?.nomeCompleto)
+                )}
             </div>
         );
     };
 
-    // Verificar se produtorId existe
-
-
-    // Buscar dados do produtor
+    // Buscar dados da entidade (Produtor ou Organização)
     useEffect(() => {
-        const fetchProdutor = async () => {
-            if (!produtorId) {
-                setLoadingProdutor(false);
+        const fetchEntidade = async () => {
+            if (!id || (!isProdutor && !isOrganizacao)) {
+                setLoadingEntidade(false);
                 return;
             }
 
             try {
-                console.log('🔍 Buscando produtor:', produtorId);
-                setLoadingProdutor(true);
-                const response = await api.get(`/produtorFlorestal/${produtorId}`);
-                console.log('✅ Dados do produtor:', response.data);
-                setProdutor(response.data);
+                console.log(`🔍 Buscando ${tipo}:`, id);
+                setLoadingEntidade(true);
+
+                let response;
+                if (isProdutor) {
+                    response = await api.get(`/produtorFlorestal/${id}`);
+                } else {
+                    response = await api.get(`/organizacao/${id}`);
+                }
+
+                console.log(`✅ Dados do ${tipo}:`, response.data);
+                setEntidade(response.data);
             } catch (error) {
-                console.error('❌ Erro ao buscar produtor:', error);
-                showToast('error', 'Erro', 'Erro ao carregar dados do produtor');
+                console.error(`❌ Erro ao buscar ${tipo}:`, error);
+                showToast('error', 'Erro', `Erro ao carregar dados do ${tipo}`);
             } finally {
-                setLoadingProdutor(false);
+                setLoadingEntidade(false);
             }
         };
 
-        fetchProdutor();
-    }, [produtorId]);
+        fetchEntidade();
+    }, [id, tipo, isProdutor, isOrganizacao]);
 
-    // Buscar certificados do produtor diretamente da API
+    // Buscar certificados
     useEffect(() => {
         const fetchCertificados = async () => {
-            if (!produtorId) {
+            if (!id || (!isProdutor && !isOrganizacao)) {
                 setLoadingCertificados(false);
                 return;
             }
 
             try {
-                console.log('🔍 Buscando certificados do produtor:', produtorId);
+                console.log(`🔍 Buscando certificados do ${tipo}:`, id);
                 setLoadingCertificados(true);
 
-                // Buscar certificados específicos do produtor
-                const response = await api.get(`/certificaoDoProdutorFlorestal/produtoresFlorestais/${produtorId}`);
+                let endpoint;
+                if (isProdutor) {
+                    endpoint = `/certificaoDoProdutorFlorestal/produtoresFlorestais/${id}`;
+                } else {
+                    endpoint = `/certificaoDoProdutorFlorestal/organizacao/${id}`;
+                }
+
+                const response = await api.get(endpoint);
                 console.log('✅ Certificados da API:', response.data);
 
-                // Mapear os certificados para o formato esperado
                 const certificadosMapeados = Array.isArray(response.data)
                     ? response.data.map(certificado => {
-                        // Função para calcular status
                         const getStatusCertificado = (validoDe, validoAte) => {
                             const hoje = new Date();
                             const dataInicio = validoDe ? new Date(validoDe) : null;
                             const dataFim = validoAte ? new Date(validoAte) : null;
 
                             if (!dataInicio || !dataFim) return 'DATA_INVALIDA';
-
                             if (hoje < dataInicio) return 'AGUARDANDO_VIGENCIA';
                             if (hoje > dataFim) return 'EXPIRADO';
 
@@ -205,7 +223,6 @@ const VisualizarCertificadosFlorestal = () => {
                             return 'ATIVO';
                         };
 
-                        // Normalizar finalidade
                         let finalidadeCertificado = [];
                         const valor = certificado.finalidadeDoCertificado;
 
@@ -233,23 +250,20 @@ const VisualizarCertificadosFlorestal = () => {
                             coordenadasGPS: certificado.coordenadasGPS || '',
                             latitude: certificado.latitude || '',
                             longitude: certificado.longitude || '',
-                            // Guarda os dados crus (originais)
                             dadosOriginais: certificado
                         };
                     })
                     : [];
 
-
-                setCertificadosProdutor(certificadosMapeados);
+                setCertificados(certificadosMapeados);
                 console.log('📋 Certificados processados:', certificadosMapeados);
 
             } catch (error) {
                 console.error('❌ Erro ao buscar certificados:', error);
                 if (error.response?.status === 404) {
-                    // Produtor não tem certificados
-                    setCertificadosProdutor([]);
+                    setCertificados([]);
                 } else {
-                    showToast('error', 'Erro', 'Erro ao carregar certificados do produtor');
+                    showToast('error', 'Erro', `Erro ao carregar certificados do ${tipo}`);
                 }
             } finally {
                 setLoadingCertificados(false);
@@ -257,27 +271,18 @@ const VisualizarCertificadosFlorestal = () => {
         };
 
         fetchCertificados();
-    }, [produtorId]);
+    }, [id, tipo, isProdutor, isOrganizacao]);
 
-    const formatarDataISO = (data) => {
-        if (!data) return null;
-        try { return new Date(data).toISOString(); } catch { return null; }
-    };
-
-    // CORREÇÃO: Função para gerar e baixar certificado
-    // Função para gerar e baixar certificado
     const handleDownloadCertificado = async (certificado) => {
         try {
             setGerandoCertificado(certificado.id);
             console.log('🎯 Gerando certificado:', certificado);
 
-            // Buscar dados completos do certificado da API
             const responseCertificado = await api.get(`/certificaoDoProdutorFlorestal/${certificado.id}`);
             const dadosCompletos = responseCertificado.data;
 
             console.log('📋 Dados completos do certificado:', dadosCompletos);
 
-            // Processar tipoDeLicencaFlorestal que vem como string JSON dentro de array
             let tiposLicenca = [];
             if (dadosCompletos.tipoDeLicencaFlorestal && Array.isArray(dadosCompletos.tipoDeLicencaFlorestal)) {
                 try {
@@ -291,27 +296,21 @@ const VisualizarCertificadosFlorestal = () => {
                 }
             }
 
-            // Montar dados no formato esperado pelo gerador
             const dadosParaCertificado = {
-                // Dados do produtor
-                nomeCompleto: dadosCompletos.nomeCompleto || produtor?.nome_do_Produtor || 'N/A',
-                nomeEntidade: dadosCompletos.nomeCompleto || produtor?.nome_do_Produtor || 'N/A',
-                numBIOuNIF: dadosCompletos.numBIOuNIF || produtor?.bI_NIF || 'N/A',
-                telefone: dadosCompletos.telefone || produtor?.contacto || 'N/A',
-                provincia: dadosCompletos.provincia || produtor?.provincia || 'N/A',
-                municipio: dadosCompletos.municipio || produtor?.municipio || 'N/A',
-                comuna: dadosCompletos.comuna || produtor?.comuna || 'N/A',
+                nomeCompleto: dadosCompletos.nomeCompleto || entidade?.nome_do_Produtor || entidade?.nome || 'N/A',
+                nomeEntidade: dadosCompletos.nomeCompleto || entidade?.nome_do_Produtor || entidade?.nome || 'N/A',
+                numBIOuNIF: dadosCompletos.numBIOuNIF || entidade?.bI_NIF || entidade?.nif || 'N/A',
+                telefone: dadosCompletos.telefone || entidade?.contacto || entidade?.telefone || 'N/A',
+                provincia: dadosCompletos.provincia || entidade?.provincia || 'N/A',
+                municipio: dadosCompletos.municipio || entidade?.municipio || 'N/A',
+                comuna: dadosCompletos.comuna || entidade?.comuna || 'N/A',
 
-                // Dados da licença
                 numeroProcesso: certificado.numeroProcesso || `PROC-${certificado.id}`,
                 numeroLicencaExploracao: certificado.numeroProcesso || `LIC-${certificado.id}`,
                 tiposLicenca: tiposLicenca,
                 totalDeCustos: dadosCompletos.totalDeCustos || 0,
 
-                // Áreas florestais
                 areasFlorestais: dadosCompletos.areaFlorestalLicenciadas || [],
-
-                // Espécies autorizadas
                 especiesAutorizadas: (dadosCompletos.especieciesFlorestaisAutorizadas || []).map(especie => ({
                     especie: especie.nomeCientifico || especie.nomeComum || 'Espécie não informada',
                     nomeComum: especie.nomeComum || '',
@@ -321,45 +320,37 @@ const VisualizarCertificadosFlorestal = () => {
                     observacoes: especie.observacoes || ''
                 })),
 
-                // Histórico
                 historicoExploracoes: dadosCompletos.historicoDeExploracao || [],
 
-                // Validade
                 validadeInicio: dadosCompletos.validadeDe,
                 validadeFim: dadosCompletos.validadeAte,
                 validoDe: dadosCompletos.validadeDe,
                 validoAte: dadosCompletos.validadeAte,
 
-                // Técnico responsável
                 tecnicoResponsavel: dadosCompletos.nomeDoTecnicoResponsavel || 'Não informado',
                 nomeDoTecnicoResponsavel: dadosCompletos.nomeDoTecnicoResponsavel || 'Não informado',
                 cargo: dadosCompletos.cargo || 'Técnico Florestal',
                 cargoTecnico: dadosCompletos.cargo || 'Técnico Florestal',
 
-                // Condições e observações
                 condicoesEspeciais: dadosCompletos.condicoesEspeciais || '',
                 observacoes: dadosCompletos.observacoes || certificado.observacoesTecnicas || '',
 
-                // IDs
-                produtorFlorestalId: dadosCompletos.produtorFlorestalId || produtorId,
-                organizacaoId: dadosCompletos.organizacaoId || null,
+                produtorFlorestalId: dadosCompletos.produtorFlorestalId || (isProdutor ? id : null),
+                organizacaoId: dadosCompletos.organizacaoId || (isOrganizacao ? id : null),
 
-                // Anexos
                 attachmentCertificadoFlorestals: dadosCompletos.attachmentCertificadoFlorestals || []
             };
 
             console.log('📊 Dados preparados para certificado:', dadosParaCertificado);
 
-            // Importar e chamar a função geradora correta
             const { gerarCertificadoFlorestal } = await import('./CertificadoFlorestalGenerator');
 
-            // Chamar a função de geração
             const resultado = await gerarCertificadoFlorestal({
                 dadosProdutor: dadosParaCertificado,
                 areasFlorestais: dadosParaCertificado.areasFlorestais,
                 especiesAutorizadas: dadosParaCertificado.especiesAutorizadas,
                 historicoExploracoes: dadosParaCertificado.historicoExploracoes,
-                tipoSelecionado: 'Produtor Florestal'
+                tipoSelecionado: isOrganizacao ? 'Organização' : 'Produtor Florestal'
             });
 
             if (resultado && resultado.success) {
@@ -376,7 +367,6 @@ const VisualizarCertificadosFlorestal = () => {
         }
     };
 
-    // Função para mostrar toast
     const showToast = (type, title, message, duration = 5000) => {
         if (toastTimeout) {
             clearTimeout(toastTimeout);
@@ -391,7 +381,6 @@ const VisualizarCertificadosFlorestal = () => {
         setToastTimeout(timeout);
     };
 
-    // Cleanup do timeout quando component desmonta
     useEffect(() => {
         return () => {
             if (toastTimeout) {
@@ -400,32 +389,28 @@ const VisualizarCertificadosFlorestal = () => {
         };
     }, [toastTimeout]);
 
-    // Voltar para gestão de certificados
     const handleBack = () => {
         navigate('/GerenciaRNPA/certificados');
     };
 
-    // Selecionar/deselecionar certificado para impressão
     const handleSelectCertificado = (certificadoId) => {
         setSelectedCertificados(prev => {
             if (prev.includes(certificadoId)) {
-                return prev.filter(id => id !== certificadoId);
+                return prev.filter(idItem => idItem !== certificadoId);
             } else {
                 return [...prev, certificadoId];
             }
         });
     };
 
-    // Selecionar todos os certificados
     const handleSelectAll = () => {
-        if (selectedCertificados.length === certificadosProdutor.length) {
+        if (selectedCertificados.length === certificados.length) {
             setSelectedCertificados([]);
         } else {
-            setSelectedCertificados(certificadosProdutor.map(cert => cert.id));
+            setSelectedCertificados(certificados.map(cert => cert.id));
         }
     };
 
-    // Imprimir certificados selecionados em lote
     const handlePrintBatch = async () => {
         if (selectedCertificados.length === 0) {
             showToast('warning', 'Atenção', 'Selecione pelo menos um certificado para gerar');
@@ -436,10 +421,9 @@ const VisualizarCertificadosFlorestal = () => {
             showToast('info', 'Processando', `Gerando ${selectedCertificados.length} certificado(s)...`);
 
             for (const certificadoId of selectedCertificados) {
-                const certificado = certificadosProdutor.find(c => c.id === certificadoId);
+                const certificado = certificados.find(c => c.id === certificadoId);
                 if (certificado) {
                     await handleDownloadCertificado(certificado);
-                    // Pequena pausa entre certificados
                     await new Promise(resolve => setTimeout(resolve, 1000));
                 }
             }
@@ -453,7 +437,6 @@ const VisualizarCertificadosFlorestal = () => {
         }
     };
 
-    // Formatar data
     const formatDate = (dateString) => {
         if (!dateString) return 'N/A';
         try {
@@ -464,7 +447,6 @@ const VisualizarCertificadosFlorestal = () => {
         }
     };
 
-    // Calcular dias restantes para vencimento
     const getDaysToExpiry = (validoAte) => {
         if (!validoAte) return null;
         try {
@@ -478,7 +460,6 @@ const VisualizarCertificadosFlorestal = () => {
         }
     };
 
-    // Cores para diferentes status
     const getStatusColor = (status) => {
         const statusColors = {
             'ATIVO': 'bg-green-100 text-green-800 border-green-300',
@@ -489,7 +470,6 @@ const VisualizarCertificadosFlorestal = () => {
         return statusColors[status] || 'bg-gray-100 text-gray-800 border-gray-300';
     };
 
-    // Labels para status
     const getStatusLabel = (status) => {
         const statusLabels = {
             'ATIVO': 'Ativo',
@@ -500,7 +480,6 @@ const VisualizarCertificadosFlorestal = () => {
         return statusLabels[status] || status;
     };
 
-    // Componente Toast
     const Toast = () => {
         if (!toastMessage) return null;
 
@@ -548,16 +527,15 @@ const VisualizarCertificadosFlorestal = () => {
         );
     };
 
-    // Se não tem produtorId, mostrar erro
-    if (!produtorId) {
+    if (!id || (!isProdutor && !isOrganizacao)) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <Toast />
                 <div className="text-center max-w-md mx-auto p-8">
                     <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">ID do Produtor não encontrado</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Parâmetros inválidos</h3>
                     <p className="text-gray-500 mb-6">
-                        A URL não contém um ID de produtor válido. Verifique o link e tente novamente.
+                        A URL não contém parâmetros válidos. Verifique o link e tente novamente.
                     </p>
                     <button
                         onClick={handleBack}
@@ -571,13 +549,15 @@ const VisualizarCertificadosFlorestal = () => {
         );
     }
 
+    const tipoLabel = isOrganizacao ? 'Organização' : 'Produtor Florestal';
+
     return (
         <div className="min-h-screen bg-gray-50">
             <Toast />
 
             {/* Cabeçalho */}
             <div className="bg-white shadow-sm border-b border-gray-200">
-                <div className=" mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-16">
                         <div className="flex items-center">
                             <button
@@ -588,21 +568,23 @@ const VisualizarCertificadosFlorestal = () => {
                                 <ArrowLeft className="w-5 h-5 text-gray-600" />
                             </button>
                             <div>
-                                <h1 className="text-xl font-semibold text-gray-900">Certificados do Produtor Florestal</h1>
+                                <h1 className="text-xl font-semibold text-gray-900">
+                                    Certificados - {tipoLabel}
+                                </h1>
                                 <p className="text-sm text-gray-500">Visualização e gestão de certificados</p>
                             </div>
                         </div>
 
-                        {certificadosProdutor.length > 0 && (
+                        {certificados.length > 0 && (
                             <div className="flex items-center space-x-3">
                                 <span className="text-sm text-gray-600">
-                                    {selectedCertificados.length} de {certificadosProdutor.length} selecionados
+                                    {selectedCertificados.length} de {certificados.length} selecionados
                                 </span>
                                 <button
                                     onClick={handleSelectAll}
                                     className="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
                                 >
-                                    {selectedCertificados.length === certificadosProdutor.length ? 'Desmarcar Todos' : 'Selecionar Todos'}
+                                    {selectedCertificados.length === certificados.length ? 'Desmarcar Todos' : 'Selecionar Todos'}
                                 </button>
                                 <button
                                     onClick={handlePrintBatch}
@@ -622,8 +604,8 @@ const VisualizarCertificadosFlorestal = () => {
             </div>
 
             <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Informações do Produtor */}
-                {loadingProdutor ? (
+                {/* Informações da Entidade */}
+                {loadingEntidade ? (
                     <div className="bg-white rounded-xl shadow-md p-6 mb-8">
                         <div className="animate-pulse">
                             <div className="flex items-center">
@@ -636,42 +618,43 @@ const VisualizarCertificadosFlorestal = () => {
                             </div>
                         </div>
                     </div>
-                ) : produtor ? (
+                ) : entidade ? (
                     <div className="bg-white rounded-xl shadow-md p-6 mb-8">
                         <div className="flex items-start">
-                            <ProdutorAvatar
-                                produtor={{
-                                    id: produtorId,
-                                    nome: produtor.beneficiary_name ||
-                                        `${produtor.nome_do_Produtor || ''} ${produtor.nome_do_Produtor || ''}`.trim()
-                                }}
+                            <EntidadeAvatar
+                                entidade={entidade}
+                                tipo={tipo}
                                 size="w-20 h-20"
                                 textSize="text-lg"
                             />
                             <div className="ml-6 flex-1">
+                                <div className="flex items-center mb-2">
+                                    {isOrganizacao && <Building2 className="w-5 h-5 mr-2 text-purple-600" />}
+                                    {isProdutor && <User className="w-5 h-5 mr-2 text-blue-600" />}
+                                    <span className="text-xs font-medium text-gray-500 uppercase">
+                                        {tipoLabel}
+                                    </span>
+                                </div>
                                 <h2 className="text-2xl font-bold text-gray-900">
-                                    {produtor.nome_do_Produtor || `${produtor.nome_do_Produtor || ''} ${produtor.nome_do_Produtor || ''}`.trim()}
+                                    {entidade.nome_do_Produtor || entidade.nome || entidade.nomeCompleto || 'Nome não informado'}
                                 </h2>
                                 <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                     <div className="flex items-center text-gray-600">
                                         <IdCard className="w-4 h-4 mr-2 text-blue-500" />
-                                        <span className="text-sm">BI: {produtor.bI_NIF || 'N/A'}</span>
+                                        <span className="text-sm">
+                                            {isOrganizacao ? 'NIF' : 'BI'}: {entidade.bI_NIF || entidade.nif || entidade.numBIOuNIF || 'N/A'}
+                                        </span>
                                     </div>
                                     <div className="flex items-center text-gray-600">
                                         <Phone className="w-4 h-4 mr-2 text-blue-500" />
-                                        <span className="text-sm">{produtor.contacto || 'N/A'}</span>
+                                        <span className="text-sm">{entidade.contacto || entidade.telefone || 'N/A'}</span>
                                     </div>
                                     <div className="flex items-center text-gray-600">
                                         <MapPin className="w-4 h-4 mr-2 text-blue-500" />
-                                        <span className="text-sm">{produtor.municipio || 'N/A'}, {produtor.provincia?.toUpperCase() || 'N/A'}</span>
-                                    </div>
-                                </div>
-                                <div className="mt-4 flex flex-wrap gap-2">
-                                    {produtor.atividades_produtor?.split(' ').map((atividade, index) => (
-                                        <span key={index} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                            {atividade.toUpperCase()}
+                                        <span className="text-sm">
+                                            {entidade.municipio || 'N/A'}, {entidade.provincia?.toUpperCase() || 'N/A'}
                                         </span>
-                                    ))}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -680,16 +663,14 @@ const VisualizarCertificadosFlorestal = () => {
                     <div className="bg-white rounded-xl shadow-md p-6 mb-8">
                         <div className="text-center py-4">
                             <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-                            <h3 className="text-lg font-medium text-gray-900">Produtor não encontrado</h3>
-                            <p className="text-gray-500">Não foi possível carregar os dados do produtor.</p>
+                            <h3 className="text-lg font-medium text-gray-900">{tipoLabel} não encontrado(a)</h3>
+                            <p className="text-gray-500">Não foi possível carregar os dados.</p>
                         </div>
                     </div>
                 )}
 
-                {/* Lista de Certificados */}
-
                 {/* Estatísticas dos certificados */}
-                {!loadingCertificados && certificadosProdutor.length > 0 && (
+                {!loadingCertificados && certificados.length > 0 && (
                     <div className="mt-8 mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="bg-white rounded-xl shadow-md p-6">
                             <div className="flex items-center">
@@ -698,7 +679,7 @@ const VisualizarCertificadosFlorestal = () => {
                                 </div>
                                 <div className="ml-4">
                                     <p className="text-sm font-medium text-gray-500">Total</p>
-                                    <p className="text-2xl font-bold text-gray-900">{certificadosProdutor.length}</p>
+                                    <p className="text-2xl font-bold text-gray-900">{certificados.length}</p>
                                 </div>
                             </div>
                         </div>
@@ -711,7 +692,7 @@ const VisualizarCertificadosFlorestal = () => {
                                 <div className="ml-4">
                                     <p className="text-sm font-medium text-gray-500">Activos</p>
                                     <p className="text-2xl font-bold text-gray-900">
-                                        {certificadosProdutor.filter(c => c.statusCertificado === 'ATIVO').length}
+                                        {certificados.filter(c => c.statusCertificado === 'ATIVO').length}
                                     </p>
                                 </div>
                             </div>
@@ -725,7 +706,7 @@ const VisualizarCertificadosFlorestal = () => {
                                 <div className="ml-4">
                                     <p className="text-sm font-medium text-gray-500">Próx. Vencimento</p>
                                     <p className="text-2xl font-bold text-gray-900">
-                                        {certificadosProdutor.filter(c => c.statusCertificado === 'PROXIMO_VENCIMENTO').length}
+                                        {certificados.filter(c => c.statusCertificado === 'PROXIMO_VENCIMENTO').length}
                                     </p>
                                 </div>
                             </div>
@@ -739,18 +720,20 @@ const VisualizarCertificadosFlorestal = () => {
                                 <div className="ml-4">
                                     <p className="text-sm font-medium text-gray-500">Expirados</p>
                                     <p className="text-2xl font-bold text-gray-900">
-                                        {certificadosProdutor.filter(c => c.statusCertificado === 'EXPIRADO').length}
+                                        {certificados.filter(c => c.statusCertificado === 'EXPIRADO').length}
                                     </p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 )}
+
+                {/* Lista de Certificados */}
                 <div className="space-y-6">
                     <div className="flex items-center justify-between">
                         <h3 className="text-lg font-semibold text-gray-900 flex items-center">
                             <Award className="w-6 h-6 mr-2 text-blue-600" />
-                            Certificados ({certificadosProdutor.length})
+                            Certificados ({certificados.length})
                         </h3>
                     </div>
 
@@ -771,17 +754,17 @@ const VisualizarCertificadosFlorestal = () => {
                                 </div>
                             ))}
                         </div>
-                    ) : certificadosProdutor.length === 0 ? (
+                    ) : certificados.length === 0 ? (
                         <div className="bg-white rounded-xl shadow-md p-12 text-center">
                             <Award className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                             <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum certificado encontrado</h3>
                             <p className="text-gray-500 max-w-md mx-auto">
-                                Este produtor ainda não possui certificados cadastrados no sistema.
+                                {isOrganizacao ? 'Esta organização' : 'Este produtor'} ainda não possui certificados cadastrados no sistema.
                             </p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            {certificadosProdutor.map((certificado) => (
+                            {certificados.map((certificado) => (
                                 <div
                                     key={certificado.id}
                                     className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 overflow-hidden"
@@ -836,7 +819,7 @@ const VisualizarCertificadosFlorestal = () => {
                                                     <Calendar className="w-4 h-4 mr-1 text-blue-500" /> Vigência
                                                 </h5>
                                                 <p className="text-sm text-gray-900">
-                                                    {formatDate(certificado.validadeDe)} - {formatDate(certificado.validadeAte)}
+                                                    {formatDate(certificado.validoDe)} - {formatDate(certificado.validoAte)}
                                                 </p>
                                                 {certificado.statusCertificado === "PROXIMO_VENCIMENTO" && (
                                                     <p className="text-xs text-yellow-600 font-medium mt-1">
@@ -874,8 +857,6 @@ const VisualizarCertificadosFlorestal = () => {
                                                 </div>
                                             </div>
                                         )}
-
-
 
                                         {/* Observações */}
                                         {certificado.observacoesTecnicas &&
@@ -915,11 +896,8 @@ const VisualizarCertificadosFlorestal = () => {
                                 </div>
                             ))}
                         </div>
-
                     )}
                 </div>
-
-
             </div>
         </div>
     );

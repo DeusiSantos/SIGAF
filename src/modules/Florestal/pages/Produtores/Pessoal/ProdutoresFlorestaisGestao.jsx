@@ -7,6 +7,7 @@ import {
     Download,
     Eye,
     File,
+    Files,
     Filter,
     MapPin,
     MoreVertical,
@@ -314,9 +315,12 @@ const ProdutoresFlorestaisGestao = () => {
     };
 
     const handleGerarCartao = (produtorId) => {
-        navigate(`/GerenciaRNPA/produtores-florestais/gerar-cartao/${produtorId}`);
+        navigate(`/GerenciaRNPA/gestao-florestal/produtores/historico-producao/${produtorId}`);
     };
 
+    const handleViewCertificado = (produtorId) => {
+        navigate(`/GerenciaRNPA/gestao-florestal/visualizarCertificado/produtor/${produtorId}`);
+    };
     const handleGerarLicenca = (produtorId) => {
         navigate(`/GerenciaRNPA/gestao-florestal/produtores/gerar-licenca/produtor/${produtorId}`);
     };
@@ -431,6 +435,7 @@ const ProdutoresFlorestaisGestao = () => {
         // Adicionar "Gerar Cartão" apenas para produtores aprovados
         if (produtor.statusProcesso === 'APROVADO') {
             baseActions.push({ label: 'Gerar Licença Florestal', icon: <File size={16} />, action: handleGerarLicenca });
+            baseActions.push({ label: 'Licenças', icon: <Files size={16} />, action: handleViewCertificado });
             baseActions.push({ label: 'Gerar Cartão', icon: <CreditCard size={16} />, action: handleGerarCartao });
 
         }

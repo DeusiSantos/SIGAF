@@ -12,7 +12,10 @@ import LancamentoResultadosSolo from '../Agricola/pages/LaboratorioDeSolo/Lancam
 import VisualizarProjeto from '../Agricola/pages/ProgramaBeneficio/VisualizarProjeto';
 import ArmazenamentoMenu from './Menu/ArmazenamentoMenu';
 import AssociacaoMenuFlorestal from './Menu/AssociacaoMenuFlorestal';
+import CertificadoFitossanitarioMenu from './Menu/CertificadoFitossanitarioMenu';
+import CertificadoOrigemMenu from './Menu/CertificadoOrigemMenu';
 import CooperativaMenuFlorestal from './Menu/CooperativaMenuFlorestal';
+import EmitidoParaExploracaoMenu from './Menu/EmitidoParaExploracaoMenu';
 import EmpresasMenuFlorestal from './Menu/EmpresasMenuFlorestal';
 import EntrepostosMercadoFlorestalMenu from './Menu/EntrepostosMercadoFlorestalMenu';
 import MenuEmpresasApoio from './Menu/MenuEmpresasApoio';
@@ -38,12 +41,17 @@ const FlorestalRoutes = () => {
             <Route path="produtores/cooperativa" element={<CooperativaMenuFlorestal />} />
             <Route path="produtores/associacao" element={<AssociacaoMenuFlorestal />} />
             <Route path="certificacaoFlorestal" element={<ValidacoesCerificadosFlorestaisMenu />} />
+            <Route path="EmitidoExploracao" element={<EmitidoParaExploracaoMenu />} />
+            <Route path="CertificadodeOrigem" element={<CertificadoOrigemMenu />} />
+            <Route path="CertificadoFitossanitário" element={<CertificadoFitossanitarioMenu />} />
+            <Route path="CertificadodeOrigem" element={<ValidacoesCerificadosFlorestaisMenu />} />
             <Route path="produtores/historico-producao/:id" element={<HistoricoProducaoFlorestal />} />
             <Route path="produtores/historico-producao/:id/novo" element={<AddHistoricoProducaoFlorestal />} />
 
             {/* ======================================= */}
             {/* LICENÇAS E FISCALIZAÇÃO */}
             {/* ======================================= */}
+
             <Route path="licencas" element={<LicencaMenu />} />
             <Route path="fiscalizacao" element={<GestaoFiscalizacao />} />
             <Route path="produtores/gerar-licenca/:tipo/:id" element={<CertificacaoProdutorFlorestal />} />
@@ -54,7 +62,7 @@ const FlorestalRoutes = () => {
             {/* ======================================= */}
 
             <Route path="visualizarprodutorflorestal/:id" element={<VisualizarProdutorFlorestal />} />
-            <Route path="visualizarCertificado/:produtorId" element={<VisualizarCertificadosFlorestal />} />
+            <Route path="visualizarCertificado/:tipo/:produtorId" element={<VisualizarCertificadosFlorestal />} />
             <Route path="programas" element={<GestaoProgramasBeneficiosMenu />} />
             <Route path="programas-beneficios/visualizar/:id" element={<VisualizarProjeto />} />
 
@@ -72,12 +80,10 @@ const FlorestalRoutes = () => {
             {/* OUTRAS ROTAS */}
             {/* ======================================= */}
 
-
+            /gestao-florestal/produtores/CertificadodeOrigem
 
             <Route path="produtores/cadastro-producao-organizacao/:id" element={<HistoricoProducaoFlorestal />} />
             <Route path="produtores/historico-producao/:id/novo" element={<AddHistoricoProducaoFlorestal />} />
-
-
             <Route path="AmostrasDeSolo" element={<AmostrasDeSoloMenu />} />
             <Route path="lancamento-resultados/:id" element={<LancamentoResultadosSolo />} />
             <Route path="registo-individual" element={<h1 className="text-2xl font-semibold">Registo Individual de Produtor</h1>} />
