@@ -23,7 +23,6 @@ import {
   Shield,
   ShieldAlert,
   Sprout,
-  TestTube,
   Tractor,
   TreePine,
   TrendingUp,
@@ -285,7 +284,40 @@ const rnpaRoutes = {
       },
       { text: 'Programas e Benefícios', icon: Award, path: '/GerenciaRNPA/gestao-florestal/programas' },
       { text: 'Transgreções', icon: Gavel, path: '/GerenciaRNPA/gestao-florestal/sancoes' },
-      { text: 'Amostra de Solo', icon: TestTube, path: '/GerenciaRNPA/gestao-florestal/AmostrasDeSolo' }
+      {
+        text: "Laboratório de Solo",
+        icon: Microscope,
+        path: "/GerenciaRNPA/gestao-agricultores/LaboratorioDeSolo",
+        hasDropdown: true,
+        dropdownItems: [
+          {
+            text: "Métodos e Ensaios",
+            icon: ShieldAlert,
+            path: "/GerenciaRNPA/LaboratorioDeSolo/MetodosEnsaios",
+          },
+          {
+            text: "Amostra de Solo",
+            icon: Globe,
+            path: "/GerenciaRNPA/LaboratorioDeSolo/AmostraSolo",
+          },
+          {
+            text: "Resultados de Análises",
+            icon: MapPin,
+            path: "/GerenciaRNPA/LaboratorioDeSolo/ResultadosAnalises",
+          },
+          {
+            text: "Gestão de Laboratórios",
+            icon: Building2,
+            path: "/GerenciaRNPA/LaboratorioDeSolo/GestaoLaboratorios",
+          },
+          {
+            text: "Relatórios e Laudos",
+            icon: FileText,
+            path: "/GerenciaRNPA/LaboratorioDeSolo/RelatoriosLaudos",
+          },
+
+        ],
+      },
     ],
 
     "Painel e Monitoramento": [
