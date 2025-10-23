@@ -1,3 +1,4 @@
+import axios from 'axios';
 import {
     AlertCircle,
     Check,
@@ -679,14 +680,12 @@ const RegistroCertificadoOrigem = () => {
         setLoading(true);
 
         try {
-            // Validações
             if (produtos.length === 0) {
                 showToast('error', 'Validação', 'Adicione pelo menos um produto antes de finalizar.');
                 setLoading(false);
                 return;
             }
 
-            // Validar campos obrigatórios
             if (!formData.exportadorNome || !formData.importadorNome) {
                 showToast('error', 'Validação', 'Preencha os dados do exportador e importador.');
                 setLoading(false);
@@ -699,10 +698,45 @@ const RegistroCertificadoOrigem = () => {
                 return;
             }
 
-            // Importar a função de geração de PDF dinamicamente
+            // ✅ Montar payload conforme o modelo da API
+            const payload = {
+                tipoDeOperacao: tipoCertificado || formData.tipoOperacao,
+                nomeDoExportador: formData.exportadorNome,
+                enderecoDoExportador: formData.exportadorEndereco,
+                nomeDoImportador: formData.importadorNome,
+                enderecoDoImportador: formData.importadorEndereco,
+                nomeDoDestinatario: formData.destinatarioNome || '',
+                enderecoDoDestinatario: formData.destinatarioEndereco || '',
+                paisDeOrigem: formData.paisOrigem,
+                viaDeTransporte: formData.viaTransporte,
+                pontoDeSaida: formData.pontoSaida || '',
+                paisDeDestino: formData.paisDestino || '',
+                pontoDeEntrada: formData.pontoEntrada || '',
+                documentoDeCarga: formData.documentoCarga || '',
+                alfandegaDeSaida: formData.alfandegaSaida || '',
+                dataAlfandega: formData.dataAlfandega || new Date().toISOString().split('T')[0],
+                listaDeProdutos: produtos.map((p) => ({
+                    nomeDoProduto: p.nomeVulgar?.trim() || 'Produto não informado',
+                    nomeCientifico: p.nomeCientifico?.trim() || 'Desconhecido',
+                    grupoOuQualidade: p.grupoQualidade?.trim() || 'N/A',
+                    qualidade: p.qualidade || 'Standard',
+                    pesoLiquido: parseFloat(p.pesoLiquido) || 0,
+                    volume: parseFloat(p.volume) || 0,
+                })),
+            };
+
+            console.log('📦 Payload enviado para API:', payload);
+
+            const response = await axios.post(
+                'https://mwangobrainsa-001-site2.mtempurl.com/api/certificadoDeOrigem',
+                payload,
+                { headers: { 'Content-Type': 'application/json' } }
+            );
+
+            console.log('✅ Sucesso:', response.data);
+            showToast('success', 'Sucesso', 'Certificado de Origem emitido com sucesso!');
             const { gerarCertificadoOrigem } = await import('./CertificadoOrigemDocument');
 
-            // Preparar dados para o PDF
             const dadosParaPDF = {
                 formData: {
                     ...formData,
@@ -719,55 +753,12 @@ const RegistroCertificadoOrigem = () => {
                 }))
             };
 
-            console.log('📋 Dados preparados para PDF:', dadosParaPDF);
-
-            // Gerar o PDF do Certificado de Origem
             const resultado = await gerarCertificadoOrigem(dadosParaPDF);
 
             console.log('✅ Resultado:', resultado);
 
-            // Preparar dados para envio à API (opcional)
-            const dadosEnvio = {
-                numeroCertificado: resultado.numeroCertificado,
-                tipoOperacao: tipoCertificado,
-                dataEmissao: new Date().toISOString(),
-                exportador: {
-                    nome: formData.exportadorNome,
-                    endereco: formData.exportadorEndereco
-                },
-                importador: {
-                    nome: formData.importadorNome,
-                    endereco: formData.importadorEndereco
-                },
-                destinatario: {
-                    nome: formData.destinatarioNome,
-                    endereco: formData.destinatarioEndereco
-                },
-                transporte: {
-                    paisOrigem: formData.paisOrigem,
-                    viaTransporte: formData.viaTransporte,
-                    pontoSaida: formData.pontoSaida,
-                    paisDestino: formData.paisDestino,
-                    pontoEntrada: formData.pontoEntrada,
-                    documentoCarga: formData.documentoCarga,
-                    alfandegaSaida: formData.alfandegaSaida,
-                    dataAlfandega: formData.dataAlfandega
-                },
-                produtos: dadosParaPDF.produtos
-            };
 
-            console.log('📤 Dados para enviar à API:', dadosEnvio);
-
-            // Aqui você pode fazer a chamada à API
-            // const response = await fetch('URL_DA_API', {
-            //   method: 'POST',
-            //   headers: { 'Content-Type': 'application/json' },
-            //   body: JSON.stringify(dadosEnvio)
-            // });
-
-            showToast('success', 'Sucesso', resultado.message);
-
-            // Opcional: Resetar o formulário após sucesso
+            // 🧹 Resetar formulário após sucesso
             setTimeout(() => {
                 setFormData({
                     numeroCertificado: '',
@@ -786,16 +777,20 @@ const RegistroCertificadoOrigem = () => {
                     pontoEntrada: '',
                     documentoCarga: '',
                     alfandegaSaida: '',
-                    dataAlfandega: ''
+                    dataAlfandega: '',
                 });
                 setProdutos([]);
                 setActiveStep(0);
                 setTipoCertificado(null);
-            }, 2000);
+            }, 1500);
 
         } catch (error) {
-            console.error('❌ Erro ao processar certificado:', error);
-            showToast('error', 'Erro', error.message || 'Erro ao emitir certificado. Tente novamente.');
+            console.error('❌ Erro ao registrar certificado de origem:', error);
+            const mensagemErro =
+                error.response?.data?.message ||
+                error.response?.data ||
+                'Erro ao registrar o certificado de origem.';
+            showToast('error', 'Erro', mensagemErro);
         } finally {
             setLoading(false);
         }

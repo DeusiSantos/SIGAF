@@ -1,3 +1,4 @@
+import axios from 'axios';
 import {
   AlertCircle,
   Building,
@@ -241,8 +242,8 @@ const RegistroMercadorias = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <button
                   className={`p-8 rounded-xl border-2 transition-all text-center hover:shadow-lg ${isProdutorExistente === true
-                      ? 'border-green-500 bg-green-50 text-green-700'
-                      : 'border-gray-200 hover:border-green-300'
+                    ? 'border-green-500 bg-green-50 text-green-700'
+                    : 'border-gray-200 hover:border-green-300'
                     }`}
                   onClick={() => {
                     setIsProdutorExistente(true);
@@ -266,8 +267,8 @@ const RegistroMercadorias = () => {
 
                 <button
                   className={`p-8 rounded-xl border-2 transition-all text-center hover:shadow-lg ${isProdutorExistente === false
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
-                      : 'border-gray-200 hover:border-blue-300'
+                    ? 'border-blue-500 bg-blue-50 text-blue-700'
+                    : 'border-gray-200 hover:border-blue-300'
                     }`}
                   onClick={() => {
                     setIsProdutorExistente(false);
@@ -778,14 +779,12 @@ const RegistroMercadorias = () => {
     setLoading(true);
 
     try {
-      // Validações
       if (mercadorias.length === 0) {
         showToast('error', 'Validação', 'Adicione pelo menos uma mercadoria antes de finalizar.');
         setLoading(false);
         return;
       }
 
-      // Preparar dados para o PDF
       const dadosParaPDF = {
         isProdutorExistente,
         produtorSelecionado,
@@ -793,56 +792,54 @@ const RegistroMercadorias = () => {
         mercadorias
       };
 
-      console.log('📋 Dados preparados para PDF:', dadosParaPDF);
+      // ✅ Montar payload compatível com a API
+      const payload = {
+        nomeCompleto: isProdutorExistente && produtorSelecionado
+          ? produtorSelecionado.nome
+          : formData.nome,
+        nif: isProdutorExistente && produtorSelecionado
+          ? produtorSelecionado.bi
+          : formData.nif,
+        endereco: isProdutorExistente && produtorSelecionado
+          ? `${produtorSelecionado.provincia || ''}, ${produtorSelecionado.municipio || ''}`
+          : formData.endereco,
+        provincia: isProdutorExistente && produtorSelecionado
+          ? produtorSelecionado.provincia
+          : formData.provincia,
+        municipio: isProdutorExistente && produtorSelecionado
+          ? produtorSelecionado.municipio
+          : formData.municipio,
 
-      // Gerar o PDF de autorização
+        listaDeMercadorias: mercadorias.map(m => ({
+          nomeDaMercadoria: m.mercadoria?.trim() || 'Mercadoria não informada',
+          quantidade: Number(m.quantidade) || 0,
+          valorUnitario: Number(m.valor) || 0,
+          moeda: m.moeda || 'AOA',
+          origem: m.origem?.trim() || 'Desconhecida',
+          total: (Number(m.quantidade) || 0) * (Number(m.valor) || 0)
+        })),
+
+        produtorFlorestalId: isProdutorExistente && produtorSelecionado
+          ? Number(produtorSelecionado.id)
+          : null, // ⚠️ não enviar 0 se o backend não aceita
+      };
+
+      console.log('📦 Payload enviado:', payload);
+
+      const response = await axios.post(
+        'https://mwangobrainsa-001-site2.mtempurl.com/api/declaracaoFlorestal',
+        payload,
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+
+      console.log('✅ Sucesso:', response.data);
+
       const resultado = await gerarAutorizacaoDesalfandegamento(dadosParaPDF);
 
       console.log('✅ Resultado:', resultado);
+      showToast('success', 'Sucesso', 'Declaração florestal registrada com sucesso!');
 
-      // Preparar dados para envio à API
-      const dadosEnvio = {
-        tipoFornecedor: isProdutorExistente ? 'produtor_existente' : 'novo_fornecedor',
-        fornecedor: isProdutorExistente && produtorSelecionado ? {
-          produtorId: produtorSelecionado.id,
-          produtorRNPA_ID: produtorSelecionado.id,
-          nome: produtorSelecionado.nome,
-          bi: produtorSelecionado.bi,
-          provincia: produtorSelecionado.provincia,
-          municipio: produtorSelecionado.municipio,
-          comuna: produtorSelecionado.comuna,
-          telefone: produtorSelecionado.telefone
-        } : {
-          nome: formData.nome,
-          nif: formData.nif,
-          endereco: formData.endereco,
-          provincia: formData.provincia,
-          municipio: formData.municipio
-        },
-        mercadorias: mercadorias.map(m => ({
-          mercadoria: m.mercadoria,
-          quantidade: parseFloat(m.quantidade) || 0,
-          valor: parseFloat(m.valor) || 0,
-          moeda: m.moeda,
-          origem: m.origem
-        })),
-        valorTotal: calcularTotalMercadorias(),
-        numeroAutorizacao: resultado.numeroAutorizacao,
-        dataEmissao: new Date().toISOString()
-      };
-
-      console.log('📤 Dados para enviar à API:', dadosEnvio);
-
-      // Aqui você pode fazer a chamada à API
-      // const response = await fetch('URL_DA_API', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(dadosEnvio)
-      // });
-
-      showToast('success', 'Sucesso', `Autorização ${resultado.numeroAutorizacao} gerada e baixada com sucesso!`);
-
-      // Opcional: Resetar o formulário após sucesso
+      // Resetar o formulário
       setTimeout(() => {
         setFormData({
           nome: '',
@@ -856,15 +853,21 @@ const RegistroMercadorias = () => {
         setActiveStep(0);
         setIsProdutorExistente(null);
         setProdutorSelecionado(null);
-      }, 2000);
+      }, 1500);
 
     } catch (error) {
-      console.error('❌ Erro ao processar registro:', error);
-      showToast('error', 'Erro', error.message || 'Erro ao registar mercadorias. Tente novamente.');
+      console.error('❌ Erro ao registrar declaração florestal:', error);
+      const message =
+        error.response?.data?.message ||
+        error.response?.data ||
+        error.message ||
+        'Erro ao registrar a declaração florestal.';
+      showToast('error', 'Erro', message);
     } finally {
       setLoading(false);
     }
   };
+
 
   const isLastStep = activeStep === steps.length - 1;
 
@@ -873,8 +876,8 @@ const RegistroMercadorias = () => {
       {/* Toast Message */}
       {toastMessage && (
         <div className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all ${toastMessage.severity === 'success' ? 'bg-green-100 border-l-4 border-green-500 text-green-700' :
-            toastMessage.severity === 'error' ? 'bg-red-100 border-l-4 border-red-500 text-red-700' :
-              'bg-blue-100 border-l-4 border-blue-500 text-blue-700'
+          toastMessage.severity === 'error' ? 'bg-red-100 border-l-4 border-red-500 text-red-700' :
+            'bg-blue-100 border-l-4 border-blue-500 text-blue-700'
           }`}>
           <div className="flex items-center">
             <div className="mr-3">
@@ -910,8 +913,8 @@ const RegistroMercadorias = () => {
                   onClick={() => index <= activeStep && setActiveStep(index)}
                 >
                   <div className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${index < activeStep ? 'bg-green-500 text-white' :
-                      index === activeStep ? 'bg-green-600 text-white' :
-                        'bg-gray-200 text-gray-500'
+                    index === activeStep ? 'bg-green-600 text-white' :
+                      'bg-gray-200 text-gray-500'
                     }`}>
                     {index < activeStep ? (
                       <Check size={24} />
@@ -945,7 +948,7 @@ const RegistroMercadorias = () => {
           <div className="flex justify-between items-center p-8 pt-6 border-t border-gray-100 bg-gray-50">
             <button
               className={`px-8 py-3 rounded-xl border border-gray-300 flex items-center transition-all font-medium ${activeStep === 0 ? 'opacity-50 cursor-not-allowed bg-gray-100' :
-                  'bg-white hover:bg-gray-50 text-gray-700 hover:border-gray-400'
+                'bg-white hover:bg-gray-50 text-gray-700 hover:border-gray-400'
                 }`}
               onClick={() => {
                 setActiveStep((prev) => Math.max(prev - 1, 0));
@@ -963,8 +966,8 @@ const RegistroMercadorias = () => {
 
             <button
               className={`px-8 py-3 rounded-xl flex items-center transition-all font-medium ${isLastStep
-                  ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg'
-                  : 'bg-green-600 hover:bg-green-700 text-white shadow-lg'
+                ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg'
+                : 'bg-green-600 hover:bg-green-700 text-white shadow-lg'
                 }`}
               disabled={loading}
               onClick={() => {

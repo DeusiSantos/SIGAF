@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import CustomInput from '../../../../../core/components/CustomInput';
 import api from '../../../../../core/services/api';
-import { gerarFichaCompletaPDF } from '../../../../../pages/public/ProdutorCompletoRNPAPDF';
+import { gerarFichaCompletaPDF } from '../../../../../pages/public/ProdutorCompletoFlorestal';
 
 
 
@@ -192,7 +192,7 @@ const HistoricoProducaoFlorestal = () => {
         const fetchHistoricoProducao = async () => {
             try {
                 setLoadingHistorico(true);
-                const response = await api.get(`/historicoDeProducao/produtores/${produtorId}`, {
+                const response = await api.get(`/historicoDeProducaoFlorestal/${produtorId}`, {
                     headers: {
                         'Content-Type': 'application/json'
                     }
@@ -306,7 +306,7 @@ const HistoricoProducaoFlorestal = () => {
     const handleGerarPDFCompleto = async () => {
         setGerandoPDF(true);
         try {
-            await gerarFichaCompletaPDF(produtorId);
+            await gerarFichaCompletaPDF(produtorId); // ✅ Chamada correta
             showToast('success', 'Ficha completa com histórico de produção gerada com sucesso!');
         } catch (error) {
             console.error('Erro ao gerar PDF completo:', error);
@@ -389,7 +389,7 @@ const HistoricoProducaoFlorestal = () => {
                             <div className="flex-1 flex items-start gap-2 col-span-6 justify-end">
                                 <div className="relative group">
                                     <button
-                                        onClick={handleAddHistorico(produtor.id)}
+                                        onClick={() => handleAddHistorico(produtor.id)}
                                         className="flex items-center text-sm px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                                         style={{ minWidth: 0 }}
                                         aria-label="Adicionar Registro"
