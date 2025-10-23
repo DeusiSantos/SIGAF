@@ -1,4 +1,5 @@
 // CertificadoFitossanitario.jsx
+import axios from 'axios';
 import {
     AlertCircle,
     BadgeCheck,
@@ -645,44 +646,52 @@ const CertificadoFitossanitario = () => {
                 return;
             }
 
-            console.log('📋 Dados do Certificado Fitossanitário:', formData);
+            // 🔁 Mapeamento dos campos conforme o backend
+            const payload = {
+                localDeInspecao: formData.localInspecao,
+                nomeDoFuncionarioAutorizado: formData.nomeFuncionarioAutorizado,
+                dataDeEmissao: formData.dataEmissao,
+                naturezaDaMercadoria: formData.naturezaMercadoria,
+                nomeBotanico: formData.nomeBotanico,
+                origem: formData.origem,
+                quantidadeDeVolumes: parseInt(formData.quantidadeVolumes) || 0,
+                naturezaDosVolumes: formData.naturezaVolumes,
+                pesoDosVolumes: formData.pesoVolumes,
+                marcasENumeros: formData.marcasNumeros,
+                nomeDoExportador: formData.nomeExportador,
+                enderecoDoExportador: formData.enderecoExportador,
+                nomeDoDestinatario: formData.nomeDestinatario,
+                enderecoDoDestinatario: formData.enderecoDestinatario,
+                pontoDeEntrada: formData.pontoEntrada,
+                meioDeTransporte: formData.meioTransporte,
+                portoDeEntrada: formData.portoEntrada,
+                valorDoSelo: parseFloat(formData.valorSelo) || 0,
+                tratamentoAplicado: formData.tratamentoAplicado,
+                observacoesAdicionais: formData.observacoes,
+                confirmacaoDaDeclaracao: formData.declaracaoDesinfeccao
+            };
 
-            // Gerar o PDF do certificado
-            const resultado = await gerarCertificadoFitossanitario(formData);
+            console.log('📦 Enviando dados para API:', payload);
 
-            showToast('success', 'Sucesso', `Certificado ${resultado.numeroCertificado} gerado com sucesso!`);
+            const response = await axios.post(
+                'https://mwangobrainsa-001-site2.mtempurl.com/api/certificaoFitossanitario',
+                payload,
+                { headers: { 'Content-Type': 'application/json' } }
+            );
 
-            // Resetar formulário após 2 segundos
-            // setTimeout(() => {
-            //     setFormData({
-            //         localInspecao: '',
-            //         nomeFuncionarioAutorizado: '',
-            //         dataEmissao: new Date().toISOString().split('T')[0],
-            //         naturezaMercadoria: '',
-            //         nomeBotanico: '',
-            //         origem: '',
-            //         quantidadeVolumes: '',
-            //         naturezaVolumes: '',
-            //         pesoVolumes: '',
-            //         marcasNumeros: '',
-            //         nomeExportador: '',
-            //         enderecoExportador: '',
-            //         nomeDestinatario: '',
-            //         enderecoDestinatario: '',
-            //         pontoEntrada: '',
-            //         meioTransporte: '',
-            //         portoEntrada: '',
-            //         valorSelo: '',
-            //         observacoes: '',
-            //         declaracaoDesinfeccao: false,
-            //         tratamentoAplicado: '',
-            //     });
-            //     setActiveStep(0);
-            // }, 2000);
+            console.log('✅ Certificado cadastrado com sucesso:', response.data);
+            showToast('success', 'Sucesso', 'Certificado cadastrado e emitido com sucesso!');
+
+            // 🔧 Se quiser gerar o PDF após o cadastro
+            await gerarCertificadoFitossanitario(formData);
 
         } catch (error) {
-            console.error('❌ Erro ao gerar certificado:', error);
-            showToast('error', 'Erro', error.message || 'Erro ao gerar certificado fitossanitário.');
+            console.error('❌ Erro ao cadastrar certificado:', error);
+            const message =
+                error.response?.data?.message ||
+                error.message ||
+                'Erro ao cadastrar certificado.';
+            showToast('error', 'Erro', message);
         } finally {
             setLoading(false);
         }

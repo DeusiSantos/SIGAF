@@ -263,78 +263,67 @@ const AddHistoricoProducaoFlorestal = () => {
         setLoading(true);
         try {
             const produtorIdNum = parseInt(produtorId, 10);
+
             const extractValue = (field) => {
                 if (!field) return '';
                 if (typeof field === 'object' && field.value) return field.value;
                 if (typeof field === 'string') return field;
                 return '';
             };
+
             const formatDate = (dateValue) => {
-                if (!dateValue) return new Date().toISOString();
+                if (!dateValue) return new Date().toISOString().split('T')[0];
                 if (typeof dateValue === 'string' && dateValue.includes('T')) {
-                    return dateValue;
+                    return dateValue.split('T')[0];
                 }
                 if (typeof dateValue === 'string' && dateValue.length === 10) {
-                    return `${dateValue}T00:00:00.000Z`;
+                    return dateValue;
                 }
                 try {
-                    return new Date(dateValue).toISOString();
+                    return new Date(dateValue).toISOString().split('T')[0];
                 } catch {
-                    return new Date().toISOString();
+                    return new Date().toISOString().split('T')[0];
                 }
             };
+
             const dadosAPI = {
-                command: 'create',
-                periodoInicio: formData.periodoInicio ? formData.periodoInicio + '-01T00:00:00.000Z' : '',
-                periodoFim: formData.periodoFim ? formData.periodoFim + '-01T00:00:00.000Z' : '',
+                anoDeInicioDeProducao: formData.periodoInicio || new Date().toISOString().split('T')[0],
+                anoDeFimDeProducao: formData.periodoFim || new Date().toISOString().split('T')[0],
                 safraOuEpocaAgricola: formData.safra || '',
                 nomeDaPropriedadeOuCampo: formData.nomePropriedade || '',
                 areaTotalUtilizada: formData.areaTotalUtilizada || '',
                 coordenadasGPS: formData.coordenadasGPS || '',
                 safraPorEpocaAgricola: formData.safra || '',
                 atividadePrincipal: extractValue(formData.atividadePrincipal),
-                produtosFlorestais: produtosFlorestais.map(produto => ({
-                    data: formatDate(produto.data),
-                    tipoProduto: extractValue(produto.tipoProduto),
+                produtosFlorestaisProduzidos: produtosFlorestais.map(produto => ({
+                    dataDeExtracao: formatDate(produto.data),
+                    tipoDeProduto: extractValue(produto.tipoProduto),
                     especieFlorestal: extractValue(produto.especieFlorestal),
-                    areaExploracao: produto.areaExploracao || '',
-                    volumeProducao: produto.volumeProducao || '',
-                    unidadeMedida: extractValue(produto.unidadeMedida),
-                    tipoManejo: extractValue(produto.tipoManejo),
-                    idadePlantacao: produto.idadePlantacao || '',
-                    numeroArvores: produto.numeroArvores || '',
-                    certificacaoFlorestal: Boolean(produto.certificacaoFlorestal),
-                    licencaAmbiental: Boolean(produto.licencaAmbiental)
+                    areaDeExploracao: parseFloat(produto.areaExploracao) || 0,
+                    volumePorQuantidadeDeProducao: parseFloat(produto.volumeProducao) || 0,
+                    unidadeDeMedida: extractValue(produto.unidadeMedida) || 'm3',
+                    tipoDeManejo: extractValue(produto.tipoManejo),
+                    idadeDaPlantacao: parseInt(produto.idadePlantacao) || 0,
+                    numeroDeArvores: parseInt(produto.numeroArvores) || 0,
+                    possuiCertificacaoFlorestal: Boolean(produto.certificacaoFlorestal),
+                    possuiLicencaAmbiental: Boolean(produto.licencaAmbiental)
                 })),
-                animaisCriados: criacaoAnimais.map(animal => ({
-                    ano: formatDate(animal.ano),
-                    tipoDeAnimal: extractValue(animal.tipoAnimal),
-                    racaOuVariedade: Array.isArray(animal.raca)
-                        ? animal.raca
-                            .filter(r => r.value !== 'outra_raca')
-                            .map(r => r.value)
-                            .join(', ')
-                        : '',
-                    numeroDeAnimais: animal.numeroAnimais || '',
-                    finalidade: extractValue(animal.finalidade),
-                    sistemaDeProducao: extractValue(animal.sistemaProducao),
-                    produtividade: animal.produtividade || ''
-                })),
-                vendaNoMercadoLocal: formData.vendaMercadoLocal ? formData.vendaMercadoLocal.toString() : '0',
-                vendaNoMercadoRegional: formData.vendaMercadoRegional ? formData.vendaMercadoRegional.toString() : '0',
-                autoConsumo: formData.autoconsumo ? formData.autoconsumo.toString() : '0',
-                perdas: formData.perdas ? formData.perdas.toString() : '0',
-                recebeuAssistenciaTecnica: extractValue(formData.recebiuAssistencia),
+                vendaNoMercadoLocal: parseFloat(formData.vendaMercadoLocal) || 0,
+                vendaNoMercadoRegional: parseFloat(formData.vendaMercadoRegional) || 0,
+                autoConsumo: parseFloat(formData.autoconsumo) || 0,
+                perdas: parseFloat(formData.perdas) || 0,
+                recebeuAssistenciaTecnica: extractValue(formData.recebiuAssistencia) || '',
                 observacoesTecnicas: formData.observacoesTecnicas || '',
                 principaisDesafiosEnfrentados: formData.desafiosEnfrentados || '',
                 melhoriasERecomendacoes: formData.melhorias || '',
-                produtorId: produtorIdNum
+                produtorFlorestalId: produtorIdNum
             };
-            await api.post('/historicoDeProducao', dadosAPI, {
+
+            await api.post('/historicoDeProducaoFlorestal', dadosAPI, {
                 headers: { 'Content-Type': 'application/json' }
             });
+
             showToast('success', 'Histórico de produção salvo com sucesso!');
-            navigate('/GerenciaRNPA/produtores');
         } catch (error) {
             let errorMessage = 'Erro ao salvar histórico de produção';
             if (error.response?.status === 400) {
