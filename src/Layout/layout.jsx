@@ -833,7 +833,7 @@ const Layout = () => {
                 AO
               </div>
               <span className="ml-2 text-sm font-medium text-gray-700 hidden sm:inline">
-                Admin RNPA
+                Admin SIGAF
               </span>
             </div>
           </div>

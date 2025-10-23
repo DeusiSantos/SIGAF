@@ -368,7 +368,7 @@ const HeaderSection = ({ numeroLicenca, validadeAte }) => (
         <Image src={emblema} style={styles.logoEmblema} />
         <Text style={styles.republica}>REPÚBLICA DE ANGOLA</Text>
         <Text style={styles.ministerio}>MINISTÉRIO DA AGRICULTURA</Text>
-        <Text style={styles.instituto}>Instituto de Desenvolvimento Florestal</Text>
+        <Text style={styles.instituto}>Instituto de Desenvolvimento Agricultura e Florestas</Text>
       </View>
 
       {/* Coluna Direita - Código de Barras */}
