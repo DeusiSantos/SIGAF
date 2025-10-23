@@ -18,11 +18,12 @@ import {
     Ship,
     Train,
     Truck,
-    X
+    X,
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CustomInput from '../../../../core/components/CustomInput';
+import { gerarCertificadoOrigem } from './CertificadoOrigemDocument';
 
 // Hook para buscar TODOS os certificados de origem
 const useCertificadosOrigem = () => {
@@ -172,7 +173,7 @@ const CertificadoDeOrigemGestao = () => {
             showToast('success', 'Gerando PDF', 'Preparando o documento...');
 
             // Importar a função existente do seu gerador
-            const { gerarCertificadoOrigem } = await import('./CertificadoOrigemDocument'); // ⚠️ Ajuste o caminho se necessário
+
 
             // ✅ Mapear tipoDeOperacao para o formato esperado pelo PDF (exportacao/importacao/reexportacao)
             let tipoCertificado = 'exportacao'; // default
@@ -245,6 +246,9 @@ const CertificadoDeOrigemGestao = () => {
 
             console.log('📦 Dados preparados para PDF:', dadosParaPDF);
             console.log(`✅ Checkbox marcado: ${tipoCertificado}`);
+            const resultados = await gerarCertificadoOrigem(dadosParaPDF);
+
+            console.log(resultados)
 
             // Gerar o PDF usando SUA função existente
             const resultado = await gerarCertificadoOrigem(dadosParaPDF);
