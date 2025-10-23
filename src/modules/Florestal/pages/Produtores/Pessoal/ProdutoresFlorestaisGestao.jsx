@@ -3,7 +3,6 @@ import {
     AlertTriangle,
     CheckCircle,
     Clock,
-    CreditCard,
     Download,
     Eye,
     File,
@@ -436,7 +435,7 @@ const ProdutoresFlorestaisGestao = () => {
         if (produtor.statusProcesso === 'APROVADO') {
             baseActions.push({ label: 'Gerar Licença Florestal', icon: <File size={16} />, action: handleGerarLicenca });
             baseActions.push({ label: 'Licenças', icon: <Files size={16} />, action: handleViewCertificado });
-            baseActions.push({ label: 'Gerar Cartão', icon: <CreditCard size={16} />, action: handleGerarCartao });
+            // baseActions.push({ label: 'Gerar Cartão', icon: <CreditCard size={16} />, action: handleGerarCartao });
 
         }
 

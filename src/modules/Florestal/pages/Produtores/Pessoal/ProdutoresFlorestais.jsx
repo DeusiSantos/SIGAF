@@ -6,7 +6,6 @@ import {
     ChevronLeft,
     ChevronRight,
     Clock,
-    CreditCard,
     Download,
     Eye,
     FileText,
@@ -537,7 +536,7 @@ const ProdutoresGestao = () => {
 
         // Adicionar "Gerar Cartão RNPA" apenas para produtores aprovados
         if (produtor.statusProcesso === 'APROVADO') {
-            baseActions.push({ label: 'Gerar Cartão RNPA', icon: <CreditCard size={16} />, action: handleGerarCartao });
+            // baseActions.push({ label: 'Gerar Cartão RNPA', icon: <CreditCard size={16} />, action: handleGerarCartao });
         }
 
         return baseActions;
