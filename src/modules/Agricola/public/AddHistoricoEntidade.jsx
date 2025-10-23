@@ -304,7 +304,6 @@ const AddHistoricoEntidade = () => {
                 headers: { 'Content-Type': 'application/json' }
             });
             showToast('success', 'Histórico de produção salvo com sucesso!');
-            navigate('/GerenciaRNPA/produtores');
         } catch (error) {
             let errorMessage = 'Erro ao salvar histórico de produção';
             if (error.response?.status === 400) {

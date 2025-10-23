@@ -304,7 +304,7 @@ const AddHistoricoProducao = () => {
                 headers: { 'Content-Type': 'application/json' }
             });
             showToast('success', 'Histórico de produção salvo com sucesso!');
-            navigate('/GerenciaRNPA/produtores');
+
         } catch (error) {
             let errorMessage = 'Erro ao salvar histórico de produção';
             if (error.response?.status === 400) {
@@ -909,7 +909,7 @@ const AddHistoricoProducao = () => {
                                 <MoveLeft className="w-6 h-6 text-gray-600" />
                             </button>
                             <h2 className="text-4xl font-bold mb-3 text-gray-800 flex items-center justify-center w-full">
-                                Novo Registo de Produção 
+                                Novo Registo de Produção
                             </h2>
                         </div>
 
