@@ -192,7 +192,7 @@ const HistoricoProducaoFlorestal = () => {
         const fetchHistoricoProducao = async () => {
             try {
                 setLoadingHistorico(true);
-                const response = await api.get(`/historicoDeProducaoFlorestal/${produtorId}`, {
+                const response = await api.get(`/historicoDeProducaoFlorestal/produtoreFlorestais/${produtorId}`, {
                     headers: {
                         'Content-Type': 'application/json'
                     }

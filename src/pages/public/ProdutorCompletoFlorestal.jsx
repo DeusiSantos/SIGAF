@@ -371,7 +371,7 @@ const carregarFotoAPI = async (produtorId) => {
 const buscarHistoricoProducao = async (produtorId) => {
   try {
     console.log(`Buscando histórico de produção florestal para produtor ID: ${produtorId}`);
-    const response = await api.get(`/historicoDeProducaoFlorestal/${produtorId}`);
+    const response = await api.get(`/historicoDeProducaoFlorestal/produtoreFlorestais/${produtorId}`);
     return response.data || [];
   } catch (error) {
     console.error('Erro ao buscar histórico de produção florestal:', error);
