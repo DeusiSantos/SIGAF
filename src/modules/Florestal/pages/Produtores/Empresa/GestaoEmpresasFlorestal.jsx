@@ -13,7 +13,6 @@ import {
     MapPin,
     MoreVertical,
     Phone,
-    PlusCircle,
     School,
     Search,
     Trash2,
@@ -170,6 +169,12 @@ const GestaoEmpresasFlorestal = () => {
     const handleViewOrganizacao = (empresaId) => {
         navigate(`/GerenciaRNPA/gestao-florestal/produtores/visualizar-organizacao/${empresaId}`);
     };
+
+    const handleViewCertificado = (entidadeId) => {
+        navigate(`/GerenciaRNPA/gestao-florestal/visualizarCertificado/organizacao/${entidadeId}`);
+    };
+
+
     const handleCadastroProducao = (empresaId) => {
         // Navegar para a rota de cadastro de produção passando o ID
         navigate(`/GerenciaRNP/gestao-florestal/produtores/cadastro-producao-organizacao/${empresaId}`);
@@ -182,8 +187,9 @@ const GestaoEmpresasFlorestal = () => {
 
     // Ações do menu dropdown
     const actionItems = [
-        { label: 'Cadastro da Produção', icon: <PlusCircle size={16} />, action: handleCadastroProducao },
+        // { label: 'Cadastro da Produção', icon: <PlusCircle size={16} />, action: handleCadastroProducao },
         { label: 'Gerar Licença', icon: <File size={16} />, action: handleGerarLicenca },
+        { label: 'Licenças', icon: <File size={16} />, action: handleViewCertificado },
     ];
 
     // Formatar atividades para exibição

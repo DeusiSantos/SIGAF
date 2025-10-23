@@ -13,7 +13,6 @@ import {
   Globe,
   Home,
   Landmark,
-  LucideTicketsPlane,
   MapPin,
   Menu,
   Microscope,
@@ -180,11 +179,11 @@ const rnpaRoutes = {
         icon: TrendingUp,
         path: "/GerenciaRNPA/gestao-agricultores/incentivos",
       },
-      {
-        text: "Amostra de Solo",
-        icon: TestTube,
-        path: "/GerenciaRNPA/gestao-agricultores/AmostrasDeSolo",
-      },
+      // {
+      //   text: "Amostra de Solo",
+      //   icon: TestTube,
+      //   path: "/GerenciaRNPA/gestao-agricultores/AmostrasDeSolo",
+      // },
       {
         text: "Laboratório de Solo",
         icon: Microscope,
@@ -219,11 +218,11 @@ const rnpaRoutes = {
 
         ],
       },
-      {
-        text: "Exportação",
-        icon: LucideTicketsPlane,
-        path: "/GerenciaRNPA/gestao-agricultores/exportacao",
-      },
+      // {
+      //   text: "Exportação",
+      //   icon: LucideTicketsPlane,
+      //   path: "/GerenciaRNPA/gestao-agricultores/exportacao",
+      // },
     ],
 
     "Produtores Florestais": [

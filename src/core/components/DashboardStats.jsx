@@ -1,8 +1,14 @@
-import React, { useState, useMemo, useEffect } from 'react';
 import {
-  Users, UserCheck, TrendingUp, TrendingDown,
-  Wheat, TreePine, FileText, Clock
+  Clock,
+  FileText,
+  TreePine,
+  TrendingDown,
+  TrendingUp,
+  UserCheck,
+  Users,
+  Wheat
 } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import { GiCow } from "react-icons/gi";
 import api from '../services/api';
 
@@ -226,7 +232,7 @@ const DashboardStats = ({ produtor, loading: loadingProdutor }) => {
       value: finalData.totalProdutores.toLocaleString('pt-AO'),
       change: `+${calculateTrend(finalData.totalProdutores, 'total')}%`,
       trend: "up",
-      description: "Produtores registrados no RNPA",
+      description: "Produtores registrados no SIGAF",
       icon: Users,
       color: "blue",
       moreDetails: `${finalData.agricultura} agricultura, ${finalData.pecuaria} pecuária`
@@ -342,7 +348,7 @@ const DashboardStats = ({ produtor, loading: loadingProdutor }) => {
     <div className="p-6 bg-gray-50">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold text-gray-800">
-          Indicadores do Registo Nacional de Produtores Agrícolas
+          Indicadores do Sistema Integrado de Gestão De Agro-Florestal
         </h2>
         <div className="flex items-center space-x-4">
           <div className="text-sm text-gray-500">
@@ -363,25 +369,22 @@ const DashboardStats = ({ produtor, loading: loadingProdutor }) => {
           return (
             <div
               key={index}
-              className={`relative bg-white rounded-xl p-5 border ${colorClasses.card} shadow-sm transition-all duration-300 ${
-                isHovered ? 'shadow-lg transform -translate-y-1' : ''
-              }`}
+              className={`relative bg-white rounded-xl p-5 border ${colorClasses.card} shadow-sm transition-all duration-300 ${isHovered ? 'shadow-lg transform -translate-y-1' : ''
+                }`}
               onMouseEnter={() => setHoveredCard(index)}
               onMouseLeave={() => setHoveredCard(null)}
             >
               <div
-                className={`absolute inset-0 rounded-xl transition-opacity duration-300 ${
-                  isHovered ? 'opacity-100' : 'opacity-0'
-                } ${colorClasses.highlight} pointer-events-none`}
+                className={`absolute inset-0 rounded-xl transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'
+                  } ${colorClasses.highlight} pointer-events-none`}
               />
 
               <div className="flex justify-between items-start mb-3">
                 <div className={`p-2.5 rounded-lg ${colorClasses.icon}`}>
                   <Icon className="w-5 h-5" />
                 </div>
-                <div className={`flex items-center text-sm font-medium ${
-                  stat.trend === 'up' ? 'text-green-600' : 'text-red-600'
-                }`}>
+                <div className={`flex items-center text-sm font-medium ${stat.trend === 'up' ? 'text-green-600' : 'text-red-600'
+                  }`}>
                   {stat.trend === 'up' ? (
                     <TrendingUp className="w-4 h-4 mr-1" />
                   ) : (
@@ -404,8 +407,7 @@ const DashboardStats = ({ produtor, loading: loadingProdutor }) => {
               />
 
               <div className={`absolute bottom-0 left-0 right-0 py-2 px-5 bg-white rounded-b-xl border-t ${colorClasses.card
-                } transform transition-all duration-300 ${
-                  isHovered ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0 pointer-events-none'
+                } transform transition-all duration-300 ${isHovered ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0 pointer-events-none'
                 }`}>
                 <div className="flex items-center">
                   <FileText className="w-4 h-4 text-gray-400 mr-2" />
