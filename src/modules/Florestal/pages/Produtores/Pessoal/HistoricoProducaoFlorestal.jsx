@@ -568,9 +568,7 @@ const HistoricoProducaoFlorestal = () => {
                                             <th className="px-2 md:px-4 py-2 md:py-3 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-normal break-words">
                                                 Ano/Safra
                                             </th>
-                                            <th className="px-2 md:px-4 py-2 md:py-3 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-normal break-words">
-                                                Cultura/Criação/Produto
-                                            </th>
+
                                             <th className="px-2 md:px-4 py-2 md:py-3 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-normal break-words">
                                                 Tipo
                                             </th>
@@ -601,9 +599,7 @@ const HistoricoProducaoFlorestal = () => {
                                                     </div>
                                                     <div className="text-gray-500">{item.safra}</div>
                                                 </td>
-                                                <td className="px-2 md:px-4 py-2 whitespace-normal break-words">
-                                                    <div className="text-gray-900">{item.cultura}</div>
-                                                </td>
+
                                                 <td className="px-2 md:px-4 py-2 whitespace-normal break-words">
                                                     <span className={`inline-flex px-2 py-1 text-[10px] sm:text-xs font-semibold rounded-full ${item.tipo === 'agricultura'
                                                         ? 'bg-green-100 text-green-800'
@@ -614,9 +610,9 @@ const HistoricoProducaoFlorestal = () => {
                                                                 : 'bg-purple-100 text-purple-800'
                                                         }`}>
                                                         {item.tipo === 'agricultura'
-                                                            ? 'Agricultura'
+                                                            ? 'Florestal'
                                                             : item.tipo === 'pecuaria'
-                                                                ? 'Pecuária'
+                                                                ? 'Florestal'
                                                                 : item.tipo === 'florestal'
                                                                     ? 'Florestal'
                                                                     : 'Agropecuária'}
