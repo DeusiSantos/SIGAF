@@ -349,7 +349,7 @@ const mapearDadosAPI = (dadosAPI, fotoAPI = null, qrCodeDataURL = null) => {
 
   return {
     id: dadosAPI?._id,
-    numeroRegistro: `RNPA${dadosAPI?._id}`,
+    numeroRegistro: `SIGAF${dadosAPI?._id}`,
     dataRegistro: dadosAPI?.registration_date,
 
     // Dados do produtor
@@ -496,7 +496,7 @@ const QRCodeSection = ({ dados }) => {
   return (
     <View style={styles.qrCodeContainer}>
       <Image src={dados.qrCode} style={styles.qrCodeImage} />
-      <Text style={styles.qrCodeLabel}>QR CODE RNPA</Text>
+      <Text style={styles.qrCodeLabel}>QR CODE SIGAF</Text>
       <Text style={[styles.qrCodeLabel, { fontSize: 6 }]}>
         {dados.numeroRegistro}
       </Text>
@@ -852,13 +852,13 @@ const AtividadesSection = ({ dados }) => (
 // Componente do rodapé
 const FooterSection = () => (
   <View style={styles.footer}>
-    <Text>RNPA - Registo Nacional de Produtores Agrícolas | Ministério da Agricultura e Florestas - República de Angola</Text>
+    <Text>SIGAF - Registo Nacional de Produtores Agrícolas | Ministério da Agricultura e Florestas - República de Angola</Text>
     <Text>Data de geração: {new Date().toLocaleDateString('pt-BR')} | Este documento possui validade oficial</Text>
   </View>
 );
 
 // Componente principal do PDF com marca d'água em todas as páginas
-const ProdutorRNPADocument = ({ dados }) => (
+const ProdutorSIGAFDocument = ({ dados }) => (
   <Document>
     {/* Primeira página - COM QR CODE */}
     <PageWithWatermark showHeader={true} dados={dados}>
@@ -903,7 +903,7 @@ export const gerarFichaProdutorPDF = async (produtorId) => {
     console.log('QR Code:', qrCodeDataURL ? 'Gerado' : 'Erro');
 
     // Gerar o PDF
-    const pdfBlob = await pdf(<ProdutorRNPADocument dados={dadosMapeados} />).toBlob();
+    const pdfBlob = await pdf(<ProdutorSIGAFDocument dados={dadosMapeados} />).toBlob();
 
     console.log('PDF gerado com sucesso - 2 páginas com marca d\'água e QR Code');
 
@@ -932,7 +932,7 @@ export const gerarFichaProdutorPDF = async (produtorId) => {
 };
 
 // Componente que pode ser usado diretamente na interface
-const ProdutorRNPAPDF = ({ produtorId, onSuccess, onError }) => {
+const ProdutorSIGAFPDF = ({ produtorId, onSuccess, onError }) => {
   const { dados, loading, error, loadingFoto } = useProdutorData(produtorId);
   const [gerando, setGerando] = useState(false);
   const [pageCount] = useState(2); // Sempre 2 páginas
@@ -945,7 +945,7 @@ const ProdutorRNPAPDF = ({ produtorId, onSuccess, onError }) => {
 
     setGerando(true);
     try {
-      const pdfBlob = await pdf(<ProdutorRNPADocument dados={dados} />).toBlob();
+      const pdfBlob = await pdf(<ProdutorSIGAFDocument dados={dados} />).toBlob();
       const url = URL.createObjectURL(pdfBlob);
 
       const link = document.createElement('a');
@@ -1143,4 +1143,4 @@ const ProdutorRNPAPDF = ({ produtorId, onSuccess, onError }) => {
   );
 };
 
-export default ProdutorRNPAPDF;
+export default ProdutorSIGAFPDF;

@@ -766,11 +766,11 @@ const RodapeSection = () => (
       certificado e do respectivo comprovativo de origem.
     </Text>
     <Text style={styles.rodape}>
-      <Text style={styles.rodapeDestaque}>Verificação pública:</Text> aceda ao portal RNPA e introduza o número/QR da licença para confirmar a autenticidade.
+      <Text style={styles.rodapeDestaque}>Verificação pública:</Text> aceda ao portal SIGAF e introduza o número/QR da licença para confirmar a autenticidade.
       Qualquer alteração de estado (suspensão, revogação, expiração) torna-se efectiva a partir do registo no sistema.
     </Text>
     <Text style={styles.documentoEletronico}>
-      Documento gerado eletronicamente pelo RNPA/DNF. Assinatura digital e QR/NFC para verificação.
+      Documento gerado eletronicamente pelo SIGAF/DNF. Assinatura digital e QR/NFC para verificação.
     </Text>
   </View>
 );

@@ -1307,7 +1307,7 @@ const CadastroProducaoCooperativa = () => {
                                     <div className="text-center mb-6">
                                         <h5 className="text-xl font-bold text-gray-800 mb-2">CERTIFICADO DE PRODUTOR AGRÍCOLA E PECUÁRIO</h5>
                                         <p className="text-sm text-gray-600">República de Angola - Ministério da Agricultura e Florestas</p>
-                                        <p className="text-sm text-gray-600">RNPA - Registo Nacional de Pequenos Agricultores</p>
+                                        <p className="text-sm text-gray-600">SIGAF - Registo Nacional de Pequenos Agricultores</p>
                                     </div>
 
                                     <div className="space-y-3 text-sm">
@@ -1434,7 +1434,7 @@ const CadastroProducaoCooperativa = () => {
                     <div className="text-center mb-6 p-8 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-blue-50">
                         <div className="flex items-center justify-between mb-4">
                             <button
-                                onClick={() => navigate('/GerenciaRNPA/cooperativas')}
+                                onClick={() => navigate('/GerenciaSIGAF/cooperativas')}
                                 className="flex items-center px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
                             >
                                 <MoveLeft  size={25} className="mr-2" />

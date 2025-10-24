@@ -32,7 +32,7 @@ import DashboardIncentivos from '../modules/Agricola/pages/incentivo/DashboardIn
 import DashboardControlePragas from '../modules/Agricola/pages/PainelMonitoramento/ControlePragas/DashboardControlePragas';
 
 
-// Dados aprimorados para o sistema RNPA Angola (mantidos como fallback)
+// Dados aprimorados para o sistema SIGAF Angola (mantidos como fallback)
 const mockAgricultureData = {
   dadosPorProvincia: [
     { nome: 'Luanda', produtores: 45230, registros: 42100, crescimento: 15.2, taxa_aprovacao: 93.1, area_cultivada: 12450 },

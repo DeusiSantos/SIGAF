@@ -225,7 +225,7 @@ const DashboardStats = ({ produtor, loading: loadingProdutor }) => {
     aquicultura: totalAquicultura > 0 ? totalAquicultura : processedData.aquicultura
   };
 
-  // Estatísticas do sistema RNPA com dados das APIs
+  // Estatísticas do sistema SIGAF com dados das APIs
   const stats = [
     {
       title: "Total de Produtores",
@@ -337,7 +337,7 @@ const DashboardStats = ({ produtor, loading: loadingProdutor }) => {
         <div className="flex items-center justify-center h-40">
           <div className="flex items-center space-x-2">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
-            <span className="text-gray-600">Carregando estatísticas do RNPA...</span>
+            <span className="text-gray-600">Carregando estatísticas do SIGAF...</span>
           </div>
         </div>
       </div>

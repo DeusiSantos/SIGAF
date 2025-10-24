@@ -133,7 +133,7 @@ const GestaoIncentivos = () => {
 
     // Navegação - ATUALIZADA
     const handleViewIncentivo = (incentivoId) => {
-        navigate(`/GerenciaRNPA/gestao-agricultores/incentivos/visualizar/${incentivoId}`);
+        navigate(`/GerenciaSIGAF/gestao-agricultores/incentivos/visualizar/${incentivoId}`);
     };
 
     const handleEditIncentivo = (incentivoId) => {

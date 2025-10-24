@@ -48,8 +48,8 @@ import provinciasData from '../../../../../core/components/Provincias.json';
 
 import CustomInput from '../../../../../core/components/CustomInput';
 import api from '../../../../../core/services/api';
-import { gerarFichaProdutorPDF } from '../../../../../pages/public/GerarCartaoRNPA';
-import { gerarFichaCompletaPDF } from '../../../../../pages/public/ProdutorCompletoRNPAPDF';
+import { gerarFichaProdutorPDF } from '../../../../../pages/public/GerarCartaoSIGAF';
+import { gerarFichaCompletaPDF } from '../../../../../pages/public/ProdutorCompletoSIGAFPDF';
 
 // Corrigir ícones do Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -161,7 +161,7 @@ const mapApiDataToProdutor = (apiData) => {
 
     return {
         id: apiData._uuid || apiData._id?.toString(),
-        codigoRNPA: `RNPA${new Date(apiData.registration_date || '2025-01-01').getFullYear()}${apiData._id?.toString().slice(-3)}`,
+        codigoSIGAF: `SIGAF${new Date(apiData.registration_date || '2025-01-01').getFullYear()}${apiData._id?.toString().slice(-3)}`,
         estado: apiData.estado,
         statusProcesso: getStatus(apiData),
         dataRegistro: apiData.registration_date,
@@ -1351,7 +1351,7 @@ const VisualizarProdutor = () => {
     };
 
     const handleGenerateCard = () => {
-        navigate(`/GerenciaRNPA/gestao-escolar/produtores/gerar-cartao/${id}`);
+        navigate(`/GerenciaSIGAF/gestao-escolar/produtores/gerar-cartao/${id}`);
     };
 
     // Função para renderizar botões de ação
@@ -2562,7 +2562,7 @@ const VisualizarProdutor = () => {
                     <h1 className="text-2xl font-bold text-gray-900 mb-2">Produtor não encontrado</h1>
                     <p className="text-gray-600 mb-6">O produtor solicitado não foi encontrado no sistema.</p>
                     <button
-                        onClick={() => navigate('/GerenciaRNPA/gestao-agricultores/produtores')}
+                        onClick={() => navigate('/GerenciaSIGAF/gestao-agricultores/produtores')}
                         className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                     >
                         Voltar à lista
@@ -2696,7 +2696,7 @@ const VisualizarProdutor = () => {
                             {/* Título e navegação */}
                             <div className="flex items-center gap-4">
                                 <button
-                                    onClick={() => navigate('/GerenciaRNPA/gestao-agricultores/produtores')}
+                                    onClick={() => navigate('/GerenciaSIGAF/gestao-agricultores/produtores')}
                                     className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                                 >
                                     <ArrowLeft className="w-5 h-5 text-gray-600" />
@@ -2705,7 +2705,7 @@ const VisualizarProdutor = () => {
                                     <h1 className="text-2xl font-bold text-gray-900">
                                         {isEditing ? 'Editando Produtor' : 'Detalhes do Produtor'}
                                     </h1>
-                                    <p className="text-gray-600">Código: {produtor.codigoRNPA}</p>
+                                    <p className="text-gray-600">Código: {produtor.codigoSIGAF}</p>
                                 </div>
                             </div>
 

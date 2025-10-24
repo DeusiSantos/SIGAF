@@ -274,7 +274,7 @@ const GestaoTestesSolo = () => {
 
   // Ver detalhes do registro
   const handleViewDetails = (record) => {
-    navigate(`/GerenciaRNPA/gestao-agricultores/AmostraDeSolo/visualizar/${record}`);
+    navigate(`/GerenciaSIGAF/gestao-agricultores/AmostraDeSolo/visualizar/${record}`);
 
   };
 
@@ -283,7 +283,7 @@ const GestaoTestesSolo = () => {
   };
 
   const handleLancarResultados = (amostraId) => {
-    navigate(`/GerenciaRNPA/gestao-agricultores/lancamento-resultados/${amostraId}`);
+    navigate(`/GerenciaSIGAF/gestao-agricultores/lancamento-resultados/${amostraId}`);
   };
 
   // Componente Toast

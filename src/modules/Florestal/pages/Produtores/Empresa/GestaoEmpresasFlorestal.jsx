@@ -167,22 +167,22 @@ const GestaoEmpresasFlorestal = () => {
 
     // Navegação para visualizar empresa
     const handleViewOrganizacao = (empresaId) => {
-        navigate(`/GerenciaRNPA/gestao-florestal/produtores/visualizar-organizacao/${empresaId}`);
+        navigate(`/GerenciaSIGAF/gestao-florestal/produtores/visualizar-organizacao/${empresaId}`);
     };
 
     const handleViewCertificado = (entidadeId) => {
-        navigate(`/GerenciaRNPA/gestao-florestal/visualizarCertificado/organizacao/${entidadeId}`);
+        navigate(`/GerenciaSIGAF/gestao-florestal/visualizarCertificado/organizacao/${entidadeId}`);
     };
 
 
     const handleCadastroProducao = (empresaId) => {
         // Navegar para a rota de cadastro de produção passando o ID
-        navigate(`/GerenciaRNP/gestao-florestal/produtores/cadastro-producao-organizacao/${empresaId}`);
+        navigate(`/GerenciaSIGAF/gestao-florestal/produtores/cadastro-producao-organizacao/${empresaId}`);
     };
 
     const handleGerarLicenca = (empresaId) => {
         // Navegar para a rota de cadastro de produção passando o ID
-        navigate(`/GerenciaRNPA/gestao-florestal/produtores/gerar-licenca/empresa/${empresaId}`);
+        navigate(`/GerenciaSIGAF/gestao-florestal/produtores/gerar-licenca/empresa/${empresaId}`);
     };
 
     // Ações do menu dropdown

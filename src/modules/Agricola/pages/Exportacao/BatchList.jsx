@@ -30,12 +30,12 @@ export default function BatchList() {
   
     // Navegação para detalhes do lote
     const handleViewBatchDetails = (batchId) => {
-        navigate(`/GerenciaRNPA/gestao-agricultores/Exportacao/lote/${batchId}`);
+        navigate(`/GerenciaSIGAF/gestao-agricultores/Exportacao/lote/${batchId}`);
     };
 
     // Navegação para visualização pública do lote
     const handleViewPublicBatch = (batchId) => {
-        navigate(`/GerenciaRNPA/gestao-agricultores/Exportacao/publico/${batchId}`);
+        navigate(`/GerenciaSIGAF/gestao-agricultores/Exportacao/publico/${batchId}`);
     };
 
   const filteredBatches = batches.filter(batch => {

@@ -240,17 +240,17 @@ const GestaoDeLaboratorios = () => {
 
     // Navegação para visualizar laboratório
     const handleViewLaboratorio = (laboratorioId) => {
-        navigate(`/GerenciaRNPA/laboratorio-solo/gestao-laboratorios/visualizar/${laboratorioId}`);
+        navigate(`/GerenciaSIGAF/laboratorio-solo/gestao-laboratorios/visualizar/${laboratorioId}`);
     };
 
     // Navegação para editar laboratório
     const handleEditLaboratorio = (laboratorioId) => {
-        navigate(`/GerenciaRNPA/laboratorio-solo/gestao-laboratorios/editar/${laboratorioId}`);
+        navigate(`/GerenciaSIGAF/laboratorio-solo/gestao-laboratorios/editar/${laboratorioId}`);
     };
 
     // Navegação para novo laboratório
     const handleNovoLaboratorio = () => {
-        navigate('/GerenciaRNPA/laboratorio-solo/gestao-laboratorios/cadastro');
+        navigate('/GerenciaSIGAF/laboratorio-solo/gestao-laboratorios/cadastro');
     };
 
     // Extrair valores únicos para filtros

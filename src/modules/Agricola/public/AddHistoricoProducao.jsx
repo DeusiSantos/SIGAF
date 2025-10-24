@@ -227,7 +227,7 @@ const AddHistoricoProducao = () => {
         }
     };
     const handleCancelForm = () => {
-        navigate(`/GerenciaRNPA/gestao-agricultores/produtores/historico-producao/${produtorId}`);
+        navigate(`/GerenciaSIGAF/gestao-agricultores/produtores/historico-producao/${produtorId}`);
     };
     // Função de envio (copiar e adaptar handleAddRecord do HistoricoProducao.jsx)
     const handleAddRecord = async () => {

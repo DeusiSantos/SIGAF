@@ -1079,7 +1079,7 @@ const CadastroCooperativaFlorestal = () => {
                     label="Número de Produtor"
                     value={formData.NumeroProdutor}
                     onChange={(value) => handleInputChange('NumeroProdutor', value)}
-                    placeholder="Número do produtor no RNPA"
+                    placeholder="Número do produtor no SIGAF"
                     iconStart={<CreditCard size={18} />}
                   />
 

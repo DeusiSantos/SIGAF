@@ -238,7 +238,7 @@ export default function BatchTracking() {
         <div className="bg-white p-8 rounded-2xl shadow-lg text-center">
           <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Lote não encontrado</h2>
-          <Link to="/GerenciaRNPA/gestao-agricultores/exportacao" className="text-indigo-600 hover:text-indigo-800">
+          <Link to="/GerenciaSIGAF/gestao-agricultores/exportacao" className="text-indigo-600 hover:text-indigo-800">
             Voltar para lotes
           </Link>
         </div>

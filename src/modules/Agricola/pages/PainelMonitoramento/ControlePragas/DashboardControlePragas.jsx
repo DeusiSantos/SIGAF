@@ -426,7 +426,7 @@ const DashboardControlePragas = () => {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">Dashboard de Controle de Pragas</h1>
-                <p className="text-gray-600">Monitoramento e Controle Integrado de Pragas • RNPA Angola</p>
+                <p className="text-gray-600">Monitoramento e Controle Integrado de Pragas • SIGAF Angola</p>
                 
               </div>
             </div>
@@ -1001,7 +1001,7 @@ const DashboardControlePragas = () => {
 
         {/* Footer */}
         <div className="mt-12 text-center text-sm text-gray-500">
-          <p>Dashboard desenvolvido para o Sistema de Monitoramento Integrado de Pragas - RNPA Angola</p>
+          <p>Dashboard desenvolvido para o Sistema de Monitoramento Integrado de Pragas - SIGAF Angola</p>
           <p className="mt-2">© 2025 MwangoBrain - Todos os direitos reservados</p>
         </div>
       </div>

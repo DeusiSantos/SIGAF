@@ -1489,7 +1489,7 @@ const VisualizarPraga = () => {
     };
 
     const handleGenerateCard = () => {
-        navigate(`/GerenciaRNPA/gestao-escolar/produtores/gerar-cartao/${id}`);
+        navigate(`/GerenciaSIGAF/gestao-escolar/produtores/gerar-cartao/${id}`);
     };
 
     // Função para renderizar botões de ação
@@ -2506,7 +2506,7 @@ const VisualizarPraga = () => {
                     <h1 className="text-2xl font-bold text-gray-900 mb-2">Praga não encontrada</h1>
                     <p className="text-gray-600 mb-6">A ocorrência de praga solicitada não foi encontrada no sistema.</p>
                     <button
-                        onClick={() => navigate('/GerenciaRNPA/pragas')}
+                        onClick={() => navigate('/GerenciaSIGAF/pragas')}
                         className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                     >
                         Voltar à lista
@@ -2640,7 +2640,7 @@ const VisualizarPraga = () => {
                             {/* Título e navegação */}
                             <div className="flex items-center gap-4">
                                 <button
-                                    onClick={() => navigate('/GerenciaRNPA/painel-monitoramento/indicadores')}
+                                    onClick={() => navigate('/GerenciaSIGAF/painel-monitoramento/indicadores')}
                                     className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                                 >
                                     <ArrowLeft className="w-5 h-5 text-gray-600" />

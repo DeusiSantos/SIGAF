@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import api from '../../../core/services/api';
 
 // Hook principal para dados do dashboard
-export const useRNPADashboard = () => {
+export const useSIGAFDashboard = () => {
   const [data, setData] = useState({
     totalProdutores: 0,
     totalAprovados: 0,

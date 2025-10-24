@@ -177,7 +177,7 @@ const provinciasAngola = [
   }
 ];
 
-// Dados estatísticos simulados por província (baseado no questionário RNPA)
+// Dados estatísticos simulados por província (baseado no questionário SIGAF)
 const estatisticasPorProvincia = {
   todas: {
     totalProdutores: 1850672,

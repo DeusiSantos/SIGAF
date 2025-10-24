@@ -40,17 +40,17 @@ const administracoesEstaticas = [
 const GestaoCooperativaFlorestal = () => {
     // Função para navegação de gestão de pessoal
     const handlePessoal = (empresaId) => {
-        navigate(`/GerenciaRNPA/gestao-empresas/pessoal/${empresaId}`);
+        navigate(`/GerenciaSIGAF/gestao-empresas/pessoal/${empresaId}`);
     };
 
     // Função para navegação de infraestrutura
     const handleInfraestrutura = (empresaId) => {
-        navigate(`/GerenciaRNPA/gestao-empresas/infraestrutura/${empresaId}`);
+        navigate(`/GerenciaSIGAF/gestao-empresas/infraestrutura/${empresaId}`);
     };
 
     // Função para navegação de relatórios
     const handleRelatorios = (empresaId) => {
-        navigate(`/GerenciaRNPA/gestao-empresas/relatorios/${empresaId}`);
+        navigate(`/GerenciaSIGAF/gestao-empresas/relatorios/${empresaId}`);
     };
 
     const navigate = useNavigate();
@@ -183,12 +183,12 @@ const GestaoCooperativaFlorestal = () => {
 
     // Navegação para visualizar empresa
     const handleViewEscola = (empresaId) => {
-        navigate(`/GerenciaRNPA/gestao-empresas/visualizar-empresa/${empresaId}`);
+        navigate(`/GerenciaSIGAF/gestao-empresas/visualizar-empresa/${empresaId}`);
     };
 
     const handleTransferencia = (empresaId) => {
         // Navegar para a rota de cadastro de produção passando o ID
-        navigate(`/GerenciaRNPA/gestao-empresas/cadastro-producao-empresa/${empresaId}`);
+        navigate(`/GerenciaSIGAF/gestao-empresas/cadastro-producao-empresa/${empresaId}`);
     };
 
     // Ações do menu dropdown
@@ -451,7 +451,7 @@ const GestaoCooperativaFlorestal = () => {
                         </div>
                         <div className="flex gap-4">
                             <button
-                                onClick={() => navigate('/GerenciaRNPA/cadastro-empresas')}
+                                onClick={() => navigate('/GerenciaSIGAF/cadastro-empresas')}
                                 className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
                             >
                                 <Plus className="w-5 h-5 mr-2" />

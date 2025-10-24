@@ -643,15 +643,49 @@ const GestaoRelatoriosLaudos = () => {
                     </button>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-md p-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <h4 className="text-md font-semibold">Solo por Região</h4>
-                        <PieChart className="w-5 h-5 text-green-600" />
+                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-all duration-200">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-semibold text-gray-800">Solo por Região</h2>
+                        <div className="p-2 bg-green-50 rounded-lg">
+                            <PieChart className="h-6 w-6 text-green-500" />
+                        </div>
                     </div>
-                    <PieChart data={dadosGraficos.soloPorRegiao} title="Distribuição por Província" />
-                    <div className="mt-4 text-xs text-gray-600 bg-gray-50 p-2 rounded">
-                        <strong>Resumo:</strong> Luanda concentra 35% das análises (67 amostras)
+
+                    <ResponsiveContainer width="100%" height={300}>
+                        <RechartsPieChart>
+                            <Pie
+                                data={dadosGraficos.soloPorRegiao.map(item => ({
+                                    name: item.regiao,
+                                    value: item.amostras,
+                                    color: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444'][dadosGraficos.soloPorRegiao.indexOf(item)]
+                                }))}
+                                cx="50%"
+                                cy="50%"
+                                labelLine={false}
+                                innerRadius={60}
+                                outerRadius={80}
+                                fill="#8884d8"
+                                dataKey="value"
+                            >
+                                {dadosGraficos.soloPorRegiao.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={['#3B82F6', '#10B981', '#F59E0B', '#EF4444'][index]} />
+                                ))}
+                            </Pie>
+                            <Tooltip formatter={(value) => [value, 'Amostras']} />
+                        </RechartsPieChart>
+                    </ResponsiveContainer>
+                    
+                    <div className="flex justify-center space-x-6 mt-4">
+                        {dadosGraficos.soloPorRegiao.map((entry, index) => (
+                            <div key={index} className="flex items-center">
+                                <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444'][index] }}></div>
+                                <span className="text-sm text-gray-600">
+                                    {entry.regiao}: {entry.amostras}
+                                </span>
+                            </div>
+                        ))}
                     </div>
+                    
                     <button
                         onClick={() => showToast('success', 'Gráfico Gerado', 'Gráfico de pizza exportado com sucesso!')}
                         className="mt-4 w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"

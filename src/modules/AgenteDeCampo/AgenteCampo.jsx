@@ -93,7 +93,7 @@ const mapApiDataToProdutor = (apiData) => {
 
         return {
             id: item._id?.toString(),
-            codigoRNPA: `RNPA${new Date(item.registration_date || '2025-01-01').getFullYear()}${item._id?.toString().slice(-3)}`,
+            codigoSIGAF: `SIGAF${new Date(item.registration_date || '2025-01-01').getFullYear()}${item._id?.toString().slice(-3)}`,
             nome: item.beneficiary_name || `${item.nome_produtor || ''} ${item.nome_meio_produtor || ''} ${item.sobrenome_produtor || ''}`.trim(),
             numeroBI: item.beneficiary_id_number || 'N/A',
             dataNascimento: item.beneficiary_date_of_birth || '1990-01-01',
@@ -195,25 +195,25 @@ const AgenteCampo = () => {
 
     // Navegação para diferentes telas
     const handleViewProdutor = (produtorId) => {
-        navigate(`/GerenciaRNPA/produtores/visualizar/${produtorId}`);
+        navigate(`/GerenciaSIGAF/produtores/visualizar/${produtorId}`);
     };
 
 
 
     const handleHistoricoProducao = (produtorId) => {
-        navigate(`/GerenciaRNPA/produtores/historico-producao/${produtorId}`);
+        navigate(`/GerenciaSIGAF/produtores/historico-producao/${produtorId}`);
     };
 
     const handleHistoricoBeneficios = (produtorId) => {
-        navigate(`/GerenciaRNPA/produtores/historico-beneficios/${produtorId}`);
+        navigate(`/GerenciaSIGAF/produtores/historico-beneficios/${produtorId}`);
     };
 
     const handleGerarCartao = (produtorId) => {
-        navigate(`/GerenciaRNPA/gestao-escolar/produtores/gerar-cartao/${produtorId}`);
+        navigate(`/GerenciaSIGAF/gestao-escolar/produtores/gerar-cartao/${produtorId}`);
     };
 
     const handleCadastroProdutor = () => {
-        navigate('/GerenciaRNPA/produtores/cadastrar');
+        navigate('/GerenciaSIGAF/produtores/cadastrar');
     };
 
 
@@ -306,7 +306,7 @@ const AgenteCampo = () => {
     const filteredProdutores = localProdutores.filter(produtor => {
         const matchesSearch = produtor.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
             produtor.numeroBI.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            produtor.codigoRNPA.toLowerCase().includes(searchTerm.toLowerCase());
+            produtor.codigoSIGAF.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = !selectedStatus || produtor.statusProcesso === selectedStatus;
 
         return matchesSearch && matchesStatus;
@@ -324,7 +324,7 @@ const AgenteCampo = () => {
     const actionItems = [
         { label: 'Histórico de Produção', icon: <Tractor size={16} />, action: handleHistoricoProducao },
         { label: 'Histórico de Benefícios', icon: <Gift size={16} />, action: handleHistoricoBeneficios },
-        { label: 'Gerar Cartão RNPA', icon: <CreditCard size={16} />, action: handleGerarCartao }
+        { label: 'Gerar Cartão SIGAF', icon: <CreditCard size={16} />, action: handleGerarCartao }
     ];
 
     // Formatar data
@@ -494,7 +494,7 @@ const AgenteCampo = () => {
                 <div className="bg-gradient-to-r from-blue-700 to-blue-500 p-6 text-white">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
                         <div>
-                            <h1 className="text-2xl font-bold">RNPA - Gestão de Agentes de Campo</h1>
+                            <h1 className="text-2xl font-bold">SIGAF - Gestão de Agentes de Campo</h1>
                             <p className="text-blue-100 mt-1">Registo Nacional de Produtores Agrícolas - República de Angola</p>
                         </div>
                         <div className="flex gap-4">
@@ -523,7 +523,7 @@ const AgenteCampo = () => {
                         <div className="lg:col-span-1">
                             <CustomInput
                                 type="text"
-                                placeholder="Buscar por nome, BI ou código RNPA..."
+                                placeholder="Buscar por nome, BI ou código SIGAF..."
                                 value={searchTerm}
                                 onChange={(value) => setSearchTerm(value)}
                                 iconStart={<Search size={18} />}
@@ -611,7 +611,7 @@ const AgenteCampo = () => {
                                                 </div>
                                                 <div className="ml-4">
                                                     <div className="text-sm font-semibold text-gray-900">{produtor.nome}</div>
-                                                    <div className="text-xs text-gray-500 mt-1">Código: {produtor.codigoRNPA}</div>
+                                                    <div className="text-xs text-gray-500 mt-1">Código: {produtor.codigoSIGAF}</div>
                                                     <div className="text-xs text-gray-500">BI: {produtor.numeroBI}</div>
                                                     <div className="text-xs text-gray-500">{calculateAge(produtor.dataNascimento)}</div>
                                                 </div>
@@ -719,7 +719,7 @@ const AgenteCampo = () => {
                                         <div className="flex justify-between items-start">
                                             <div>
                                                 <h3 className="text-sm font-semibold text-gray-900">{produtor.nome}</h3>
-                                                <div className="text-xs text-gray-500 mt-1">Código: {produtor.codigoRNPA}</div>
+                                                <div className="text-xs text-gray-500 mt-1">Código: {produtor.codigoSIGAF}</div>
                                                 <div className="text-xs text-gray-500">BI: {produtor.numeroBI}</div>
                                             </div>
                                             <StatusMenu produtor={produtor} />
@@ -925,7 +925,7 @@ const AgenteCampo = () => {
                 </div>
             </div>
 
-            {/* Informações sobre o RNPA */}
+            {/* Informações sobre o SIGAF */}
             <div className="mt-6 bg-white rounded-xl shadow-md p-6">
                 <div className="flex items-center text-blue-700 mb-4">
                     <Info className="w-5 h-5 mr-2" />
@@ -948,7 +948,7 @@ const AgenteCampo = () => {
                         <ul className="space-y-1 text-sm text-gray-600">
                             <li>• <span className="text-blue-600">Processo Recebido:</span> Cadastro inicial</li>
                             <li>• <span className="text-yellow-600">Pendente:</span> Em análise</li>
-                            <li>• <span className="text-blue-600">Aprovado:</span> Ativo no RNPA</li>
+                            <li>• <span className="text-blue-600">Aprovado:</span> Ativo no SIGAF</li>
                             <li>• <span className="text-red-600">Rejeitado:</span> Não aprovado</li>
                         </ul>
                     </div>
@@ -966,7 +966,7 @@ const AgenteCampo = () => {
 
                 <div className="mt-4 p-3 bg-blue-50 rounded-lg">
                     <p className="text-blue-700 text-sm">
-                        <strong>RNPA Angola:</strong> Sistema nacional para identificação, caracterização e
+                        <strong>SIGAF Angola:</strong> Sistema nacional para identificação, caracterização e
                         acompanhamento dos produtores agrícolas, visando o desenvolvimento sustentável do setor.
                     </p>
                 </div>

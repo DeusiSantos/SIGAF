@@ -300,7 +300,7 @@ const formatDate = (dateString) => {
 // NOVA FUNÇÃO PARA GERAR QR CODE DO PRODUTOR
 const gerarQRCodeProdutor = async (dados) => {
   try {
-    const numeroRegistro = dados?.numeroRegistro || 'RNPA000000';
+    const numeroRegistro = dados?.numeroRegistro || 'SIGAF000000';
 
     // Dados que serão codificados no QR Code
     const dadosQR = {
@@ -319,7 +319,7 @@ const gerarQRCodeProdutor = async (dados) => {
     };
 
     // Converter para string formatada
-    const dadosString = `Registro RNPA: ${dadosQR.registro}
+    const dadosString = `Registro SIGAF: ${dadosQR.registro}
 Nome: ${dadosQR.nome}
 BI: ${dadosQR.bi}
 Telefone: ${dadosQR.telefone}
@@ -484,7 +484,7 @@ const mapearDadosAPI = (dadosAPI, fotoAPI = null) => {
 
   return {
     id: dadosAPI?._id,
-    numeroRegistro: `RNPA${dadosAPI?._id}`,
+    numeroRegistro: `SIGAF${dadosAPI?._id}`,
     dataRegistro: dadosAPI?.registration_date,
 
     // Dados do produtor
@@ -1215,7 +1215,7 @@ const HistoricoProducaoSection = ({ historico }) => {
 // Componente do rodapé
 const FooterSection = () => (
   <View style={styles.footer}>
-    <Text>RNPA - Registo Nacional de Produtores Agrícolas | Ministério da Agricultura e Florestas - República de Angola</Text>
+    <Text>SIGAF - Registo Nacional de Produtores Agrícolas | Ministério da Agricultura e Florestas - República de Angola</Text>
     <Text>Data de geração: {new Date().toLocaleDateString('pt-BR')} | Este documento possui validade oficial</Text>
   </View>
 );
@@ -1316,7 +1316,7 @@ export const gerarFichaCompletaPDF = async (produtorId) => {
 };
 
 // MODIFICADO: Componente que pode ser usado diretamente na interface
-const ProdutorCompletoRNPAPDF = ({ produtorId, onSuccess, onError }) => {
+const ProdutorCompletoSIGAFPDF = ({ produtorId, onSuccess, onError }) => {
   const { dados, historico, loading, error } = useProdutorComHistorico(produtorId);
   const [gerando, setGerando] = useState(false);
 
@@ -1528,4 +1528,4 @@ const ProdutorCompletoRNPAPDF = ({ produtorId, onSuccess, onError }) => {
   );
 };
 
-export default ProdutorCompletoRNPAPDF;
+export default ProdutorCompletoSIGAFPDF;

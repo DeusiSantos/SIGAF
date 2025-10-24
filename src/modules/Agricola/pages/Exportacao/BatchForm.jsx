@@ -246,7 +246,7 @@ export default function BatchForm() {
       localStorage.setItem('batchesDB', JSON.stringify(batchesDB));
 
       showToast('success', 'Sucesso', 'Lote criado com sucesso!');
-      navigate('/GerenciaRNPA/gestao-agricultores/Exportacao');
+      navigate('/GerenciaSIGAF/gestao-agricultores/Exportacao');
     } catch (error) {
       showToast('error', 'Erro', 'Erro ao criar lote.');
       console.error('Erro ao criar lote:', error);

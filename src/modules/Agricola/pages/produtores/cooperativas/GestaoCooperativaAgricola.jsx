@@ -42,17 +42,17 @@ import api from '../../../../../core/services/api';
 const GestaoCooperativaAgricola = () => {
     // Função para navegação de gestão de pessoal
     {/**const handlePessoal = (empresaId) => {
-        navigate(`/GerenciaRNPA/gestao-empresas/pessoal/${empresaId}`);
+        navigate(`/GerenciaSIGAF/gestao-empresas/pessoal/${empresaId}`);
     };
 
     // Função para navegação de infraestrutura
     const handleInfraestrutura = (empresaId) => {
-        navigate(`/GerenciaRNPA/gestao-empresas/infraestrutura/${empresaId}`);
+        navigate(`/GerenciaSIGAF/gestao-empresas/infraestrutura/${empresaId}`);
     };
 
     // Função para navegação de relatórios
     const handleRelatorios = (empresaId) => {
-        navigate(`/GerenciaRNPA/gestao-empresas/relatorios/${empresaId}`);
+        navigate(`/GerenciaSIGAF/gestao-empresas/relatorios/${empresaId}`);
     };*/}
 
     const navigate = useNavigate();
@@ -185,11 +185,11 @@ const GestaoCooperativaAgricola = () => {
 
     // Navegação para visualizar empresa
     const handleViewEscola = (empresaId) => {
-        navigate(`/GerenciaRNPA/gestao-agricultores/produtores/visualizar-entidade/${empresaId}`);
+        navigate(`/GerenciaSIGAF/gestao-agricultores/produtores/visualizar-entidade/${empresaId}`);
     };
 
      const handleHistoricoProducao = (produtorId) => {
-        navigate(`/GerenciaRNPA/gestao-agricultores/produtores/historico-entidade/${produtorId}`);
+        navigate(`/GerenciaSIGAF/gestao-agricultores/produtores/historico-entidade/${produtorId}`);
     };
 
     // Ações do menu dropdown

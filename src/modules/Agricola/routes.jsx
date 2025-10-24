@@ -44,7 +44,7 @@ import VisualizarAssociacaoRural from './pages/produtores/empresas/VisualizarAss
 import VisualizarProdutor from './pages/produtores/pessoal/VisualizarProdutor';
 import VisualizarCertificados from './pages/validacaoCertificado/VisualizarCertificados';
 import AddHistoricoProducao from './public/AddHistoricoProducao';
-import GerarCartaoRNPAAgricola from './public/GerarCartaoRNPAAgricola';
+import GerarCartaoSIGAFAgricola from './public/GerarCartaoSIGAFAgricola';
 import HistoricoProducao from './public/HistoricoProducao';
 import HistoricoEntidade from './public/HistoricoEntidade';
 import AddHistoricoEntidade from './public/AddHistoricoEntidade';
@@ -78,7 +78,7 @@ const AgricolaRoutes = () => {
                 <Route path="produtores/historico-entidade/:id" element={<HistoricoEntidade />} />
                 <Route path="produtores/historico-producao/:id/novo" element={<AddHistoricoProducao />} />
                 <Route path="produtores/historico-entidade/:id/novo" element={<AddHistoricoEntidade />} />
-                <Route path="produtores/gerar-cartao/:id" element={<GerarCartaoRNPAAgricola />} />
+                <Route path="produtores/gerar-cartao/:id" element={<GerarCartaoSIGAFAgricola />} />
                 {/* ======================================= */}
                 {/* INFRAESTRUTURA AGRÍCOLA */}
                 {/* ======================================= */}

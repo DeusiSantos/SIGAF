@@ -186,11 +186,11 @@ const GestaoProjetos = () => {
 
     // Navegação (simulada)
     const handleViewProjeto = (projetoId) => {
-        navigate(`/GerenciaRNPA/gestao-agricultores/programas-beneficios/visualizar/${projetoId}`);
+        navigate(`/GerenciaSIGAF/gestao-agricultores/programas-beneficios/visualizar/${projetoId}`);
     };
     {/*const handleEditProjeto = (projetoId) => {
         const projeto = projetos.find(p => p.id === projetoId);
-        navigate('/GerenciaRNPA/programas-beneficios', { state: { projetoEditando: projeto } });
+        navigate('/GerenciaSIGAF/programas-beneficios', { state: { projetoEditando: projeto } });
     */};
 
     const handleDuplicateProjeto = (projetoId) => {
@@ -886,7 +886,7 @@ const GestaoProjetos = () => {
                             </button>
                         ) : (
                             <button
-                                onClick={() => navigate('/GerenciaRNPA/programas-beneficios', { state: {} })}
+                                onClick={() => navigate('/GerenciaSIGAF/programas-beneficios', { state: {} })}
                                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                             >
                                 Registar novo projecto

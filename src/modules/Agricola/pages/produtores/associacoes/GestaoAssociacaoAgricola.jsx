@@ -39,17 +39,17 @@ import api from '../../../../../core/services/api';
 const GestaoAssociacaoAgricola = () => {
     // Função para navegação de gestão de pessoal
     {/*const handlePessoal = (empresaId) => {
-        navigate(`/GerenciaRNPA/gestao-empresas/pessoal/${empresaId}`);
+        navigate(`/GerenciaSIGAF/gestao-empresas/pessoal/${empresaId}`);
     };
 
     // Função para navegação de infraestrutura
     const handleInfraestrutura = (empresaId) => {
-        navigate(`/GerenciaRNPA/gestao-empresas/infraestrutura/${empresaId}`);
+        navigate(`/GerenciaSIGAF/gestao-empresas/infraestrutura/${empresaId}`);
     };
 
     // Função para navegação de relatórios
     const handleRelatorios = (empresaId) => {
-        navigate(`/GerenciaRNPA/gestao-empresas/relatorios/${empresaId}`);
+        navigate(`/GerenciaSIGAF/gestao-empresas/relatorios/${empresaId}`);
     };*/}
 
     const navigate = useNavigate();
@@ -182,12 +182,12 @@ const GestaoAssociacaoAgricola = () => {
 
      // Navegação para visualizar empresa
     const handleViewEscola = (empresaId) => {
-        navigate(`/GerenciaRNPA/gestao-agricultores/produtores/visualizar-entidade/${empresaId}`);
+        navigate(`/GerenciaSIGAF/gestao-agricultores/produtores/visualizar-entidade/${empresaId}`);
     };
 
 
    const handleHistoricoProducao = (produtorId) => {
-        navigate(`/GerenciaRNPA/gestao-agricultores/produtores/historico-producao/${produtorId}`);
+        navigate(`/GerenciaSIGAF/gestao-agricultores/produtores/historico-producao/${produtorId}`);
     };
 
     // Ações do menu dropdown
@@ -448,7 +448,7 @@ const GestaoAssociacaoAgricola = () => {
                         </div>
                         {/*<div className="flex gap-4">
                             <button
-                                onClick={() => navigate('/GerenciaRNPA/cadastro-empresas')}
+                                onClick={() => navigate('/GerenciaSIGAF/cadastro-empresas')}
                                 className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
                             >
                                 <Plus className="w-5 h-5 mr-2" />

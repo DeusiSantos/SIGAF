@@ -626,7 +626,7 @@ const RodapeSection = () => (
       <Text style={styles.rodapeDestaque}> Prazo para pagamento:</Text> 30 dias úteis para pagamento com desconto de 20%.
     </Text>
     <Text style={styles.documentoEletronico}>
-      Documento gerado eletronicamente pelo RNPA/DNF. Assinatura digital e QR para verificação.
+      Documento gerado eletronicamente pelo SIGAF/DNF. Assinatura digital e QR para verificação.
     </Text>
   </View>
 );

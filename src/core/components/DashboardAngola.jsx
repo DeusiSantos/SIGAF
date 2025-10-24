@@ -145,7 +145,7 @@ const provinciasAngola = [
   }
 ];
 
-// Dados estatísticos por província (baseado no questionário RNPA)
+// Dados estatísticos por província (baseado no questionário SIGAF)
 const estatisticasPorProvincia = {
   luanda: {
     totalProdutores: 125340,

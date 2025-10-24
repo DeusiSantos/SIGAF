@@ -387,7 +387,7 @@ const DashboardIncentivos = () => {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">Dashboard de Incentivos</h1>
-                <p className="text-gray-600">Sistema Nacional de Incentivos Agrícolas • RNPA Angola</p>
+                <p className="text-gray-600">Sistema Nacional de Incentivos Agrícolas • SIGAF Angola</p>
               </div>
             </div>
             <div className="flex items-center space-x-3">

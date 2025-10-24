@@ -190,7 +190,7 @@ const mapApiDataToProdutor = (apiData) => {
 
         return {
             id: item._id?.toString(),
-            codigoRNPA: `FLOR${new Date().getFullYear()}${item._id?.toString().slice(-3)}`,
+            codigoSIGAF: `FLOR${new Date().getFullYear()}${item._id?.toString().slice(-3)}`,
             nome: item.nome_do_Produtor || 'Nome não informado',
             numeroBI: item.bI_NIF || 'N/A',
             dataNascimento: '1990-01-01', // Campo não disponível na API florestal
@@ -306,22 +306,22 @@ const ProdutoresFlorestaisGestao = () => {
 
     // Navegação para diferentes telas
     const handleViewProdutor = (produtorId) => {
-        navigate(`/GerenciaRNPA/gestao-florestal/visualizarprodutorflorestal/${produtorId}`);
+        navigate(`/GerenciaSIGAF/gestao-florestal/visualizarprodutorflorestal/${produtorId}`);
     };
 
     const handleHistoricoProducao = (produtorId) => {
-        navigate(`/GerenciaRNPA/gestao-florestal/produtores/historico-producao/${produtorId}`);
+        navigate(`/GerenciaSIGAF/gestao-florestal/produtores/historico-producao/${produtorId}`);
     };
 
     const handleGerarCartao = (produtorId) => {
-        navigate(`/GerenciaRNPA/gestao-florestal/produtores/historico-producao/${produtorId}`);
+        navigate(`/GerenciaSIGAF/gestao-florestal/produtores/historico-producao/${produtorId}`);
     };
 
     const handleViewCertificado = (produtorId) => {
-        navigate(`/GerenciaRNPA/gestao-florestal/visualizarCertificado/produtor/${produtorId}`);
+        navigate(`/GerenciaSIGAF/gestao-florestal/visualizarCertificado/produtor/${produtorId}`);
     };
     const handleGerarLicenca = (produtorId) => {
-        navigate(`/GerenciaRNPA/gestao-florestal/produtores/gerar-licenca/produtor/${produtorId}`);
+        navigate(`/GerenciaSIGAF/gestao-florestal/produtores/gerar-licenca/produtor/${produtorId}`);
     };
 
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -410,7 +410,7 @@ const ProdutoresFlorestaisGestao = () => {
     const filteredProdutores = localProdutores.filter(produtor => {
         const matchesSearch = produtor.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
             produtor.numeroBI.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            produtor.codigoRNPA.toLowerCase().includes(searchTerm.toLowerCase());
+            produtor.codigoSIGAF.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = !selectedStatus || produtor.statusProcesso === selectedStatus;
         const matchesProvince = !selectedProvince || produtor.provincia === selectedProvince;
 
@@ -821,7 +821,7 @@ const ProdutoresFlorestaisGestao = () => {
                                                     />
                                                     <div className="ml-4">
                                                         <div className="text-sm font-semibold text-gray-900 break-words whitespace-pre-line max-w-[290px]">{produtor.nome}</div>
-                                                        <div className="text-xs text-gray-500 mt-1">Código: {produtor.codigoRNPA}</div>
+                                                        <div className="text-xs text-gray-500 mt-1">Código: {produtor.codigoSIGAF}</div>
                                                         <div className="text-xs text-gray-500">BI/NIF: {produtor.numeroBI}</div>
                                                         <div className="text-xs text-gray-500">Tel: {produtor.telefone}</div>
                                                     </div>
@@ -919,7 +919,7 @@ const ProdutoresFlorestaisGestao = () => {
                                             <div className="flex justify-between items-start">
                                                 <div>
                                                     <h3 className="text-sm font-semibold text-gray-900">{produtor.nome}</h3>
-                                                    <div className="text-xs text-gray-500 mt-1">Código: {produtor.codigoRNPA}</div>
+                                                    <div className="text-xs text-gray-500 mt-1">Código: {produtor.codigoSIGAF}</div>
                                                     <div className="text-xs text-gray-500">BI/NIF: {produtor.numeroBI}</div>
                                                 </div>
                                                 <StatusMenu produtor={produtor} />
