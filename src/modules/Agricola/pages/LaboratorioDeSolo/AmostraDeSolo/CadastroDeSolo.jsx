@@ -186,7 +186,9 @@ const CadastroDeSolo = () => {
         
         // Clear fields that should be unique for each duplicate
         if (stepIndex === 1) { // Amostra
-            currentData.codigoAmostra = generateCodigoAmostra();
+            const year = new Date().getFullYear();
+            const random = Math.floor(Math.random() * 9999).toString().padStart(4, '0');
+            currentData.codigoAmostra = `SL-${year}-${random}`;
             currentData.dataColeta = '';
             currentData.profundidadeAmostra = '';
         } else if (stepIndex === 0) { // Produtor
@@ -302,7 +304,11 @@ const CadastroDeSolo = () => {
                 municipio: '',
                 codigoTecnicoResponsavel: '',
                 codigoSupervisor: '',
-                codigoAmostra: generateCodigoAmostra(),
+                codigoAmostra: (() => {
+                    const year = new Date().getFullYear();
+                    const random = Math.floor(Math.random() * 9999).toString().padStart(4, '0');
+                    return `SL-${year}-${random}`;
+                })(),
                 dataColeta: '',
                 responsavelColeta: '',
                 areaLavoura: '',

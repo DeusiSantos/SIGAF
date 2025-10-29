@@ -56,6 +56,7 @@ import BatchForm from '../Agricola/pages/Exportacao/BatchForm';
 import BatchList from '../Agricola/pages/Exportacao/BatchList';
 import BatchTracking from '../Agricola/pages/Exportacao/BatchTracking';
 import PublicBatch from '../Agricola/pages/Exportacao/PublicBatch';
+import VisualizarEmpresaDeApoio from './pages/infraestrutura/empresasDeApoio/VisualizarEmpresaDeApoio';
 
 
 const AgricolaRoutes = () => {
@@ -92,6 +93,7 @@ const AgricolaRoutes = () => {
                 <Route path="produtores/infraestruturas/visualizar/:id" element={<VisualizarInfraestrutura />} />
                 <Route path="produtores/silos-armazenamento/visualizar/:id" element={<VisualizarSilos />} />
                 <Route path="produtores/entrepostos-mercados/visualizar/:id" element={<VisualizarEntreposto />} />
+                <Route path="empresas/visualizar/:id" element={<VisualizarEmpresaDeApoio />} />
                 {/* ======================================= */}
                 {/* PROGRAMAS E BENEFÍCIOS */}
                 {/* ======================================= */}

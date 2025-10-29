@@ -29,7 +29,7 @@ import { MapContainer, Marker, Popup, TileLayer, useMapEvents } from 'react-leaf
 
 import CustomInput from '../../../../../core/components/CustomInput';
 import provinciasData from '../../../../../core/components/Provincias.json';
-import api from '../../../../../core/services/api';
+import { useEmpresasDeApoio } from '../../../hooks/useEmpresasDeApoio';
 
 // Configuração do ícone do Leaflet
 const defaultIcon = L.icon({
@@ -96,8 +96,8 @@ const MapaGPS = ({ latitude, longitude, onLocationSelect }) => {
 };
 
 const RegistroApoioAgricola = () => {
+  const { createEmpresasDeApoio, loading } = useEmpresasDeApoio();
   const [activeIndex, setActiveIndex] = useState(0);
-  const [loading, setLoading] = useState(false);
   const [municipiosOptions, setMunicipiosOptions] = useState([]);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
@@ -279,7 +279,7 @@ const RegistroApoioAgricola = () => {
   };
 
   // Função para consultar BI na API
-  const consultarBI = async (biValue) => {
+  {/*const consultarBI = async (biValue) => {
     if (!biValue || biValue.length < 9) return;
 
     setConsultingBI(true);
@@ -322,10 +322,10 @@ const RegistroApoioAgricola = () => {
     } finally {
       setConsultingBI(false);
     }
-  };
+ */ };
 
   // Função para consultar BI do Gerente na API
-  const consultarBIGerente = async (biValue) => {
+  {/*const consultarBIGerente = async (biValue) => {
     if (!biValue || biValue.length < 9) return;
 
     setConsultingBIGerente(true);
@@ -368,7 +368,7 @@ const RegistroApoioAgricola = () => {
     } finally {
       setConsultingBIGerente(false);
     }
-  };
+  */};
 
   // Debounce para consulta do NIF
   const debounceTimer = React.useRef(null);
@@ -486,87 +486,40 @@ const RegistroApoioAgricola = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setLoading(true);
 
     try {
-      // Função para extrair valores string de arrays
-      const extractStringValues = (array) => {
-        if (!array || array.length === 0) return null;
-        return array.map(item => typeof item === 'object' ? item.value : item);
-      };
-
       const dataToSend = {
-        command: "CREATE",
-        id: null,
-        nomeEmpresa: formData.nomeEmpresa,
-        sigla: formData.sigla,
-        nif: formData.nif,
-        dataFundacao: formData.dataFundacao
-          ? new Date(formData.dataFundacao).toISOString()
-          : null,
-        provincia: typeof formData.provincia === 'object' ? formData.provincia.value : formData.provincia,
-        municipio: typeof formData.municipio === 'object' ? formData.municipio.value : formData.municipio,
-        comuna: formData.comuna,
+        nomeDaEmpresa: formData.nomeEmpresa,
+        tipoDeEntidade: typeof formData.tipoEntidade === 'object' ? formData.tipoEntidade.value : formData.tipoEntidade,
+        nifOuIdFiscal: formData.nif,
+        anoDeFundacao: parseInt(formData.anoFundacao) || 0,
+        enderecoSede: formData.enderecoSede,
+        província: typeof formData.provincia === 'object' ? formData.provincia.value : formData.provincia,
+        município: typeof formData.municipio === 'object' ? formData.municipio.value : formData.municipio,
+        latitude: formData.latitude || "",
+        longitude: formData.longitude || "",
+        nomeDaPessoaDeContacto: formData.pessoaContacto,
+        cargo: formData.cargo,
         telefone: formData.telefone,
         email: formData.email,
-        servicosPrestados: formData.servicosPrestados ? formData.servicosPrestados.map(a => typeof a === 'string' ? a : a.value) : [],
-        outrosServicos: formData.outrosServicos || null,
-        nomeDiretor: formData.nomeDiretor,
-        biDiretor: formData.biDiretor,
-        numeroProdutor: String(formData.numeroProdutor),
-        telefoneDiretor: formData.telefoneDiretor,
-        emailDiretor: formData.emailDiretor,
-        nomeGerente: formData.nomeGerente,
-        nifGerente: formData.nifGerente,
-        telefoneGerente: formData.telefoneGerente,
-        emailGerente: formData.emailGerente,
-        numeroEmpregados: String(formData.numeroEmpregados),
-
-        perfilEmpregados: Array.isArray(formData.perfilEmpregados)
-          ? formData.perfilEmpregados.map(p => typeof p === 'string' ? p : p.value).join(', ')
-          : (typeof formData.perfilEmpregados === 'object' ? formData.perfilEmpregados.value : formData.perfilEmpregados),
-
-        numeroFuncionarios: String(formData.numeroFuncionarios),
-        possuiEquipamentos: formData.possuiEquipamentos ? "true" : "false",
-
-        equipamentosAgricolas: formData.equipamentosAgricolas.map(a => typeof a === 'string' ? a : a.value),
-        equipamentosInfraestrutura: formData.equipamentosInfraestrutura.map(a => typeof a === 'string' ? a : a.value),
-        materiaisProducao: formData.materiaisProducao.map(a => typeof a === 'string' ? a : a.value),
-        ferramentasManuais: formData.ferramentasManuais.map(a => typeof a === 'string' ? a : a.value),
-        equipamentosMedicao: formData.equipamentosMedicao.map(a => typeof a === 'string' ? a : a.value),
-        materiaisHigiene: formData.materiaisHigiene.map(a => typeof a === 'string' ? a : a.value),
-        materiaisEscritorio: formData.materiaisEscritorio.map(a => typeof a === 'string' ? a : a.value),
-        equipamentosTransporte: formData.equipamentosTransporte.map(a => typeof a === 'string' ? a : a.value),
-        equipamentosPecuarios: formData.equipamentosPecuarios.map(a => typeof a === 'string' ? a : a.value)
+        website: formData.website || "",
+        servicosPrestados: formData.servicosPrestados ? formData.servicosPrestados.map(s => typeof s === 'string' ? s : s.value) : [],
+        principaisBeneficiarios: formData.principaisBeneficiarios ? [typeof formData.principaisBeneficiarios === 'string' ? formData.principaisBeneficiarios : formData.principaisBeneficiarios.value] : [],
+        numeroDeFuncionarios: parseInt(formData.numeroFuncionarios) || 0,
+        areaDeCobertura: typeof formData.areaCobertura === 'object' ? formData.areaCobertura.value : formData.areaCobertura,
+        volumeMedioDeClientesOuBeneficiariosPorAno: parseInt(formData.volumeClientes) || 0,
+        licencaDeOperacao: typeof formData.licencaOperacao === 'object' ? formData.licencaOperacao.value : formData.licencaOperacao,
+        registoComercial: typeof formData.registoComercial === 'object' ? formData.registoComercial.value : formData.registoComercial,
+        certificacoesEspecificas: formData.certificacoesEspecificas || "",
+        observacoesGerais: formData.observacoes || ""
       };
 
-      console.log("📤 Dados preparados para envio (EmpresaDto):", dataToSend);
-      console.log("🔍 Formato da data:", dataToSend.dataFundacao);
-      console.log("📋 Atividades processadas:", dataToSend.atividades);
-      console.log("🛠️ Equipamentos processados:", {
-        agricolas: dataToSend.equipamentosAgricolas,
-        infraestrutura: dataToSend.equipamentosInfraestrutura
-      });
+      console.log("📤 Dados preparados para envio:", dataToSend);
 
-      // Mostrar toast de que o envio está sendo processado
       showToast('info', 'Enviando', 'Processando dados da empresa...');
 
-      // Fazer requisição POST para a API
-      const response = await api.post(
-        '/empresa',
-        dataToSend,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          timeout: 30000 // 30 segundos timeout
-        }
-      );
+      await createEmpresasDeApoio(dataToSend);
 
-      console.log("✅ Resposta da API:", response.data);
-      console.log("✅ Status da resposta:", response.status);
-
-      setLoading(false);
       showToast('success', 'Sucesso', 'Empresa registrada com sucesso!');
 
       // Reset do formulário
@@ -578,43 +531,8 @@ const RegistroApoioAgricola = () => {
       setNifData(null);
 
     } catch (error) {
-      setLoading(false);
       console.error('❌ Erro ao registrar empresa:', error);
-
-      let errorMessage = 'Erro ao registrar empresa. Tente novamente.';
-
-      if (error.response) {
-        // Erro de resposta do servidor
-        console.error('📄 Status do erro:', error.response.status);
-        console.error('📄 Dados do erro:', error.response.data);
-        console.error('📄 Headers do erro:', error.response.headers);
-
-        if (error.response.status === 400) {
-          const errorDetails = error.response.data;
-          if (errorDetails.errors) {
-            const errorMessages = Object.entries(errorDetails.errors)
-              .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
-              .join('\n');
-            errorMessage = `Erros de validação:\n${errorMessages}`;
-          } else {
-            errorMessage = `Erro de validação (400): ${JSON.stringify(errorDetails)}`;
-          }
-        } else {
-          errorMessage = `Erro ${error.response.status}: ${error.response.data?.message || error.response.statusText}`;
-        }
-      } else if (error.request) {
-        // Erro de rede
-        console.error('🌐 Erro de rede:', error.request);
-        errorMessage = 'Erro de conexão. Verifique sua internet e tente novamente.';
-      } else if (error.code === 'ECONNABORTED') {
-        // Timeout
-        errorMessage = 'Tempo limite excedido. Tente novamente.';
-      } else {
-        console.error('⚙️ Erro na configuração:', error.message);
-        errorMessage = `Erro: ${error.message}`;
-      }
-
-      showToast('error', 'Erro', errorMessage);
+      showToast('error', 'Erro', error.message || 'Erro ao registrar empresa. Tente novamente.');
     }
   };
 
@@ -1171,7 +1089,7 @@ const RegistroApoioAgricola = () => {
       case 7: // Observações
         return (
           <div className="max-w-full mx-auto">
-            <div className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-2xl p-6 mb-8 border border-gray-100">
+            <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl p-6 mb-8 border border-gray-100">
               <div className="flex items-center space-x-3 mb-3">
                 <div className="p-2 bg-gray-100 rounded-lg">
                   <Info className="w-6 h-6 text-gray-600" />
@@ -1240,7 +1158,7 @@ const RegistroApoioAgricola = () => {
       <div className="mx-auto px-4 py-8">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200">
           {/* Header */}
-          <div className="text-center mb-8 p-8 border-b border-gray-100 bg-gradient-to-r from-slate-700 to-slate-400 rounded-t-lg">
+          <div className="text-center mb-8 p-8 border-b border-gray-100 bg-gradient-to-r from-blue-700 to-blue-400 rounded-t-lg">
             <h1 className="text-4xl font-bold mb-3 text-white">Cadastro de Empresas de Apoio à Agricultura
             </h1>
           </div>
@@ -1260,9 +1178,9 @@ const RegistroApoioAgricola = () => {
                   onClick={() => setActiveIndex(index)}
                 >
                   <div className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${isActive
-                    ? 'bg-gradient-to-r from-slate-700 to-slate-400 text-white'
+                    ? 'bg-gradient-to-r from-blue-700 to-blue-400 text-white'
                     : isCompleted
-                      ? 'bg-gradient-to-r from-slate-700 to-slate-400 text-white'
+                      ? 'bg-gradient-to-r from-blue-700 to-blue-400 text-white'
                       : 'bg-gray-200 text-gray-500'
                     }`}>
                     {isCompleted ? (
@@ -1271,7 +1189,7 @@ const RegistroApoioAgricola = () => {
                       <Icon size={24} />
                     )}
                   </div>
-                  <span className={`text-sm text-center font-medium ${isActive ? 'text-slate-700' : isCompleted ? 'text-slate-600' : 'text-gray-500'
+                  <span className={`text-sm text-center font-medium ${isActive ? 'text-blue-700' : isCompleted ? 'text-blue-600' : 'text-gray-500'
                     }`}>
                     {step.label}
                   </span>
@@ -1283,7 +1201,7 @@ const RegistroApoioAgricola = () => {
           {/* Progress Bar */}
           <div className="w-full bg-gray-200 h-2 mb-8 mx-8" style={{ width: 'calc(100% - 4rem)' }}>
             <div
-              className="bg-gradient-to-r from-slate-700 to-slate-400 h-2 transition-all duration-300 rounded-full"
+              className="bg-gradient-to-r from-blue-700 to-blue-400 h-2 transition-all duration-300 rounded-full"
               style={{ width: `${((activeIndex + 1) / steps.length) * 100}%` }}
             ></div>
           </div>

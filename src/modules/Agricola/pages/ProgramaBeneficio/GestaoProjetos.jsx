@@ -633,7 +633,7 @@ const GestaoProjetos = () => {
                         <table className="w-full border-collapse">
                             <thead className="bg-gray-50 sticky top-0 z-10">
                                 <tr>
-                                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                                    <th className="px-4 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                         Projecto
                                     </th>
                                     <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
@@ -654,11 +654,11 @@ const GestaoProjetos = () => {
                             <tbody className="divide-y divide-gray-200 bg-white">
                                 {getCurrentItems().map((projeto) => (
                                     <tr key={projeto.id} className="hover:bg-blue-50 transition-colors">
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                        <td className="px-4 py-4 whitespace-nowrap ">
                                             <div className="flex items-center">
 
                                                 <div className="ml-4 text-start">
-                                                    <div className="text-sm font-semibold text-gray-900">{projeto.nomeProjeto || ''}</div>
+                                                    <div className="text-sm font-semibold text-gray-900 ">{projeto.nomeProjeto || ''}</div>
                                                     <div className="text-xs text-gray-500 mt-1">Código: {projeto.id || ''}</div>
                                                     <div className="text-xs text-gray-500">Entidade: {projeto.entidadeImplementadora || ''}</div>
                                                 </div>
