@@ -315,7 +315,7 @@ const EmitidoImportacaoGestao = () => {
                 isProdutorExistente,
                 produtorSelecionado,
                 formData,
-                mercadorias
+                mercadorias,
             };
 
             console.log('📦 Dados preparados para PDF:', dadosParaPDF);
