@@ -189,15 +189,15 @@ const GestaoArmazenamento = () => {
 
     // Função para navegação de gestão de pessoal
     const handlePessoal = (cooperativaId) => {
-        navigate(`/GerenciaRNPA/entidades-associativas/pessoal/${cooperativaId}`);
+        navigate(`/GerenciaSIGAF/entidades-associativas/pessoal/${cooperativaId}`);
     };
     // Função para navegação de infraestrutura
     const handleInfraestrutura = (cooperativaId) => {
-        navigate(`/GerenciaRNPA/entidades-associativas/infraestrutura/${cooperativaId}`);
+        navigate(`/GerenciaSIGAF/entidades-associativas/infraestrutura/${cooperativaId}`);
     };
     // Função para navegação de relatórios
     const handleRelatorios = (cooperativaId) => {
-        navigate(`/GerenciaRNPA/entidades-associativas/relatorios/${cooperativaId}`);
+        navigate(`/GerenciaSIGAF/entidades-associativas/relatorios/${cooperativaId}`);
     };
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -285,14 +285,14 @@ const GestaoArmazenamento = () => {
 
     // Navegação para visualizar silo
     const handleViewEscola = (siloId) => {
-        navigate(`/GerenciaRNPA/gestao-agricultores/produtores/silos-armazenamento/visualizar/${siloId}`);
+        navigate(`/GerenciaSIGAF/gestao-agricultores/produtores/silos-armazenamento/visualizar/${siloId}`);
     };
 
 
 
     const handleTransferencia = (cooperativaId) => {
         // Navegar para a rota de cadastro de produção passando o ID
-        navigate(`/GerenciaRNPA/entidades-associativas/cadastro-producao-associacoes/${cooperativaId}`);
+        navigate(`/GerenciaSIGAF/entidades-associativas/cadastro-producao-associacoes/${cooperativaId}`);
     };
 
 

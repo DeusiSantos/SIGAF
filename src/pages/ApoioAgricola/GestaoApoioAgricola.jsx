@@ -248,13 +248,13 @@ const GestaoApoiAgricola = () => {
 
     // Navegação (simulada)
     const handleViewEscola = (empresasId) => {
-        navigate(`/GerenciaRNPA/gestao-empresas/empresas/visualizar/${empresasId}`);
+        navigate(`/GerenciaSIGAF/gestao-empresas/empresas/visualizar/${empresasId}`);
     };
 
 
     const handleTransferencia = (empresasId) => {
         // Navegar para a rota de cadastro de produção passando o ID
-        navigate(`/GerenciaRNPA/entidades-associativas/cadastro-producao-empresas/${empresasId}`);
+        navigate(`/GerenciaSIGAF/entidades-associativas/cadastro-producao-empresas/${empresasId}`);
     };
 
 

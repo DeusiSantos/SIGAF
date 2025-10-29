@@ -186,11 +186,11 @@ const GestaoProjetos = () => {
 
     // Navegação (simulada)
     const handleViewProjeto = (projetoId) => {
-        navigate(`/GerenciaRNPA/gestao-agricultores/programas-beneficios/visualizar/${projetoId}`);
+        navigate(`/GerenciaSIGAF/gestao-agricultores/programas-beneficios/visualizar/${projetoId}`);
     };
     {/*const handleEditProjeto = (projetoId) => {
         const projeto = projetos.find(p => p.id === projetoId);
-        navigate('/GerenciaRNPA/programas-beneficios', { state: { projetoEditando: projeto } });
+        navigate('/GerenciaSIGAF/programas-beneficios', { state: { projetoEditando: projeto } });
     */};
 
     const handleDuplicateProjeto = (projetoId) => {
@@ -633,7 +633,7 @@ const GestaoProjetos = () => {
                         <table className="w-full border-collapse">
                             <thead className="bg-gray-50 sticky top-0 z-10">
                                 <tr>
-                                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                                    <th className="px-4 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                         Projecto
                                     </th>
                                     <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
@@ -654,11 +654,11 @@ const GestaoProjetos = () => {
                             <tbody className="divide-y divide-gray-200 bg-white">
                                 {getCurrentItems().map((projeto) => (
                                     <tr key={projeto.id} className="hover:bg-blue-50 transition-colors">
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                        <td className="px-4 py-4 whitespace-nowrap ">
                                             <div className="flex items-center">
 
                                                 <div className="ml-4 text-start">
-                                                    <div className="text-sm font-semibold text-gray-900">{projeto.nomeProjeto || ''}</div>
+                                                    <div className="text-sm font-semibold text-gray-900 ">{projeto.nomeProjeto || ''}</div>
                                                     <div className="text-xs text-gray-500 mt-1">Código: {projeto.id || ''}</div>
                                                     <div className="text-xs text-gray-500">Entidade: {projeto.entidadeImplementadora || ''}</div>
                                                 </div>
@@ -886,7 +886,7 @@ const GestaoProjetos = () => {
                             </button>
                         ) : (
                             <button
-                                onClick={() => navigate('/GerenciaRNPA/programas-beneficios', { state: {} })}
+                                onClick={() => navigate('/GerenciaSIGAF/programas-beneficios', { state: {} })}
                                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                             >
                                 Registar novo projecto

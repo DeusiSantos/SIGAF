@@ -149,7 +149,7 @@ const VisualizarCertificados = () => {
             console.error('ProdutorId não encontrado na URL!');
             showToast('error', 'Erro', 'ID do produtor não encontrado na URL');
             setTimeout(() => {
-                navigate('/GerenciaRNPA/certificados');
+                navigate('/GerenciaSIGAF/certificados');
             }, 3000);
         }
     }, [produtorId, navigate]);
@@ -345,7 +345,7 @@ const VisualizarCertificados = () => {
 
     // Voltar para gestão de certificados
     const handleBack = () => {
-        navigate('/GerenciaRNPA/certificados');
+        navigate('/GerenciaSIGAF/certificados');
     };
 
     // Selecionar/deselecionar certificado para impressão

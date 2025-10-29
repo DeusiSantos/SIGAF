@@ -22,7 +22,7 @@ import ISV from '../../../assets/ISV.png';
 import logo5 from '../../../assets/logo5.png';
 import MinAdriPesca from '../../../assets/MINISTERIO-DA-AGRICULTURA-removebg-preview.png';
 import sense from '../../../assets/sense.png';
-import logoRNPA from '../../../assets/SIGAF.png';
+import logoSIGAF from '../../../assets/SIGAF.png';
 import api from '../../../core/services/api';
 
 // Função para mapear dados da API para o cartão
@@ -78,7 +78,7 @@ const mapApiDataToCard = (apiData) => {
 
     return {
         id: apiData._uuid || apiData._id?.toString(),
-        codigoRNPA: `RNPA${new Date(apiData.registration_date || '2025-01-01').getFullYear()}${apiData._id?.toString().slice(-3)}`,
+        codigoSIGAF: `SIGAF${new Date(apiData.registration_date || '2025-01-01').getFullYear()}${apiData._id?.toString().slice(-3)}`,
         nome: apiData.beneficiary_name || `${apiData.nome_produtor || ''} ${apiData.nome_meio_produtor || ''} ${apiData.sobrenome_produtor || ''}`.trim(),
         bi: apiData.beneficiary_id_number || 'N/A',
         dataNascimento: formatDate(apiData.beneficiary_date_of_birth),
@@ -103,7 +103,7 @@ const mapApiDataToCard = (apiData) => {
     };
 };
 
-const GerarCartaoRNPAAgricola = () => {
+const GerarCartaoSIGAFAgricola = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const cardRef = useRef(null);
@@ -126,7 +126,7 @@ const GerarCartaoRNPAAgricola = () => {
             if (!dadosProdutor) return null;
 
             // Dados específicos solicitados para o QR Code
-            const dadosQR = `Produtor Nº: ${dadosProdutor.codigoRNPA}
+            const dadosQR = `Produtor Nº: ${dadosProdutor.codigoSIGAF}
 Nome: ${dadosProdutor.nome}
 Sexo: ${dadosProdutor.genero}
 Data de Validade: ${dadosProdutor.dataValidade}
@@ -294,7 +294,7 @@ Município: ${dadosProdutor.municipio}`;
                 link.href = url;
 
                 // Nome do arquivo com informações do produtor
-                const nomeArquivo = `cartao_rnpa_${produtor.codigoRNPA}_${showFront ? 'frente' : 'verso'}_${new Date().toISOString().split('T')[0]}.png`;
+                const nomeArquivo = `cartao_rnpa_${produtor.codigoSIGAF}_${showFront ? 'frente' : 'verso'}_${new Date().toISOString().split('T')[0]}.png`;
                 link.download = nomeArquivo;
 
                 // Adicionar ao DOM, clicar e remover
@@ -376,7 +376,7 @@ Município: ${dadosProdutor.municipio}`;
                     const url = URL.createObjectURL(blob);
                     const link = document.createElement('a');
                     link.href = url;
-                    link.download = `cartao_rnpa_${produtor.codigoRNPA}_frente_${new Date().toISOString().split('T')[0]}.png`;
+                    link.download = `cartao_rnpa_${produtor.codigoSIGAF}_frente_${new Date().toISOString().split('T')[0]}.png`;
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
@@ -391,7 +391,7 @@ Município: ${dadosProdutor.municipio}`;
                         const url = URL.createObjectURL(blob);
                         const link = document.createElement('a');
                         link.href = url;
-                        link.download = `cartao_rnpa_${produtor.codigoRNPA}_verso_${new Date().toISOString().split('T')[0]}.png`;
+                        link.download = `cartao_rnpa_${produtor.codigoSIGAF}_verso_${new Date().toISOString().split('T')[0]}.png`;
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
@@ -507,9 +507,9 @@ Município: ${dadosProdutor.municipio}`;
                                     <ArrowLeft className="w-5 h-5 text-gray-600" />
                                 </button>
                                 <div>
-                                    <h1 className="text-2xl font-bold text-gray-900">Gerar Cartão RNPA</h1>
+                                    <h1 className="text-2xl font-bold text-gray-900">Gerar Cartão SIGAF</h1>
                                     <p className="text-gray-600">Produtor: {produtor.nome}</p>
-                                    <p className="text-sm text-gray-500">Código: {produtor.codigoRNPA}</p>
+                                    <p className="text-sm text-gray-500">Código: {produtor.codigoSIGAF}</p>
                                 </div>
                             </div>
 
@@ -562,10 +562,10 @@ Município: ${dadosProdutor.municipio}`;
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                     <h2 className="text-lg font-semibold text-gray-900 mb-6 flex items-center justify-center">
                         <Eye className="w-5 h-5 mr-2 text-green-600" />
-                        Cartão RNPA - {showFront ? 'Frente' : 'Verso'}
+                        Cartão SIGAF - {showFront ? 'Frente' : 'Verso'}
                     </h2>
 
-                    {/* Cartão RNPA */}
+                    {/* Cartão SIGAF */}
                     <div className="flex justify-center">
                         <div
                             ref={cardRef}
@@ -591,7 +591,7 @@ Município: ${dadosProdutor.municipio}`;
 
                             <div className="absolute inset-0 bottom-12 flex items-center justify-center pointer-events-none">
                                 <img
-                                    src={logoRNPA}
+                                    src={logoSIGAF}
                                     alt="Marca d'água"
                                     className="w-48 h-48 opacity-25"
                                     style={{
@@ -643,7 +643,7 @@ Município: ${dadosProdutor.municipio}`;
 
                                             <div className="mt-2">
                                                 <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">produtor Nº</label>
-                                                <p className="text-sm font-bold text-gray-900">{produtor.codigoRNPA}</p>
+                                                <p className="text-sm font-bold text-gray-900">{produtor.codigoSIGAF}</p>
                                             </div>
                                         </div>
 
@@ -743,7 +743,7 @@ Município: ${dadosProdutor.municipio}`;
                                                     {qrCodeDataURL ? (
                                                         <img
                                                             src={qrCodeDataURL}
-                                                            alt="QR Code RNPA"
+                                                            alt="QR Code SIGAF"
                                                             className="w-full h-full object-contain"
                                                             onError={(e) => {
                                                                 console.log('Erro ao carregar QR Code, usando padrão');
@@ -814,7 +814,7 @@ Município: ${dadosProdutor.municipio}`;
                                                 </div>
                                                 <div className="text-right text-xs text-gray-600">
                                                     <p>Válido em todo território nacional</p>
-                                                    <p className="font-semibold">RNPA - {new Date().getFullYear()}</p>
+                                                    <p className="font-semibold">SIGAF - {new Date().getFullYear()}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -836,8 +836,8 @@ Município: ${dadosProdutor.municipio}`;
                                 <p className="text-gray-900">{produtor.nome}</p>
                             </div>
                             <div>
-                                <span className="font-medium text-gray-700">Código RNPA:</span>
-                                <p className="text-gray-900">{produtor.codigoRNPA}</p>
+                                <span className="font-medium text-gray-700">Código SIGAF:</span>
+                                <p className="text-gray-900">{produtor.codigoSIGAF}</p>
                             </div>
                             <div>
                                 <span className="font-medium text-gray-700">Localização:</span>
@@ -894,4 +894,4 @@ Município: ${dadosProdutor.municipio}`;
     );
 };
 
-export default GerarCartaoRNPAAgricola;
+export default GerarCartaoSIGAFAgricola;

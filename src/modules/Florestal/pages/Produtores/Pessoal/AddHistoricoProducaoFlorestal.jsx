@@ -256,7 +256,7 @@ const AddHistoricoProducaoFlorestal = () => {
     };
 
     const handleCancelForm = () => {
-        navigate(`/GerenciaRNPA/gestao-florestal/produtores/historico-producao/${produtorId}`);
+        navigate(`/GerenciaSIGAF/gestao-florestal/produtores/historico-producao/${produtorId}`);
     };
 
     const handleAddRecord = async () => {

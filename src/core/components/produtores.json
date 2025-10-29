@@ -1,7 +1,7 @@
 [
   {
     "id": "PROD001",
-    "codigoRNPA": "RNPA24001",
+    "codigoSIGAF": "SIGAF24001",
     "nome": "João Manuel da Silva Santos",
     "numeroBI": "004500789LA041",
     "dataNascimento": "1985-03-15",
@@ -44,7 +44,7 @@
   },
   {
     "id": "PROD002",
-    "codigoRNPA": "RNPA24002",
+    "codigoSIGAF": "SIGAF24002",
     "nome": "Maria Fernanda Costa Pereira",
     "numeroBI": "004600123LA042",
     "dataNascimento": "1978-07-22",
@@ -87,7 +87,7 @@
   },
   {
     "id": "PROD003",
-    "codigoRNPA": "RNPA24003",
+    "codigoSIGAF": "SIGAF24003",
     "nome": "António Carlos Mendes Rodrigues",
     "numeroBI": "004700456LA043",
     "dataNascimento": "1990-11-08",
@@ -130,7 +130,7 @@
   },
   {
     "id": "PROD004",
-    "codigoRNPA": "RNPA24004",
+    "codigoSIGAF": "SIGAF24004",
     "nome": "Ana Paula Ferreira Lima",
     "numeroBI": "004800789LA044",
     "dataNascimento": "1982-04-12",
@@ -173,7 +173,7 @@
   },
   {
     "id": "PROD005",
-    "codigoRNPA": "RNPA24005",
+    "codigoSIGAF": "SIGAF24005",
     "nome": "Pedro Miguel Sousa Alves",
     "numeroBI": "004900012LA045",
     "dataNascimento": "1975-09-20",
@@ -216,7 +216,7 @@
   },
   {
     "id": "PROD006",
-    "codigoRNPA": "RNPA24006",
+    "codigoSIGAF": "SIGAF24006",
     "nome": "Esperança Maria Baptista",
     "numeroBI": "005000345LA046",
     "dataNascimento": "1988-01-30",
@@ -259,7 +259,7 @@
   },
   {
     "id": "PROD007",
-    "codigoRNPA": "RNPA24007",
+    "codigoSIGAF": "SIGAF24007",
     "nome": "José António Neto Silva",
     "numeroBI": "005100678LA047",
     "dataNascimento": "1992-12-03",
@@ -302,7 +302,7 @@
   },
   {
     "id": "PROD008",
-    "codigoRNPA": "RNPA24008",
+    "codigoSIGAF": "SIGAF24008",
     "nome": "Filomena Santos Mbala",
     "numeroBI": "005200901LA048",
     "dataNascimento": "1980-05-17",
@@ -345,7 +345,7 @@
   },
   {
     "id": "PROD009",
-    "codigoRNPA": "RNPA24009",
+    "codigoSIGAF": "SIGAF24009",
     "nome": "Manuel Francisco Kiala",
     "numeroBI": "005301234LA049",
     "dataNascimento": "1987-08-25",
@@ -388,7 +388,7 @@
   },
   {
     "id": "PROD010",
-    "codigoRNPA": "RNPA24010",
+    "codigoSIGAF": "SIGAF24010",
     "nome": "Rosa Benedita Tchissola",
     "numeroBI": "005400567LA050",
     "dataNascimento": "1983-11-12",

@@ -22,6 +22,7 @@ import {
     User,
     X
 } from 'lucide-react';
+import { ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell, Tooltip } from 'recharts';
 import CustomInput from '../../../../../core/components/CustomInput';
 
 // Dados fictícios dos laudos
@@ -379,7 +380,7 @@ const GestaoRelatoriosLaudos = () => {
     const BarChart = ({ data, title }) => {
         if (!data || !Array.isArray(data) || data.length === 0) {
             return (
-                <div className="h-48 p-4 flex items-center justify-center">
+                <div className=" flex items-center justify-center">
                     <p className="text-gray-500">Nenhum dado disponível</p>
                 </div>
             );
@@ -435,7 +436,7 @@ const GestaoRelatoriosLaudos = () => {
     const PieChart = ({ data, title }) => {
         if (!data || !Array.isArray(data) || data.length === 0) {
             return (
-                <div className="h-48 p-4 flex items-center justify-center">
+                <div className="flex items-center justify-center">
                     <p className="text-gray-500">Nenhum dado disponível</p>
                 </div>
             );
@@ -505,7 +506,7 @@ const GestaoRelatoriosLaudos = () => {
     const LineChart = ({ data, title }) => {
         if (!data || !Array.isArray(data) || data.length === 0) {
             return (
-                <div className="h-48 p-4 flex items-center justify-center">
+                <div className="flex items-center justify-center">
                     <p className="text-gray-500">Nenhum dado disponível</p>
                 </div>
             );
@@ -631,7 +632,39 @@ const GestaoRelatoriosLaudos = () => {
                         <h4 className="text-md font-semibold">Solo por Cultura</h4>
                         <BarChart3 className="w-5 h-5 text-blue-600" />
                     </div>
-                    <BarChart data={dadosGraficos.soloPorCultura} title="Parâmetros por Cultura" />
+                    <ResponsiveContainer width="100%" height={300}>
+                        <RechartsPieChart>
+                            <Pie
+                                data={dadosGraficos.soloPorCultura.map(item => ({
+                                    name: item.cultura,
+                                    value: item.amostras,
+                                    color: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444'][dadosGraficos.soloPorCultura.indexOf(item)]
+                                }))}
+                                cx="50%"
+                                cy="50%"
+                                labelLine={false}
+                                innerRadius={60}
+                                outerRadius={80}
+                                fill="#8884d8"
+                                dataKey="value"
+                            >
+                                {dadosGraficos.soloPorCultura.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={['#3B82F6', '#10B981', '#F59E0B', '#EF4444'][index]} />
+                                ))}
+                            </Pie>
+                            <Tooltip formatter={(value) => [value, 'Amostras']} />
+                        </RechartsPieChart>
+                    </ResponsiveContainer>
+                    <div className="flex justify-center space-x-6 mt-4">
+                        {dadosGraficos.soloPorCultura.map((entry, index) => (
+                            <div key={index} className="flex items-center">
+                                <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444'][index] }}></div>
+                                <span className="text-sm text-gray-600">
+                                    {entry.cultura}: {entry.amostras}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
                     <div className="mt-4 text-xs text-gray-600 bg-gray-50 p-2 rounded">
                         <strong>Resumo:</strong> Milho apresenta melhor equilíbrio nutricional (45 amostras)
                     </div>
@@ -643,15 +676,53 @@ const GestaoRelatoriosLaudos = () => {
                     </button>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-md p-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <h4 className="text-md font-semibold">Solo por Região</h4>
-                        <PieChart className="w-5 h-5 text-green-600" />
+                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-all duration-200">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-semibold text-gray-800">Solo por Região</h2>
+                        <div className="p-2 bg-green-50 rounded-lg">
+                            <PieChart className="h-6 w-6 text-green-500" />
+                        </div>
                     </div>
-                    <PieChart data={dadosGraficos.soloPorRegiao} title="Distribuição por Província" />
+
+                    <ResponsiveContainer width="100%" height={300}>
+                        <RechartsPieChart>
+                            <Pie
+                                data={dadosGraficos.soloPorRegiao.map(item => ({
+                                    name: item.regiao,
+                                    value: item.amostras,
+                                    color: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444'][dadosGraficos.soloPorRegiao.indexOf(item)]
+                                }))}
+                                cx="50%"
+                                cy="50%"
+                                labelLine={false}
+                                innerRadius={60}
+                                outerRadius={80}
+                                fill="#8884d8"
+                                dataKey="value"
+                            >
+                                {dadosGraficos.soloPorRegiao.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={['#3B82F6', '#10B981', '#F59E0B', '#EF4444'][index]} />
+                                ))}
+                            </Pie>
+                            <Tooltip formatter={(value) => [value, 'Amostras']} />
+                        </RechartsPieChart>
+                    </ResponsiveContainer>
+                    
+                    <div className="flex justify-center space-x-6 mt-4">
+                        {dadosGraficos.soloPorRegiao.map((entry, index) => (
+                            <div key={index} className="flex items-center">
+                                <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444'][index] }}></div>
+                                <span className="text-sm text-gray-600">
+                                    {entry.regiao}: {entry.amostras}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                    
                     <div className="mt-4 text-xs text-gray-600 bg-gray-50 p-2 rounded">
-                        <strong>Resumo:</strong> Luanda concentra 35% das análises (67 amostras)
+                        <strong>Resumo:</strong> Luanda lidera com 35% das amostras (67 amostras)
                     </div>
+                    
                     <button
                         onClick={() => showToast('success', 'Gráfico Gerado', 'Gráfico de pizza exportado com sucesso!')}
                         className="mt-4 w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
@@ -665,7 +736,39 @@ const GestaoRelatoriosLaudos = () => {
                         <h4 className="text-md font-semibold">Evolução Temporal</h4>
                         <LineChart className="w-5 h-5 text-purple-600" />
                     </div>
-                    <LineChart data={dadosGraficos.evolucaoTemporal} title="Tendência dos Parâmetros (2025)" />
+                    <ResponsiveContainer width="100%" height={300}>
+                        <RechartsPieChart>
+                            <Pie
+                                data={dadosGraficos.evolucaoTemporal.map(item => ({
+                                    name: item.mes,
+                                    value: item.ph * 10, // Multiplicar por 10 para melhor visualização
+                                    color: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'][dadosGraficos.evolucaoTemporal.indexOf(item)]
+                                }))}
+                                cx="50%"
+                                cy="50%"
+                                labelLine={false}
+                                innerRadius={60}
+                                outerRadius={80}
+                                fill="#8884d8"
+                                dataKey="value"
+                            >
+                                {dadosGraficos.evolucaoTemporal.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'][index]} />
+                                ))}
+                            </Pie>
+                            <Tooltip formatter={(value) => [value, 'pH x10']} />
+                        </RechartsPieChart>
+                    </ResponsiveContainer>
+                    <div className="flex justify-center space-x-6 mt-4">
+                        {dadosGraficos.evolucaoTemporal.map((entry, index) => (
+                            <div key={index} className="flex items-center">
+                                <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'][index] }}></div>
+                                <span className="text-sm text-gray-600">
+                                    {entry.mes}: {entry.ph}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
                     <div className="mt-4 text-xs text-gray-600 bg-gray-50 p-2 rounded">
                         <strong>Resumo:</strong> pH e K mostram tendência crescente, P estável
                     </div>

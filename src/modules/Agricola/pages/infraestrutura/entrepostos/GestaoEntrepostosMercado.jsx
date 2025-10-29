@@ -53,15 +53,15 @@ const GestaoEntrepostosMercado = () => {
 
     // Função para navegação de gestão de pessoal
     const handlePessoal = (cooperativaId) => {
-        navigate(`/GerenciaRNPA/entidades-associativas/pessoal/${cooperativaId}`);
+        navigate(`/GerenciaSIGAF/entidades-associativas/pessoal/${cooperativaId}`);
     };
     // Função para navegação de infraestrutura
     const handleInfraestrutura = (cooperativaId) => {
-        navigate(`/GerenciaRNPA/entidades-associativas/infraestrutura/${cooperativaId}`);
+        navigate(`/GerenciaSIGAF/entidades-associativas/infraestrutura/${cooperativaId}`);
     };
     // Função para navegação de relatórios
     const handleRelatorios = (cooperativaId) => {
-        navigate(`/GerenciaRNPA/entidades-associativas/relatorios/${cooperativaId}`);
+        navigate(`/GerenciaSIGAF/entidades-associativas/relatorios/${cooperativaId}`);
     };
     const navigate = useNavigate();
     // const { associacoesRurais, deleteAssociacaoRural } = useAssociacaoRural();
@@ -149,14 +149,14 @@ const GestaoEntrepostosMercado = () => {
 
     // Navegação para visualizar associação rural
     const handleViewEscola = (associacaoId) => {
-        navigate(`/GerenciaRNPA/gestao-agricultores/produtores/entrepostos-mercados/visualizar/${associacaoId}`);
+        navigate(`/GerenciaSIGAF/gestao-agricultores/produtores/entrepostos-mercados/visualizar/${associacaoId}`);
     };
 
 
 
     const handleTransferencia = (cooperativaId) => {
         // Navegar para a rota de cadastro de produção passando o ID
-        navigate(`/GerenciaRNPA/entidades-associativas/cadastro-producao-associacoes/${cooperativaId}`);
+        navigate(`/GerenciaSIGAF/entidades-associativas/cadastro-producao-associacoes/${cooperativaId}`);
     };
 
 

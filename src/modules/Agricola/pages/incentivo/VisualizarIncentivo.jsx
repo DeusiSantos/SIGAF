@@ -412,7 +412,7 @@ const VisualizarIncentivo = () => {
     };
 
     const handleBack = () => {
-        navigate('/GerenciaRNPA/gestao-agricultores/incentivos');
+        navigate('/GerenciaSIGAF/gestao-agricultores/incentivos');
     };
 
     {/*   const handleStatusChange = async (value) => {

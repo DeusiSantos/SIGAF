@@ -23,9 +23,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CustomInput from '../../../../../core/components/CustomInput';
-
-
-//import { useCooperativas } from '../../hooks/useCooperativas';
+import { useEmpresasDeApoio } from '../../../hooks/useEmpresasDeApoio';
 
 // Dados estáticos das empresas
 const empresasAdaptadas = [
@@ -175,8 +173,9 @@ const GestaoApoiAgricola = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [empresasToDelete, setempresasToDelete] = useState(null);
 
-    // Usar dados estáticos para empresas
-    const empresass = empresasAdaptadas;
+    // Usar hook para empresas de apoio
+    const { empresasDeApoio, loading, error, fetchEmpresasDeApoio, deleteEmpresasDeApoio } = useEmpresasDeApoio();
+    const empresass = empresasDeApoio;
 
 
     // Ajustar altura do conteúdo
@@ -229,10 +228,10 @@ const GestaoApoiAgricola = () => {
 
     // Filtragem das empresas
     const filteredEscolas = empresass.filter(empresa => {
-        const matchesSearch = empresa.nomeEmpresa?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            empresa.pessoaContacto?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        const matchesSearch = empresa.nomeDaEmpresa?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            empresa.nomeDaPessoaDeContacto?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             empresa.email?.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesRegion = !selectedRegion || empresa.provincia === selectedRegion;
+        const matchesRegion = !selectedRegion || empresa.província === selectedRegion;
         const matchesTipo = !selectedTipo || (empresa.servicosPrestados && empresa.servicosPrestados.some(s => s.includes(selectedTipo)));
         const matchesStatus = !selectedStatus || empresa.status === selectedStatus;
 
@@ -249,13 +248,13 @@ const GestaoApoiAgricola = () => {
 
     // Navegação (simulada)
     const handleViewEscola = (empresasId) => {
-        navigate(`/GerenciaRNPA/gestao-empresas/empresas/visualizar/${empresasId}`);
+        navigate(`/GerenciaSIGAF/gestao-agricultores/empresas/visualizar/${empresasId}`);
     };
 
 
     const handleTransferencia = (empresasId) => {
         // Navegar para a rota de cadastro de produção passando o ID
-        navigate(`/GerenciaRNPA/entidades-associativas/cadastro-producao-empresas/${empresasId}`);
+        navigate(`/GerenciaSIGAF/entidades-associativas/cadastro-producao-empresas/${empresasId}`);
     };
 
 
@@ -276,11 +275,11 @@ const GestaoApoiAgricola = () => {
     const handleConfirmDelete = async () => {
         if (!empresasToDelete) return;
         try {
-            await deleteempresas(empresasToDelete);
+            await deleteEmpresasDeApoio(empresasToDelete);
             showToast('success', 'Excluído', 'Empresa excluída com sucesso!');
         } catch (erro) {
             showToast('error', 'Erro', 'Erro ao excluir empresa.');
-            console(erro)
+            console.error(erro);
         } finally {
             closeDeleteModal();
         }
@@ -395,7 +394,7 @@ const GestaoApoiAgricola = () => {
 
 
     // Extrair regiões únicas para o filtro
-    const uniqueRegions = [...new Set(empresass.map(escola => escola.provincia))].filter(Boolean);
+    const uniqueRegions = [...new Set(empresass.map(escola => escola.província))].filter(Boolean);
 
     // Modal de confirmação visual
     const DeleteConfirmModal = () => {
@@ -415,13 +414,13 @@ const GestaoApoiAgricola = () => {
                     <div className="flex gap-3 mt-2 w-full">
                         <button
                             onClick={handleConfirmDelete}
-                            className="flex-1 p-2 bg-red-600 hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 text-white rounded-lg transition-all duration-200 transform hover:-translate-y-0.5"
+                            className="flex-1 p-2 bg-red-600 hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 text-white rounded-lg transition-all duration-200 transform hover:-tranblue-y-0.5"
                         >
                             Sim, excluir
                         </button>
                         <button
                             onClick={closeDeleteModal}
-                            className="flex-1 p-2 bg-gray-100 hover:bg-gray-200 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 text-gray-700 rounded-lg transition-all duration-200 transform hover:-translate-y-0.5"
+                            className="flex-1 p-2 bg-gray-100 hover:bg-gray-200 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 text-gray-700 rounded-lg transition-all duration-200 transform hover:-tranblue-y-0.5"
                         >
                             Cancelar
                         </button>
@@ -494,7 +493,7 @@ const GestaoApoiAgricola = () => {
 
             <div className="w-full bg-white rounded-xl shadow-md overflow-visible z-10">
                 {/* Cabeçalho */}
-                <div className="bg-gradient-to-r from-slate-700 to-slate-400 p-6 text-white rounded-t-xl">
+                <div className="bg-gradient-to-r from-blue-700 to-blue-400 p-6 text-white rounded-t-xl">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
                         <div>
                             <h1 className="text-2xl font-bold">Gestão de Empresas de Apoio à Agricultura
@@ -505,7 +504,7 @@ const GestaoApoiAgricola = () => {
 
                             <button
                                 onClick={() => showToast('info', 'Função', 'Exportar dados das empresas')}
-                                className="inline-flex items-center px-4 py-2 bg-white text-slate-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
+                                className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
                             >
                                 <Download className="w-5 h-5 mr-2" />
                                 Exportar
@@ -601,13 +600,13 @@ const GestaoApoiAgricola = () => {
                                 <tr key={empresa.id} className="hover:bg-blue-50 transition-colors">
                                     <td className="px-6 py-4 whitespace-nowrap" >
                                         <div className="flex items-start">
-                                            <div className="flex-shrink-0 h-12 w-12 bg-gradient-to-br from-slate-700 to-slate-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
-                                                {empresa.nomeEmpresa.charAt(0)}{empresa.nomeEmpresa.split(' ').pop().charAt(0)}
+                                            <div className="flex-shrink-0 h-12 w-12 bg-gradient-to-br from-blue-700 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
+                                                {empresa.nomeDaEmpresa?.charAt(0) || 'E'}{empresa.nomeDaEmpresa?.split(' ').pop()?.charAt(0) || 'A'}
                                             </div>
                                             <div className="ml-4">
-                                                <div className="text-sm font-semibold text-gray-900 break-words whitespace-pre-line max-w-[200px]">{empresa.nomeEmpresa}</div>
-                                                <div className="text-xs text-gray-500 mt-1">NIF: {empresa.nif}</div>
-                                                <div className="text-xs text-gray-500">Fundada: {empresa.anoFundacao}</div>
+                                                <div className="text-sm font-semibold text-gray-900 break-words whitespace-pre-line max-w-[200px]">{empresa.nomeDaEmpresa || 'Nome não informado'}</div>
+                                                <div className="text-xs text-gray-500 mt-1">NIF: {empresa.nifOuIdFiscal || 'N/A'}</div>
+                                                <div className="text-xs text-gray-500">Fundada: {empresa.anoDeFundacao || 'N/A'}</div>
                                             </div>
                                         </div>
                                     </td>
@@ -615,11 +614,11 @@ const GestaoApoiAgricola = () => {
                                     <td className="px-6 py-4 whitespace-nowrap ">
                                         <div className="space-y-2">
                                             <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                {empresa.tipoEntidade.replace(/_/g, ' ')}
+                                                {empresa.tipoDeEntidade?.replace(/_/g, ' ') || 'Tipo não informado'}
                                             </div>
                                             <div className="text-xs text-gray-600 break-before-all whitespace-pre-line max-w-[250px]">
-                                                {empresa.servicosPrestados.slice(0, 2).join(',\n')}
-                                                {empresa.servicosPrestados.length > 2 && (
+                                                {empresa.servicosPrestados?.slice(0, 2).join(',\n').replace(/_/g, ' ') || 'Serviços não informados'}
+                                                {empresa.servicosPrestados?.length > 2 && (
                                                     <span className="text-gray-400 block break-before-all"> +{empresa.servicosPrestados.length - 2}</span>
                                                 )}
                                             </div>
@@ -630,7 +629,7 @@ const GestaoApoiAgricola = () => {
                                         <div className="space-y-2">
                                             <div className="flex items-center text-xs text-gray-700">
                                                 <MapPin className="w-4 h-4 mr-2 text-blue-500" />
-                                                {empresa.municipio}, {empresa.provincia}
+                                                {empresa.município}, {empresa.província}
                                             </div>
                                         </div>
                                     </td>
@@ -643,10 +642,10 @@ const GestaoApoiAgricola = () => {
                                             </div>
                                             <div className="flex items-center text-xs text-gray-700">
                                                 <Users className="w-4 h-4 mr-2 text-blue-500" />
-                                                {empresa.numeroFuncionarios} funcionários
+                                                {empresa.numeroDeFuncionarios} funcionários
                                             </div>
                                             <div className="text-xs text-gray-600">
-                                                {empresa.volumeClientes} clientes/ano
+                                                {empresa.volumeMedioDeClientesOuBeneficiariosPorAno} clientes/ano
                                             </div>
                                         </div>
                                     </td>
@@ -656,7 +655,7 @@ const GestaoApoiAgricola = () => {
                                             <div className="flex items-center text-xs">
 
                                                 <CheckCircle className="w-3.5 h-3.5 mr-1 text-green-500" />
-                                                <span className="text-gray-700">Licença: {empresa.licencaOperacao}</span>
+                                                <span className="text-gray-700">Licença: {empresa.licencaDeOperacao}</span>
                                             </div>
                                             <div className="flex items-center text-xs">
                                                 <Briefcase className="w-3.5 h-3.5 mr-1 text-blue-500" />
@@ -755,14 +754,14 @@ const GestaoApoiAgricola = () => {
                         <div key={empresa.id} className="p-4 border-b border-gray-200 hover:bg-blue-50 transition-colors">
                             <div className="flex items-start">
                                 <div className="flex-shrink-0 h-16 w-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-md">
-                                    {empresa.nomeEmpresa.charAt(0)}{empresa.nomeEmpresa.split(' ').pop().charAt(0)}
+                                    {empresa.nomeDaEmpresa?.charAt(0) || 'E'}{empresa.nomeDaEmpresa?.split(' ').pop()?.charAt(0) || 'A'}
                                 </div>
                                 <div className="flex-1 ml-4">
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <h3 className="text-sm font-semibold text-gray-900">{empresa.nomeEmpresa}</h3>
-                                            <div className="text-xs text-gray-500 mt-1">NIF: {empresa.nif}</div>
-                                            <div className="text-xs text-gray-500">Contato: {empresa.pessoaContacto}</div>
+                                            <h3 className="text-sm font-semibold text-gray-900">{empresa.nomeDaEmpresa || 'Nome não informado'}</h3>
+                                            <div className="text-xs text-gray-500 mt-1">NIF: {empresa.nifOuIdFiscal || 'N/A'}</div>
+                                            <div className="text-xs text-gray-500">Contato: {empresa.nomeDaPessoaDeContacto || 'N/A'}</div>
                                         </div>
                                         {/* <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${tipoColors[escola.tipoEnsino] || 'bg-gray-100 text-gray-800 border-gray-200'
                                             }`}>
@@ -773,11 +772,11 @@ const GestaoApoiAgricola = () => {
                                     <div className="mt-3 grid grid-cols-2 gap-2">
                                         <div className="flex items-center text-xs text-gray-700">
                                             <MapPin className="w-3.5 h-3.5 mr-1 text-blue-500" />
-                                            <span className="truncate">{empresa.municipio}</span>
+                                            <span className="truncate">{empresa.município}</span>
                                         </div>
                                         <div className="flex items-center text-xs text-gray-700">
                                             <Users className="w-3.5 h-3.5 mr-1 text-blue-500" />
-                                            {empresa.numeroFuncionarios} Funcionários
+                                            {empresa.numeroDeFuncionarios} Funcionários
                                         </div>
                                         <div className="flex items-center text-xs text-gray-700">
                                             <Phone className="w-3.5 h-3.5 mr-1 text-blue-500" />
@@ -785,7 +784,7 @@ const GestaoApoiAgricola = () => {
                                         </div>
                                         <div className="flex items-center text-xs text-gray-700">
                                             <Building className="w-3.5 h-3.5 mr-1 text-blue-500" />
-                                            {empresa.volumeClientes} Clientes/ano
+                                            {empresa.volumeMedioDeClientesOuBeneficiariosPorAno} Clientes/ano
                                         </div>
                                     </div>
 
@@ -822,7 +821,7 @@ const GestaoApoiAgricola = () => {
                                                     }`}
                                             >
                                                 <span
-                                                    className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${empresa.status === 'ATIVO' ? 'translate-x-5' : 'translate-x-0'
+                                                    className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${empresa.status === 'ATIVO' ? 'tranblue-x-5' : 'tranblue-x-0'
                                                         }`}
                                                 />
                                             </button>

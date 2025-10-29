@@ -179,7 +179,7 @@ const CertificadosFlorestalGestao = () => {
             return;
         }
 
-        navigate(`/GerenciaRNPA/gestao-florestal/visualizarCertificado/${tipoEntidade}/${entidadeId}`);
+        navigate(`/GerenciaSIGAF/gestao-florestal/visualizarCertificado/${tipoEntidade}/${entidadeId}`);
     };
 
     // Função para mostrar toast

@@ -45,7 +45,7 @@ const HistoricoProducaoFlorestal = () => {
     const [produtor] = useState({
         id: produtorId,
         nome: `Produtor ${produtorId}`,
-        codigoRNPA: `RNPA-${produtorId}`
+        codigoSIGAF: `SIGAF-${produtorId}`
     });
 
     const modalSteps = [
@@ -317,7 +317,7 @@ const HistoricoProducaoFlorestal = () => {
     };
 
     const handleAddHistorico = (produtorId) => {
-        navigate(`/GerenciaRNPA/gestao-florestal/produtores/historico-producao/${produtorId}/novo`)
+        navigate(`/GerenciaSIGAF/gestao-florestal/produtores/historico-producao/${produtorId}/novo`)
     }
 
     const dadosFiltrados = historicoProducao
@@ -370,7 +370,7 @@ const HistoricoProducaoFlorestal = () => {
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                             <div className="flex flex-1 items-center gap-4 col-span-6">
                                 <button
-                                    onClick={() => navigate('/GerenciaRNPA/gestao-agricultores')}
+                                    onClick={() => navigate('/GerenciaSIGAF/gestao-agricultores')}
                                     className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                                 >
                                     <ArrowLeft className="w-5 h-5 text-gray-600" />
@@ -381,7 +381,7 @@ const HistoricoProducaoFlorestal = () => {
                                         Histórico de Produção
                                     </h1>
                                     <p className="text-gray-600">
-                                        Produtor: {produtor.nome} | Código: {produtor.codigoRNPA}
+                                        Produtor: {produtor.nome} | Código: {produtor.codigoSIGAF}
                                     </p>
                                 </div>
                             </div>

@@ -41,17 +41,17 @@ import api from '../../../../../core/services/api';
 const EmpresaGestao = () => {
     // Função para navegação de gestão de pessoal
    {/* const handlePessoal = (empresaId) => {
-        navigate(`/GerenciaRNPA/gestao-empresas/pessoal/${empresaId}`);
+        navigate(`/GerenciaSIGAF/gestao-empresas/pessoal/${empresaId}`);
     };
 
     // Função para navegação de infraestrutura
     const handleInfraestrutura = (empresaId) => {
-        navigate(`/GerenciaRNPA/gestao-empresas/infraestrutura/${empresaId}`);
+        navigate(`/GerenciaSIGAF/gestao-empresas/infraestrutura/${empresaId}`);
     };
 
     // Função para navegação de relatórios
     const handleRelatorios = (empresaId) => {
-        navigate(`/GerenciaRNPA/gestao-empresas/relatorios/${empresaId}`);
+        navigate(`/GerenciaSIGAF/gestao-empresas/relatorios/${empresaId}`);
     */};
 
     const navigate = useNavigate();
@@ -184,16 +184,16 @@ const EmpresaGestao = () => {
 
     // Navegação para visualizar empresa
     const handleViewEscola = (id) => {
-        navigate(`/GerenciaRNPA/gestao-agricultores/produtores/visualizar-entidade/${id}`);
+        navigate(`/GerenciaSIGAF/gestao-agricultores/produtores/visualizar-entidade/${id}`);
     };
 
     {/*const handleTransferencia = (empresaId) => {
         // Navegar para a rota de cadastro de produção passando o ID
-        navigate(`/GerenciaRNPA/gestao-empresas/cadastro-producao-empresa/${empresaId}`);
+        navigate(`/GerenciaSIGAF/gestao-empresas/cadastro-producao-empresa/${empresaId}`);
     */};
 
     const handleHistoricoProducao = (produtorId) => {
-        navigate(`/GerenciaRNPA/gestao-agricultores/produtores/historico-entidade/${produtorId}`);
+        navigate(`/GerenciaSIGAF/gestao-agricultores/produtores/historico-entidade/${produtorId}`);
     };
 
     // Ações do menu dropdown
@@ -203,12 +203,12 @@ const EmpresaGestao = () => {
     ];
 
     // Formatar atividades para exibição
-    {/*const formatAtividades = (atividades) => {
+    const formatAtividades = (atividades) => {
         if (!atividades || !Array.isArray(atividades)) return [];
         return atividades.map(atividade =>
             atividade.replace(/_/g, ' ').replace(/([A-Z])/g, ' $1').trim()
         );
-    */};
+    };
 
     // Componente Toast
     const Toast = () => {

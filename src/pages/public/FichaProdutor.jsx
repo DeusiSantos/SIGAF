@@ -101,7 +101,7 @@ export const gerarFichaProdutorPDF = async (producerData) => {
     // Informações do registro
     const infoY = currentY;
     drawText(`Nº de registro:`, 400, infoY, DEFAULT_FONT_SIZE, helvetica);
-    drawText(`${producerData.numeroRegistro || producerData.codigoRNPA || producerData.id}`, 500, infoY, DEFAULT_FONT_SIZE, helveticaBold);
+    drawText(`${producerData.numeroRegistro || producerData.codigoSIGAF || producerData.id}`, 500, infoY, DEFAULT_FONT_SIZE, helveticaBold);
     
     drawText(`Data de registro:`, 400, infoY - 20, DEFAULT_FONT_SIZE, helvetica);
     drawText(`${formatarData(producerData.dataRegistro || new Date().toISOString())}`, 500, infoY - 20, DEFAULT_FONT_SIZE, helveticaBold);

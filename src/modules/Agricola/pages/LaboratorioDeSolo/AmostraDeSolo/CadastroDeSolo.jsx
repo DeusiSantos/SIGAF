@@ -1,7 +1,8 @@
-import { useState } from 'react';
-import { User, TestTube, MapPin, FlaskConical, Camera, ChevronLeft, ChevronRight, Check, CheckCircle, AlertCircle, Copy, Trash2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { User, TestTube, MapPin, FlaskConical, Camera, ChevronLeft, ChevronRight, Check, CheckCircle, AlertCircle, Copy, Trash2, Loader } from 'lucide-react';
 import CustomInput from '../../../../../core/components/CustomInput';
 import { useFaturas } from '../../../hooks/useFaturas';
+import axios from 'axios';
 
 const CadastroDeSolo = () => {
     const [activeIndex, setActiveIndex] = useState(0);
@@ -10,20 +11,39 @@ const CadastroDeSolo = () => {
     const [toastMessage, setToastMessage] = useState(null);
     const { gerarFaturaAutomatica } = useFaturas();
 
+    // Carregar produtores
+    useEffect(() => {
+        const fetchProdutores = async () => {
+            setLoadingProdutores(true);
+            try {
+                const response = await axios.get('https://mwangobrainsa-001-site2.mtempurl.com/api/formulario/all');
+                setProdutores(response.data);
+            } catch (error) {
+                console.error('Erro ao carregar produtores:', error);
+            } finally {
+                setLoadingProdutores(false);
+            }
+        };
+        fetchProdutores();
+    }, []);
+
     const [formData, setFormData] = useState({
         // Identificação do Produtor
+        pertenceProdutor: null,
+        produtorSelecionado: null,
         codigoProdutor: '',
         nomeProdutor: '',
         provincia: '',
         municipio: '',
-        comuna: '',
-        aldeia: '',
-        entidadePertence: '',
-        outroEntidade: '',
-        nomeECA: '',
+        codigoTecnicoResponsavel: '',
+        codigoSupervisor: '',
 
         // Identificação da Amostra
-        codigoAmostra: '',
+        codigoAmostra: (() => {
+            const year = new Date().getFullYear();
+            const random = Math.floor(Math.random() * 9999).toString().padStart(4, '0');
+            return `SL-${year}-${random}`;
+        })(),
         dataColeta: '',
         responsavelColeta: '',
         areaLavoura: '',
@@ -50,6 +70,8 @@ const CadastroDeSolo = () => {
     });
 
     const [duplicatedSections, setDuplicatedSections] = useState({});
+    const [produtores, setProdutores] = useState([]);
+    const [loadingProdutores, setLoadingProdutores] = useState(false);
 
     const steps = [
         { label: 'Produtor', icon: User },
@@ -158,19 +180,15 @@ const CadastroDeSolo = () => {
         setTimeout(() => setToastMessage(null), duration);
     };
 
-    const generateCodigoAmostra = () => {
-        const year = new Date().getFullYear();
-        const random = Math.floor(Math.random() * 9999).toString().padStart(4, '0');
-        return `SL-${year}-${random}`;
-    };
-
     const duplicateSection = (stepIndex) => {
         const sectionKey = `step_${stepIndex}_${Date.now()}`;
         const currentData = { ...formData };
         
         // Clear fields that should be unique for each duplicate
         if (stepIndex === 1) { // Amostra
-            currentData.codigoAmostra = generateCodigoAmostra();
+            const year = new Date().getFullYear();
+            const random = Math.floor(Math.random() * 9999).toString().padStart(4, '0');
+            currentData.codigoAmostra = `SL-${year}-${random}`;
             currentData.dataColeta = '';
             currentData.profundidadeAmostra = '';
         } else if (stepIndex === 0) { // Produtor
@@ -224,9 +242,12 @@ const CadastroDeSolo = () => {
 
         switch (activeIndex) {
             case 0: // Produtor
-                if (!formData.codigoProdutor) newErrors.codigoProdutor = 'Campo obrigatório';
-                if (!formData.nomeProdutor) newErrors.nomeProdutor = 'Campo obrigatório';
-                if (!formData.provincia) newErrors.provincia = 'Campo obrigatório';
+                if (!formData.pertenceProdutor) newErrors.pertenceProdutor = 'Campo obrigatório';
+                if (formData.pertenceProdutor?.value === 'sim') {
+                    if (!formData.produtorSelecionado) newErrors.produtorSelecionado = 'Selecione um produtor';
+                }
+                if (!formData.dataColeta) newErrors.dataColeta = 'Campo obrigatório';
+                if (!formData.codigoTecnicoResponsavel) newErrors.codigoTecnicoResponsavel = 'Campo obrigatório';
                 break;
             case 1: // Amostra
                 if (!formData.dataColeta) newErrors.dataColeta = 'Campo obrigatório';
@@ -275,16 +296,19 @@ const CadastroDeSolo = () => {
 
             // Reset form
             setFormData({
+                pertenceProdutor: null,
+                produtorSelecionado: null,
                 codigoProdutor: '',
                 nomeProdutor: '',
                 provincia: '',
                 municipio: '',
-                comuna: '',
-                aldeia: '',
-                entidadePertence: '',
-                outroEntidade: '',
-                nomeECA: '',
-                codigoAmostra: '',
+                codigoTecnicoResponsavel: '',
+                codigoSupervisor: '',
+                codigoAmostra: (() => {
+                    const year = new Date().getFullYear();
+                    const random = Math.floor(Math.random() * 9999).toString().padStart(4, '0');
+                    return `SL-${year}-${random}`;
+                })(),
                 dataColeta: '',
                 responsavelColeta: '',
                 areaLavoura: '',
@@ -316,9 +340,6 @@ const CadastroDeSolo = () => {
 
     const nextStep = () => {
         if (validateCurrentStep()) {
-            if (activeIndex === 1 && !formData.codigoAmostra) {
-                setFormData(prev => ({ ...prev, codigoAmostra: generateCodigoAmostra() }));
-            }
             setActiveIndex(prev => Math.min(prev + 1, steps.length - 1));
         }
     };
@@ -660,100 +681,130 @@ const CadastroDeSolo = () => {
         switch (index) {
             case 0: // Identificação do Produtor
                 return (
-                    <div className="space-y-6 min-h-[600px]">
-                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 mb-8 border border-blue-200">
-                            <div className="flex justify-between items-center">
-                                <div className="flex gap-3 items-center">
-                                    <div className="p-2 bg-blue-100 rounded-lg">
-                                        <User className="text-blue-600" size={24} />
-                                    </div>
-                                    <h3 className="text-lg font-semibold text-gray-900">Identificação do Produtor</h3>
+                    <div className="max-w-full mx-auto">
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 mb-8 border border-blue-100">
+                            <div className="flex items-center space-x-3 mb-3">
+                                <div className="p-2 bg-blue-100 rounded-lg">
+                                    <User className="w-6 h-6 text-blue-600" />
                                 </div>
+                                <h3 className="text-xl font-bold text-gray-800">Identificação do Produtor</h3>
                             </div>
+                            <p className="text-gray-600">Dados do produtor associado à amostra de solo.</p>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <CustomInput
-                                type="text"
-                                label="Código do Produtor"
-                                value={formData.codigoProdutor}
-                                onChange={(value) => handleInputChange('codigoProdutor', value)}
-                                required
-                                errorMessage={errors.codigoProdutor}
-                                placeholder="ID único do produtor"
-                                iconStart={<User size={18} />}
-                            />
-                            <CustomInput
-                                type="text"
-                                label="Nome do Produtor"
-                                value={formData.nomeProdutor}
-                                onChange={(value) => handleInputChange('nomeProdutor', value)}
-                                required
-                                errorMessage={errors.nomeProdutor}
-                                placeholder="Nome completo"
-                                iconStart={<User size={18} />}
-                            />
+
+                        <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-6">
                             <CustomInput
                                 type="select"
-                                label="Província"
-                                value={formData.provincia}
-                                options={provincias}
-                                onChange={(value) => handleInputChange('provincia', value)}
+                                label="Este solo pertence a um produtor?"
+                                value={formData.pertenceProdutor}
+                                options={[
+                                    { label: "Sim", value: "sim" },
+                                    { label: "Não", value: "nao" }
+                                ]}
+                                onChange={(value) => handleInputChange('pertenceProdutor', value)}
                                 required
-                                errorMessage={errors.provincia}
-                                placeholder="Selecione a província"
-                                iconStart={<MapPin size={18} />}
+                                errorMessage={errors.pertenceProdutor}
                             />
+
+                            {formData.pertenceProdutor?.value === 'sim' && (
+                                <div className="space-y-6">
+                                    {loadingProdutores ? (
+                                        <div className="flex items-center justify-center py-8">
+                                            <Loader className="w-6 h-6 animate-spin text-emerald-600 mr-2" />
+                                            <span className="text-gray-600">Carregando produtores...</span>
+                                        </div>
+                                    ) : (
+                                        <CustomInput
+                                            type="select"
+                                            label="Selecione o Produtor"
+                                            value={formData.produtorSelecionado}
+                                            options={produtores.map(p => ({
+                                                label: `${p.beneficiary_name} - ${p.beneficiary_id_number || 'Sem BI'} (${p.provincia || 'N/A'})`,
+                                                value: p._id.toString()
+                                            }))}
+                                            onChange={(value) => {
+                                                handleInputChange('produtorSelecionado', value);
+                                                const produtor = produtores.find(p => p._id.toString() === value.value);
+                                                if (produtor) {
+                                                    handleInputChange('codigoProdutor', produtor._id);
+                                                    handleInputChange('nomeProdutor', produtor.beneficiary_name);
+                                                    handleInputChange('provincia', produtor.provincia);
+                                                    handleInputChange('municipio', produtor.municipio);
+                                                }
+                                            }}
+                                            required
+                                            errorMessage={errors.produtorSelecionado}
+                                        />
+                                    )}
+
+                                    {formData.produtorSelecionado && (
+                                        <div className="bg-green-50 rounded-xl p-4 border border-green-200">
+                                            <div className="flex items-center mb-2">
+                                                <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
+                                                <h4 className="font-semibold text-green-900">Dados do Produtor</h4>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-3 text-sm mt-3">
+                                                <div>
+                                                    <span className="font-medium text-gray-700">Nome:</span>
+                                                    <p className="text-gray-600">{formData.nomeProdutor}</p>
+                                                </div>
+                                                <div>
+                                                    <span className="font-medium text-gray-700">Código:</span>
+                                                    <p className="text-gray-600">{formData.codigoProdutor}</p>
+                                                </div>
+                                                <div>
+                                                    <span className="font-medium text-gray-700">Província:</span>
+                                                    <p className="text-gray-600">{formData.provincia}</p>
+                                                </div>
+                                                <div>
+                                                    <span className="font-medium text-gray-700">Município:</span>
+                                                    <p className="text-gray-600">{formData.municipio}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
                             <CustomInput
                                 type="text"
-                                label="Município"
-                                value={formData.municipio}
-                                onChange={(value) => handleInputChange('municipio', value)}
-                                placeholder="Nome do município"
-                                iconStart={<MapPin size={18} />}
+                                label="Identificação da Amostra"
+                                value={formData.codigoAmostra}
+                                onChange={(value) => handleInputChange('codigoAmostra', value)}
+                                placeholder="Gerado automaticamente"
+                                iconStart={<TestTube size={18} />}
+                                disabled
                             />
+
                             <CustomInput
-                                type="text"
-                                label="Comuna"
-                                value={formData.comuna}
-                                onChange={(value) => handleInputChange('comuna', value)}
-                                placeholder="Nome da comuna"
-                                iconStart={<MapPin size={18} />}
+                                type="date"
+                                label="Data da Coleta"
+                                value={formData.dataColeta}
+                                onChange={(value) => handleInputChange('dataColeta', value)}
+                                required
+                                errorMessage={errors.dataColeta}
+                                iconStart={<TestTube size={18} />}
                             />
-                            <CustomInput
-                                type="text"
-                                label="Aldeia"
-                                value={formData.aldeia}
-                                onChange={(value) => handleInputChange('aldeia', value)}
-                                placeholder="Nome da aldeia"
-                                iconStart={<MapPin size={18} />}
-                            />
-                            <CustomInput
-                                type="select"
-                                label="Entidade a que pertence"
-                                value={formData.entidadePertence}
-                                options={entidades}
-                                onChange={(value) => handleInputChange('entidadePertence', value)}
-                                placeholder="Selecione a entidade"
-                                iconStart={<User size={18} />}
-                            />
-                            {formData.entidadePertence === 'outro' && (
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <CustomInput
                                     type="text"
-                                    label="Especificar Outra Entidade"
-                                    value={formData.outroEntidade}
-                                    onChange={(value) => handleInputChange('outroEntidade', value)}
-                                    placeholder="Nome da entidade"
-                                    iconStart={<User size={18} />}
+                                    label="Código Técnico Responsável"
+                                    value={formData.codigoTecnicoResponsavel}
+                                    onChange={(value) => handleInputChange('codigoTecnicoResponsavel', value)}
+                                    placeholder="Código do técnico"
+                                    required
+                                    errorMessage={errors.codigoTecnicoResponsavel}
                                 />
-                            )}
-                            <CustomInput
-                                type="text"
-                                label="Nome da ECA"
-                                value={formData.nomeECA}
-                                onChange={(value) => handleInputChange('nomeECA', value)}
-                                placeholder="Se aplicável"
-                                iconStart={<User size={18} />}
-                            />
+
+                                <CustomInput
+                                    type="text"
+                                    label="Código Supervisor"
+                                    value={formData.codigoSupervisor}
+                                    onChange={(value) => handleInputChange('codigoSupervisor', value)}
+                                    placeholder="Código do supervisor"
+                                />
+                            </div>
                         </div>
                     </div>
                 );

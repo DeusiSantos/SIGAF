@@ -145,14 +145,14 @@ const MenuInfraestruturaAgricola = () => {
                     {renderContent()}
                 </div>
 
-                {/* Modal de Informações do RNPA */}
+                {/* Modal de Informações do SIGAF */}
                 {showInfoModal && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
                         <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
                             <div className="flex items-center justify-between mb-6">
                                 <div className="flex items-center text-blue-700">
                                     <Info className="w-6 h-6 mr-3" />
-                                    <h2 className="text-2xl font-bold text-blue-700">Sobre o RNPA</h2>
+                                    <h2 className="text-2xl font-bold text-blue-700">Sobre o SIGAF</h2>
                                 </div>
                                 <button
                                     onClick={() => setShowInfoModal(false)}
@@ -202,7 +202,7 @@ const MenuInfraestruturaAgricola = () => {
                                         <ul className="space-y-1 text-base text-gray-600">
                                             <li>• <span className="text-blue-600">Processo Recebido:</span> Registo inicial</li>
                                             <li>• <span className="text-yellow-600">Pendente:</span> Em análise</li>
-                                            <li>• <span className="text-blue-600">Aprovado:</span> Activo no RNPA</li>
+                                            <li>• <span className="text-blue-600">Aprovado:</span> Activo no SIGAF</li>
                                             <li>• <span className="text-red-600">Rejeitado:</span> Não aprovado</li>
                                         </ul>
                                     </div>

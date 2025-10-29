@@ -331,7 +331,7 @@ const GestaoPragas = () => {
 
     // Navegação (simulada)
     const handleViewPraga = (produtorId) => {
-        navigate(`/GerenciaRNPA/painel-monitoramento/praga/visualizar/${produtorId}`);
+        navigate(`/GerenciaSIGAF/painel-monitoramento/praga/visualizar/${produtorId}`);
     };
 
     const handleEditPraga = () => {
@@ -485,7 +485,7 @@ const GestaoPragas = () => {
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
                     <p className="mt-4 text-lg text-gray-600">Carregando dados de pragas...</p>
-                    <p className="mt-2 text-sm text-gray-500">Sistema de Gestão de Pragas - RNPA Angola</p>
+                    <p className="mt-2 text-sm text-gray-500">Sistema de Gestão de Pragas - SIGAF Angola</p>
                 </div>
             </div>
         );

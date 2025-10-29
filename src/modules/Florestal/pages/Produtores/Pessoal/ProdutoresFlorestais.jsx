@@ -173,7 +173,7 @@ const mapApiDataToProdutorFlorestal = (apiData) => {
 
         return {
             id: item._id?.toString(),
-            codigoRNPA: `RNPF${new Date(item.registration_date || '2025-01-01').getFullYear()}${item._id?.toString().slice(-3)}`,
+            codigoSIGAF: `RNPF${new Date(item.registration_date || '2025-01-01').getFullYear()}${item._id?.toString().slice(-3)}`,
             nome: item.beneficiary_name || `${item.nome_produtor || ''} ${item.nome_meio_produtor || ''} ${item.sobrenome_produtor || ''}`.trim(),
             numeroBI: item.beneficiary_id_number || 'N/A',
             telefone: item.beneficiary_phone_number || 'N/A',
@@ -249,7 +249,7 @@ const ProdutoresGestao = () => {
     const dadosFicticios = [
         {
             id: '1',
-            codigoRNPA: 'RNPF2025001',
+            codigoSIGAF: 'RNPF2025001',
             nome: 'João Manuel Silva',
             numeroBI: '004567890LA041',
             telefone: '+244 923 456 789',
@@ -268,7 +268,7 @@ const ProdutoresGestao = () => {
         },
         {
             id: '2',
-            codigoRNPA: 'RNPF2025002',
+            codigoSIGAF: 'RNPF2025002',
             nome: 'Maria Fernanda Costa',
             numeroBI: '005678901LA042',
             telefone: '+244 924 567 890',
@@ -287,7 +287,7 @@ const ProdutoresGestao = () => {
         },
         {
             id: '3',
-            codigoRNPA: 'RNPF2025003',
+            codigoSIGAF: 'RNPF2025003',
             nome: 'António Carlos Mendes',
             numeroBI: '006789012LA043',
             telefone: '+244 925 678 901',
@@ -306,7 +306,7 @@ const ProdutoresGestao = () => {
         },
         {
             id: '4',
-            codigoRNPA: 'RNPF2025004',
+            codigoSIGAF: 'RNPF2025004',
             nome: 'Isabel Rodrigues Santos',
             numeroBI: '007890123LA044',
             telefone: '+244 926 789 012',
@@ -325,7 +325,7 @@ const ProdutoresGestao = () => {
         },
         {
             id: '5',
-            codigoRNPA: 'RNPF2025005',
+            codigoSIGAF: 'RNPF2025005',
             nome: 'Pedro Miguel Fernandes',
             numeroBI: '008901234LA045',
             telefone: '+244 927 890 123',
@@ -408,23 +408,23 @@ const ProdutoresGestao = () => {
 
     // Navegação para diferentes telas
     const handleViewProdutor = (produtorId) => {
-        navigate(`/GerenciaRNPA/gestao-florestal/visualizarprodutorflorestal/${produtorId}`);
+        navigate(`/GerenciaSIGAF/gestao-florestal/visualizarprodutorflorestal/${produtorId}`);
     };
 
     const handleHistoricoProducao = (produtorId) => {
-        navigate(`/GerenciaRNPA/produtores/historico-producao/${produtorId}`);
+        navigate(`/GerenciaSIGAF/produtores/historico-producao/${produtorId}`);
     };
 
     {/*const handleHistoricoBeneficios = (produtorId) => {
-        navigate(`/GerenciaRNPA/produtores/historico-beneficios/${produtorId}`);
+        navigate(`/GerenciaSIGAF/produtores/historico-beneficios/${produtorId}`);
     };*/}
 
     const handleGerarCartao = (produtorId) => {
-        navigate(`/GerenciaRNPA/gestao-escolar/produtores/gerar-cartao/${produtorId}`);
+        navigate(`/GerenciaSIGAF/gestao-escolar/produtores/gerar-cartao/${produtorId}`);
     };
 
     {/*const handleCadastroProdutor = () => {
-        navigate('/GerenciaRNPA/produtores/cadastrar');
+        navigate('/GerenciaSIGAF/produtores/cadastrar');
     };*/}
 
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -512,7 +512,7 @@ const ProdutoresGestao = () => {
     const filteredProdutores = localProdutores.filter(produtor => {
         const matchesSearch = produtor.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
             produtor.numeroBI.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            produtor.codigoRNPA.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            produtor.codigoSIGAF.toLowerCase().includes(searchTerm.toLowerCase()) ||
             produtor.propriedade?.nome.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = !selectedStatus || produtor.statusProcesso === selectedStatus;
 
@@ -534,9 +534,9 @@ const ProdutoresGestao = () => {
             // { label: 'Histórico de Benefícios', icon: <Gift size={16} />, action: handleHistoricoBeneficios }
         ];
 
-        // Adicionar "Gerar Cartão RNPA" apenas para produtores aprovados
+        // Adicionar "Gerar Cartão SIGAF" apenas para produtores aprovados
         if (produtor.statusProcesso === 'APROVADO') {
-            // baseActions.push({ label: 'Gerar Cartão RNPA', icon: <CreditCard size={16} />, action: handleGerarCartao });
+            // baseActions.push({ label: 'Gerar Cartão SIGAF', icon: <CreditCard size={16} />, action: handleGerarCartao });
         }
 
         return baseActions;
@@ -888,7 +888,7 @@ const ProdutoresGestao = () => {
                                                     />
                                                     <div className="ml-4">
                                                         <div className="text-sm font-semibold text-gray-900 max-w-[200px]">{produtor.nome}</div>
-                                                        <div className="text-xs text-gray-500 mt-1">Código: {produtor.codigoRNPA}</div>
+                                                        <div className="text-xs text-gray-500 mt-1">Código: {produtor.codigoSIGAF}</div>
                                                         <div className="text-xs text-gray-500">BI: {produtor.numeroBI}</div>
                                                         <div className="flex items-center text-xs text-gray-500 mt-1">
                                                             <MapPin className="w-3 h-3 mr-1" />
@@ -1028,7 +1028,7 @@ const ProdutoresGestao = () => {
                                             <div className="flex justify-between items-start">
                                                 <div>
                                                     <h3 className="text-sm font-semibold text-gray-900">{produtor.nome}</h3>
-                                                    <div className="text-xs text-gray-500 mt-1">Código: {produtor.codigoRNPA}</div>
+                                                    <div className="text-xs text-gray-500 mt-1">Código: {produtor.codigoSIGAF}</div>
                                                     <div className="text-xs text-gray-500">GPS: {produtor.coordenadasGPS}</div>
                                                 </div>
                                                 <StatusMenu produtor={produtor} />

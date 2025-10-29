@@ -233,7 +233,7 @@ const CertificadosGestao = () => {
 
     // Navegação para visualizar certificados do produtor
     const handleViewCertificado = (produtorId) => {
-        navigate(`/GerenciaRNPA/gestao-agricultores/certificados/visualizar/${produtorId}`);
+        navigate(`/GerenciaSIGAF/gestao-agricultores/certificados/visualizar/${produtorId}`);
     };
 
     const ProdutorAvatar = ({

@@ -172,17 +172,17 @@ const GestaoMetodosEnsaios = () => {
 
     // Navegação para visualizar método
     const handleViewMetodo = (metodoId) => {
-        navigate(`/GerenciaRNPA/laboratorio-solo/metodos-ensaios/visualizar/${metodoId}`);
+        navigate(`/GerenciaSIGAF/laboratorio-solo/metodos-ensaios/visualizar/${metodoId}`);
     };
 
     // Navegação para editar método
     const handleEditMetodo = (metodoId) => {
-        navigate(`/GerenciaRNPA/laboratorio-solo/metodos-ensaios/editar/${metodoId}`);
+        navigate(`/GerenciaSIGAF/laboratorio-solo/metodos-ensaios/editar/${metodoId}`);
     };
 
     // Navegação para novo método
     const handleNovoMetodo = () => {
-        navigate('/GerenciaRNPA/laboratorio-solo/metodos-ensaios/cadastro');
+        navigate('/GerenciaSIGAF/laboratorio-solo/metodos-ensaios/cadastro');
     };
 
     // Extrair valores únicos para filtros

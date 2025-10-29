@@ -6,7 +6,7 @@ import emblema from '../assets/emblema.png'
 import Imagem2 from '../assets/imageLogin.jpeg'
 import IDA from '../assets/IDA.png'
 import ISV from '../assets/ISV.png'
-import RNPA from '../assets/SIGAF.png'
+import SIGAF from '../assets/SIGAF.png'
 
 const LoginPage = () => {
     const navigate = useNavigate();
@@ -80,7 +80,7 @@ const LoginPage = () => {
 
                 // Redirect after a short delay
                 setTimeout(() => {
-                    navigate('/GerenciaRNPA');
+                    navigate('/GerenciaSIGAF');
                 }, 1000);
             } else {
                 setMessage({
@@ -270,7 +270,7 @@ const LoginPage = () => {
                         {/* Main Image Placeholder */}
                         <div className="w-full h-48 rounded-lg flex items-center justify-center">
                             <div className="text-center flex justify-center items-center space-y-2">
-                                <img src={RNPA} className=' w-[200px]' alt="" srcset="" />
+                                <img src={SIGAF} className=' w-[200px]' alt="" srcset="" />
                             </div>
                         </div>
 

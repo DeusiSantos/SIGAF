@@ -30,7 +30,7 @@ import {
 } from 'lucide-react';
 import CustomInput from '../../../core/components/CustomInput';
 import api from '../../../core/services/api';
-import { gerarFichaCompletaPDF } from '../../../pages/public/ProdutorCompletoRNPAPDF';
+import { gerarFichaCompletaPDF } from '../../../pages/public/ProdutorCompletoSIGAFPDF';
 
 
 
@@ -59,7 +59,7 @@ const HistoricoProducao = () => {
     const [produtor] = useState({
         id: produtorId,
         nome: `Produtor ${produtorId}`,
-        codigoRNPA: `RNPA-${produtorId}`
+        codigoSIGAF: `SIGAF-${produtorId}`
     });
 
     const modalSteps = [
@@ -1158,7 +1158,7 @@ const HistoricoProducao = () => {
                         <div className="flex flex-col md:flex-row justify-between  items-start md:items-center gap-4">
                             <div className="flex flex-1 items-center gap-4 col-span-6">
                                 <button
-                                    onClick={() => navigate('/GerenciaRNPA/gestao-agricultores')}
+                                    onClick={() => navigate('/GerenciaSIGAF/gestao-agricultores')}
                                     className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                                 >
                                     <ArrowLeft className="w-5 h-5 text-gray-600" />
@@ -1169,7 +1169,7 @@ const HistoricoProducao = () => {
                                         Histórico de Produção
                                     </h1>
                                     <p className="text-gray-600">
-                                        Produtor: {produtor.nome} | Código : {produtor.codigoRNPA}
+                                        Produtor: {produtor.nome} | Código : {produtor.codigoSIGAF}
                                     </p>
 
                                 </div>
@@ -1179,7 +1179,7 @@ const HistoricoProducao = () => {
                                 {/* Adicionar Registro */}
                                 <div className="relative group">
                                     <button
-                                        onClick={() => navigate(`/GerenciaRNPA/gestao-agricultores/produtores/historico-producao/${produtorId}/novo`)}
+                                        onClick={() => navigate(`/GerenciaSIGAF/gestao-agricultores/produtores/historico-producao/${produtorId}/novo`)}
                                         className="flex items-center text-sm px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                                         style={{ minWidth: 0 }}
                                         aria-label="Adicionar Registro"

@@ -20,8 +20,8 @@ import CustomInput from '../../../../core/components/CustomInput';
 import provinciasData from '../../../../core/components/Provincias.json';
 import { gerarAutorizacaoDesalfandegamento } from './AutorizacaoDesalfandegamentoDocument';
 
-// Hook para buscar produtores do RNPA
-const useProdutoresRNPA = () => {
+// Hook para buscar produtores do SIGAF
+const useProdutoresSIGAF = () => {
   const [loading, setLoading] = useState(true);
   const [produtores, setProdutores] = useState([]);
 
@@ -49,7 +49,7 @@ const useProdutoresRNPA = () => {
         setProdutores(produtoresMapeados);
         console.log('✅ Produtores carregados:', produtoresMapeados.length);
       } catch (error) {
-        console.error('❌ Erro ao buscar produtores RNPA:', error);
+        console.error('❌ Erro ao buscar produtores SIGAF:', error);
         setProdutores([]);
       } finally {
         setLoading(false);
@@ -73,7 +73,7 @@ const RegistroMercadorias = () => {
   const [toastMessage, setToastMessage] = useState(null);
 
   // Hook para buscar produtores
-  const { produtores: produtoresRNPA, loading: loadingProdutores } = useProdutoresRNPA();
+  const { produtores: produtoresSIGAF, loading: loadingProdutores } = useProdutoresSIGAF();
 
   // Estado do formulário
   const [formData, setFormData] = useState({
@@ -143,7 +143,7 @@ const RegistroMercadorias = () => {
   // Função para buscar e selecionar produtor
   const buscarProdutor = (produtorOption) => {
     const produtorId = typeof produtorOption === 'object' ? produtorOption.value : produtorOption;
-    const produtor = produtoresRNPA.find(p => p.id === parseInt(produtorId));
+    const produtor = produtoresSIGAF.find(p => p.id === parseInt(produtorId));
 
     if (produtor) {
       setProdutorSelecionado(produtor);
@@ -183,7 +183,7 @@ const RegistroMercadorias = () => {
   };
 
   // Preparar opções para o select de produtores
-  const produtoresOptions = produtoresRNPA
+  const produtoresOptions = produtoresSIGAF
     .filter(p => p && p.id && p.nome && p.bi)
     .map(p => ({
       label: `${p.nome} - ${p.bi}`,
@@ -261,7 +261,7 @@ const RegistroMercadorias = () => {
                   <User size={48} className="mx-auto mb-4" />
                   <h4 className="font-semibold text-lg mb-2">Produtor Existente</h4>
                   <p className="text-sm text-gray-600">
-                    Selecione um produtor já registado no RNPA
+                    Selecione um produtor já registado no SIGAF
                   </p>
                 </button>
 
@@ -319,7 +319,7 @@ const RegistroMercadorias = () => {
               </div>
               <p className="text-gray-600">
                 {isProdutorExistente
-                  ? 'Selecione o produtor da lista de produtores registados no RNPA.'
+                  ? 'Selecione o produtor da lista de produtores registados no SIGAF.'
                   : 'Preencha os dados do novo fornecedor.'}
               </p>
             </div>
@@ -327,7 +327,7 @@ const RegistroMercadorias = () => {
             <div className="bg-white rounded-2xl border border-gray-200 p-6">
               {isProdutorExistente ? (
                 <div>
-                  <h4 className="text-lg font-semibold mb-4 text-gray-800">Selecionar Produtor do RNPA</h4>
+                  <h4 className="text-lg font-semibold mb-4 text-gray-800">Selecionar Produtor do SIGAF</h4>
                   {loadingProdutores ? (
                     <div className="flex items-center justify-center py-8">
                       <Loader className="animate-spin w-6 h-6 text-green-600 mr-2" />
@@ -336,14 +336,14 @@ const RegistroMercadorias = () => {
                   ) : produtoresOptions.length === 0 ? (
                     <div className="text-center py-8">
                       <AlertCircle className="w-12 h-12 text-yellow-500 mx-auto mb-3" />
-                      <p className="text-gray-600">Nenhum produtor encontrado no RNPA</p>
+                      <p className="text-gray-600">Nenhum produtor encontrado no SIGAF</p>
                       <p className="text-sm text-gray-500 mt-2">Verifique a conexão com a API</p>
                     </div>
                   ) : (
                     <>
                       <CustomInput
                         type="select"
-                        label="Produtor RNPA"
+                        label="Produtor SIGAF"
                         value=""
                         options={produtoresOptions}
                         onChange={buscarProdutor}
@@ -388,7 +388,7 @@ const RegistroMercadorias = () => {
                               <p className="font-semibold text-gray-800 mt-1">{produtorSelecionado.telefone || 'Não informado'}</p>
                             </div>
                             <div className="bg-white p-4 rounded-lg shadow-sm">
-                              <span className="text-xs text-gray-500 uppercase tracking-wide">ID RNPA:</span>
+                              <span className="text-xs text-gray-500 uppercase tracking-wide">ID SIGAF:</span>
                               <p className="font-semibold text-gray-800 mt-1">#{produtorSelecionado.id}</p>
                             </div>
                           </div>
@@ -632,7 +632,7 @@ const RegistroMercadorias = () => {
                   <div>
                     <span className="text-sm text-gray-500">Tipo:</span>
                     <p className="font-semibold text-gray-800">
-                      {isProdutorExistente ? 'Produtor Existente (RNPA)' : 'Novo Fornecedor'}
+                      {isProdutorExistente ? 'Produtor Existente (SIGAF)' : 'Novo Fornecedor'}
                     </p>
                   </div>
 
@@ -655,7 +655,7 @@ const RegistroMercadorias = () => {
                         <p className="font-semibold text-gray-800">{produtorSelecionado.municipio || 'Não informado'}</p>
                       </div>
                       <div>
-                        <span className="text-sm text-gray-500">ID RNPA:</span>
+                        <span className="text-sm text-gray-500">ID SIGAF:</span>
                         <p className="font-semibold text-gray-800">#{produtorSelecionado.id}</p>
                       </div>
                     </>

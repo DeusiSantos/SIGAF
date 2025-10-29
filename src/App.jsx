@@ -16,7 +16,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route index path="/" element={<LoginPage />}></Route>
-        <Route path="/GerenciaRNPA" element={<Layout />}>
+        <Route path="/GerenciaSIGAF" element={<Layout />}>
           <Route index element={<Dashboard />} />
           <Route path="dashboard" element={<Dashboard />} />
 

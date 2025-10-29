@@ -390,7 +390,7 @@ const VisualizarCertificadosFlorestal = () => {
     }, [toastTimeout]);
 
     const handleBack = () => {
-        navigate('/GerenciaRNPA/certificados');
+        navigate('/GerenciaSIGAF/certificados');
     };
 
     const handleSelectCertificado = (certificadoId) => {

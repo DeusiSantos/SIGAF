@@ -222,17 +222,17 @@ const GestaoResultadosAnalises = () => {
 
     // Navegação para visualizar resultado
     const handleViewResultado = (resultadoId) => {
-        navigate(`/GerenciaRNPA/laboratorio-solo/resultados-analises/visualizar/${resultadoId}`);
+        navigate(`/GerenciaSIGAF/laboratorio-solo/resultados-analises/visualizar/${resultadoId}`);
     };
 
     // Navegação para editar resultado
     const handleEditResultado = (resultadoId) => {
-        navigate(`/GerenciaRNPA/laboratorio-solo/resultados-analises/editar/${resultadoId}`);
+        navigate(`/GerenciaSIGAF/laboratorio-solo/resultados-analises/editar/${resultadoId}`);
     };
 
     // Navegação para novo resultado
     const handleNovoResultado = () => {
-        navigate('/GerenciaRNPA/laboratorio-solo/resultados-analises/lancamento');
+        navigate('/GerenciaSIGAF/laboratorio-solo/resultados-analises/lancamento');
     };
 
     // Extrair valores únicos para filtros

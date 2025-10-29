@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
 });
 
 // Componente do PDF
-const ProdutorRNPAPDF = ({ dadosProdutor }) => {
+const ProdutorSIGAFPDF = ({ dadosProdutor }) => {
     const formatDate = (dateString) => {
         if (!dateString) return '';
         const date = new Date(dateString);
@@ -334,7 +334,7 @@ Z                    </View>
 
                 {/* Footer */}
                 <View style={styles.footer}>
-                    <Text>RNPA - Registo Nacional de Produtores Agrícolas | Ministério da Agricultura e Florestas</Text>
+                    <Text>SIGAF - Registo Nacional de Produtores Agrícolas | Ministério da Agricultura e Florestas</Text>
                     <Text>Data de geração: {new Date().toLocaleDateString('pt-BR')}</Text>
                 </View>
             </Page>
@@ -342,13 +342,13 @@ Z                    </View>
     );
 };
 
-export default ProdutorRNPAPDF;
+export default ProdutorSIGAFPDF;
 
 
 export const gerarFichaProdutorPDF = async (dadosProdutor) => {
     try {
         // Gerar o PDF
-        const pdfBlob = await pdf(<ProdutorRNPAPDF dadosProdutor={dadosProdutor} />).toBlob();
+        const pdfBlob = await pdf(<ProdutorSIGAFPDF dadosProdutor={dadosProdutor} />).toBlob();
 
         // Criar URL do blob
         const url = URL.createObjectURL(pdfBlob);

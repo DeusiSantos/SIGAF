@@ -229,7 +229,7 @@ const VisualizarAssociacaoRural = () => {
     // Voltar para gestão de certificados
     const handleBack = () => {
         // Remover navegação para cooperativas
-        // Removido: navigate('/GerenciaRNPA/entidades-associativas/cooperativas');
+        // Removido: navigate('/GerenciaSIGAF/entidades-associativas/cooperativas');
     };
 
     // Selecionar/deselecionar certificado para impressão

@@ -28,7 +28,8 @@ import {
   TrendingUp,
   Users,
   Wheat,
-  X
+  X,
+  TestTube
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
@@ -45,38 +46,38 @@ const rnpaRoutes = {
     {
       text: "Dashboard",
       icon: BarChart3,
-      path: "/GerenciaRNPA/dashboard",
+      path: "/GerenciaSIGAF/dashboard",
       submenu: false,
     },
     {
       text: "Produtores Agrícolas",
       icon: Wheat,
-      path: "/GerenciaRNPA/gestao-agricultores",
+      path: "/GerenciaSIGAF/gestao-agricultores",
       submenu: true,
     },
     {
       text: "Produtores Florestais",
       icon: TreePine,
-      path: "/GerenciaRNPA/gestao-florestal",
+      path: "/GerenciaSIGAF/gestao-florestal",
       submenu: true,
     },
     // {
     //   text: "Produtores de Café",
     //   icon: Coffee,
-    //   path: "/GerenciaRNPA/gestao-de-cafe",
+    //   path: "/GerenciaSIGAF/gestao-de-cafe",
     //   submenu: true,
     // },
 
     // {
     //   text: 'Entidades Associativas',
     //   icon: Building2,
-    //   path: '/GerenciaRNPA/entidades-associativas',
+    //   path: '/GerenciaSIGAF/entidades-associativas',
     //   submenu: true
     // },
     // {
     //   text: 'Programas e Benefícios',
     //   icon: Award,
-    //   path: '/GerenciaRNPA/programas-beneficios',
+    //   path: '/GerenciaSIGAF/programas-beneficios',
     //   submenu: true
     // }
   ],
@@ -86,133 +87,133 @@ const rnpaRoutes = {
       {
         text: "Produtores",
         icon: Users,
-        path: "/GerenciaRNPA/gestao-agricultores/produtores",
+        path: "/GerenciaSIGAF/gestao-agricultores/produtores",
         hasDropdown: true,
         dropdownItems: [
           {
             text: "Pessoal",
-            path: "/GerenciaRNPA/gestao-agricultores/produtores/pessoal",
+            path: "/GerenciaSIGAF/gestao-agricultores/produtores/pessoal",
           },
           {
             text: "Empresa",
-            path: "/GerenciaRNPA/gestao-agricultores/produtores/empresa",
+            path: "/GerenciaSIGAF/gestao-agricultores/produtores/empresa",
           },
           {
             text: "Cooperativa",
-            path: "/GerenciaRNPA/gestao-agricultores/produtores/cooperativa",
+            path: "/GerenciaSIGAF/gestao-agricultores/produtores/cooperativa",
           },
           {
             text: "Associação",
-            path: "/GerenciaRNPA/gestao-agricultores/produtores/associacao",
+            path: "/GerenciaSIGAF/gestao-agricultores/produtores/associacao",
           },
         ],
       },
       {
         text: "Infraestrutura",
         icon: Sprout,
-        path: "/GerenciaRNPA/gestao-florestal/produtoresFlorestais",
+        path: "/GerenciaSIGAF/gestao-florestal/produtoresFlorestais",
         hasDropdown: true,
         dropdownItems: [
           {
             text: "Irrigação",
             icon: Sprout,
-            path: "/GerenciaRNPA/gestao-agricultores/produtores/irrigacao",
+            path: "/GerenciaSIGAF/gestao-agricultores/produtores/irrigacao",
           },
           {
             text: "Silos e Centro de Armazenamento",
             icon: Archive,
-            path: "/GerenciaRNPA/gestao-agricultores/produtores/silos-armazenamento",
+            path: "/GerenciaSIGAF/gestao-agricultores/produtores/silos-armazenamento",
           },
           {
             text: "Entrepostos e Mercado",
             icon: Building2,
-            path: "/GerenciaRNPA/gestao-agricultores/produtores/entrepostosMercado",
+            path: "/GerenciaSIGAF/gestao-agricultores/produtores/entrepostosMercado",
           },
           {
             text: "Infraestrutura Apoio Agrícola",
             icon: Tractor,
-            path: "/GerenciaRNPA/gestao-agricultores/produtores/infraestrutura-agricola",
+            path: "/GerenciaSIGAF/gestao-agricultores/produtores/infraestrutura-agricola",
           },
           {
             text: "Empresas de Apoio Agrícola",
             icon: Tractor,
-            path: "/GerenciaRNPA/gestao-agricultores/produtores/apoio-agricola",
+            path: "/GerenciaSIGAF/gestao-agricultores/produtores/apoio-agricola",
           },
         ],
       },
       {
         text: "Painel e Monitoramento",
         icon: TrendingUp,
-        path: "/GerenciaRNPA/painel-monitoramento",
+        path: "/GerenciaSIGAF/painel-monitoramento",
         hasDropdown: true,
         dropdownItems: [
           {
             text: "Controle de Pragas",
             icon: ShieldAlert,
-            path: "/GerenciaRNPA/painel-monitoramento/indicadores",
+            path: "/GerenciaSIGAF/painel-monitoramento/indicadores",
           },
           {
             text: "Meteorologia",
             icon: Globe,
-            path: "/GerenciaRNPA/painel-monitoramento/meteorologia",
+            path: "/GerenciaSIGAF/painel-monitoramento/meteorologia",
           },
           {
             text: "Hidrografia",
             icon: MapPin,
-            path: "/GerenciaRNPA/painel-monitoramento/hidrografia",
+            path: "/GerenciaSIGAF/painel-monitoramento/hidrografia",
           },
         ],
       },
       {
         text: "Validação e Certificado",
         icon: Shield,
-        path: "/GerenciaRNPA/gestao-agricultores/workflow",
+        path: "/GerenciaSIGAF/gestao-agricultores/workflow",
       },
       {
         text: "Programas e Benefícios",
         icon: Award,
-        path: "/GerenciaRNPA/gestao-agricultores/programas",
+        path: "/GerenciaSIGAF/gestao-agricultores/programas",
       },
       {
         text: "Incentivos",
         icon: TrendingUp,
-        path: "/GerenciaRNPA/gestao-agricultores/incentivos",
+        path: "/GerenciaSIGAF/gestao-agricultores/incentivos",
       },
       // {
       //   text: "Amostra de Solo",
       //   icon: TestTube,
-      //   path: "/GerenciaRNPA/gestao-agricultores/AmostrasDeSolo",
+      //   path: "/GerenciaSIGAF/gestao-agricultores/AmostrasDeSolo",
       // },
       {
         text: "Laboratório de Solo",
         icon: Microscope,
-        path: "/GerenciaRNPA/gestao-agricultores/LaboratorioDeSolo",
+        path: "/GerenciaSIGAF/gestao-agricultores/LaboratorioDeSolo",
         hasDropdown: true,
         dropdownItems: [
           {
             text: "Métodos e Ensaios",
             icon: ShieldAlert,
-            path: "/GerenciaRNPA/LaboratorioDeSolo/MetodosEnsaios",
+            path: "/GerenciaSIGAF/LaboratorioDeSolo/MetodosEnsaios",
           },
           {
             text: "Amostra de Solo",
             icon: Globe,
-            path: "/GerenciaRNPA/LaboratorioDeSolo/AmostraSolo",
+            path: "/GerenciaSIGAF/LaboratorioDeSolo/AmostraSolo",
           },
           {
             text: "Resultados de Análises",
             icon: MapPin,
-            path: "/GerenciaRNPA/LaboratorioDeSolo/ResultadosAnalises",
+            path: "/GerenciaSIGAF/LaboratorioDeSolo/ResultadosAnalises",
           },
           {
             text: "Gestão de Laboratórios",
             icon: Building2,
-            path: "/GerenciaRNPA/LaboratorioDeSolo/GestaoLaboratorios",
+            path: "/GerenciaSIGAF/LaboratorioDeSolo/GestaoLaboratorios",
           },
           {
             text: "Relatórios e Laudos",
             icon: FileText,
-            path: "/GerenciaRNPA/LaboratorioDeSolo/RelatoriosLaudos",
+            path: "/GerenciaSIGAF/LaboratorioDeSolo/RelatoriosLaudos",
           },
 
         ],
@@ -220,7 +221,7 @@ const rnpaRoutes = {
       // {
       //   text: "Exportação",
       //   icon: LucideTicketsPlane,
-      //   path: "/GerenciaRNPA/gestao-agricultores/exportacao",
+      //   path: "/GerenciaSIGAF/gestao-agricultores/exportacao",
       // },
     ],
 
@@ -228,37 +229,37 @@ const rnpaRoutes = {
       {
         text: "Produtores",
         icon: Users,
-        path: "/GerenciaRNPA/gestao-florestal/produtoresFlorestais",
+        path: "/GerenciaSIGAF/gestao-florestal/produtoresFlorestais",
         hasDropdown: true,
         dropdownItems: [
           {
             text: "Pessoal",
-            path: "/GerenciaRNPA/gestao-florestal/produtores/pessoal",
+            path: "/GerenciaSIGAF/gestao-florestal/produtores/pessoal",
           },
           {
             text: "Empresa",
-            path: "/GerenciaRNPA/gestao-florestal/produtores/empresa",
+            path: "/GerenciaSIGAF/gestao-florestal/produtores/empresa",
           },
           {
             text: "Cooperativa",
-            path: "/GerenciaRNPA/gestao-florestal/produtores/cooperativa",
+            path: "/GerenciaSIGAF/gestao-florestal/produtores/cooperativa",
           },
           {
             text: "Associação",
-            path: "/GerenciaRNPA/gestao-florestal/produtores/associacao",
+            path: "/GerenciaSIGAF/gestao-florestal/produtores/associacao",
           },
         ],
       },
       {
         text: 'Infraestrutura',
         icon: Sprout,
-        path: '/GerenciaRNPA/gestao-florestal/produtoresFlorestais',
+        path: '/GerenciaSIGAF/gestao-florestal/produtoresFlorestais',
         hasDropdown: true,
         dropdownItems: [
-          { text: 'Armazenamento', icon: Archive, path: '/GerenciaRNPA/gestao-florestal/produtores/armazenamento' },
-          { text: 'Entrepostos e Mercado', icon: Building2, path: '/GerenciaRNPA/gestao-florestal/produtores/entrepostosMercado' },
-          { text: 'Empresas de Apoio Florestal', icon: Tractor, path: '/GerenciaRNPA/gestao-florestal/produtores/empresas-apoio-florestal' },
-          { text: 'Infraestrutura de Apoio Florestal', icon: Tractor, path: '/GerenciaRNPA/gestao-florestal/produtores/intraestrutura-apoio-florestal' }
+          { text: 'Armazenamento', icon: Archive, path: '/GerenciaSIGAF/gestao-florestal/produtores/armazenamento' },
+          { text: 'Entrepostos e Mercado', icon: Building2, path: '/GerenciaSIGAF/gestao-florestal/produtores/entrepostosMercado' },
+          { text: 'Empresas de Apoio Florestal', icon: Tractor, path: '/GerenciaSIGAF/gestao-florestal/produtores/empresas-apoio-florestal' },
+          { text: 'Infraestrutura de Apoio Florestal', icon: Tractor, path: '/GerenciaSIGAF/gestao-florestal/produtores/intraestrutura-apoio-florestal' }
         ]
       },
       {
@@ -267,74 +268,41 @@ const rnpaRoutes = {
         path: '',
         hasDropdown: true,
         dropdownItems: [
-          { text: 'Licença Florestal', icon: Archive, path: '/GerenciaRNPA/gestao-florestal/certificacaoFlorestal' },
-          { text: 'Emitido Para Exploração', icon: Building2, path: '/GerenciaRNPA/gestao-florestal/EmitidoExploracao' },
-          { text: 'Certificado Fitossanitário', icon: Tractor, path: '/GerenciaRNPA/gestao-florestal/CertificadoFitossanitário' },
-          { text: 'Certificado de Origem', icon: Tractor, path: '/GerenciaRNPA/gestao-florestal/CertificadodeOrigem' }
+          { text: 'Licença Florestal', icon: Archive, path: '/GerenciaSIGAF/gestao-florestal/certificacaoFlorestal' },
+          { text: 'Emitido Para Exploração', icon: Building2, path: '/GerenciaSIGAF/gestao-florestal/EmitidoExploracao' },
+          { text: 'Certificado Fitossanitário', icon: Tractor, path: '/GerenciaSIGAF/gestao-florestal/CertificadoFitossanitário' },
+          { text: 'Certificado de Origem', icon: Tractor, path: '/GerenciaSIGAF/gestao-florestal/CertificadodeOrigem' }
         ]
       },
       {
         text: 'Painel e Monitoramento',
         icon: TrendingUp,
-        path: '/GerenciaRNPA/painel-monitoramento',
+        path: '/GerenciaSIGAF/painel-monitoramento',
         hasDropdown: true,
         dropdownItems: [
-          { text: 'Controle de Pragas', icon: ShieldAlert, path: '/GerenciaRNPA/painel-monitoramento/indicadores' },
+          { text: 'Controle de Pragas', icon: ShieldAlert, path: '/GerenciaSIGAF/painel-monitoramento/indicadores' },
         ]
       },
-      { text: 'Programas e Benefícios', icon: Award, path: '/GerenciaRNPA/gestao-florestal/programas' },
-      { text: 'Transgreções', icon: Gavel, path: '/GerenciaRNPA/gestao-florestal/sancoes' },
-      {
-        text: "Laboratório de Solo",
-        icon: Microscope,
-        path: "/GerenciaRNPA/gestao-agricultores/LaboratorioDeSolo",
-        hasDropdown: true,
-        dropdownItems: [
-          {
-            text: "Métodos e Ensaios",
-            icon: ShieldAlert,
-            path: "/GerenciaRNPA/LaboratorioDeSolo/MetodosEnsaios",
-          },
-          {
-            text: "Amostra de Solo",
-            icon: Globe,
-            path: "/GerenciaRNPA/LaboratorioDeSolo/AmostraSolo",
-          },
-          {
-            text: "Resultados de Análises",
-            icon: MapPin,
-            path: "/GerenciaRNPA/LaboratorioDeSolo/ResultadosAnalises",
-          },
-          {
-            text: "Gestão de Laboratórios",
-            icon: Building2,
-            path: "/GerenciaRNPA/LaboratorioDeSolo/GestaoLaboratorios",
-          },
-          {
-            text: "Relatórios e Laudos",
-            icon: FileText,
-            path: "/GerenciaRNPA/LaboratorioDeSolo/RelatoriosLaudos",
-          },
-
-        ],
-      },
+      { text: 'Programas e Benefícios', icon: Award, path: '/GerenciaSIGAF/gestao-florestal/programas' },
+      { text: 'Transgreções', icon: Gavel, path: '/GerenciaSIGAF/gestao-florestal/sancoes' },
+      { text: 'Amostra de Solo', icon: TestTube, path: '/GerenciaSIGAF/gestao-florestal/AmostrasDeSolo' }
     ],
 
     "Painel e Monitoramento": [
       {
         text: "Controle de Pragas",
         icon: ShieldAlert,
-        path: "/GerenciaRNPA/painel-monitoramento/indicadores",
+        path: "/GerenciaSIGAF/painel-monitoramento/indicadores",
       },
       {
         text: "Meteorologia",
         icon: Globe,
-        path: "/GerenciaRNPA/painel-monitoramento/meteorologia",
+        path: "/GerenciaSIGAF/painel-monitoramento/meteorologia",
       },
       {
         text: "Hidrografia",
         icon: MapPin,
-        path: "/GerenciaRNPA/painel-monitoramento/hidrografia",
+        path: "/GerenciaSIGAF/painel-monitoramento/hidrografia",
       },
     ],
 
@@ -342,17 +310,17 @@ const rnpaRoutes = {
       {
         text: "Cooperativas",
         icon: Building2,
-        path: "/GerenciaRNPA/entidades-associativas/cooperativas",
+        path: "/GerenciaSIGAF/entidades-associativas/cooperativas",
       },
       {
         text: "Associações Rurais",
         icon: TreePine,
-        path: "/GerenciaRNPA/entidades-associativas/associacoes",
+        path: "/GerenciaSIGAF/entidades-associativas/associacoes",
       },
       {
         text: "Empresas",
         icon: Landmark,
-        path: "/GerenciaRNPA/entidades-associativas/empresas",
+        path: "/GerenciaSIGAF/entidades-associativas/empresas",
       },
     ],
 
@@ -360,19 +328,19 @@ const rnpaRoutes = {
       {
         text: "Cadastro de Programas",
         icon: Plus,
-        path: "/GerenciaRNPA/programas-beneficios/historico",
+        path: "/GerenciaSIGAF/programas-beneficios/historico",
       },
       {
         text: "Incentivos",
         icon: Award,
-        path: "/GerenciaRNPA/programas-beneficios/incentivos",
+        path: "/GerenciaSIGAF/programas-beneficios/incentivos",
       },
     ],
     "Produtores de Café": [
       {
         text: "Produtores",
         icon: Users,
-        path: "/GerenciaRNPA/produtores",
+        path: "/GerenciaSIGAF/produtores",
         hasDropdown: true,
         dropdownItems: [
           {

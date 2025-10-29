@@ -208,17 +208,17 @@ const GestaoAmostrasDeSolo = () => {
 
     // Navegação para visualizar amostra
     const handleViewAmostra = (amostraId) => {
-        navigate(`/GerenciaRNPA/laboratorio-solo/amostras-solo/visualizar/${amostraId}`);
+        navigate(`/GerenciaSIGAF/laboratorio-solo/amostras-solo/visualizar/${amostraId}`);
     };
 
     // Navegação para editar amostra
     const handleEditAmostra = (amostraId) => {
-        navigate(`/GerenciaRNPA/laboratorio-solo/amostras-solo/editar/${amostraId}`);
+        navigate(`/GerenciaSIGAF/laboratorio-solo/amostras-solo/editar/${amostraId}`);
     };
 
     // Navegação para nova amostra
     const handleNovaAmostra = () => {
-        navigate('/GerenciaRNPA/laboratorio-solo/amostras-solo/cadastro');
+        navigate('/GerenciaSIGAF/laboratorio-solo/amostras-solo/cadastro');
     };
 
     // Extrair valores únicos para filtros
