@@ -171,19 +171,65 @@ const EmitidoImportacaoGestao = () => {
     console.log("Dados da API (declarações florestais de importação):", declaracoesData);
 
     // Carregar e mapear declarações quando dados mudarem
+    // Carregar e mapear declarações quando dados mudarem
     useEffect(() => {
-        if (declaracoesData && declaracoesData.length > 0) {
-            try {
-                const declaracoesMapeadas = mapApiDataToDeclaracaoFlorestal(declaracoesData);
-                setDeclaracoes(declaracoesMapeadas);
-                console.log("Declarações florestais de importação mapeadas:", declaracoesMapeadas);
-            } catch (error) {
-                console.error('Erro ao mapear declarações:', error);
-                showToast('error', 'Erro', 'Erro ao processar dados das declarações');
+        const carregarDeclaracoesComProdutores = async () => {
+            if (declaracoesData && declaracoesData.length > 0) {
+                try {
+                    const declaracoesMapeadas = mapApiDataToDeclaracaoFlorestal(declaracoesData);
+
+                    // Buscar dados dos produtores para preencher nomes
+                    const declaracoesComNomes = await Promise.all(
+                        declaracoesMapeadas.map(async (decl) => {
+                            // Se tiver produtorFlorestalId, buscar dados do produtor
+                            if (decl.produtorFlorestalId) {
+                                try {
+                                    const produtorResponse = await axios.get(
+                                        `https://mwangobrainsa-001-site2.mtempurl.com/api/produtorFlorestal/${decl.produtorFlorestalId}`,
+                                        { timeout: 5000 }
+                                    );
+
+                                    if (produtorResponse.data) {
+                                        const produtorData = produtorResponse.data;
+
+                                        // Atualizar com dados reais do produtor
+                                        return {
+                                            ...decl,
+                                            nomeCompleto: produtorData.nome_do_Produtor || 'Nome não disponível',
+                                            nif: produtorData.bI_NIF || 'BI/NIF não disponível',
+                                            provincia: produtorData.provincia || decl.provincia,
+                                            municipio: produtorData.municipio || decl.municipio,
+                                            importador: {
+                                                nome: produtorData.nome_do_Produtor || 'Nome não disponível',
+                                                nif: produtorData.bI_NIF || 'BI/NIF não disponível',
+                                                endereco: decl.endereco,
+                                                provincia: produtorData.provincia || decl.provincia,
+                                                municipio: produtorData.municipio || decl.municipio
+                                            }
+                                        };
+                                    }
+                                } catch (error) {
+                                    console.error(`Erro ao buscar produtor ${decl.produtorFlorestalId}:`, error);
+                                }
+                            }
+
+                            // Se não for produtor ou der erro, retornar como está
+                            return decl;
+                        })
+                    );
+
+                    setDeclaracoes(declaracoesComNomes);
+                    console.log("Declarações florestais de importação com nomes dos produtores:", declaracoesComNomes);
+                } catch (error) {
+                    console.error('Erro ao mapear declarações:', error);
+                    showToast('error', 'Erro', 'Erro ao processar dados das declarações');
+                }
+            } else {
+                setDeclaracoes([]);
             }
-        } else {
-            setDeclaracoes([]);
-        }
+        };
+
+        carregarDeclaracoesComProdutores();
     }, [declaracoesData]);
 
     const handleViewDeclaracao = async (decl) => {
@@ -193,17 +239,8 @@ const EmitidoImportacaoGestao = () => {
             // Determinar se é produtor existente
             const isProdutorExistente = decl.produtorFlorestalId !== null;
 
-            // Montar produtorSelecionado se for existente
-            const produtorSelecionado = isProdutorExistente ? {
-                id: decl.produtorFlorestalId,
-                nome: decl.nomeCompleto,
-                bi: decl.nif,
-                provincia: decl.provincia,
-                municipio: decl.municipio
-            } : null;
-
-            // Montar formData (usado quando não é produtor existente)
-            const formData = {
+            let produtorSelecionado = null;
+            let formData = {
                 nome: decl.nomeCompleto,
                 nif: decl.nif,
                 endereco: decl.endereco,
@@ -211,6 +248,57 @@ const EmitidoImportacaoGestao = () => {
                 municipio: decl.municipio,
                 produtorId: decl.produtorFlorestalId
             };
+
+            // Se for produtor existente, buscar dados do produtor
+            if (isProdutorExistente) {
+                try {
+                    showToast('info', 'Carregando', 'Buscando dados do produtor...');
+
+                    const produtorResponse = await axios.get(
+                        `https://mwangobrainsa-001-site2.mtempurl.com/api/produtorFlorestal/${decl.produtorFlorestalId}`,
+                        { timeout: 10000 }
+                    );
+
+                    if (produtorResponse.data) {
+                        const produtorData = produtorResponse.data;
+
+                        // Montar produtorSelecionado com dados reais da API
+                        produtorSelecionado = {
+                            id: decl.produtorFlorestalId,
+                            nome: produtorData.nome_do_Produtor || 'Nome não disponível',
+                            bi: produtorData.bI_NIF || 'BI/NIF não disponível',
+                            provincia: produtorData.provincia || decl.provincia,
+                            municipio: produtorData.municipio || decl.municipio
+                        };
+
+                        // Atualizar formData também com os dados corretos
+                        formData = {
+                            nome: produtorData.nome_do_Produtor || decl.nomeCompleto,
+                            nif: produtorData.bI_NIF || decl.nif,
+                            endereco: decl.endereco,
+                            provincia: produtorData.provincia || decl.provincia,
+                            municipio: produtorData.municipio || decl.municipio,
+                            produtorId: decl.produtorFlorestalId
+                        };
+
+                        console.log('✅ Dados do produtor carregados:', produtorData);
+                    } else {
+                        throw new Error('Dados do produtor não encontrados');
+                    }
+                } catch (produtorError) {
+                    console.error('❌ Erro ao buscar dados do produtor:', produtorError);
+                    showToast('warning', 'Aviso', 'Não foi possível carregar todos os dados do produtor. Usando dados da declaração.');
+
+                    // Fallback: usar dados da declaração mesmo que sejam null
+                    produtorSelecionado = {
+                        id: decl.produtorFlorestalId,
+                        nome: decl.nomeCompleto || 'Nome não disponível',
+                        bi: decl.nif || 'BI/NIF não disponível',
+                        provincia: decl.provincia,
+                        municipio: decl.municipio
+                    };
+                }
+            }
 
             // Preparar mercadorias no formato correto
             const mercadorias = decl.listaDeMercadorias?.map(m => ({
