@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import CustomInput from '../../../../../core/components/CustomInput';
 import { useEntreposto } from '../../../../Agricola/hooks/useEntreposto';
-
+import { exportToExcel } from '@/core/components/exportToExcel';
 
 
 // Usaremos dados vindos da API via hook useEntreposto
@@ -145,6 +145,31 @@ const GestaoEntrepostosMercado = () => {
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
         return filteredEntrepostos.slice(startIndex, endIndex);
+    };
+
+
+
+
+
+    const handleExport = () => {
+        const dataToExport = filteredEntrepostos.map(entreposto => ({
+
+            'Entreposto / Mercado ': entreposto.nomeDoEntreposto || entreposto.nomeEntreposto,
+            'NIF': entreposto.nif,
+            'Responsável': entreposto.nomeCompletoDoResponsavel,
+
+            'Email': entreposto.email,
+
+            'Tipo': entreposto.tipoDeUnidade.replace(/_/g, ' ' ),
+            'Produtos': entreposto.produtosComercializados.join(', ').replace(/_/g, ' ' ),
+            'Província': entreposto.provincia,
+            'Município': entreposto.municipio,
+            'Número de Bancas': entreposto.numeroDeBancas,
+            'Capacidade Média': entreposto.capacidadeMedia,
+            'Licença': entreposto.licencaDeFuncionamento,
+        }));
+
+        exportToExcel(dataToExport, 'entreposto_sigaf', showToast);
     };
 
     // Navegação para visualizar associação rural
@@ -399,11 +424,11 @@ const GestaoEntrepostosMercado = () => {
                         <div className="flex gap-4">
 
                             <button
-                                onClick={() => showToast('info', 'Função', 'Exportar dados das escolas')}
+                                onClick={handleExport}
                                 className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
                             >
                                 <Download className="w-5 h-5 mr-2" />
-                                Exportar
+                                Exportar Excel
                             </button>
                         </div>
                     </div>
@@ -563,54 +588,54 @@ const GestaoEntrepostosMercado = () => {
 
 
                         <tfoot>
-                          <tr>
-                            <td colSpan={5}>
-                                 {/* Paginação */}
-                            <div className="px-6 py-4 border-t border-gray-200 bg-white">
-                                <div className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
-                                    <div className="text-sm text-gray-700">
-                                        Mostrando{' '}
-                                        <span className="font-medium">{filteredEntrepostos.length > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0}</span>
-                                        {' '}a{' '}
-                                        <span className="font-medium">
-                                            {Math.min(currentPage * itemsPerPage, filteredEntrepostos.length)}
-                                        </span>
-                                        {' '}de{' '}
-                                        <span className="font-medium">{filteredEntrepostos.length}</span>
-                                        {' '}resultados
-                                    </div>
+                            <tr>
+                                <td colSpan={5}>
+                                    {/* Paginação */}
+                                    <div className="px-6 py-4 border-t border-gray-200 bg-white">
+                                        <div className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
+                                            <div className="text-sm text-gray-700">
+                                                Mostrando{' '}
+                                                <span className="font-medium">{filteredEntrepostos.length > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0}</span>
+                                                {' '}a{' '}
+                                                <span className="font-medium">
+                                                    {Math.min(currentPage * itemsPerPage, filteredEntrepostos.length)}
+                                                </span>
+                                                {' '}de{' '}
+                                                <span className="font-medium">{filteredEntrepostos.length}</span>
+                                                {' '}resultados
+                                            </div>
 
-                                    <div className="flex space-x-2">
-                                        <button
-                                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                                            disabled={currentPage === 1}
-                                            className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
+                                            <div className="flex space-x-2">
+                                                <button
+                                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                                    disabled={currentPage === 1}
+                                                    className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
                                     ${currentPage === 1
-                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                                    : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
-                                                }`}
-                                        >
-                                            <ChevronLeft className="w-4 h-4 mr-1" />
-                                            Anterior
-                                        </button>
+                                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                            : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
+                                                        }`}
+                                                >
+                                                    <ChevronLeft className="w-4 h-4 mr-1" />
+                                                    Anterior
+                                                </button>
 
-                                        <button
-                                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                                            disabled={currentPage === totalPages || totalPages === 0}
-                                            className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
+                                                <button
+                                                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                                    disabled={currentPage === totalPages || totalPages === 0}
+                                                    className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
                                     ${currentPage === totalPages || totalPages === 0
-                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                                    : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
-                                                }`}
-                                        >
-                                            Próximo
-                                            <ChevronRight className="w-4 h-4 ml-1" />
-                                        </button>
+                                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                            : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
+                                                        }`}
+                                                >
+                                                    Próximo
+                                                    <ChevronRight className="w-4 h-4 ml-1" />
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                            </td>
-                          </tr>
+                                </td>
+                            </tr>
 
                         </tfoot>
                     </table>

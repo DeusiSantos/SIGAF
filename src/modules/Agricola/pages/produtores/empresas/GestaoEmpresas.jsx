@@ -27,7 +27,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CustomInput from '../../../../../core/components/CustomInput';
 import api from '../../../../../core/services/api';
-
+import { exportToExcel } from '@/core/components/exportToExcel';
 
 // Dados estáticos das administrações regionais
 {/*const administracoesEstaticas = [
@@ -40,7 +40,7 @@ import api from '../../../../../core/services/api';
 
 const EmpresaGestao = () => {
     // Função para navegação de gestão de pessoal
-   {/* const handlePessoal = (empresaId) => {
+    {/* const handlePessoal = (empresaId) => {
         navigate(`/GerenciaSIGAF/gestao-empresas/pessoal/${empresaId}`);
     };
 
@@ -93,6 +93,25 @@ const EmpresaGestao = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+
+    const handleExport = () => {
+        const dataToExport = filteredEscolas.map(empresa => ({
+
+            'Nome': empresa.nomeEntidade,
+            'NIF': empresa.nif,
+            'Presidente': empresa.nomePresidente,
+            'Telefone': empresa.telefone,
+            'Email': empresa.email,
+            'Actividades': empresa.atividades?.join(', ').replace(/_/g, ' ' ), 
+            
+            'Província': empresa.provincia,
+            'Município': empresa.municipio,
+            'Bairro': empresa.comuna,
+        }));
+
+        exportToExcel(dataToExport, 'empresaes_sigaf', showToast);
     };
 
     // Função para deletar empresa
@@ -184,7 +203,7 @@ const EmpresaGestao = () => {
 
     // Navegação para visualizar empresa
     const handleViewEscola = (id) => {
-        navigate(`/GerenciaSIGAF/gestao-agricultores/produtores/visualizar-entidade/${id}`);
+        navigate(`/GerenciaSIGAF/gestao-agricultores/empresaes/visualizar-entidade/${id}`);
     };
 
     {/*const handleTransferencia = (empresaId) => {
@@ -192,14 +211,14 @@ const EmpresaGestao = () => {
         navigate(`/GerenciaSIGAF/gestao-empresas/cadastro-producao-empresa/${empresaId}`);
     */};
 
-    const handleHistoricoProducao = (produtorId) => {
-        navigate(`/GerenciaSIGAF/gestao-agricultores/produtores/historico-entidade/${produtorId}`);
+    const handleHistoricoProducao = (empresaId) => {
+        navigate(`/GerenciaSIGAF/gestao-agricultores/empresaes/historico-entidade/${empresaId}`);
     };
 
     // Ações do menu dropdown
     const actionItems = [
         { label: 'Histórico', icon: <History size={16} />, action: handleHistoricoProducao },
-       
+
     ];
 
     // Formatar atividades para exibição
@@ -453,13 +472,13 @@ const EmpresaGestao = () => {
                             <h1 className="text-2xl font-bold">Gestão de Empresas Agrícolas</h1>
                         </div>
                         <div className="flex gap-4">
-                            
+
                             <button
-                                onClick={() => showToast('info', 'Função', 'Exportar dados das empresas')}
+                                onClick={handleExport}
                                 className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
                             >
                                 <Download className="w-5 h-5 mr-2" />
-                                Exportar
+                                Exportar Excel
                             </button>
                         </div>
                     </div>

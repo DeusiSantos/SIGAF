@@ -27,7 +27,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CustomInput from '../../../../../core/components/CustomInput';
 import api from '../../../../../core/services/api';
-
+import { exportToExcel } from '@/core/components/exportToExcel';
 
 
 // Dados estáticos das administrações regionais
@@ -94,6 +94,27 @@ const GestaoCooperativaAgricola = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+
+
+    
+    const handleExport = () => {
+        const dataToExport = filteredEscolas.map(empresa => ({
+
+            'Nome': empresa.nomeEntidade,
+            'NIF': empresa.nif,
+            'Presidente': empresa.nomePresidente,
+             'Telefone': empresa.telefone,
+            'Email': empresa.email,
+            'Actividades': empresa.atividades?.join(', ').replace(/_/g, ' ' ), 
+           
+            'Província': empresa.provincia,
+            'Município': empresa.municipio,
+            'Bairro': empresa.comuna,
+        }));
+
+        exportToExcel(dataToExport, 'empresaes_sigaf', showToast);
     };
 
     // Função para deletar empresa
@@ -451,11 +472,11 @@ const GestaoCooperativaAgricola = () => {
                         <div className="flex gap-4">
                            
                             <button
-                                onClick={() => showToast('info', 'Função', 'Exportar dados das empresas')}
+                                onClick={handleExport}
                                 className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
                             >
                                 <Download className="w-5 h-5 mr-2" />
-                                Exportar
+                                Exportar Excel
                             </button>
                         </div>
                     </div>

@@ -6,6 +6,7 @@ import {
     CheckCircle,
     ChevronLeft,
     ChevronRight,
+    CircleX,
     Download,
     Eye,
     FileText,
@@ -22,6 +23,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import * as XLSX from 'xlsx';
 import CustomInput from '../../core/components/CustomInput';
 
 //import { useCooperativas } from '../../hooks/useCooperativas';
@@ -222,6 +224,38 @@ const GestaoApoiAgricola = () => {
         }, duration);
 
         setToastTimeout(timeout);
+    };
+
+    // Função para exportar Excel
+    const exportToExcel = () => {
+        const dataToExport = filteredEscolas.map(empresa => ({
+            'Nome da Empresa': empresa.nomeEmpresa,
+            'Tipo de Entidade': empresa.tipoEntidade?.replace(/_/g, ' '),
+            'NIF': empresa.nif,
+            'Ano de Fundação': empresa.anoFundacao,
+            'Província': empresa.provincia,
+            'Município': empresa.municipio,
+            'Pessoa de Contacto': empresa.pessoaContacto,
+            'Cargo': empresa.cargo,
+            'Telefone': empresa.telefone,
+            'Email': empresa.email,
+            'Serviços Prestados': empresa.servicosPrestados?.join(', '),
+            'Número de Funcionários': empresa.numeroFuncionarios,
+            'Volume de Clientes': empresa.volumeClientes,
+            'Licença de Operação': empresa.licencaOperacao,
+            'Registo Comercial': empresa.registoComercial,
+            'Certificações': empresa.certificacoesEspecificas,
+            'Status': empresa.status
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(dataToExport);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Empresas Agrícolas');
+        
+        const fileName = `empresas_agricolas_${new Date().toISOString().split('T')[0]}.xlsx`;
+        XLSX.writeFile(wb, fileName);
+        
+        showToast('success', 'Exportado', 'Dados exportados com sucesso!');
     };
 
 
@@ -496,7 +530,7 @@ const GestaoApoiAgricola = () => {
                         <div className="flex gap-4">
 
                             <button
-                                onClick={() => showToast('info', 'Função', 'Exportar dados das empresas')}
+                                onClick={exportToExcel}
                                 className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
                             >
                                 <Download className="w-5 h-5 mr-2" />
@@ -646,8 +680,11 @@ const GestaoApoiAgricola = () => {
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="space-y-2">
                                             <div className="flex items-center text-xs">
-
-                                                <CheckCircle className="w-3.5 h-3.5 mr-1 text-green-500" />
+                                                {empresa.licencaOperacao === 'SIM' ? (
+                                                    <CheckCircle className="w-3.5 h-3.5 mr-1 text-green-500" />
+                                                ) : (
+                                                    <CircleX className="w-3.5 h-3.5 mr-1 text-red-500" />
+                                                )}
                                                 <span className="text-gray-700">Licença: {empresa.licencaOperacao}</span>
                                             </div>
                                             <div className="flex items-center text-xs">

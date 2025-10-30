@@ -355,13 +355,13 @@ const GestaoDeLaboratorios = () => {
                             {actionItems.map((item, index) => (
                                 <button
                                     key={index}
-                                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-700 transition-colors"
+                                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
                                     onClick={() => {
                                         item.action();
                                         setIsOpen(false);
                                     }}
                                 >
-                                    <span className="mr-2 text-orange-500">{item.icon}</span>
+                                    <span className="mr-2 text-blue-500">{item.icon}</span>
                                     {item.label}
                                 </button>
                             ))}
@@ -415,8 +415,8 @@ const GestaoDeLaboratorios = () => {
             <div className="mt-6 mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-white rounded-xl shadow-md p-6">
                     <div className="flex items-center">
-                        <div className="p-3 bg-orange-100 rounded-full">
-                            <Building2 className="w-6 h-6 text-orange-600" />
+                        <div className="p-3 bg-blue-100 rounded-full">
+                            <Building2 className="w-6 h-6 text-blue-600" />
                         </div>
                         <div className="ml-4">
                             <p className="text-sm font-medium text-gray-500">Total de Laboratórios</p>
@@ -470,17 +470,17 @@ const GestaoDeLaboratorios = () => {
 
             <div className="w-full bg-white rounded-2xl shadow-md overflow-visible z-10">
                 {/* Cabeçalho */}
-                <div className="bg-gradient-to-r from-orange-700 to-orange-500 p-6 text-white rounded-t-xl">
+                <div className="bg-gradient-to-r from-blue-700 to-blue-500 p-6 text-white rounded-t-xl">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
                         <div>
                             <h1 className="text-2xl font-bold">Gestão de Laboratórios</h1>
-                            <p className="text-orange-100 mt-1">Gerencie laboratórios parceiros e suas capacidades técnicas</p>
+                            <p className="text-blue-100 mt-1">Gerencie laboratórios parceiros e suas capacidades técnicas</p>
                         </div>
                         <div className="flex gap-4">
                            
                             <button
                                 onClick={() => showToast('info', 'Função', 'Exportar dados dos laboratórios')}
-                                className="inline-flex items-center px-4 py-2 bg-white text-orange-700 rounded-lg hover:bg-orange-50 transition-colors shadow-sm font-medium"
+                                className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
                             >
                                 <Download className="w-5 h-5 mr-2" />
                                 Exportar
@@ -586,10 +586,10 @@ const GestaoDeLaboratorios = () => {
                         </thead>
                         <tbody className="divide-y divide-gray-200 bg-white text-start">
                             {getCurrentItems().map((laboratorio) => (
-                                <tr key={laboratorio.id} className="hover:bg-orange-50 transition-colors">
+                                <tr key={laboratorio.id} className="hover:bg-blue-50 transition-colors">
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-start">
-                                            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-orange-600 to-orange-500 flex items-center justify-center font-semibold text-sm">
+                                            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-600 to-blue-500 flex items-center justify-center font-semibold text-sm">
                                                 <span className='text-white'>{laboratorio.sigla?.substring(0, 2) || 'LA'}</span>
                                             </div>
                                             <div className="ml-4">
@@ -641,7 +641,7 @@ const GestaoDeLaboratorios = () => {
                                         <div className="flex items-center justify-center space-x-1">
                                             <button
                                                 onClick={() => handleViewLaboratorio(laboratorio.id)}
-                                                className="p-2 hover:bg-orange-100 text-orange-600 hover:text-orange-800 rounded-full transition-colors"
+                                                className="p-2 hover:bg-blue-100 text-blue-600 hover:text-blue-800 rounded-full transition-colors"
                                                 title="Visualizar"
                                             >
                                                 <Eye className="w-5 h-5" />
@@ -685,7 +685,7 @@ const GestaoDeLaboratorios = () => {
                                                     className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
                                     ${currentPage === 1
                                                             ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                                            : 'bg-white text-orange-700 hover:bg-orange-50 border border-orange-200'
+                                                            : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
                                                         }`}
                                                 >
                                                     <ChevronLeft className="w-4 h-4 mr-1" />
@@ -698,7 +698,7 @@ const GestaoDeLaboratorios = () => {
                                                     className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md
                                     ${currentPage === totalPages || totalPages === 0
                                                             ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                                            : 'bg-white text-orange-700 hover:bg-orange-50 border border-orange-200'
+                                                            : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200'
                                                         }`}
                                                 >
                                                     Próximo
@@ -716,10 +716,10 @@ const GestaoDeLaboratorios = () => {
                 {/* Visualização em cards para mobile */}
                 <div className="md:hidden overflow-visible" style={{ maxHeight: contentHeight }}>
                     {getCurrentItems().map((laboratorio) => (
-                        <div key={laboratorio.id} className="p-4 border-b border-gray-200 hover:bg-orange-50 transition-colors">
+                        <div key={laboratorio.id} className="p-4 border-b border-gray-200 hover:bg-blue-50 transition-colors">
                             <div className="flex items-start">
-                                <div className="flex-shrink-0 h-16 w-16 bg-orange-100 rounded-full flex items-center justify-center">
-                                    <Building2 className="h-8 w-8 text-orange-600" />
+                                <div className="flex-shrink-0 h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <Building2 className="h-8 w-8 text-blue-600" />
                                 </div>
                                 <div className="flex-1 ml-4">
                                     <div className="flex justify-between items-start">
@@ -752,7 +752,7 @@ const GestaoDeLaboratorios = () => {
                                         <div className="flex space-x-1">
                                             <button
                                                 onClick={() => handleViewLaboratorio(laboratorio.id)}
-                                                className="p-1.5 bg-orange-50 hover:bg-orange-100 text-orange-600 rounded-full transition-colors"
+                                                className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-full transition-colors"
                                                 title="Visualizar"
                                             >
                                                 <Eye className="w-4 h-4" />

@@ -881,7 +881,7 @@ const GestaoRelatoriosLaudos = () => {
         <div className="space-y-6">
             <div className="bg-white rounded-xl shadow-md p-6">
                 <h3 className="text-lg font-semibold mb-4 flex items-center">
-                    <Receipt className="w-5 h-5 mr-2 text-indigo-600" />
+                    <Receipt className="w-5 h-5 mr-2 text-blue-600" />
                     Gestão de Faturas
                 </h3>
 
@@ -992,7 +992,7 @@ const GestaoRelatoriosLaudos = () => {
         { id: 'laudos', label: 'Laudos Técnicos', icon: FileText, color: 'blue' },
         { id: 'graficos', label: 'Gráficos Comparativos', icon: BarChart3, color: 'green' },
         { id: 'historico', label: 'Histórico de Análises', icon: History, color: 'orange' },
-        { id: 'faturas', label: 'Gestão de Faturas', icon: Receipt, color: 'indigo' }
+        { id: 'faturas', label: 'Gestão de Faturas', icon: Receipt, color: 'blue' }
     ];
 
     const renderTabContent = () => {
@@ -1042,8 +1042,8 @@ const GestaoRelatoriosLaudos = () => {
 
                 <div className="bg-white rounded-xl shadow-md p-6">
                     <div className="flex items-center">
-                        <div className="p-3 bg-indigo-100 rounded-full">
-                            <Receipt className="w-6 h-6 text-indigo-600" />
+                        <div className="p-3 bg-blue-100 rounded-full">
+                            <Receipt className="w-6 h-6 text-blue-600" />
                         </div>
                         <div className="ml-4">
                             <p className="text-sm font-medium text-gray-500">Faturas Emitidas</p>
@@ -1069,16 +1069,16 @@ const GestaoRelatoriosLaudos = () => {
 
             <div className="w-full bg-white rounded-2xl shadow-md overflow-visible z-10">
                 {/* Cabeçalho */}
-                <div className="bg-gradient-to-r from-indigo-700 to-indigo-500 p-6 text-white rounded-t-xl">
+                <div className="bg-gradient-to-r from-blue-700 to-blue-500 p-6 text-white rounded-t-xl">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
                         <div>
                             <h1 className="text-2xl font-bold">Gestão de Relatórios e Laudos</h1>
-                            <p className="text-indigo-100 mt-1">Gere laudos técnicos, gráficos comparativos, históricos de análises e controle de faturação</p>
+                            <p className="text-blue-100 mt-1">Gere laudos técnicos, gráficos comparativos, históricos de análises e controle de faturação</p>
                         </div>
                         <div className="flex gap-4">
                             <button
                                 onClick={() => showToast('info', 'Exportar', 'Exportando relatório geral')}
-                                className="inline-flex items-center px-4 py-2 bg-white text-indigo-700 rounded-lg hover:bg-indigo-50 transition-colors shadow-sm font-medium"
+                                className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
                             >
                                 <Download className="w-5 h-5 mr-2" />
                                 Exportar Relatório

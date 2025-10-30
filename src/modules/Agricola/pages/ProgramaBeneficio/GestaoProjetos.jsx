@@ -658,7 +658,7 @@ const GestaoProjetos = () => {
                                             <div className="flex items-center">
 
                                                 <div className="ml-4 text-start">
-                                                    <div className="text-sm font-semibold text-gray-900 ">{projeto.nomeProjeto || ''}</div>
+                                                    <div className="text-sm font-semibold text-gray-900 whitespace-normal ">{projeto.nomeProjeto || ''}</div>
                                                     <div className="text-xs text-gray-500 mt-1">Código: {projeto.id || ''}</div>
                                                     <div className="text-xs text-gray-500">Entidade: {projeto.entidadeImplementadora || ''}</div>
                                                 </div>

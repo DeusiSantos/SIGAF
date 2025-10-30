@@ -24,130 +24,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CustomInput from '../../../../../core/components/CustomInput';
 import { useEmpresasDeApoio } from '../../../hooks/useEmpresasDeApoio';
+import { exportToExcel } from '../../../../../core/components/exportToExcel';
 
-// Dados estáticos das empresas
-const empresasAdaptadas = [
-    {
-        id: 1,
-        nomeEmpresa: "AgroTech Angola Lda",
-        tipoEntidade: "EMPRESA_PRIVADA",
-        nif: "5417890123",
-        anoFundacao: "2015",
-        enderecoSede: "Rua da Missão, 123, Ingombota",
-        provincia: "LUANDA",
-        municipio: "Luanda",
-        pessoaContacto: "Maria Santos Costa",
-        cargo: "Diretora Geral",
-        telefone: "222567890",
-        email: "info@agrotech.ao",
-        website: "www.agrotech.ao",
-        servicosPrestados: ["Fornecimento de Insumos Agrícolas", "Assistência Técnica"],
-        principaisBeneficiarios: "PEQUENOS_PRODUTORES",
-        numeroFuncionarios: 85,
-        areaCobertura: "PROVINCIAL",
-        volumeClientes: 250,
-        licencaOperacao: "SIM",
-        registoComercial: "SIM",
-        certificacoesEspecificas: "ISO 9001",
-        status: "ATIVO"
-    },
-    {
-        id: 2,
-        nomeEmpresa: "Pecuária do Sul SA",
-        tipoEntidade: "EMPRESA_PRIVADA",
-        nif: "5418901234",
-        anoFundacao: "2012",
-        enderecoSede: "Av. Norton de Matos, 456, Arimba",
-        provincia: "HUÍLA",
-        municipio: "Lubango",
-        pessoaContacto: "António Ferreira",
-        cargo: "Presidente",
-        telefone: "261234567",
-        email: "geral@pecuariasul.ao",
-        website: "www.pecuariasul.ao",
-        servicosPrestados: ["Mecanização Agrícola", "Comercialização e Logística"],
-        principaisBeneficiarios: "MEDIOS_PRODUTORES",
-        numeroFuncionarios: 120,
-        areaCobertura: "NACIONAL",
-        volumeClientes: 500,
-        licencaOperacao: "SIM",
-        registoComercial: "SIM",
-        certificacoesEspecificas: "HACCP",
-        status: "ATIVO"
-    },
-    {
-        id: 3,
-        nomeEmpresa: "Benguela Agro Empresa",
-        tipoEntidade: "COOPERATIVA",
-        nif: "5419012345",
-        anoFundacao: "2018",
-        enderecoSede: "Rua 4 de Fevereiro, 789, Centro",
-        provincia: "BENGUELA",
-        municipio: "Benguela",
-        pessoaContacto: "Carlos Mendes",
-        cargo: "Coordenador",
-        telefone: "272345678",
-        email: "comercial@benguelaagro.ao",
-        website: "www.benguelaagro.ao",
-        servicosPrestados: ["Transformação/Agroindústria", "Formação e Capacitação"],
-        principaisBeneficiarios: "ASSOCIACOES_COOPERATIVAS",
-        numeroFuncionarios: 65,
-        areaCobertura: "LOCAL_DISTRITAL",
-        volumeClientes: 180,
-        licencaOperacao: "SIM",
-        registoComercial: "SIM",
-        certificacoesEspecificas: "ISO 14001",
-        status: "ATIVO"
-    },
-    {
-        id: 4,
-        nomeEmpresa: "Florestal Cabinda Lda",
-        tipoEntidade: "ONG",
-        nif: "5420123456",
-        anoFundacao: "2020",
-        enderecoSede: "Bairro Tchiowa, Lote 15",
-        provincia: "CABINDA",
-        municipio: "Cabinda",
-        pessoaContacto: "Isabel Rodrigues",
-        cargo: "Diretora Executiva",
-        telefone: "231456789",
-        email: "florestal@cabinda.ao",
-        website: "www.florestalcabinda.org",
-        servicosPrestados: ["Pesquisa e Inovação", "Assistência Técnica"],
-        principaisBeneficiarios: "PROJETOS_GOVERNAMENTAIS",
-        numeroFuncionarios: 40,
-        areaCobertura: "PROVINCIAL",
-        volumeClientes: 300,
-        licencaOperacao: "SIM",
-        registoComercial: "SIM",
-        certificacoesEspecificas: "FSC",
-        status: "ATIVO"
-    },
-    {
-        id: 5,
-        nomeEmpresa: "Huambo Agropecuária SA",
-        tipoEntidade: "ASSOCIACAO",
-        nif: "5421234567",
-        anoFundacao: "2016",
-        enderecoSede: "Rua Deolinda Rodrigues, 321",
-        provincia: "HUAMBO",
-        municipio: "Huambo",
-        pessoaContacto: "Pedro Nunes",
-        cargo: "Secretário Geral",
-        telefone: "241567890",
-        email: "huambo@agropecuaria.ao",
-        website: "www.huamboagro.ao",
-        servicosPrestados: ["Crédito Rural/Microfinanças", "Comercialização e Logística"],
-        principaisBeneficiarios: "GRANDES_PRODUTORES",
-        numeroFuncionarios: 95,
-        areaCobertura: "REGIONAL_INTERNACIONAL",
-        volumeClientes: 220,
-        licencaOperacao: "NAO",
-        registoComercial: "SIM",
-        certificacoesEspecificas: "ISO 22000",
-        status: "INATIVO"
-    }
-];
+
+
 
 // Dados estáticos das administrações regionais
 const administracoesEstaticas = [
@@ -224,6 +104,33 @@ const GestaoApoiAgricola = () => {
         setToastTimeout(timeout);
     };
 
+    // Função para exportar Excel
+
+
+    const handleExport = () => {
+        //  transformar os dados antes de exportar
+        const dataToExport = filteredEscolas.map(empresa => ({
+            'Nome da Empresa': empresa.nomeDaEmpresa,
+            'Tipo de Entidade': empresa.tipoDeEntidade?.replace(/_/g, ' '),
+            'NIF': empresa.nifOuIdFiscal,
+            'Ano de Fundação': empresa.anoDeFundacao,
+            'Província': empresa.província,
+            'Município': empresa.município,
+            'Pessoa de Contacto': empresa.nomeDaPessoaDeContacto,
+            'Telefone': empresa.telefone,
+            'Email': empresa.email,
+            'Serviços Prestados': empresa.servicosPrestados?.join(', ').replace(/_/g, ' '),
+            'Número de Funcionários': empresa.numeroDeFuncionarios,
+            'Volume de Clientes': empresa.volumeMedioDeClientesOuBeneficiariosPorAno,
+            'Licença de Operação': empresa.licencaDeOperacao,
+            'Registo Comercial': empresa.registoComercial,
+            'Certificações': empresa.certificacoesEspecificas
+        }));
+
+        exportToExcel(dataToExport, 'empresas_apoio_agricola', showToast);
+    };
+
+
 
 
     // Filtragem das empresas
@@ -294,11 +201,11 @@ const GestaoApoiAgricola = () => {
     ];
 
     // Formatar data
-    const formatDate = (dateString) => {
+   {/*const formatDate = (dateString) => {
         if (!dateString) return 'N/A';
         const date = new Date(dateString);
         return date.toLocaleDateString('pt-BR');
-    };
+    */};
 
     // Obter label do tipo de ensino
     { /* const getTipoEnsinoLabel = (tipo) => {
@@ -503,11 +410,12 @@ const GestaoApoiAgricola = () => {
                         <div className="flex gap-4">
 
                             <button
-                                onClick={() => showToast('info', 'Função', 'Exportar dados das empresas')}
+                                onClick={handleExport}
                                 className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
                             >
                                 <Download className="w-5 h-5 mr-2" />
-                                Exportar
+
+                                Exportar Excel
                             </button>
                         </div>
                     </div>

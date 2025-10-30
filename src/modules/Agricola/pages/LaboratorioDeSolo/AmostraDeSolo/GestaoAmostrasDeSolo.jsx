@@ -19,7 +19,8 @@ import {
     User,
     X,
     Edit,
-    Beaker
+    Beaker,
+    TestTube
 } from 'lucide-react';
 import CustomInput from '../../../../../core/components/CustomInput';
 
@@ -384,7 +385,7 @@ const GestaoAmostrasDeSolo = () => {
                 <div className="bg-white rounded-xl shadow-md p-6">
                     <div className="flex items-center">
                         <div className="p-3 bg-green-100 rounded-full">
-                            <Beaker className="w-6 h-6 text-green-600" />
+                            <TestTube className="w-6 h-6 text-green-600" />
                         </div>
                         <div className="ml-4">
                             <p className="text-sm font-medium text-gray-500">Total de Amostras</p>
@@ -557,8 +558,8 @@ const GestaoAmostrasDeSolo = () => {
                                 <tr key={amostra.id} className="hover:bg-green-50 transition-colors">
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-start">
-                                            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-600 to-green-500 flex items-center justify-center font-semibold text-sm">
-                                                <span className='text-white'>{amostra.codigoAmostra?.split('-')[2] || 'SL'}</span>
+                                            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-700 to-green-500 flex items-center justify-center font-semibold text-sm">
+                                                <TestTube className="w-6 h-6 text-white" />
                                             </div>
                                             <div className="ml-4">
                                                 <div className="text-sm font-semibold text-gray-900">{amostra.codigoAmostra}</div>

@@ -6,6 +6,7 @@ import {
     ChevronRight,
     Clock,
     CreditCard,
+    Download,
     Eye,
     Filter,
     ImageIcon,
@@ -25,6 +26,7 @@ import { useNavigate } from 'react-router-dom';
 import CustomInput from '../../../../../core/components/CustomInput';
 import api from '../../../../../core/services/api';
 import { useProdutores, useProdutoresAprovados } from '../../../hooks/useRnpaData';
+import { exportToExcel } from '@/core/components/exportToExcel';
 
 // Componente para Avatar do Produtor com foto da API
 const ProdutorAvatar = ({
@@ -342,6 +344,31 @@ const ProdutoresGestao = () => {
 
     const handleGerarCartao = (produtorId) => {
         navigate(`/GerenciaSIGAF/gestao-agricultores/produtores/gerar-cartao/${produtorId}`);
+    };
+
+
+
+    const handleExport = () => {
+        const dataToExport = filteredProdutores.map(produtor => ({
+            'Código SIGAF': produtor.codigoSIGAF,
+            'Nome': produtor.nome,
+            'Número BI': produtor.numeroBI,
+            'Género': produtor.genero,
+            'Telefone': produtor.telefone,
+            'Email': produtor.email,
+            'Província': produtor.provincia,
+            'Município': produtor.municipio,
+            'Bairro': produtor.bairro,
+            'Actividades': produtor.atividades?.join(', '),
+            'Área Total (ha)': produtor.areaTotalHa,
+            'Culturas Principais': produtor.culturasPrincipais?.join(', '),
+            'Número de Animais': produtor.numeroAnimais,
+            'Estado do Processo': produtor.statusProcesso?.replace(/_/g, ' '),
+            'Data de Submissão': produtor.dataSubmissao?.split('T')[0],
+            'Inquiridor': produtor.inquiridor?.split(' - ')[1] || produtor.inquiridor
+        }));
+
+        exportToExcel(dataToExport, 'produtores_sigaf', showToast);
     };
 
     {/*const handleCadastroProdutor = () => {
@@ -703,15 +730,17 @@ const ProdutoresGestao = () => {
                         <div>
                             <h1 className="text-2xl font-bold">Gestão de Produtores</h1>
                         </div>
-                        {/*<div className="flex gap-4">
+                       <div className="flex gap-4">
+
                             <button
-                                onClick={() => showToast('info', 'Função', 'Exportar dados dos produtores')}
+                                onClick={handleExport}
                                 className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
                             >
                                 <Download className="w-5 h-5 mr-2" />
-                                Exportar
+
+                                Exportar Excel
                             </button>
-                        </div>*/ }
+                        </div>
                     </div>
                 </div>
 

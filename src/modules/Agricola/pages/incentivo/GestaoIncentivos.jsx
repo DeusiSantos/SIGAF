@@ -25,6 +25,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CustomInput from '../../../../core/components/CustomInput';
 import api from '../../../../core/services/api';
+import * as XLSX from 'xlsx';
 
 
 
@@ -87,6 +88,9 @@ const GestaoIncentivos = () => {
             setLoading(false);
         }
     };
+
+
+    
 
     // Limpar timeout
     useEffect(() => {

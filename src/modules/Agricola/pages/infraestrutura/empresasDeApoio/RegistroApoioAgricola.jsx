@@ -105,10 +105,10 @@ const RegistroApoioAgricola = () => {
   const [toastMessage, setToastMessage] = useState(null);
   const [consultingNif, setConsultingNif] = useState(false);
   const [nifData, setNifData] = useState(null);
-  const [consultingBI, setConsultingBI] = useState(false);
-  const [consultingBIGerente, setConsultingBIGerente] = useState(false);
-  const [biData, setBiData] = useState(null);
-  const [biGerenteData, setBiGerenteData] = useState(null);
+  //const [consultingBI, setConsultingBI] = useState(false);
+ // const [consultingBIGerente, setConsultingBIGerente] = useState(false);
+ // const [biData, setBiData] = useState(null);
+  //const [biGerenteData, setBiGerenteData] = useState(null);
 
   // Estado inicial do formulário
   const initialState = {
@@ -372,8 +372,8 @@ const RegistroApoioAgricola = () => {
 
   // Debounce para consulta do NIF
   const debounceTimer = React.useRef(null);
-  const biDebounceTimer = React.useRef(null);
-  const biGerenteDebounceTimer = React.useRef(null);
+  //const biDebounceTimer = React.useRef(null);
+ // const biGerenteDebounceTimer = React.useRef(null);
   const handleNifChange = (value) => {
     setFormData(prev => ({ ...prev, nif: value }));
     setTouched(prev => ({ ...prev, nif: true }));

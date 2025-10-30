@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import CustomInput from '../../../../../core/components/CustomInput';
 import { useSilo } from '../../../hooks/useSilo';
-
+import { exportToExcel } from '@/core/components/exportToExcel';
 
 
 // Dados fictícios dos silos - estrutura baseada no formulário de cadastro
@@ -281,6 +281,23 @@ const GestaoSilos = () => {
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
         return filteredSilos.slice(startIndex, endIndex);
+    };
+
+
+    const handleExport = () => {
+        const dataToExport = filteredSilos.map(silo => ({
+
+            'Nome do Silo': silo.nomeDoSilo,
+            'Proprietário': silo.nomeDoProprietario,
+            'Tipo de Unidade': silo.tipoDeUnidade.replace(/[-_]/g, ' '),
+            'Produtos': silo.produtosArmazenados.join(', ') ,
+            'Província': silo.provincia,
+            'Município': silo.municipio ,
+            'Capacidade': silo.capacidadeMaxima,
+            'Número de Unidades': silo.numeroDeUnidade,
+            'Licença': silo.licencaDeOperacao ? 'SIM' : 'NÃO'
+        }));
+        exportToExcel(dataToExport, 'silos_sigaf', showToast);
     };
 
     // Navegação para visualizar silo
@@ -545,11 +562,11 @@ const GestaoSilos = () => {
                         <div className="flex gap-4">
 
                             <button
-                                onClick={() => showToast('info', 'Função', 'Exportar dados dos silos')}
+                                onClick={handleExport}
                                 className="inline-flex items-center px-4 py-2 bg-white text-yellow-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
                             >
                                 <Download className="w-5 h-5 mr-2" />
-                                Exportar
+                                Exportar Excel
                             </button>
                         </div>
                     </div>

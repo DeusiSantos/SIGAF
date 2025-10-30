@@ -22,6 +22,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CustomInput from '../../../../../core/components/CustomInput';
+import { exportToExcel } from '@/core/components/exportToExcel';
 
 ;
 
@@ -191,6 +192,29 @@ const GestaoInfraestruturaAgricola = () => {
         const endIndex = startIndex + itemsPerPage;
         return filteredInfraestruturas.slice(startIndex, endIndex);
     };
+
+
+
+
+    const handleExport = () => {
+        const dataToExport = filteredInfraestruturas.map(infra => ({
+
+            'Nome da Infraestrutura ': infra.nome_da_Infraestrutura,
+            'Tipo': infra.tipo_de_Infraestrutura.replace(/_/g, ' ' ),
+            'Responsável': infra.propriet_rio_Institui_o_Gestora,
+            'Contacto': infra.contacto,
+            'Email': infra.e_mail,
+            'Estado da Conservação': infra.estado_de_Conserva_o,
+            'Utilizadores': infra.capacidade_ex_litr_mero_de_utilizadores,
+            'Dimensão': infra.dimens_o_m_ha_km_etc,
+            'Frequência': infra.frequ_ncia_de_Utiliza_o,
+            'Província': infra.provincia,
+            'Município': infra.municipio,
+        }));
+
+        exportToExcel(dataToExport, 'infraestrutura_sigaf', showToast);
+    };
+
 
     // Navegação
     const handleViewInfraestrutura = (id) => {
@@ -425,11 +449,11 @@ const GestaoInfraestruturaAgricola = () => {
                         <div className="flex gap-4">
 
                             <button
-                                onClick={() => showToast('info', 'Função', 'Exportar dados das infraestruturas')}
+                                onClick={handleExport}
                                 className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
                             >
                                 <Download className="w-5 h-5 mr-2" />
-                                Exportar
+                                Exportar Excel
                             </button>
                         </div>
                     </div>

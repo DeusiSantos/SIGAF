@@ -21,7 +21,7 @@ import { useNavigate } from 'react-router-dom';
 import CustomInput from '../../../../../core/components/CustomInput';
 import { useIrrigacao } from '../../../hooks/useIrrigacao ';
 
-
+import { exportToExcel } from '@/core/components/exportToExcel';
 
 
 const GestaoSistemasIrrigacao = () => {
@@ -195,45 +195,27 @@ const GestaoSistemasIrrigacao = () => {
   };
 
   // Exportar dados
-  const handleExportData = () => {
-    try {
-      const dataToExport = filteredRecords.map(record => ({
-        'Código Sistema': record.codigoSistema,
-        'Nome Projeto': record.nomeProjeto,
-        'Localização': `${record.localizacao.municipio}, ${record.localizacao.provincia}`,
-        'Fonte Água': record.fonteAgua,
-        'Área Irrigada (ha)': record.areaIrrigada,
-        'Famílias Atendidas': record.numeroFamiliasAtendidas,
-        'Tipo Irrigação': getTipoIrrigacaoLabel(record.tipoIrrigacao),
-        'Status': getStatusLabel(record.statusSistema),
-        'Data Instalação': formatDate(record.dataInstalacao),
-        'Custo Instalação': formatCurrency(record.custoInstalacao),
-        'Responsável': record.responsavelTecnico.nome,
-        'Cooperativa': record.cooperativaVinculada,
-        'Eficiência (%)': record.eficienciaHidrica,
-        'Produção Anual (t)': record.producaoAnual
-      }));
+  const handleExport = () => {
+    const dataToExport = filteredRecords.map(record => ({
 
-      const csv = [
-        Object.keys(dataToExport[0]).join(','),
-        ...dataToExport.map(row => Object.values(row).join(','))
-      ].join('\n');
+      'Nome Projeto': record.nomeProjeto,
 
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', `sistemas_irrigacao_${new Date().toISOString().split('T')[0]}.csv`);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      'Província': record.localizacao.provincia,
+      'Município': record.localizacao.municipio,
+      'Fonte Água': record.fonteAgua,
+      'Área Irrigada (ha)': record.areaIrrigada,
+      'Famílias Atendidas': record.numeroFamiliasAtendidas,
+      'Tipo Irrigação': record.tipoIrrigacao,
+      'Estado': record.statusSistema,
+      'Data Instalação': record.dataInstalacao.split('T')[0],
+      'Custo Instalação': record.custoInstalacao,
+      'Responsável': record.responsavelTecnico.nome,
+      'Cooperativa': record.cooperativaVinculada,
+      'Eficiência (%)': record.eficienciaHidrica,
+      'Produção Anual (t)': record.producaoAnual
+    }));
 
-      showToast('success', 'Sucesso', 'Dados exportados com sucesso!');
-    } catch (error) {
-      console.error('Erro ao exportar:', error);
-      showToast('error', 'Erro', 'Erro ao exportar dados');
-    }
+    exportToExcel(dataToExport, 'irrigacao_sigaf', showToast);
   };
 
   // Ver detalhes do registro
@@ -414,7 +396,7 @@ const GestaoSistemasIrrigacao = () => {
         <div className="bg-gradient-to-r from-cyan-700 to-cyan-500 p-6 text-white">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
             <div>
-              <h1 className="text-2xl font-bold">Gestão de Sistemas de Irrigação</h1>
+              <h1 className="text-2xl font-bold">Gestãooo de Sistemas de Irrigação</h1>
               <p className="text-cyan-100 mt-1">Monitoramento e controle dos sistemas de irrigação implantados</p>
             </div>
 
@@ -422,7 +404,7 @@ const GestaoSistemasIrrigacao = () => {
 
 
               <button
-                onClick={handleExportData}
+                onClick={handleExport}
                 disabled={sistemasIrrigacao.length === 0}
                 className="inline-flex items-center px-4 py-2 bg-white text-cyan-700 rounded-lg hover:bg-cyan-50 transition-colors shadow-sm font-medium disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed"
               >
