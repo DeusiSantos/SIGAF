@@ -111,7 +111,7 @@ const EmpresaGestao = () => {
             'Bairro': empresa.comuna,
         }));
 
-        exportToExcel(dataToExport, 'empresaes_sigaf', showToast);
+        exportToExcel(dataToExport, 'empresaes_sigaf', ' Empresas Agrícolas', showToast);
     };
 
     // Função para deletar empresa

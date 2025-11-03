@@ -297,7 +297,7 @@ const GestaoSilos = () => {
             'Número de Unidades': silo.numeroDeUnidade,
             'Licença': silo.licencaDeOperacao ? 'SIM' : 'NÃO'
         }));
-        exportToExcel(dataToExport, 'silos_sigaf', showToast);
+        exportToExcel(dataToExport, 'silos_sigaf','Silos e Centros de Armazenamento', showToast);
     };
 
     // Navegação para visualizar silo

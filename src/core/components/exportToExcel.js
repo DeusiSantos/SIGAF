@@ -1,43 +1,100 @@
-
-import * as XLSX from 'xlsx';
-
+import ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
 
 /**
- * @param {Array} data 
- * @param {string} fileName 
+ * @param {Array<Object>} data 
+ * @param {string} fileName
+ * @param {string} title 
  * @param {function} showToast 
  */
-export const exportToExcel = (data = [], fileName = 'dados_exportados', showToast) => {
-    if (!data.length) {
-        showToast?.('warning', 'Sem dados', 'Não há dados para exportar.');
-        return;
-    }
+export const exportToExcel = async (
+  data = [],
+  fileName = 'dados_exportados',
+  title = 'Relatório de Dados',
+  showToast
+) => {
+  if (!Array.isArray(data) || data.length === 0) {
+    showToast?.('warning', 'Sem dados', 'Não há dados para exportar.');
+    return;
+  }
 
-    // Cria a planilha a partir dos dados recebidos
-    const ws = XLSX.utils.json_to_sheet(data);
+  try {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Relatório');
 
-    // Define largura automática das colunas
-    const colWidths = Object.keys(data[0]).map(key => ({
-        wch: Math.max(key.length, ...data.map(row => (row[key]?.toString().length || 10))) + 5
-    }));
-    ws['!cols'] = colWidths;
+    // Cabeçalhos
+    const headers = Object.keys(data[0]);
 
-    // Cabeçalhos em negrito e centralizados
-    const headerCells = Object.keys(data[0]);
-    headerCells.forEach((key, idx) => {
-        const cellAddress = XLSX.utils.encode_cell({ r: 0, c: idx });
-        if (!ws[cellAddress]) return;
-        ws[cellAddress].s = {
-            font: { bold: true },
-            alignment: { horizontal: 'center', vertical: 'center' }
-        };
+    // largura  das colunas
+    const columns = headers.map(header => {
+      const maxLen = Math.max(
+        header.length,
+        ...data.map(row => {
+          const cell = row[header];
+          return cell === undefined || cell === null ? 0 : String(cell).length;
+        })
+      );
+      return { header, key: header, width: Math.min(Math.max(maxLen + 5, 10), 60) };
+    });
+    worksheet.columns = columns;
+
+    //  título da tabela 
+    worksheet.mergeCells(1, 1, 1, headers.length);
+    const titleCell = worksheet.getCell(1, 1);
+    titleCell.value = title;
+    titleCell.font = { bold: true, size: 14 };
+    titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+    worksheet.getRow(1).height = 25;
+
+    // Adiciona o cabeçalho (linha 2)
+    worksheet.addRow(headers);
+
+    // Adiciona os dados (a partir da linha 3)
+    data.forEach(row => worksheet.addRow(row));
+
+    // Estiliza o cabeçalho
+    const headerRow = worksheet.getRow(2);
+    headerRow.eachCell(cell => {
+      cell.font = { bold: true };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFDCE6F1' } 
+      };
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' }
+      };
     });
 
-    //  workbook e salva
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Dados Exportados');
-    const formattedName = `${fileName}_${new Date().toISOString().split('T')[0]}.xlsx`;
-    XLSX.writeFile(wb, formattedName);
+    // Bordas para todas as linhas da tabela
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber >= 1) {
+        row.eachCell(cell => {
+          cell.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' }
+          };
+        });
+      }
+    });
+
+    // Gera e baixa o arquivo
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+    const safeFileName = `${fileName}_${new Date().toISOString().split('T')[0]}.xlsx`;
+    saveAs(blob, safeFileName);
 
     showToast?.('success', 'Exportado', 'Dados exportados com sucesso!');
+  } catch (error) {
+    console.error('Erro ao exportar para Excel:', error);
+    showToast?.('error', 'Erro', 'Falha ao exportar os dados. Verifique o console.');
+  }
 };

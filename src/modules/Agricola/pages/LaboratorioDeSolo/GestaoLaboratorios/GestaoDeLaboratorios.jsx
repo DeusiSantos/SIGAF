@@ -23,98 +23,11 @@ import {
     Settings
 } from 'lucide-react';
 import CustomInput from '../../../../../core/components/CustomInput';
-
-// Dados fictícios dos laboratórios
-const laboratoriosData = [
-    {
-        id: 1,
-        nomeLaboratorio: "Laboratório Central de Luanda",
-        sigla: "LABCENT",
-        tipoLaboratorio: "INTERNO",
-        provincia: "LUANDA",
-        municipio: "Luanda",
-        enderecoCompleto: "Rua Comandante Che Guevara, 123, Maianga",
-        responsavelTecnico: "Dr. António Silva Santos",
-        telefone: "+244 222 345 678",
-        email: "labcentral@agricultura.gov.ao",
-        tiposAnalise: ["QUIMICA", "FISICA", "MINERALOGICA"],
-        capacidadeProcessamento: 50,
-        status: "ACTIVO",
-        observacoes: "Laboratório principal com equipamentos de última geração",
-        dataCadastro: "2024-01-15"
-    },
-    {
-        id: 2,
-        nomeLaboratorio: "Instituto de Investigação Agronómica",
-        sigla: "IIA",
-        tipoLaboratorio: "INTERNO",
-        provincia: "HUAMBO",
-        municipio: "Huambo",
-        enderecoCompleto: "Zona Industrial, Lote 45, Huambo",
-        responsavelTecnico: "Eng. Maria João Fernandes",
-        telefone: "+244 241 123 456",
-        email: "iia.huambo@agricultura.gov.ao",
-        tiposAnalise: ["QUIMICA", "FISICA"],
-        capacidadeProcessamento: 30,
-        status: "ACTIVO",
-        observacoes: "Especializado em análises de fertilidade do solo",
-        dataCadastro: "2024-02-10"
-    },
-    {
-        id: 3,
-        nomeLaboratorio: "SIGLAB - Laboratórios Associados",
-        sigla: "SIGLAB",
-        tipoLaboratorio: "EXTERNO",
-        provincia: "BENGUELA",
-        municipio: "Benguela",
-        enderecoCompleto: "Av. Norton de Matos, 567, Centro",
-        responsavelTecnico: "Dr. Carlos Alberto Mendes",
-        telefone: "+244 272 987 654",
-        email: "contato@siglab.ao",
-        tiposAnalise: ["QUIMICA", "AMBIENTAL"],
-        capacidadeProcessamento: 25,
-        status: "ACTIVO",
-        observacoes: "Laboratório privado certificado ISO 17025",
-        dataCadastro: "2024-03-05"
-    },
-    {
-        id: 4,
-        nomeLaboratorio: "Centro de Análises do Sul",
-        sigla: "CAS",
-        tipoLaboratorio: "PARCEIRO",
-        provincia: "HUILA",
-        municipio: "Lubango",
-        enderecoCompleto: "Rua da Samba, 89, Lubango",
-        responsavelTecnico: "Eng. Ana Paula Costa",
-        telefone: "+244 261 456 789",
-        email: "cas.lubango@email.com",
-        tiposAnalise: ["FISICA", "MINERALOGICA"],
-        capacidadeProcessamento: 20,
-        status: "INATIVO",
-        observacoes: "Temporariamente suspenso para manutenção de equipamentos",
-        dataCadastro: "2024-01-20"
-    },
-    {
-        id: 5,
-        nomeLaboratorio: "AGROLAB Norte",
-        sigla: "AGRONORTE",
-        tipoLaboratorio: "EXTERNO",
-        provincia: "UIGE",
-        municipio: "Uíge",
-        enderecoCompleto: "Bairro Kimbo, Quarteirão 12, Casa 34",
-        responsavelTecnico: "Dr. Pedro Miguel Santos",
-        telefone: "+244 234 567 890",
-        email: "agrolab.norte@gmail.com",
-        tiposAnalise: ["QUIMICA"],
-        capacidadeProcessamento: 15,
-        status: "ACTIVO",
-        observacoes: "Laboratório regional especializado em análises químicas",
-        dataCadastro: "2024-04-12"
-    }
-];
+import { useLaboratorio } from '../../../hooks/useLaboratorio';
 
 const GestaoDeLaboratorios = () => {
     const navigate = useNavigate();
+    const { laboratorios, loading, error, fetchLaboratorios, deleteLaboratorio } = useLaboratorio();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedProvincia, setSelectedProvincia] = useState('');
     const [selectedTipo, setSelectedTipo] = useState('');
@@ -171,9 +84,9 @@ const GestaoDeLaboratorios = () => {
     // Função para obter status badge
     const getStatusBadge = (status) => {
         switch (status) {
-            case 'ACTIVO':
+            case 'Activo':
                 return 'bg-green-100 text-green-800';
-            case 'INATIVO':
+            case 'Inactivo':
                 return 'bg-red-100 text-red-800';
             default:
                 return 'bg-gray-100 text-gray-800';
@@ -183,9 +96,9 @@ const GestaoDeLaboratorios = () => {
     // Função para obter ícone do status
     const getStatusIcon = (status) => {
         switch (status) {
-            case 'ACTIVO':
+            case 'Activo':
                 return '';
-            case 'INATIVO':
+            case 'Inactivo':
                 return '';
             default:
                 return '';
@@ -194,38 +107,24 @@ const GestaoDeLaboratorios = () => {
 
     // Função para obter texto do tipo
     const getTipoText = (tipo) => {
-        switch (tipo) {
-            case 'INTERNO':
-                return 'Interno';
-            case 'EXTERNO':
-                return 'Externo';
-            case 'PARCEIRO':
-                return 'Parceiro';
-            default:
-                return tipo;
-        }
+        return tipo || 'N/A';
     };
 
     // Função para obter texto dos tipos de análise
     const getTiposAnaliseText = (tipos) => {
-        const tiposMap = {
-            'QUIMICA': 'Química',
-            'FISICA': 'Física',
-            'MINERALOGICA': 'Mineralógica',
-            'AMBIENTAL': 'Ambiental'
-        };
-        return tipos.map(tipo => tiposMap[tipo] || tipo).join(', ');
+        if (!tipos || !Array.isArray(tipos)) return 'N/A';
+        return tipos.join(', ');
     };
 
     // Filtragem dos laboratórios
-    const filteredLaboratorios = laboratoriosData.filter(laboratorio => {
+    const filteredLaboratorios = laboratorios.filter(laboratorio => {
         const matchesSearch = !searchTerm ||
-            laboratorio.nomeLaboratorio?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            laboratorio.nomeDoLaboratorio?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             laboratorio.provincia?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             laboratorio.responsavelTecnico?.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesProvincia = !selectedProvincia || laboratorio.provincia === selectedProvincia;
-        const matchesTipo = !selectedTipo || laboratorio.tipoLaboratorio === selectedTipo;
-        const matchesStatus = !selectedStatus || laboratorio.status === selectedStatus;
+        const matchesTipo = !selectedTipo || laboratorio.tipoDeLaboratorio === selectedTipo;
+        const matchesStatus = !selectedStatus || laboratorio.estado === selectedStatus;
 
         return matchesSearch && matchesProvincia && matchesTipo && matchesStatus;
     });
@@ -240,7 +139,7 @@ const GestaoDeLaboratorios = () => {
 
     // Navegação para visualizar laboratório
     const handleViewLaboratorio = (laboratorioId) => {
-        navigate(`/GerenciaSIGAF/laboratorio-solo/gestao-laboratorios/visualizar/${laboratorioId}`);
+        navigate(`/GerenciaSIGAF/LaboratorioDeSolo/visualizar/${laboratorioId}`);
     };
 
     // Navegação para editar laboratório
@@ -254,9 +153,9 @@ const GestaoDeLaboratorios = () => {
     };
 
     // Extrair valores únicos para filtros
-    const uniqueProvincias = [...new Set(laboratoriosData.map(l => l.provincia))].filter(Boolean);
-    const uniqueTipos = [...new Set(laboratoriosData.map(l => l.tipoLaboratorio))].filter(Boolean);
-    const uniqueStatus = [...new Set(laboratoriosData.map(l => l.status))].filter(Boolean);
+    const uniqueProvincias = [...new Set(laboratorios.map(l => l.provincia))].filter(Boolean);
+    const uniqueTipos = [...new Set(laboratorios.map(l => l.tipoDeLaboratorio))].filter(Boolean);
+    const uniqueStatus = [...new Set(laboratorios.map(l => l.estado))].filter(Boolean);
 
     // Função para abrir modal de confirmação
     const openDeleteModal = (laboratorioId) => {
@@ -274,8 +173,7 @@ const GestaoDeLaboratorios = () => {
     const handleConfirmDelete = async () => {
         if (!laboratorioDelete) return;
         try {
-            // Simular exclusão - substituir pela API real
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await deleteLaboratorio(laboratorioDelete);
             showToast('success', 'Excluído', 'Laboratório excluído com sucesso!');
         } catch (err) {
             showToast('error', 'Erro', 'Erro ao excluir laboratório.');
@@ -375,7 +273,7 @@ const GestaoDeLaboratorios = () => {
     // Modal de confirmação visual
     const DeleteConfirmModal = () => {
         if (!showDeleteModal) return null;
-        const laboratorio = laboratoriosData.find(l => l.id === laboratorioDelete);
+        const laboratorio = laboratorios.find(l => l.id === laboratorioDelete);
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
                 <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm flex flex-col items-center">
@@ -384,7 +282,7 @@ const GestaoDeLaboratorios = () => {
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Confirmar Exclusão</h3>
                     <p className="text-gray-600 text-center text-sm mb-4">
-                        Tem certeza que deseja excluir o laboratório <span className="font-semibold text-red-600">{laboratorio?.nomeLaboratorio || 'Selecionado'}</span>?<br />
+                        Tem certeza que deseja excluir o laboratório <span className="font-semibold text-red-600">{laboratorio?.nomeDoLaboratorio || 'Selecionado'}</span>?<br />
                         Esta ação não pode ser desfeita.
                     </p>
                     <div className="flex gap-3 mt-2 w-full">
@@ -420,7 +318,7 @@ const GestaoDeLaboratorios = () => {
                         </div>
                         <div className="ml-4">
                             <p className="text-sm font-medium text-gray-500">Total de Laboratórios</p>
-                            <p className="text-2xl font-bold text-gray-900">{laboratoriosData.length}</p>
+                            <p className="text-2xl font-bold text-gray-900">{laboratorios.length}</p>
                         </div>
                     </div>
                 </div>
@@ -431,9 +329,9 @@ const GestaoDeLaboratorios = () => {
                             <CheckCircle className="w-6 h-6 text-green-600" />
                         </div>
                         <div className="ml-4">
-                            <p className="text-sm font-medium text-gray-500">Laboratórios Ativos</p>
+                            <p className="text-sm font-medium text-gray-500">Laboratórios Activos</p>
                             <p className="text-2xl font-bold text-gray-900">
-                                {laboratoriosData.filter(l => l.status === 'ACTIVO').length}
+                                {laboratorios.filter(l => l.estado === 'Activo').length}
                             </p>
                         </div>
                     </div>
@@ -447,7 +345,7 @@ const GestaoDeLaboratorios = () => {
                         <div className="ml-4">
                             <p className="text-sm font-medium text-gray-500">Capacidade Total</p>
                             <p className="text-2xl font-bold text-gray-900">
-                                {laboratoriosData.reduce((total, l) => total + l.capacidadeProcessamento, 0)} /dia
+                                {laboratorios.reduce((total, l) => total + (l.capacidadeDeProcessamento || 0), 0)} /dia
                             </p>
                         </div>
                     </div>
@@ -468,6 +366,32 @@ const GestaoDeLaboratorios = () => {
                 </div>
             </div>
 
+            {/* Loading State */}
+            {loading && (
+                <div className="flex justify-center items-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                    <span className="ml-3 text-gray-600">Carregando laboratórios...</span>
+                </div>
+            )}
+
+            {/* Error State */}
+            {error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                    <div className="flex items-center">
+                        <AlertCircle className="w-5 h-5 text-red-600 mr-2" />
+                        <span className="text-red-800">Erro ao carregar laboratórios: {error}</span>
+                        <button 
+                            onClick={fetchLaboratorios}
+                            className="ml-auto px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                        >
+                            Tentar novamente
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Main Content */}
+            {!loading && !error && (
             <div className="w-full bg-white rounded-2xl shadow-md overflow-visible z-10">
                 {/* Cabeçalho */}
                 <div className="bg-gradient-to-r from-blue-700 to-blue-500 p-6 text-white rounded-t-xl">
@@ -543,10 +467,10 @@ const GestaoDeLaboratorios = () => {
                         <div>
                             <CustomInput
                                 type="select"
-                                placeholder="Status"
+                                placeholder="Estado"
                                 value={selectedStatus ? { label: selectedStatus, value: selectedStatus } : null}
                                 options={[
-                                    { label: 'Todos os Status', value: '' },
+                                    { label: 'Todos os Estado', value: '' },
                                     ...uniqueStatus.map(status => ({
                                         label: status,
                                         value: status
@@ -585,16 +509,34 @@ const GestaoDeLaboratorios = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 bg-white text-start">
-                            {getCurrentItems().map((laboratorio) => (
+                            {getCurrentItems().length === 0 ? (
+                                <tr>
+                                    <td colSpan={6} className="px-6 py-12 text-center">
+                                        <div className="flex flex-col items-center">
+                                            <Building2 className="w-12 h-12 text-gray-400 mb-4" />
+                                            <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum laboratório encontrado</h3>
+                                            <p className="text-gray-500 mb-4">Não há laboratórios que correspondam aos critérios de pesquisa.</p>
+                                            <button
+                                                onClick={handleNovoLaboratorio}
+                                                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                            >
+                                                <PlusCircle className="w-5 h-5 mr-2" />
+                                                Cadastrar Primeiro Laboratório
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : (
+                                getCurrentItems().map((laboratorio) => (
                                 <tr key={laboratorio.id} className="hover:bg-blue-50 transition-colors">
-                                    <td className="px-6 py-4 whitespace-nowrap">
+                                    <td className="px-6 py-4 whitespace-normal">
                                         <div className="flex items-start">
                                             <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-600 to-blue-500 flex items-center justify-center font-semibold text-sm">
                                                 <span className='text-white'>{laboratorio.sigla?.substring(0, 2) || 'LA'}</span>
                                             </div>
                                             <div className="ml-4">
-                                                <div className="text-sm font-semibold text-gray-900 max-w-[200px] truncate">{laboratorio.nomeLaboratorio}</div>
-                                                <div className="text-xs text-gray-500 mt-1">{getTipoText(laboratorio.tipoLaboratorio)}</div>
+                                                <div className="text-sm font-semibold text-gray-900 max-w-[200px] truncate">{laboratorio.nomeDoLaboratorio}</div>
+                                                <div className="text-xs text-gray-500 mt-1">{getTipoText(laboratorio.tipoDeLaboratorio)}</div>
                                             </div>
                                         </div>
                                     </td>
@@ -611,7 +553,7 @@ const GestaoDeLaboratorios = () => {
                                             <div className="text-sm text-gray-900 max-w-[180px] truncate">{laboratorio.responsavelTecnico}</div>
                                             <div className="flex items-center text-xs text-gray-500">
                                                 <Phone className="w-3 h-3 mr-1" />
-                                                {laboratorio.telefone}
+                                                {laboratorio.contacto}
                                             </div>
                                             <div className="flex items-center text-xs text-gray-500">
                                                 <Mail className="w-3 h-3 mr-1" />
@@ -620,19 +562,19 @@ const GestaoDeLaboratorios = () => {
                                         </div>
                                     </td>
 
-                                    <td className="px-6 py-4 whitespace-nowrap">
+                                    <td className="px-6 py-4 whitespace-normal">
                                         <div className="text-sm text-gray-900 max-w-[150px]">
-                                            {getTiposAnaliseText(laboratorio.tiposAnalise)}
+                                            {getTiposAnaliseText(laboratorio.tiposDeAnalise)}
                                         </div>
                                     </td>
 
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="space-y-2">
-                                            <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(laboratorio.status)}`}>
-                                                {getStatusIcon(laboratorio.status)} {laboratorio.status}
+                                            <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(laboratorio.estado)}`}>
+                                                {getStatusIcon(laboratorio.estado)} {laboratorio.estado}
                                             </div>
                                             <div className="text-xs text-gray-500">
-                                                {laboratorio.capacidadeProcessamento} amostras/dia
+                                                {laboratorio.capacidadeDeProcessamento} amostras/dia
                                             </div>
                                         </div>
                                     </td>
@@ -657,7 +599,8 @@ const GestaoDeLaboratorios = () => {
                                         </div>
                                     </td>
                                 </tr>
-                            ))}
+                                ))
+                            )}
                         </tbody>
 
                         <tfoot>
@@ -715,7 +658,21 @@ const GestaoDeLaboratorios = () => {
 
                 {/* Visualização em cards para mobile */}
                 <div className="md:hidden overflow-visible" style={{ maxHeight: contentHeight }}>
-                    {getCurrentItems().map((laboratorio) => (
+                    {getCurrentItems().length === 0 ? (
+                        <div className="p-8 text-center">
+                            <Building2 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                            <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum laboratório encontrado</h3>
+                            <p className="text-gray-500 mb-4">Não há laboratórios que correspondam aos critérios de pesquisa.</p>
+                            <button
+                                onClick={handleNovoLaboratorio}
+                                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            >
+                                <PlusCircle className="w-5 h-5 mr-2" />
+                                Cadastrar Primeiro Laboratório
+                            </button>
+                        </div>
+                    ) : (
+                        getCurrentItems().map((laboratorio) => (
                         <div key={laboratorio.id} className="p-4 border-b border-gray-200 hover:bg-blue-50 transition-colors">
                             <div className="flex items-start">
                                 <div className="flex-shrink-0 h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center">
@@ -724,12 +681,12 @@ const GestaoDeLaboratorios = () => {
                                 <div className="flex-1 ml-4">
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <h3 className="text-sm font-semibold text-gray-900">{laboratorio.nomeLaboratorio}</h3>
-                                            <div className="text-xs text-gray-500 mt-1">{getTipoText(laboratorio.tipoLaboratorio)}</div>
+                                            <h3 className="text-sm font-semibold text-gray-900">{laboratorio.nomeDoLaboratorio}</h3>
+                                            <div className="text-xs text-gray-500 mt-1">{getTipoText(laboratorio.tipoDeLaboratorio)}</div>
                                             <div className="text-xs text-gray-500">{laboratorio.provincia}, {laboratorio.municipio}</div>
                                         </div>
-                                        <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(laboratorio.status)}`}>
-                                            {getStatusIcon(laboratorio.status)} {laboratorio.status}
+                                        <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(laboratorio.estado)}`}>
+                                            {getStatusIcon(laboratorio.estado)} {laboratorio.estado}
                                         </div>
                                     </div>
 
@@ -738,13 +695,13 @@ const GestaoDeLaboratorios = () => {
                                             <span className="font-medium">Responsável:</span> {laboratorio.responsavelTecnico}
                                         </div>
                                         <div className="text-xs text-gray-700">
-                                            <span className="font-medium">Telefone:</span> {laboratorio.telefone}
+                                            <span className="font-medium">Telefone:</span> {laboratorio.contacto}
                                         </div>
                                         <div className="text-xs text-gray-700">
-                                            <span className="font-medium">Análises:</span> {getTiposAnaliseText(laboratorio.tiposAnalise)}
+                                            <span className="font-medium">Análises:</span> {getTiposAnaliseText(laboratorio.tiposDeAnalise)}
                                         </div>
                                         <div className="text-xs text-gray-700">
-                                            <span className="font-medium">Capacidade:</span> {laboratorio.capacidadeProcessamento} amostras/dia
+                                            <span className="font-medium">Capacidade:</span> {laboratorio.capacidadeDeProcessamento} amostras/dia
                                         </div>
                                     </div>
 
@@ -777,9 +734,11 @@ const GestaoDeLaboratorios = () => {
                                 </div>
                             </div>
                         </div>
-                    ))}
+                        ))
+                    )}
                 </div>
             </div>
+            )}
         </div>
     );
 };

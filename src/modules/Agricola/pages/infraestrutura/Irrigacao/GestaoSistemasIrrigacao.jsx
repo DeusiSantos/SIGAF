@@ -215,7 +215,7 @@ const GestaoSistemasIrrigacao = () => {
       'Produção Anual (t)': record.producaoAnual
     }));
 
-    exportToExcel(dataToExport, 'irrigacao_sigaf', showToast);
+    exportToExcel(dataToExport, 'irrigacao_sigaf', 'Sistemas de Irrigação', showToast);
   };
 
   // Ver detalhes do registro

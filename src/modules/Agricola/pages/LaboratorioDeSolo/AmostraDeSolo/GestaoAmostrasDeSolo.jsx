@@ -494,10 +494,10 @@ const GestaoAmostrasDeSolo = () => {
                         <div>
                             <CustomInput
                                 type="select"
-                                placeholder="Status da Análise"
+                                placeholder="Estado da Análise"
                                 value={selectedStatus ? { label: getStatusText(selectedStatus), value: selectedStatus } : null}
                                 options={[
-                                    { label: 'Todos os Status', value: '' },
+                                    { label: 'Todos os Estados', value: '' },
                                     ...uniqueStatus.map(status => ({
                                         label: getStatusText(status),
                                         value: status
@@ -546,10 +546,10 @@ const GestaoAmostrasDeSolo = () => {
                                     Coleta
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                    Status
+                                    Estado
                                 </th>
-                                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                    Ações
+                                <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                                    Acções
                                 </th>
                             </tr>
                         </thead>

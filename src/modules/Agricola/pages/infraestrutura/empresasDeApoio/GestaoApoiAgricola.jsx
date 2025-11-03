@@ -127,7 +127,7 @@ const GestaoApoiAgricola = () => {
             'Certificações': empresa.certificacoesEspecificas
         }));
 
-        exportToExcel(dataToExport, 'empresas_apoio_agricola', showToast);
+        exportToExcel(dataToExport, 'empresas_apoio_agricola', 'Empresas de Apoio Agrícola', showToast);
     };
 
 

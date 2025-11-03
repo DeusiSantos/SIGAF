@@ -10,7 +10,7 @@ import GestaoPragas from './GestaoPragas';
 const ControlePragasMenu = () => {
     const location = useLocation();
     const [activeSection, setActiveSection] = useState('dashboard');
-
+    //const [showInfoModal, setShowInfoModal] = useState(false);
     // Detectar edição automática
     useEffect(() => {
         if (location.state?.projetoEditando) {
@@ -128,6 +128,10 @@ const ControlePragasMenu = () => {
             <div className="transition-all duration-300">
                 {renderContent()}
             </div>
+
+
+
+           
         </div>
     );
 };

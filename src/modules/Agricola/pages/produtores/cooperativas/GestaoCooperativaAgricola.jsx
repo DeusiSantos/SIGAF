@@ -114,7 +114,7 @@ const GestaoCooperativaAgricola = () => {
             'Bairro': empresa.comuna,
         }));
 
-        exportToExcel(dataToExport, 'empresaes_sigaf', showToast);
+        exportToExcel(dataToExport, 'cooperativas_sigaf', 'Cooperativa Agrícolas', showToast);
     };
 
     // Função para deletar empresa

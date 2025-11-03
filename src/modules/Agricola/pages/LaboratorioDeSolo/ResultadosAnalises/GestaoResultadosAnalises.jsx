@@ -507,10 +507,10 @@ const GestaoResultadosAnalises = () => {
                         <div>
                             <CustomInput
                                 type="select"
-                                placeholder="Status"
+                                placeholder="Estado"
                                 value={selectedStatus ? { label: getStatusText(selectedStatus), value: selectedStatus } : null}
                                 options={[
-                                    { label: 'Todos os Status', value: '' },
+                                    { label: 'Todos os Estado', value: '' },
                                     ...uniqueStatus.map(status => ({
                                         label: getStatusText(status),
                                         value: status
@@ -550,7 +550,7 @@ const GestaoResultadosAnalises = () => {
                                     Amostra & Parâmetro
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                    Resultado & Status
+                                    Resultado & Estado
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                     Método & Limites
@@ -562,7 +562,7 @@ const GestaoResultadosAnalises = () => {
                                     Datas
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                    Ações
+                                    Acções
                                 </th>
                             </tr>
                         </thead>

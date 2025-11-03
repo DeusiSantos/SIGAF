@@ -350,7 +350,7 @@ const ProdutoresGestao = () => {
 
     const handleExport = () => {
         const dataToExport = filteredProdutores.map(produtor => ({
-            'Código SIGAF': produtor.codigoSIGAF,
+           
             'Nome': produtor.nome,
             'Número BI': produtor.numeroBI,
             'Género': produtor.genero,
@@ -368,7 +368,7 @@ const ProdutoresGestao = () => {
             'Inquiridor': produtor.inquiridor?.split(' - ')[1] || produtor.inquiridor
         }));
 
-        exportToExcel(dataToExport, 'produtores_sigaf', showToast);
+        exportToExcel(dataToExport, 'produtores_sigaf', 'Produtores Agrícola', showToast);
     };
 
     {/*const handleCadastroProdutor = () => {

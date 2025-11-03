@@ -1437,7 +1437,7 @@ const CadastroPragas = () => {
         </div>
 
         {/* Information Card */}
-        <div className="mt-8 bg-white p-8 shadow-sm rounded-2xl border border-gray-200">
+        {/*<div className="mt-8 bg-white p-8 shadow-sm rounded-2xl border border-gray-200">
           <div className="flex items-center text-blue-700 mb-4">
             <Info size={20} className="mr-3" />
             <h3 className="text-xl font-semibold">Sobre o Monitoramento de Pragas</h3>
@@ -1481,7 +1481,7 @@ const CadastroPragas = () => {
               sucesso do programa de controle integrado de pragas e para a sustentabilidade da produção agropecuária nacional.
             </p>
           </div>
-        </div>
+        </div>*/}
       </div>
     </div>
   );

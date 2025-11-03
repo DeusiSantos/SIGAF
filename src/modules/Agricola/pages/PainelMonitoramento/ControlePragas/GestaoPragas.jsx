@@ -25,7 +25,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CustomInput from '../../../../../core/components/CustomInput';
-
+import { exportToExcel } from '@/core/components/exportToExcel';
 
 const GestaoPragas = () => {
     const navigate = useNavigate();
@@ -322,6 +322,28 @@ const GestaoPragas = () => {
         return statusColors[status] || 'bg-gray-100 text-gray-800 border-gray-300';
     };
 
+
+
+     const handleExport = () => {
+        //  transformar os dados antes de exportar
+        const dataToExport = filteredPragas.map(praga => ({
+            'Nome da Praga': praga.nomePraga,
+            'Nome Local da Praga': praga.nomeLocalPraga.replace(/_/g, ' ').toUpperCase(),
+            'Data de Registro':praga.dataRegistro.split('T')[0],
+            'Tipo de Produção': praga.tipoProducao ,
+            'Tipo de Cultura': praga.culturaAfetada.join(', ').toUpperCase(),
+            'Nome da Propriedade': praga.nomePropriedade || praga.nomeFazenda,
+            'Províncias':praga.provincia,
+            'Município': praga.municipio,
+            'Comuna': praga.comuna.toUpperCase(),
+            'Grau do Dano': praga.grauDano,
+            'Valor Estimado (kz)': praga.valorEstimado,
+            'Estado': praga.status.replace(/_/g, ' '),
+                    }));
+
+        exportToExcel(dataToExport, 'monitoramento_de_pragas', 'Monitoramento de Pragas', showToast);
+    };
+
     // Calcular indicadores com base nos dados da API
     const totalOcorrencias = pragas.length;
     const totalLeves = pragas.filter(p => p.grauDano === 'Leve').length;
@@ -595,11 +617,11 @@ const GestaoPragas = () => {
                                 Atualizar
                             </button>
                             <button
-                                onClick={() => showToast('info', 'Exportar', 'Funcionalidade em desenvolvimento')}
+                                onClick={handleExport}
                                 className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
                             >
                                 <Download className="w-5 h-5 mr-2" />
-                                Exportar
+                                Exportar Excel
                             </button>
                         </div>
                     </div>
@@ -683,7 +705,7 @@ const GestaoPragas = () => {
                                     Praga/Doença
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                                    Produção Acfetada
+                                    Produção Afectada
                                 </th>
                                 {/* <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                                     Responsável

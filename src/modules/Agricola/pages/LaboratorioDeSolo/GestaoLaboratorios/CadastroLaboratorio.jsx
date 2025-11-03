@@ -1,28 +1,30 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { FlaskConical, TestTube, User, ChevronLeft, ChevronRight, Check, CheckCircle, AlertCircle, MapPin, Building2, Settings } from 'lucide-react';
 import CustomInput from '../../../../../core/components/CustomInput';
+import { useLaboratorio } from '../../../hooks/useLaboratorio';
+import provinciasData from '../../../../../core/components/Provincias.json';
 
 const CadastroLaboratorio = () => {
+    const { createLaboratorio, loading: hookLoading } = useLaboratorio();
     const [activeIndex, setActiveIndex] = useState(0);
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
     const [toastMessage, setToastMessage] = useState(null);
 
     const [formData, setFormData] = useState({
-        nomeLaboratorio: '',
+        nomeDoLaboratorio: '',
         sigla: '',
-        tipoLaboratorio: '',
+        tipoDeLaboratorio: '',
         provincia: '',
         municipio: '',
         enderecoCompleto: '',
         responsavelTecnico: '',
-        telefone: '',
+        contacto: '',
         email: '',
-        tiposAnalise: [],
-        capacidadeProcessamento: '',
-        status: 'ATIVO',
-        observacoes: '',
-        dataCadastro: new Date().toISOString().split('T')[0]
+        tiposDeAnalise: [],
+        capacidadeDeProcessamento: '',
+        estado: 'Activo',
+        observacoes: ''
     });
 
     const steps = [
@@ -38,26 +40,35 @@ const CadastroLaboratorio = () => {
         { value: 'PARCEIRO', label: 'Parceiro' }
     ];
 
-    const provinciaOptions = [
-        { value: 'LUANDA', label: 'Luanda' },
-        { value: 'BENGUELA', label: 'Benguela' },
-        { value: 'HUAMBO', label: 'Huambo' },
-        { value: 'HUILA', label: 'Huíla' },
-        { value: 'CABINDA', label: 'Cabinda' },
-        { value: 'CUNENE', label: 'Cunene' },
-        { value: 'NAMIBE', label: 'Namibe' },
-        { value: 'MOXICO', label: 'Moxico' },
-        { value: 'CUANDO_CUBANGO', label: 'Cuando Cubango' },
-        { value: 'LUNDA_NORTE', label: 'Lunda Norte' },
-        { value: 'LUNDA_SUL', label: 'Lunda Sul' },
-        { value: 'MALANJE', label: 'Malanje' },
-        { value: 'UIGE', label: 'Uíge' },
-        { value: 'ZAIRE', label: 'Zaire' },
-        { value: 'CUANZA_NORTE', label: 'Cuanza Norte' },
-        { value: 'CUANZA_SUL', label: 'Cuanza Sul' },
-        { value: 'BIE', label: 'Bié' },
-        { value: 'BENGO', label: 'Bengo' }
-    ];
+    // Opções de províncias do arquivo JSON
+    const provinciaOptions = useMemo(() => {
+        return provinciasData.map(provincia => ({
+            value: provincia.nome.toUpperCase().replace(/\s+/g, '_'),
+            label: provincia.nome
+        }));
+    }, []);
+
+    // Opções de municípios baseadas na província selecionada
+    const municipioOptions = useMemo(() => {
+        if (!formData.provincia) return [];
+        
+        const provinciaValue = typeof formData.provincia === 'object' ? formData.provincia.value : formData.provincia;
+        const provincia = provinciasData.find(p => 
+            p.nome.toUpperCase().replace(/\s+/g, '_') === provinciaValue
+        );
+        
+        if (!provincia) return [];
+        
+        try {
+            const municipios = JSON.parse(provincia.municipios);
+            return municipios.map(municipio => ({
+                value: municipio.toUpperCase().replace(/\s+/g, '_'),
+                label: municipio
+            }));
+        } catch {
+            return [];
+        }
+    }, [formData.provincia]);
 
     const tiposAnaliseOptions = [
         { value: 'QUIMICA', label: 'Química' },
@@ -67,8 +78,8 @@ const CadastroLaboratorio = () => {
     ];
 
     const statusOptions = [
-        { value: 'ATIVO', label: 'Ativo' },
-        { value: 'INATIVO', label: 'Inativo' }
+        { value: 'Activo', label: 'Activo' },
+        { value: 'Inactivo', label: 'Inactivo' }
     ];
 
     const showToast = (severity, summary, detail, duration = 3000) => {
@@ -77,10 +88,19 @@ const CadastroLaboratorio = () => {
     };
 
     const handleInputChange = (field, value) => {
-        setFormData(prev => ({
-            ...prev,
-            [field]: value
-        }));
+        setFormData(prev => {
+            const newData = {
+                ...prev,
+                [field]: value
+            };
+            
+            // Limpar município quando província mudar
+            if (field === 'provincia') {
+                newData.municipio = '';
+            }
+            
+            return newData;
+        });
     };
 
     const validateCurrentStep = () => {
@@ -88,9 +108,9 @@ const CadastroLaboratorio = () => {
 
         switch (activeIndex) {
             case 0: // Identificação
-                if (!formData.nomeLaboratorio) newErrors.nomeLaboratorio = 'Campo obrigatório';
+                if (!formData.nomeDoLaboratorio) newErrors.nomeDoLaboratorio = 'Campo obrigatório';
                 if (!formData.sigla) newErrors.sigla = 'Campo obrigatório';
-                if (!formData.tipoLaboratorio) newErrors.tipoLaboratorio = 'Campo obrigatório';
+                if (!formData.tipoDeLaboratorio) newErrors.tipoDeLaboratorio = 'Campo obrigatório';
                 break;
             case 1: // Localização
                 if (!formData.provincia) newErrors.provincia = 'Campo obrigatório';
@@ -98,15 +118,15 @@ const CadastroLaboratorio = () => {
                 break;
             case 2: // Responsável
                 if (!formData.responsavelTecnico) newErrors.responsavelTecnico = 'Campo obrigatório';
-                if (!formData.telefone) newErrors.telefone = 'Campo obrigatório';
+                if (!formData.contacto) newErrors.contacto = 'Campo obrigatório';
                 if (!formData.email) newErrors.email = 'Campo obrigatório';
                 break;
             case 3: // Configurações
-                if (!formData.tiposAnalise || formData.tiposAnalise.length === 0) {
-                    newErrors.tiposAnalise = 'Selecione pelo menos um tipo de análise';
+                if (!formData.tiposDeAnalise || formData.tiposDeAnalise.length === 0) {
+                    newErrors.tiposDeAnalise = 'Selecione pelo menos um tipo de análise';
                 }
-                if (!formData.capacidadeProcessamento) newErrors.capacidadeProcessamento = 'Campo obrigatório';
-                if (!formData.status) newErrors.status = 'Campo obrigatório';
+                if (!formData.capacidadeDeProcessamento) newErrors.capacidadeDeProcessamento = 'Campo obrigatório';
+                if (!formData.estado) newErrors.estado = 'Campo obrigatório';
                 break;
         }
 
@@ -116,34 +136,49 @@ const CadastroLaboratorio = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!validateCurrentStep()) return;
+        
         setLoading(true);
 
         try {
-            console.log('Dados do laboratório:', formData);
+            // Preparar dados para API
+            const dataToSend = {
+                ...formData,
+                tipoDeLaboratorio: typeof formData.tipoDeLaboratorio === 'object' ? formData.tipoDeLaboratorio.value : formData.tipoDeLaboratorio,
+                provincia: typeof formData.provincia === 'object' ? formData.provincia.value : formData.provincia,
+                estado: typeof formData.estado === 'object' ? formData.estado.value : formData.estado,
+                capacidadeDeProcessamento: parseInt(formData.capacidadeDeProcessamento) || 0,
+                tiposDeAnalise: Array.isArray(formData.tiposDeAnalise) 
+                    ? formData.tiposDeAnalise.map(item => typeof item === 'object' ? item.value : item)
+                    : []
+            };
+            
+            console.log('Dados enviados para API:', dataToSend);
+            await createLaboratorio(dataToSend);
             showToast('success', 'Sucesso', 'Laboratório cadastrado com sucesso!');
 
             // Reset form
             setFormData({
-                nomeLaboratorio: '',
+                nomeDoLaboratorio: '',
                 sigla: '',
-                tipoLaboratorio: '',
+                tipoDeLaboratorio: '',
                 provincia: '',
                 municipio: '',
                 enderecoCompleto: '',
                 responsavelTecnico: '',
-                telefone: '',
+                contacto: '',
                 email: '',
-                tiposAnalise: [],
-                capacidadeProcessamento: '',
-                status: 'ATIVO',
-                observacoes: '',
-                dataCadastro: new Date().toISOString().split('T')[0]
+                tiposDeAnalise: [],
+                capacidadeDeProcessamento: '',
+                estado: 'Activo',
+                observacoes: ''
             });
             setActiveIndex(0);
             setErrors({});
         } catch (error) {
-            showToast('error', 'Erro', 'Erro ao cadastrar laboratório.');
-            console.error('Erro ao cadastrar laboratório:', error);
+            console.error('Erro completo:', error);
+            console.error('Response data:', error.response?.data);
+            showToast('error', 'Erro', error.response?.data?.message || 'Erro ao cadastrar laboratório.');
         } finally {
             setLoading(false);
         }
@@ -177,10 +212,10 @@ const CadastroLaboratorio = () => {
                             <CustomInput
                                 type="text"
                                 label="Nome do Laboratório"
-                                value={formData.nomeLaboratorio}
-                                onChange={(value) => handleInputChange('nomeLaboratorio', value)}
+                                value={formData.nomeDoLaboratorio}
+                                onChange={(value) => handleInputChange('nomeDoLaboratorio', value)}
                                 required
-                                errorMessage={errors.nomeLaboratorio}
+                                errorMessage={errors.nomeDoLaboratorio}
                                 placeholder="Nome completo do laboratório"
                                 iconStart={<Building2 size={18} />}
                             />
@@ -199,11 +234,11 @@ const CadastroLaboratorio = () => {
                             <CustomInput
                                 type="select"
                                 label="Tipo de Laboratório"
-                                value={formData.tipoLaboratorio}
+                                value={formData.tipoDeLaboratorio}
                                 options={tipoLaboratorioOptions}
-                                onChange={(value) => handleInputChange('tipoLaboratorio', value)}
+                                onChange={(value) => handleInputChange('tipoDeLaboratorio', value)}
                                 required
-                                errorMessage={errors.tipoLaboratorio}
+                                errorMessage={errors.tipoDeLaboratorio}
                                 placeholder="Selecione o tipo"
                                 iconStart={<Building2 size={18} />}
                             />
@@ -237,13 +272,15 @@ const CadastroLaboratorio = () => {
                             />
 
                             <CustomInput
-                                type="text"
+                                type="select"
                                 label="Município"
                                 value={formData.municipio}
+                                options={municipioOptions}
                                 onChange={(value) => handleInputChange('municipio', value)}
                                 required
                                 errorMessage={errors.municipio}
-                                placeholder="Nome do município"
+                                placeholder={formData.provincia ? "Selecione o município" : "Selecione primeiro a província"}
+                                disabled={!formData.provincia}
                                 iconStart={<MapPin size={18} />}
                             />
 
@@ -286,10 +323,10 @@ const CadastroLaboratorio = () => {
                             <CustomInput
                                 type="text"
                                 label="Contacto (Telefone)"
-                                value={formData.telefone}
-                                onChange={(value) => handleInputChange('telefone', value)}
+                                value={formData.contacto}
+                                onChange={(value) => handleInputChange('contacto', value)}
                                 required
-                                errorMessage={errors.telefone}
+                                errorMessage={errors.contacto}
                                 placeholder="+244 XXX XXX XXX"
                                 iconStart={<User size={18} />}
                             />
@@ -324,11 +361,11 @@ const CadastroLaboratorio = () => {
                             <CustomInput
                                 type="multiselect"
                                 label="Tipos de Análise"
-                                value={formData.tiposAnalise}
+                                value={formData.tiposDeAnalise}
                                 options={tiposAnaliseOptions}
-                                onChange={(value) => handleInputChange('tiposAnalise', value)}
+                                onChange={(value) => handleInputChange('tiposDeAnalise', value)}
                                 required
-                                errorMessage={errors.tiposAnalise}
+                                errorMessage={errors.tiposDeAnalise}
                                 placeholder="Selecione os tipos de análise"
                                 iconStart={<TestTube size={18} />}
                             />
@@ -336,23 +373,23 @@ const CadastroLaboratorio = () => {
                             <CustomInput
                                 type="number"
                                 label="Capacidade de Processamento"
-                                value={formData.capacidadeProcessamento}
-                                onChange={(value) => handleInputChange('capacidadeProcessamento', value)}
+                                value={formData.capacidadeDeProcessamento}
+                                onChange={(value) => handleInputChange('capacidadeDeProcessamento', value)}
                                 required
-                                errorMessage={errors.capacidadeProcessamento}
+                                errorMessage={errors.capacidadeDeProcessamento}
                                 placeholder="Nº máximo de amostras/dia"
                                 iconStart={<Settings size={18} />}
                             />
 
                             <CustomInput
                                 type="select"
-                                label="Status"
-                                value={formData.status}
+                                label="Estado"
+                                value={formData.estado}
                                 options={statusOptions}
-                                onChange={(value) => handleInputChange('status', value)}
+                                onChange={(value) => handleInputChange('estado', value)}
                                 required
-                                errorMessage={errors.status}
-                                placeholder="Selecione o status"
+                                errorMessage={errors.estado}
+                                placeholder="Selecione o estado"
                                 iconStart={<Settings size={18} />}
                             />
 

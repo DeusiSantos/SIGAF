@@ -169,7 +169,7 @@ const GestaoEntrepostosMercado = () => {
             'Licença': entreposto.licencaDeFuncionamento,
         }));
 
-        exportToExcel(dataToExport, 'entreposto_sigaf', showToast);
+        exportToExcel(dataToExport, 'entreposto_sigaf', ' Entrepostos e Mercados', showToast);
     };
 
     // Navegação para visualizar associação rural

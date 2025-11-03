@@ -57,6 +57,7 @@ import BatchList from '../Agricola/pages/Exportacao/BatchList';
 import BatchTracking from '../Agricola/pages/Exportacao/BatchTracking';
 import PublicBatch from '../Agricola/pages/Exportacao/PublicBatch';
 import VisualizarEmpresaDeApoio from './pages/infraestrutura/empresasDeApoio/VisualizarEmpresaDeApoio';
+import VisualizarLaboratorio from './pages/LaboratorioDeSolo/GestaoLaboratorios/VisualizarLaboratorio';
 
 
 const AgricolaRoutes = () => {
@@ -152,6 +153,7 @@ const AgricolaRoutes = () => {
                 <Route path="ResultadosAnalises" element={<ResultadosAnalisesMenu />} />
                 <Route path="RelatoriosLaudos" element={<RelatoriosLaudosMenu />} />
                 <Route path="GestaoLaboratorios" element={<GestaoLaboratoriosMenu />} />
+                <Route path="visualizar/:id" element={<VisualizarLaboratorio />} />
             </Route>
 
             <Route path="painel-monitoramento">

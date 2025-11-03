@@ -31,6 +31,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import CustomInput from '../../../../core/components/CustomInput';
 import api from '../../../../core/services/api';
 import { useProjetos } from '../../../hooks/useRnpaData';
+import { exportToExcel } from '@/core/components/exportToExcel';
 
 // const projetosEstaticos = [ ... ]; // Remover ou comentar
 
@@ -175,6 +176,32 @@ const GestaoProjetos = () => {
 
         return matchesSearch && matchesFase && matchesStatus && matchesProvincia && matchesTipoCredito;
     });
+
+
+
+    const handleExport = () => {
+        //  transformar os dados antes de exportar
+        const dataToExport = filteredProjetos.map(projetos => ({
+            'Nome do Projecto': projetos.nomeProjeto || '—',
+            'Entidade': projetos.entidadeImplementadora
+                ? projetos.entidadeImplementadora.toString().replace(/_/g, ' ')
+                : '—',
+            'Fase': projetos.faseProjeto
+                ? projetos.faseProjeto.toString().replace(/[-_]/g, ' ')
+                : '—',
+            'Número de Beneficiários': projetos.numeroBeneficiarios ?? '—',
+            'Montante': projetos.valorGlobalProjeto ?? '—',
+            'Tipo de Apoio': projetos.tipoCredito
+                ? projetos.tipoCredito.toString().replace(/_/g, ' ')
+                : '—',
+            'Províncias Abrangidas': Array.isArray(projetos.provinciasAbrangidas)
+                ? projetos.provinciasAbrangidas.join(', ').replace(/_/g, ' ')
+                : (projetos.provinciasAbrangidas?.toString().replace(/_/g, ' ') || '—')
+
+        }));
+
+        exportToExcel(dataToExport, 'empresas_apoio_agricola', 'Projectos Agrícolas', showToast);
+    };
 
     // Paginação
     const totalPages = Math.ceil(filteredProjetos.length / itemsPerPage);
@@ -525,19 +552,13 @@ const GestaoProjetos = () => {
                         </div>
                         <div className="flex gap-4">
 
+
                             <button
-                                onClick={() => showToast('info', 'Função', 'Importar projectos')}
-                                className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
-                            >
-                                <Upload className="w-5 h-5 mr-2" />
-                                Importar
-                            </button>
-                            <button
-                                onClick={() => showToast('info', 'Função', 'Exportar relatório de projectos')}
+                                onClick={handleExport}
                                 className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
                             >
                                 <Download className="w-5 h-5 mr-2" />
-                                Exportar
+                                Exportar  Excel
                             </button>
                         </div>
                     </div>
@@ -653,6 +674,7 @@ const GestaoProjetos = () => {
                             </thead>
                             <tbody className="divide-y divide-gray-200 bg-white">
                                 {getCurrentItems().map((projeto) => (
+
                                     <tr key={projeto.id} className="hover:bg-blue-50 transition-colors">
                                         <td className="px-4 py-4 whitespace-nowrap ">
                                             <div className="flex items-center">

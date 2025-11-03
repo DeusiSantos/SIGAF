@@ -212,7 +212,7 @@ const GestaoInfraestruturaAgricola = () => {
             'Município': infra.municipio,
         }));
 
-        exportToExcel(dataToExport, 'infraestrutura_sigaf', showToast);
+        exportToExcel(dataToExport, 'infraestrutura_sigaf','Infraestruturas Agrícolas', showToast);
     };
 
 
