@@ -456,7 +456,7 @@ const CadastroLaboratorio = () => {
                                     <div className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${isActive
                                         ? 'bg-blue-600 text-white'
                                         : isCompleted
-                                            ? 'bg-green-500 text-white'
+                                            ? 'bg-blue-500 text-white'
                                             : 'bg-gray-200 text-gray-500'
                                         }`}>
                                         {isCompleted ? (
@@ -465,7 +465,7 @@ const CadastroLaboratorio = () => {
                                             <Icon size={24} />
                                         )}
                                     </div>
-                                    <span className={`text-sm text-center font-medium ${isActive ? 'text-blue-700' : isCompleted ? 'text-green-600' : 'text-gray-500'
+                                    <span className={`text-sm text-center font-medium ${isActive ? 'text-blue-700' : isCompleted ? 'text-blue-600' : 'text-gray-500'
                                         }`}>
                                         {step.label}
                                     </span>

@@ -19,83 +19,14 @@ import {
     Edit
 } from 'lucide-react';
 import CustomInput from '../../../../../core/components/CustomInput';
-
-// Dados fictícios dos métodos de ensaio
-const metodosData = [
-    {
-        id: 1,
-        tipoAnalise: "Físico-química",
-        tipoAmostra: "Solo",
-        parametroAnalise: "pH",
-        formulaQuimica: "H+",
-        metodoAnalise: "Potenciométrico",
-        laboratorio: "Lab Central Luanda",
-        limiteInferior: 4.5,
-        limiteSuperior: 7.5,
-        unidade: "—",
-        preco: 1500,
-        status: "ATIVO"
-    },
-    {
-        id: 2,
-        tipoAnalise: "Físico-química",
-        tipoAmostra: "Solo",
-        parametroAnalise: "Fósforo (P)",
-        formulaQuimica: "P",
-        metodoAnalise: "Fotocolorimetria",
-        laboratorio: "Lab Central Luanda",
-        limiteInferior: 15.0,
-        limiteSuperior: 40.0,
-        unidade: "mg/dm³",
-        preco: 2000,
-        status: "ATIVO"
-    },
-    {
-        id: 3,
-        tipoAnalise: "Físico-química",
-        tipoAmostra: "Solo",
-        parametroAnalise: "Potássio (K)",
-        formulaQuimica: "K",
-        metodoAnalise: "Fotometria de Chama",
-        laboratorio: "Lab Benguela",
-        limiteInferior: 0.15,
-        limiteSuperior: 0.40,
-        unidade: "cmolc/dm³",
-        preco: 1800,
-        status: "ATIVO"
-    },
-    {
-        id: 4,
-        tipoAnalise: "Físico-química",
-        tipoAmostra: "Solo",
-        parametroAnalise: "Matéria Orgânica",
-        formulaQuimica: "MO",
-        metodoAnalise: "Walkley-Black",
-        laboratorio: "Lab Central Luanda",
-        limiteInferior: 2.0,
-        limiteSuperior: 5.0,
-        unidade: "%",
-        preco: 2500,
-        status: "ATIVO"
-    },
-    {
-        id: 5,
-        tipoAnalise: "Físico-química",
-        tipoAmostra: "Solo",
-        parametroAnalise: "Cálcio (Ca)",
-        formulaQuimica: "Ca",
-        metodoAnalise: "Espectrofotometria",
-        laboratorio: "Lab Huambo",
-        limiteInferior: 1.0,
-        limiteSuperior: 4.0,
-        unidade: "cmolc/dm³",
-        preco: 1700,
-        status: "INATIVO"
-    }
-];
+import { useMetodosEnsaios } from '../../../hooks/useMetodosEnsaios';
+import { useLaboratorio } from '../../../hooks/useLaboratorio';
+import { exportToExcel } from '@/core/components/exportToExcel';
 
 const GestaoMetodosEnsaios = () => {
     const navigate = useNavigate();
+    const { metodosEnsaios, loading, error, deleteMetodoEnsaio } = useMetodosEnsaios();
+    const { laboratorios } = useLaboratorio();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedTipoAnalise, setSelectedTipoAnalise] = useState('');
     const [selectedTipoAmostra, setSelectedTipoAmostra] = useState('');
@@ -150,14 +81,14 @@ const GestaoMetodosEnsaios = () => {
     };
 
     // Filtragem dos métodos
-    const filteredMetodos = metodosData.filter(metodo => {
+    const filteredMetodos = metodosEnsaios.filter(metodo => {
         const matchesSearch = !searchTerm ||
-            metodo.parametroAnalise?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            metodo.metodoAnalise?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            metodo.laboratorio?.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesTipoAnalise = !selectedTipoAnalise || metodo.tipoAnalise === selectedTipoAnalise;
-        const matchesTipoAmostra = !selectedTipoAmostra || metodo.tipoAmostra === selectedTipoAmostra;
-        const matchesLaboratorio = !selectedLaboratorio || metodo.laboratorio === selectedLaboratorio;
+            metodo.parametroDeAnalise?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            metodo.metodoDeAnalise?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            metodo.laboratorioExecutor?.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesTipoAnalise = !selectedTipoAnalise || metodo.tipoDeAnalise === selectedTipoAnalise;
+        const matchesTipoAmostra = !selectedTipoAmostra || metodo.tipoDeAmostra === selectedTipoAmostra;
+        const matchesLaboratorio = !selectedLaboratorio || metodo.laboratorioExecutor === selectedLaboratorio;
 
         return matchesSearch && matchesTipoAnalise && matchesTipoAmostra && matchesLaboratorio;
     });
@@ -170,9 +101,28 @@ const GestaoMetodosEnsaios = () => {
         return filteredMetodos.slice(startIndex, endIndex);
     };
 
+
+    const handleExport = () => {
+        //  transformar os dados antes de exportar
+        const dataToExport = filteredMetodos.map(metodo => ({
+            'Parâmetro de Análise': metodo.parametroDeAnalise,
+            'Método de Análise': metodo.metodoDeAnalise.replace(/_/g, ' '),
+            'Tipo de Análise': metodo.tipoDeAnalise.replace(/[-_]/g, ' '),
+            'Amostra': metodo.tipoDeAmostra,
+            'Laboratório Executor': metodo.laboratorioExecutor,
+            'Limite Inferior': metodo.limiteInferior,
+            'Limite Superior': metodo.limiteSuperior,
+            'Unidade de Medida': metodo.unidadeDeMedida,
+            'Preço do Ensaio': metodo.precoDoEnsaio,
+        }));
+
+        exportToExcel(dataToExport, 'gestão_de_métodos_e_ensaios', 'Gestão de Métodos e Ensaios', showToast);
+    };
+
     // Navegação para visualizar método
     const handleViewMetodo = (metodoId) => {
-        navigate(`/GerenciaSIGAF/laboratorio-solo/metodos-ensaios/visualizar/${metodoId}`);
+
+        navigate(`/GerenciaSIGAF/LaboratorioDeSolo/visualizar-ensaio/${metodoId}`);
     };
 
     // Navegação para editar método
@@ -185,10 +135,16 @@ const GestaoMetodosEnsaios = () => {
         navigate('/GerenciaSIGAF/laboratorio-solo/metodos-ensaios/cadastro');
     };
 
+    // Função para obter status do laboratório
+    const getLaboratorioStatus = (laboratorioNome) => {
+        const lab = laboratorios.find(l => l.nomeDoLaboratorio === laboratorioNome);
+        return lab?.estado || 'Inativo';
+    };
+
     // Extrair valores únicos para filtros
-    const uniqueTiposAnalise = [...new Set(metodosData.map(m => m.tipoAnalise))].filter(Boolean);
-    const uniqueTiposAmostra = [...new Set(metodosData.map(m => m.tipoAmostra))].filter(Boolean);
-    const uniqueLaboratorios = [...new Set(metodosData.map(m => m.laboratorio))].filter(Boolean);
+    const uniqueTiposAnalise = [...new Set(metodosEnsaios.map(m => m.tipoDeAnalise))].filter(Boolean);
+    const uniqueTiposAmostra = [...new Set(metodosEnsaios.map(m => m.tipoDeAmostra))].filter(Boolean);
+    const uniqueLaboratorios = [...new Set(metodosEnsaios.map(m => m.laboratorioExecutor))].filter(Boolean);
 
     // Função para abrir modal de confirmação
     const openDeleteModal = (metodoId) => {
@@ -206,8 +162,7 @@ const GestaoMetodosEnsaios = () => {
     const handleConfirmDelete = async () => {
         if (!metodoDelete) return;
         try {
-            // Simular exclusão - substituir pela API real
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await deleteMetodoEnsaio(metodoDelete);
             showToast('success', 'Excluído', 'Método de ensaio excluído com sucesso!');
         } catch (err) {
             showToast('error', 'Erro', 'Erro ao excluir método de ensaio.');
@@ -307,7 +262,7 @@ const GestaoMetodosEnsaios = () => {
     // Modal de confirmação visual
     const DeleteConfirmModal = () => {
         if (!showDeleteModal) return null;
-        const metodo = metodosData.find(m => m.id === metodoDelete);
+        const metodo = metodosEnsaios.find(m => m.id === metodoDelete);
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
                 <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm flex flex-col items-center">
@@ -316,7 +271,7 @@ const GestaoMetodosEnsaios = () => {
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Confirmar Exclusão</h3>
                     <p className="text-gray-600 text-center text-sm mb-4">
-                        Tem certeza que deseja excluir o método <span className="font-semibold text-red-600">{metodo?.parametroAnalise || 'Selecionado'}</span>?<br />
+                        Tem certeza que deseja excluir o método <span className="font-semibold text-red-600">{metodo?.parametroDeAnalise || 'Selecionado'}</span>?<br />
                         Esta ação não pode ser desfeita.
                     </p>
                     <div className="flex gap-3 mt-2 w-full">
@@ -352,7 +307,7 @@ const GestaoMetodosEnsaios = () => {
                         </div>
                         <div className="ml-4">
                             <p className="text-sm font-medium text-gray-500">Total de Métodos</p>
-                            <p className="text-2xl font-bold text-gray-900">{metodosData.length}</p>
+                            <p className="text-2xl font-bold text-gray-900">{metodosEnsaios.length}</p>
                         </div>
                     </div>
                 </div>
@@ -365,7 +320,7 @@ const GestaoMetodosEnsaios = () => {
                         <div className="ml-4">
                             <p className="text-sm font-medium text-gray-500">Métodos Activos</p>
                             <p className="text-2xl font-bold text-gray-900">
-                                {metodosData.filter(m => m.status === 'ATIVO').length}
+                                {metodosEnsaios.length}
                             </p>
                         </div>
                     </div>
@@ -393,7 +348,7 @@ const GestaoMetodosEnsaios = () => {
                         <div className="ml-4">
                             <p className="text-sm font-medium text-gray-500">Preço Médio</p>
                             <p className="text-2xl font-bold text-gray-900">
-                                {Math.round(metodosData.reduce((sum, m) => sum + m.preco, 0) / metodosData.length).toLocaleString()} Kz
+                                {metodosEnsaios.length > 0 ? Math.round(metodosEnsaios.reduce((sum, m) => sum + m.precoDoEnsaio, 0) / metodosEnsaios.length).toLocaleString() : 0} Kz
                             </p>
                         </div>
                     </div>
@@ -409,13 +364,13 @@ const GestaoMetodosEnsaios = () => {
                             <p className="text-blue-100 mt-1">Administre métodos analíticos e parâmetros de solo</p>
                         </div>
                         <div className="flex gap-4">
-                           
+
                             <button
-                                onClick={() => showToast('info', 'Função', 'Exportar dados dos métodos')}
+                                onClick={handleExport}
                                 className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
                             >
                                 <Download className="w-5 h-5 mr-2" />
-                                Exportar
+                                Exportar Excel
                             </button>
                         </div>
                     </div>
@@ -521,33 +476,34 @@ const GestaoMetodosEnsaios = () => {
                                 <tr key={metodo.id} className="hover:bg-blue-50 transition-colors">
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-start">
-                                            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-600 to-blue-500 flex items-center justify-center font-semibold text-sm">
-                                                <span className='text-white'>{metodo.formulaQuimica || metodo.parametroAnalise?.substring(0, 2).toUpperCase()}</span>
+                                            <div className="w-10 h-10 rounded-full bg-gradient-to-r first-letter:uppercase from-blue-600 to-blue-500 flex items-center justify-center font-semibold text-sm">
+                                                <span className='text-white'>{metodo.formulaQuimica || metodo.parametroDeAnalise?.substring(0, 2).toUpperCase()}</span>
                                             </div>
                                             <div className="ml-4">
-                                                <div className="text-sm font-semibold text-gray-900">{metodo.parametroAnalise}</div>
-                                                <div className="text-xs text-gray-500 mt-1">{metodo.metodoAnalise}</div>
+                                                <div className="first-letter:uppercase  text-sm font-semibold text-gray-900">{metodo.parametroDeAnalise}</div>
+                                                <div className="first-letter:uppercase  text-xs text-gray-500 mt-1">{metodo.metodoDeAnalise}</div>
                                             </div>
                                         </div>
                                     </td>
 
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="space-y-2">
-                                            <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
-                                                {metodo.tipoAnalise}
+                                            <div className="first-letter:uppercase inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                                                {metodo.tipoDeAnalise}
                                             </div>
                                             <div className="text-xs text-gray-600">
-                                                Amostra: {metodo.tipoAmostra}
+                                                Amostra: {metodo.tipoDeAmostra}
                                             </div>
                                         </div>
                                     </td>
 
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm text-gray-900">{metodo.laboratorio}</div>
-                                        <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mt-1 ${
-                                            metodo.status === 'ATIVO' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                        }`}>
-                                            {metodo.status}
+                                    <td className="px-6 py-4 whitespace-normal">
+                                        <div className="text-sm text-gray-900">{metodo.laboratorioExecutor}</div>
+                                        <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mt-1 ${getLaboratorioStatus(metodo.laboratorioExecutor) === 'Activo'
+                                                ? 'bg-green-100 text-green-800'
+                                                : 'bg-red-100 text-red-800'
+                                            }`}>
+                                            {getLaboratorioStatus(metodo.laboratorioExecutor)}
                                         </div>
                                     </td>
 
@@ -555,12 +511,12 @@ const GestaoMetodosEnsaios = () => {
                                         <div className="text-sm text-gray-900">
                                             {metodo.limiteInferior} - {metodo.limiteSuperior}
                                         </div>
-                                        <div className="text-xs text-gray-500">{metodo.unidade}</div>
+                                        <div className="text-xs text-gray-500">{metodo.unidadeDeMedida}</div>
                                     </td>
 
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="text-sm font-semibold text-gray-900">
-                                            {metodo.preco.toLocaleString()} Kz
+                                            {metodo.precoDoEnsaio?.toLocaleString()} Kz
                                         </div>
                                     </td>
 
@@ -651,27 +607,27 @@ const GestaoMetodosEnsaios = () => {
                                 <div className="flex-1 ml-4">
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <h3 className="text-sm font-semibold text-gray-900">{metodo.parametroAnalise}</h3>
-                                            <div className="text-xs text-gray-500 mt-1">{metodo.metodoAnalise}</div>
-                                            <div className="text-xs text-gray-500">{metodo.laboratorio}</div>
+                                            <h3 className="text-sm font-semibold text-gray-900">{metodo.parametroDeAnalise}</h3>
+                                            <div className="text-xs text-gray-500 mt-1">{metodo.metodoDeAnalise}</div>
+                                            <div className="text-xs text-gray-500">{metodo.laboratorioExecutor}</div>
                                         </div>
                                         <div className="text-sm font-semibold text-gray-900">
-                                            {metodo.preco.toLocaleString()} Kz
+                                            {metodo.precoDoEnsaio?.toLocaleString()} Kz
                                         </div>
                                     </div>
 
                                     <div className="mt-3 grid grid-cols-2 gap-2">
                                         <div className="text-xs text-gray-700">
-                                            <span className="font-medium">Tipo:</span> {metodo.tipoAnalise}
+                                            <span className="font-medium">Tipo:</span> {metodo.tipoDeAnalise}
                                         </div>
                                         <div className="text-xs text-gray-700">
-                                            <span className="font-medium">Amostra:</span> {metodo.tipoAmostra}
+                                            <span className="font-medium">Amostra:</span> {metodo.tipoDeAmostra}
                                         </div>
                                         <div className="text-xs text-gray-700">
                                             <span className="font-medium">Limites:</span> {metodo.limiteInferior} - {metodo.limiteSuperior}
                                         </div>
                                         <div className="text-xs text-gray-700">
-                                            <span className="font-medium">Unidade:</span> {metodo.unidade}
+                                            <span className="font-medium">Unidade:</span> {metodo.unidadeDeMedida}
                                         </div>
                                     </div>
 
@@ -700,10 +656,11 @@ const GestaoMetodosEnsaios = () => {
                                             </button>
                                         </div>
 
-                                        <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                            metodo.status === 'ATIVO' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                        }`}>
-                                            {metodo.status}
+                                        <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getLaboratorioStatus(metodo.laboratorioExecutor) === 'Activo'
+                                                ? 'bg-green-100 text-green-800'
+                                                : 'bg-red-100 text-red-800'
+                                            }`}>
+                                            {getLaboratorioStatus(metodo.laboratorioExecutor)}
                                         </div>
                                     </div>
                                 </div>

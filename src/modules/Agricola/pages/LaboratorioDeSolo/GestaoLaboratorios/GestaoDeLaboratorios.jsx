@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import CustomInput from '../../../../../core/components/CustomInput';
 import { useLaboratorio } from '../../../hooks/useLaboratorio';
+import { exportToExcel } from '@/core/components/exportToExcel';
 
 const GestaoDeLaboratorios = () => {
     const navigate = useNavigate();
@@ -135,6 +136,27 @@ const GestaoDeLaboratorios = () => {
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
         return filteredLaboratorios.slice(startIndex, endIndex);
+    };
+
+
+
+
+     const handleExport = () => {
+        //  transformar os dados antes de exportar
+        const dataToExport = filteredLaboratorios.map(laboratorio => ({
+            'Nome do Laboratório': laboratorio.nomeDoLaboratorio,
+            'Tipo de Laboratório': laboratorio.tipoDeLaboratorio.replace(/_/g, ' '),
+            'Província':laboratorio.provincia.replace(/[-_]/g, ' '),
+            'Municipio': laboratorio.municipio ,		'	Responsável': laboratorio.responsavelTecnico,
+
+            'Contacto': laboratorio.contacto,
+            'Email': laboratorio.email,
+            'Tipos de Análise': laboratorio.tiposDeAnalise.join(', ').replace(/_/g, ' '),
+            'Capacidade de Processamento': laboratorio.capacidadeDeProcessamento,
+            'Estado': laboratorio.estado,
+                    }));
+
+        exportToExcel(dataToExport, 'gestão_de_laboratório', 'Gestão de Laboratórios', showToast);
     };
 
     // Navegação para visualizar laboratório
@@ -403,11 +425,11 @@ const GestaoDeLaboratorios = () => {
                         <div className="flex gap-4">
                            
                             <button
-                                onClick={() => showToast('info', 'Função', 'Exportar dados dos laboratórios')}
+                                onClick={handleExport}
                                 className="inline-flex items-center px-4 py-2 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition-colors shadow-sm font-medium"
                             >
                                 <Download className="w-5 h-5 mr-2" />
-                                Exportar
+                                Exportar Excel
                             </button>
                         </div>
                     </div>

@@ -1,25 +1,30 @@
 import { useState } from 'react';
 import { Save, AlertCircle, CheckCircle, FlaskConical, TestTube, BarChart3, DollarSign, ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import CustomInput from '../../../../../core/components/CustomInput';
+import { useMetodosEnsaios } from '../../../hooks/useMetodosEnsaios';
+import { useLaboratorio } from '../../../hooks/useLaboratorio';
 
 const CadastroMetodosEnsaios = () => {
+    const { createMetodoEnsaio } = useMetodosEnsaios();
+    const { laboratorios } = useLaboratorio();
     const [activeIndex, setActiveIndex] = useState(0);
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
     const [toastMessage, setToastMessage] = useState(null);
 
     const [formData, setFormData] = useState({
-        tipoAnalise: '',
-        tipoAmostra: 'Solo',
-        parametroAnalise: '',
+        tipoDeAnalise: '',
+        tipoDeAmostra: 'Solo',
+        parametroDeAnalise: '',
         formulaQuimica: '',
-        metodoAnalise: '',
+        metodoDeAnalise: '',
         laboratorioExecutor: '',
         limiteInferior: '',
         limiteSuperior: '',
-        unidadeMedida: '',
-        precoEnsaio: '',
-        observacoes: ''
+        unidadeDeMedida: '',
+        precoDoEnsaio: '',
+        observacoes: '',
+        gestaoDeLaboratorioId: ''
     });
 
     const steps = [
@@ -85,10 +90,16 @@ const CadastroMetodosEnsaios = () => {
         { value: 'cromatografia-gasosa', label: 'Cromatografia Gasosa' }
     ];
 
-    const laboratorios = [
-        { value: 'lab-central', label: 'Lab Central' },
-        { value: 'siglab-central', label: 'SIGLAB Central' }
-    ];
+    // Debug: verificar dados dos laboratórios
+    console.log('Laboratórios da API:', laboratorios);
+
+    // Converter laboratórios da API para formato do select
+    const laboratoriosOptions = laboratorios?.map(lab => ({
+        value: lab.id,
+        label: lab.nome || lab.nomeDoLaboratorio || 'Laboratório sem nome'
+    })) || [];
+
+    console.log('Opções de laboratórios:', laboratoriosOptions);
 
     const unidadesMedida = [
         { value: 'cmolc/dm3', label: 'cmolc/dm³' },
@@ -104,10 +115,22 @@ const CadastroMetodosEnsaios = () => {
             const newData = { ...prev, [field]: value };
 
             // Auto-select method and formula when parameter changes
-            if (field === 'parametroAnalise' && value && parametroConfig[value]) {
+            if (field === 'parametroDeAnalise' && value && parametroConfig[value]) {
                 const config = parametroConfig[value];
-                newData.metodoAnalise = config.metodo;
+                newData.metodoDeAnalise = config.metodo;
                 newData.formulaQuimica = config.formula;
+            }
+
+            // Set gestaoDeLaboratorioId when laboratorioExecutor changes
+            if (field === 'laboratorioExecutor') {
+                console.log('Laboratório selecionado - value:', value);
+                newData.gestaoDeLaboratorioId = value;
+                // Also set the laboratorioExecutor name for display
+                const selectedLab = laboratorios.find(lab => lab.id === value);
+                console.log('Laboratório encontrado:', selectedLab);
+                if (selectedLab) {
+                    newData.laboratorioExecutorName = selectedLab.nome || selectedLab.nomeDoLaboratorio;
+                }
             }
 
             return newData;
@@ -121,15 +144,15 @@ const CadastroMetodosEnsaios = () => {
 
         switch (activeIndex) {
             case 0: // Identificação
-                if (!formData.tipoAnalise) newErrors.tipoAnalise = 'Campo obrigatório';
+                if (!formData.tipoDeAnalise) newErrors.tipoDeAnalise = 'Campo obrigatório';
                 break;
             case 1: // Parâmetros
-                if (!formData.parametroAnalise) newErrors.parametroAnalise = 'Campo obrigatório';
-                if (!formData.metodoAnalise) newErrors.metodoAnalise = 'Campo obrigatório';
+                if (!formData.parametroDeAnalise) newErrors.parametroDeAnalise = 'Campo obrigatório';
+                if (!formData.metodoDeAnalise) newErrors.metodoDeAnalise = 'Campo obrigatório';
                 if (!formData.laboratorioExecutor) newErrors.laboratorioExecutor = 'Campo obrigatório';
                 break;
             case 3: // Preço
-                if (!formData.precoEnsaio) newErrors.precoEnsaio = 'Campo obrigatório';
+                if (!formData.precoDoEnsaio) newErrors.precoDoEnsaio = 'Campo obrigatório';
                 break;
         }
 
@@ -141,29 +164,78 @@ const CadastroMetodosEnsaios = () => {
         e.preventDefault();
         setLoading(true);
 
+        console.log('=== INÍCIO DO SUBMIT ===');
+        console.log('formData no início:', formData);
+        console.log('Validação dos campos:');
+        console.log('- tipoDeAnalise:', formData.tipoDeAnalise);
+        console.log('- parametroDeAnalise:', formData.parametroDeAnalise);
+        console.log('- metodoDeAnalise:', formData.metodoDeAnalise);
+        console.log('- laboratorioExecutor:', formData.laboratorioExecutor);
+        console.log('- precoDoEnsaio:', formData.precoDoEnsaio);
+
         try {
-            console.log('Dados do método:', formData);
+            // Validate required fields before sending
+            if (!formData.tipoDeAnalise || !formData.parametroDeAnalise || !formData.metodoDeAnalise || !formData.laboratorioExecutor || !formData.precoDoEnsaio) {
+                console.log('VALIDAÇÃO FALHOU - campos obrigatórios não preenchidos');
+                showToast('error', 'Erro', 'Preencha todos os campos obrigatórios');
+                setLoading(false);
+                return;
+            }
+
+            // Extract values from objects
+            const labId = formData.laboratorioExecutor?.value || formData.laboratorioExecutor;
+            const selectedLab = laboratorios.find(lab => lab.id === labId);
+            
+            console.log('labId extraído:', labId);
+            console.log('selectedLab encontrado:', selectedLab);
+            
+            if (!selectedLab) {
+                showToast('error', 'Erro', 'Laboratório selecionado não encontrado');
+                setLoading(false);
+                return;
+            }
+
+            const dataToSend = {
+                tipoDeAnalise: formData.tipoDeAnalise?.value || formData.tipoDeAnalise,
+                tipoDeAmostra: formData.tipoDeAmostra?.value || formData.tipoDeAmostra,
+                parametroDeAnalise: formData.parametroDeAnalise?.value || formData.parametroDeAnalise,
+                formulaQuimica: formData.formulaQuimica || '',
+                metodoDeAnalise: formData.metodoDeAnalise?.value || formData.metodoDeAnalise,
+                laboratorioExecutor: selectedLab.nomeDoLaboratorio,
+                limiteInferior: parseFloat(formData.limiteInferior) || 0,
+                limiteSuperior: parseFloat(formData.limiteSuperior) || 0,
+                unidadeDeMedida: formData.unidadeDeMedida?.value || formData.unidadeDeMedida,
+                precoDoEnsaio: parseFloat(formData.precoDoEnsaio),
+                observacoes: formData.observacoes || '',
+                gestaoDeLaboratorioId: selectedLab.id
+            };
+            
+            console.log('Dados a serem enviados para a API:', dataToSend);
+            await createMetodoEnsaio(dataToSend);
             showToast('success', 'Sucesso', 'Método de ensaio cadastrado com sucesso!');
 
             // Reset form
             setFormData({
-                tipoAnalise: '',
-                tipoAmostra: 'Solo',
-                parametroAnalise: '',
+                tipoDeAnalise: '',
+                tipoDeAmostra: 'Solo',
+                parametroDeAnalise: '',
                 formulaQuimica: '',
-                metodoAnalise: '',
+                metodoDeAnalise: '',
                 laboratorioExecutor: '',
                 limiteInferior: '',
                 limiteSuperior: '',
-                unidadeMedida: '',
-                precoEnsaio: '',
-                observacoes: ''
+                unidadeDeMedida: '',
+                precoDoEnsaio: '',
+                observacoes: '',
+                gestaoDeLaboratorioId: ''
             });
             setActiveIndex(0);
             setErrors({});
         } catch (error) {
-            showToast('error', 'Erro', 'Erro ao cadastrar método de ensaio.');
+            const errorMessage = error.response?.data?.message || error.response?.data || error.message || 'Erro desconhecido';
+            showToast('error', 'Erro', `Erro ao cadastrar método de ensaio: ${errorMessage}`);
             console.error('Erro ao cadastrar método de ensaio:', error);
+            console.error('Resposta da API:', error.response?.data);
         } finally {
             setLoading(false);
         }
@@ -197,11 +269,11 @@ const CadastroMetodosEnsaios = () => {
                             <CustomInput
                                 type="select"
                                 label="Tipo de Análise"
-                                value={formData.tipoAnalise}
+                                value={formData.tipoDeAnalise}
                                 options={tiposAnalise}
-                                onChange={(value) => handleInputChange('tipoAnalise', value)}
+                                onChange={(value) => handleInputChange('tipoDeAnalise', value)}
                                 required
-                                errorMessage={errors.tipoAnalise}
+                                errorMessage={errors.tipoDeAnalise}
                                 placeholder="Selecione o tipo de análise"
                                 iconStart={<FlaskConical size={18} />}
                             />
@@ -209,9 +281,9 @@ const CadastroMetodosEnsaios = () => {
                             <CustomInput
                                 type="select"
                                 label="Tipo de Amostra"
-                                value={formData.tipoAmostra}
+                                value={formData.tipoDeAmostra}
                                 options={tiposAmostra}
-                                onChange={(value) => handleInputChange('tipoAmostra', value)}
+                                onChange={(value) => handleInputChange('tipoDeAmostra', value)}
                                 placeholder="Selecione o tipo de amostra"
                                 iconStart={<TestTube size={18} />}
                             />
@@ -236,11 +308,11 @@ const CadastroMetodosEnsaios = () => {
                             <CustomInput
                                 type="select"
                                 label="Parâmetro de Análise"
-                                value={formData.parametroAnalise}
+                                value={formData.parametroDeAnalise}
                                 options={parametrosAnalise}
-                                onChange={(value) => handleInputChange('parametroAnalise', value)}
+                                onChange={(value) => handleInputChange('parametroDeAnalise', value)}
                                 required
-                                errorMessage={errors.parametroAnalise}
+                                errorMessage={errors.parametroDeAnalise}
                                 placeholder="Selecione o parâmetro"
                                 iconStart={<TestTube size={18} />}
                             />
@@ -258,11 +330,11 @@ const CadastroMetodosEnsaios = () => {
                             <CustomInput
                                 type="select"
                                 label="Método de Análise"
-                                value={formData.metodoAnalise}
+                                value={formData.metodoDeAnalise}
                                 options={metodosAnalise}
-                                onChange={(value) => handleInputChange('metodoAnalise', value)}
+                                onChange={(value) => handleInputChange('metodoDeAnalise', value)}
                                 required
-                                errorMessage={errors.metodoAnalise}
+                                errorMessage={errors.metodoDeAnalise}
                                 placeholder="Selecione o método de análise"
                                 iconStart={<FlaskConical size={18} />}
                             />
@@ -272,11 +344,11 @@ const CadastroMetodosEnsaios = () => {
                                 type="select"
                                 label="Laboratório Executor"
                                 value={formData.laboratorioExecutor}
-                                options={laboratorios}
+                                options={laboratoriosOptions.length > 0 ? laboratoriosOptions : [{ value: '', label: 'Carregando laboratórios...' }]}
                                 onChange={(value) => handleInputChange('laboratorioExecutor', value)}
                                 required
                                 errorMessage={errors.laboratorioExecutor}
-                                placeholder="Selecione o laboratório"
+                                placeholder={laboratoriosOptions.length > 0 ? "Selecione o laboratório" : "Nenhum laboratório disponível"}
                                 iconStart={<TestTube size={18} />}
                             />
                         </div>
@@ -318,9 +390,9 @@ const CadastroMetodosEnsaios = () => {
                             <CustomInput
                                 type="select"
                                 label="Unidade de Medida"
-                                value={formData.unidadeMedida}
+                                value={formData.unidadeDeMedida}
                                 options={unidadesMedida}
-                                onChange={(value) => handleInputChange('unidadeMedida', value)}
+                                onChange={(value) => handleInputChange('unidadeDeMedida', value)}
                                 placeholder="Selecione a unidade"
                                 iconStart={<BarChart3 size={18} />}
                             />
@@ -345,10 +417,10 @@ const CadastroMetodosEnsaios = () => {
                             <CustomInput
                                 type="number"
                                 label="Preço do Ensaio (Kz)"
-                                value={formData.precoEnsaio}
-                                onChange={(value) => handleInputChange('precoEnsaio', value)}
+                                value={formData.precoDoEnsaio}
+                                onChange={(value) => handleInputChange('precoDoEnsaio', value)}
                                 required
-                                errorMessage={errors.precoEnsaio}
+                                errorMessage={errors.precoDoEnsaio}
                                 placeholder="Ex: 1500"
                                 iconStart={<DollarSign size={18} />}
                             />
