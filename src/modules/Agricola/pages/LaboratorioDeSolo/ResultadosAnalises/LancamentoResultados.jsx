@@ -1,21 +1,20 @@
-import React, { useState, useEffect } from 'react';
 import {
-  AlertCircle,
-  CheckCircle,
-  Calendar,
-  User,
-  FileText,
-  TestTube,
   Activity,
-  Save,
-  X,
-  Loader,
-  Search,
+  AlertCircle,
+  Calendar,
+  Check,
+  CheckCircle,
   ChevronLeft,
   ChevronRight,
-  Check,
-  Upload
+  FileText,
+  Loader,
+  Search,
+  TestTube,
+  Upload,
+  User,
+  X
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import CustomInput from '../../../../../core/components/CustomInput';
 
 const LancamentoResultados = () => {
@@ -26,7 +25,7 @@ const LancamentoResultados = () => {
   const [parametrosEnsaio, setParametrosEnsaio] = useState([]);
   const [toastMessage, setToastMessage] = useState(null);
 
-  const API_BASE_URL = 'https://mwangobrainsa-001-site2.mtempurl.com/api';
+  const API_BASE_URL = 'http://mwangobrainsa-001-site2.mtempurl.com/api';
 
   const steps = [
     { label: 'Identificação', icon: Search },
@@ -114,7 +113,7 @@ const LancamentoResultados = () => {
           observacoes: ''
         }
       ];
-      
+
       setParametrosEnsaio(parametrosMock);
       setFormData(prev => ({
         ...prev,
@@ -134,10 +133,10 @@ const LancamentoResultados = () => {
 
   const calcularSituacao = (valor, limiteInferior, limiteSuperior) => {
     if (!valor || valor === '') return '';
-    
+
     const valorNum = parseFloat(valor);
     if (isNaN(valorNum)) return '';
-    
+
     if (valorNum < limiteInferior) return 'abaixo';
     if (valorNum > limiteSuperior) return 'acima';
     return 'dentro';
@@ -178,9 +177,9 @@ const LancamentoResultados = () => {
     const parametro = parametrosEnsaio.find(p => p.id === parametroId);
     if (parametro) {
       const situacao = calcularSituacao(valor, parametro.limiteInferior, parametro.limiteSuperior);
-      
-      setParametrosEnsaio(prev => prev.map(p => 
-        p.id === parametroId 
+
+      setParametrosEnsaio(prev => prev.map(p =>
+        p.id === parametroId
           ? { ...p, valorObtido: valor, situacao }
           : p
       ));
@@ -197,8 +196,8 @@ const LancamentoResultados = () => {
   };
 
   const handleObservacaoChange = (parametroId, observacao) => {
-    setParametrosEnsaio(prev => prev.map(p => 
-      p.id === parametroId 
+    setParametrosEnsaio(prev => prev.map(p =>
+      p.id === parametroId
         ? { ...p, observacoes: observacao }
         : p
     ));
@@ -228,9 +227,9 @@ const LancamentoResultados = () => {
 
       // Simular salvamento - substituir pela API real
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       showToast('success', 'Sucesso', 'Resultados salvos com sucesso!');
-      
+
       // Reset do formulário
       setFormData({
         amostraId: '',
@@ -243,7 +242,7 @@ const LancamentoResultados = () => {
         resultados: []
       });
       setParametrosEnsaio([]);
-      
+
     } catch (error) {
       console.error('Erro ao salvar:', error);
       showToast('error', 'Erro', 'Erro ao salvar resultados');
@@ -308,14 +307,14 @@ const LancamentoResultados = () => {
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Identificação Geral</h3>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <CustomInput
                 type="select"
                 label="Código da Amostra"
-                value={formData.amostraId ? { 
-                  value: formData.amostraId, 
-                  label: amostrasDisponiveis.find(a => a.id === formData.amostraId)?.numeroAmostra || formData.amostraId 
+                value={formData.amostraId ? {
+                  value: formData.amostraId,
+                  label: amostrasDisponiveis.find(a => a.id === formData.amostraId)?.numeroAmostra || formData.amostraId
                 } : ''}
                 options={amostrasDisponiveis.map(amostra => ({
                   label: `${amostra.numeroAmostra || amostra.id} - ${amostra.localizacao?.municipio || amostra.municipio || 'N/A'}`,
@@ -420,11 +419,10 @@ const LancamentoResultados = () => {
                         <td className="border border-gray-200 px-4 py-3">
                           <div className="flex items-center space-x-2">
                             {getSituacaoIcon(parametro.situacao)}
-                            <span className={`text-sm font-medium ${
-                              parametro.situacao === 'dentro' ? 'text-green-600' :
-                              parametro.situacao === 'abaixo' ? 'text-yellow-600' :
-                              parametro.situacao === 'acima' ? 'text-red-600' : 'text-gray-400'
-                            }`}>
+                            <span className={`text-sm font-medium ${parametro.situacao === 'dentro' ? 'text-green-600' :
+                                parametro.situacao === 'abaixo' ? 'text-yellow-600' :
+                                  parametro.situacao === 'acima' ? 'text-red-600' : 'text-gray-400'
+                              }`}>
                               {getSituacaoTexto(parametro.situacao)}
                             </span>
                           </div>
@@ -571,7 +569,7 @@ const LancamentoResultados = () => {
   return (
     <div className="bg-gray-50 min-h-screen">
       <Toast />
-      
+
       <div className="mx-auto px-4 py-8">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200">
           {/* Header */}
@@ -590,27 +588,24 @@ const LancamentoResultados = () => {
               return (
                 <div
                   key={index}
-                  className={`flex flex-col items-center cursor-pointer transition-all min-w-0 flex-shrink-0 mx-1 ${
-                    !isActive && !isCompleted ? 'opacity-50' : ''
-                  }`}
+                  className={`flex flex-col items-center cursor-pointer transition-all min-w-0 flex-shrink-0 mx-1 ${!isActive && !isCompleted ? 'opacity-50' : ''
+                    }`}
                   onClick={() => setActiveIndex(index)}
                 >
-                  <div className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${
-                    isActive
+                  <div className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${isActive
                       ? 'bg-blue-600 text-white'
                       : isCompleted
                         ? 'bg-green-500 text-white'
                         : 'bg-gray-200 text-gray-500'
-                  }`}>
+                    }`}>
                     {isCompleted ? (
                       <Check size={24} />
                     ) : (
                       <Icon size={24} />
                     )}
                   </div>
-                  <span className={`text-sm text-center font-medium ${
-                    isActive ? 'text-blue-700' : isCompleted ? 'text-green-600' : 'text-gray-500'
-                  }`}>
+                  <span className={`text-sm text-center font-medium ${isActive ? 'text-blue-700' : isCompleted ? 'text-green-600' : 'text-gray-500'
+                    }`}>
                     {step.label}
                   </span>
                 </div>
@@ -636,11 +631,10 @@ const LancamentoResultados = () => {
                 type="button"
                 onClick={prevStep}
                 disabled={activeIndex === 0}
-                className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all ${
-                  activeIndex === 0
+                className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all ${activeIndex === 0
                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
+                  }`}
               >
                 <ChevronLeft size={20} className="mr-2" />
                 Anterior
@@ -667,17 +661,16 @@ const LancamentoResultados = () => {
                 >
                   Limpar
                 </button>
-                
+
                 {activeIndex === steps.length - 1 ? (
                   <button
                     type="button"
                     onClick={handleSave}
                     disabled={saving || !formData.amostraId || !formData.tecnicoResponsavel}
-                    className={`flex items-center px-8 py-3 rounded-lg font-medium transition-all ${
-                      saving || !formData.amostraId || !formData.tecnicoResponsavel
+                    className={`flex items-center px-8 py-3 rounded-lg font-medium transition-all ${saving || !formData.amostraId || !formData.tecnicoResponsavel
                         ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                         : 'bg-blue-600 text-white hover:bg-blue-700'
-                    }`}
+                      }`}
                   >
                     {saving ? (
                       <>
@@ -696,11 +689,10 @@ const LancamentoResultados = () => {
                     type="button"
                     onClick={nextStep}
                     disabled={activeIndex === 0 && !formData.amostraId}
-                    className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all ${
-                      activeIndex === 0 && !formData.amostraId
+                    className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all ${activeIndex === 0 && !formData.amostraId
                         ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                         : 'bg-blue-600 text-white hover:bg-blue-700'
-                    }`}
+                      }`}
                   >
                     Próximo
                     <ChevronRight size={20} className="ml-2" />

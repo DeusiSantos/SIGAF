@@ -211,7 +211,7 @@ const alterarEstadoProdutor = async (id, novoEstado, token) => {
         formData.append('Estado', estadoAPI);
 
         const response = await axios.patch(
-            'https://mwangobrainsa-001-site2.mtempurl.com/api/formulario/estado',
+            'http://mwangobrainsa-001-site2.mtempurl.com/api/formulario/estado',
             formData,
             {
                 headers: {

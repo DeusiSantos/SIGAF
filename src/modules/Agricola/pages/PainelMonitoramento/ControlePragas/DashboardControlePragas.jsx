@@ -1,15 +1,42 @@
-import React, { useState, useEffect } from 'react';
 import {
-  PieChart, Pie, LineChart, Line, XAxis, YAxis, BarChart, Bar,
-  CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, Sector
-} from 'recharts';
-import {
-  ArrowUp, ArrowDown, Bug, AlertTriangle, CheckCircle, Clock,
-  MapPin, Calendar, TrendingUp, Activity, Shield, Eye,
-  ChevronRight, Tractor, Heart, Filter, Search, Download, 
-  RefreshCw, Bell, Users, Database, Target, Zap, Package,
-  Thermometer, Droplets, TreePine, Wheat, Home, Phone
+  Activity,
+  AlertTriangle,
+  ArrowDown,
+  ArrowUp,
+  Bug,
+  CheckCircle,
+  ChevronRight,
+  Clock,
+  Database,
+  Download,
+  Droplets,
+  Eye,
+  Filter,
+  Heart,
+  MapPin,
+  Phone,
+  RefreshCw,
+  Target,
+  Thermometer,
+  TreePine,
+  TrendingUp,
+  Users,
+  Wheat
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import {
+  CartesianGrid,
+  Cell,
+  Legend,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Sector,
+  Tooltip,
+  XAxis, YAxis
+} from 'recharts';
 
 const DashboardControlePragas = () => {
   const [activeIndexTipo, setActiveIndexTipo] = useState(0);
@@ -27,11 +54,11 @@ const DashboardControlePragas = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
-      
-      const response = await fetch('https://mwangobrainsa-001-site2.mtempurl.com/api/pragas/all', {
+
+      const response = await fetch('http://mwangobrainsa-001-site2.mtempurl.com/api/pragas/all', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -39,20 +66,20 @@ const DashboardControlePragas = () => {
         },
         signal: controller.signal
       });
-      
+
       clearTimeout(timeoutId);
-      
+
       if (!response.ok) {
         throw new Error(`Erro do servidor: ${response.status} - ${response.statusText}`);
       }
-      
+
       const dados = await response.json();
       setDadosOriginais(dados);
       processarDados(dados);
-      
+
     } catch (err) {
       console.error('Erro ao buscar dados:', err);
-      
+
       let errorMessage = 'Erro ao conectar com a API';
       if (err.name === 'AbortError') {
         errorMessage = 'Timeout: A requisição demorou muito para responder';
@@ -61,7 +88,7 @@ const DashboardControlePragas = () => {
       } else {
         errorMessage = err.message;
       }
-      
+
       setError(errorMessage);
       usarDadosExemplo();
     } finally {
@@ -77,9 +104,9 @@ const DashboardControlePragas = () => {
     }
 
     // Filtrar dados válidos
-    const dadosValidos = dados.filter(item => 
-      item && 
-      item.data_de_Registro && 
+    const dadosValidos = dados.filter(item =>
+      item &&
+      item.data_de_Registro &&
       item.data_de_Registro !== "0001-01-01T00:00:00"
     );
 
@@ -87,9 +114,9 @@ const DashboardControlePragas = () => {
     const tipoMap = {};
     dadosValidos.forEach(item => {
       const tipo = item.que_tipo_de_servi_o_deseja_mon || 'Não especificado';
-      const tipoFormatado = tipo === 'agrícultura' ? 'Agrícola' : 
-                           tipo === 'pecuária' ? 'Pecuária' : 
-                           'Outros';
+      const tipoFormatado = tipo === 'agrícultura' ? 'Agrícola' :
+        tipo === 'pecuária' ? 'Pecuária' :
+          'Outros';
       tipoMap[tipoFormatado] = (tipoMap[tipoFormatado] || 0) + 1;
     });
 
@@ -145,12 +172,12 @@ const DashboardControlePragas = () => {
     // Processar evolução mensal
     const evolucaoMensal = [];
     const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-    
+
     for (let i = 0; i < 12; i++) {
       const mesData = new Date();
       mesData.setMonth(mesData.getMonth() - (11 - i));
       const mesIndex = mesData.getMonth();
-      
+
       const ocorrenciasMes = dadosValidos.filter(item => {
         const dataItem = new Date(item.data_de_Registro);
         return dataItem.getMonth() === mesIndex && dataItem.getFullYear() === mesData.getFullYear();
@@ -175,8 +202,8 @@ const DashboardControlePragas = () => {
         responsavel: item.nome_do_T_cnico_ou_Produtor || 'Não informado',
         provincia: item.provincia || 'N/A',
         municipio: item.municipio || 'N/A',
-        tipoProducao: item.que_tipo_de_servi_o_deseja_mon === 'agrícultura' ? 'Agrícola' : 
-                     item.que_tipo_de_servi_o_deseja_mon === 'pecuária' ? 'Pecuária' : 'Outros',
+        tipoProducao: item.que_tipo_de_servi_o_deseja_mon === 'agrícultura' ? 'Agrícola' :
+          item.que_tipo_de_servi_o_deseja_mon === 'pecuária' ? 'Pecuária' : 'Outros',
         praga: item.nome_da_Praga || 'Não especificado',
         culturaAfetada: item.tipo_de_culturas || item.esp_cie_Animal_Afetada || 'N/A',
         areaAfetada: item.rea_Total_Cultivada_ha || Math.floor(Math.random() * 20) + 1,
@@ -313,7 +340,7 @@ const DashboardControlePragas = () => {
   }, []);
 
   const provincias = [
-    'Todas', 'Luanda', 'Benguela', 'Huíla', 'Malanje', 'Huambo', 
+    'Todas', 'Luanda', 'Benguela', 'Huíla', 'Malanje', 'Huambo',
     'Bié', 'Cuanza Sul', 'Cunene', 'Cabinda', 'Zaire', 'Uíge'
   ];
 
@@ -392,7 +419,7 @@ const DashboardControlePragas = () => {
           <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
           <p className="text-lg text-gray-600 mb-2">Erro ao carregar dados</p>
           <p className="text-sm text-gray-500 mb-4">{error}</p>
-          <button 
+          <button
             onClick={fetchDados}
             className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
           >
@@ -427,7 +454,7 @@ const DashboardControlePragas = () => {
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">Dashboard de Controle de Pragas</h1>
                 <p className="text-gray-600">Monitoramento e Controle Integrado de Pragas • SIGAF Angola</p>
-                
+
               </div>
             </div>
             <div className="flex items-center space-x-3">
@@ -437,13 +464,13 @@ const DashboardControlePragas = () => {
                   {new Date().toLocaleString('pt-BR')}
                 </div>
               </div>
-              <button 
+              <button
                 className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <Download className="w-4 h-4 mr-2" />
                 Exportar
               </button>
-              <button 
+              <button
                 onClick={fetchDados}
                 className="flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
               >
@@ -580,7 +607,7 @@ const DashboardControlePragas = () => {
                 <Activity className="h-6 w-6 text-blue-500" />
               </div>
             </div>
-            
+
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -648,7 +675,7 @@ const DashboardControlePragas = () => {
                 </Pie>
               </PieChart>
             </ResponsiveContainer>
-            
+
             <div className="flex justify-center space-x-6 mt-4">
               {dadosProcessados.ocorrenciasPorTipo.map((entry, index) => (
                 <div key={index} className="flex items-center">
@@ -669,7 +696,7 @@ const DashboardControlePragas = () => {
                 <MapPin className="h-6 w-6 text-green-500" />
               </div>
             </div>
-            
+
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -737,7 +764,7 @@ const DashboardControlePragas = () => {
                 </Pie>
               </PieChart>
             </ResponsiveContainer>
-            
+
             <div className="grid grid-cols-2 gap-2 mt-4">
               {dadosProcessados.ocorrenciasPorProvincia.map((entry, index) => (
                 <div key={index} className="flex items-center">
@@ -766,7 +793,7 @@ const DashboardControlePragas = () => {
                 <XAxis dataKey="mes" />
                 <YAxis yAxisId="left" orientation="left" />
                 <YAxis yAxisId="right" orientation="right" />
-                <Tooltip 
+                <Tooltip
                   contentStyle={{
                     backgroundColor: 'white',
                     borderRadius: '8px',
@@ -775,38 +802,38 @@ const DashboardControlePragas = () => {
                   }}
                 />
                 <Legend />
-                <Line 
+                <Line
                   yAxisId="left"
-                  type="monotone" 
-                  dataKey="ocorrencias" 
-                  stroke="#3B82F6" 
+                  type="monotone"
+                  dataKey="ocorrencias"
+                  stroke="#3B82F6"
                   strokeWidth={3}
                   dot={{ r: 5, strokeWidth: 2, fill: "white", stroke: "#3B82F6" }}
                   name="Total de Ocorrências"
                 />
-                <Line 
+                <Line
                   yAxisId="left"
-                  type="monotone" 
-                  dataKey="controladas" 
-                  stroke="#10B981" 
+                  type="monotone"
+                  dataKey="controladas"
+                  stroke="#10B981"
                   strokeWidth={3}
                   dot={{ r: 5, strokeWidth: 2, fill: "white", stroke: "#10B981" }}
                   name="Controladas"
                 />
-                <Line 
+                <Line
                   yAxisId="left"
-                  type="monotone" 
-                  dataKey="criticas" 
-                  stroke="#EF4444" 
+                  type="monotone"
+                  dataKey="criticas"
+                  stroke="#EF4444"
                   strokeWidth={3}
                   dot={{ r: 5, strokeWidth: 2, fill: "white", stroke: "#EF4444" }}
                   name="Críticas"
                 />
-                <Line 
+                <Line
                   yAxisId="right"
-                  type="monotone" 
-                  dataKey="area_afetada" 
-                  stroke="#F59E0B" 
+                  type="monotone"
+                  dataKey="area_afetada"
+                  stroke="#F59E0B"
                   strokeWidth={2}
                   strokeDasharray="5 5"
                   dot={{ r: 3, strokeWidth: 1, fill: "white", stroke: "#F59E0B" }}
@@ -825,7 +852,7 @@ const DashboardControlePragas = () => {
               <Bug className="h-6 w-6 text-red-500" />
             </div>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {dadosProcessados.principaisPragas.map((praga, index) => (
               <div key={index} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
@@ -833,30 +860,30 @@ const DashboardControlePragas = () => {
                   <h3 className="font-semibold text-gray-800">{praga.nome}</h3>
                   {getTendenciaIcon(praga.tendencia)}
                 </div>
-                
+
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Ocorrências:</span>
                     <span className="font-medium text-gray-800">{praga.ocorrencias}</span>
                   </div>
-                  
+
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Gravidade:</span>
                     <span className={`text-sm font-medium ${getGravidadeColor(praga.gravidade)}`}>
                       {praga.gravidade}
                     </span>
                   </div>
-                  
+
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Cultura:</span>
                     <span className="text-sm text-gray-800">{praga.cultura_principal}</span>
                   </div>
-                  
+
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Mais Afetada:</span>
                     <span className="text-sm text-gray-800">{praga.provincia_mais_afetada}</span>
                   </div>
-                  
+
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Impacto:</span>
                     <span className="text-sm font-medium text-red-600">
@@ -882,7 +909,7 @@ const DashboardControlePragas = () => {
               </button>
             </div>
           </div>
-          
+
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -919,11 +946,11 @@ const DashboardControlePragas = () => {
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex items-center space-x-1">
-                        {ocorrencia.tipoProducao === 'Agrícola' ? 
+                        {ocorrencia.tipoProducao === 'Agrícola' ?
                           <Wheat className="w-4 h-4 text-green-500" /> :
                           ocorrencia.tipoProducao === 'Pecuária' ?
-                          <Heart className="w-4 h-4 text-red-500" /> :
-                          <TreePine className="w-4 h-4 text-green-600" />
+                            <Heart className="w-4 h-4 text-red-500" /> :
+                            <TreePine className="w-4 h-4 text-green-600" />
                         }
                         <span className="text-sm text-gray-600">{ocorrencia.tipoProducao}</span>
                       </div>
@@ -935,8 +962,8 @@ const DashboardControlePragas = () => {
                       </div>
                     </td>
                     <td className="py-3 px-4 text-sm text-gray-600 text-center">
-                      {ocorrencia.areaAfetada ? 
-                        `${ocorrencia.areaAfetada} ha` : 
+                      {ocorrencia.areaAfetada ?
+                        `${ocorrencia.areaAfetada} ha` :
                         `${ocorrencia.animaisAfetados || 'N/A'} animais`
                       }
                     </td>

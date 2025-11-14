@@ -1,44 +1,43 @@
-import React, { useState, useEffect } from 'react';
 import {
-    ArrowLeft,
-    Calendar,
-    MapPin,
-    User,
-    Phone,
-    Download,
-    CheckCircle,
-    AlertTriangle,
-    X,
-    AlertCircle,
-    FileText,
     Activity,
-    Info,
-    Users,
-    SquarePen,
+    AlertCircle,
+    AlertTriangle,
+    ArrowLeft,
     Building,
+    Calendar,
+    CheckCircle,
+    Construction,
     CreditCard,
+    Download,
+    Factory,
+    FileText,
+    Gauge,
+    Globe,
+    Home,
+    Info,
     Mail,
     Map,
+    MapPin,
     Navigation,
+    Phone,
     Save,
-    RefreshCw,
-    Factory,
+    SquarePen,
+    User,
+    Users,
     Wrench,
-    Gauge,
-    Construction,
-    Home,
-    Globe
+    X
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 // Componente de Input customizado
-const CustomInput = ({ 
-    type = 'text', 
-    label, 
-    value, 
-    onChange, 
-    options = [], 
-    disabled = false, 
+const CustomInput = ({
+    type = 'text',
+    label,
+    value,
+    onChange,
+    options = [],
+    disabled = false,
     iconStart,
     placeholder,
     className = "",
@@ -72,7 +71,7 @@ const CustomInput = ({
                         )}
                     </div>
                 );
-            
+
             case 'textarea':
                 return (
                     <div className="relative">
@@ -91,7 +90,7 @@ const CustomInput = ({
                         )}
                     </div>
                 );
-            
+
             case 'date':
                 return (
                     <div className="relative">
@@ -109,7 +108,7 @@ const CustomInput = ({
                         )}
                     </div>
                 );
-            
+
             default:
                 return (
                     <div className="relative">
@@ -146,10 +145,10 @@ const CustomInput = ({
 // Componente Toast
 const Toast = ({ toastMessage, onClose }) => {
     if (!toastMessage) return null;
-    
+
     const { type, title, message } = toastMessage;
     let bgColor, icon;
-    
+
     switch (type) {
         case 'success':
             bgColor = 'bg-blue-50 border-l-4 border-blue-500 text-blue-700';
@@ -171,7 +170,7 @@ const Toast = ({ toastMessage, onClose }) => {
             bgColor = 'bg-gray-50 border-l-4 border-gray-500 text-gray-700';
             icon = <AlertCircle className="w-5 h-5" />;
     }
-    
+
     return (
         <div className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg max-w-md z-50 ${bgColor} animate-fadeIn`}>
             <div className="flex items-center">
@@ -194,7 +193,7 @@ const Toast = ({ toastMessage, onClose }) => {
 
 const VisualizarInfraestrutura = () => {
     // Simular useParams e useNavigate
-     const { id } = useParams();
+    const { id } = useParams();
     const navigate = (path) => {
         console.log(`Navegação simulada para: ${path}`);
     };
@@ -245,8 +244,8 @@ const VisualizarInfraestrutura = () => {
     ];
 
     const provinciasAngolanas = [
-        'LUANDA', 'BENGUELA', 'HUAMBO', 'HUILA', 'CABINDA', 'BIE', 'CUANDO_CUBANGO', 
-        'CUANZA_NORTE', 'CUANZA_SUL', 'CUNENE', 'LUNDA_NORTE', 'LUNDA_SUL', 
+        'LUANDA', 'BENGUELA', 'HUAMBO', 'HUILA', 'CABINDA', 'BIE', 'CUANDO_CUBANGO',
+        'CUANZA_NORTE', 'CUANZA_SUL', 'CUNENE', 'LUNDA_NORTE', 'LUNDA_SUL',
         'MALANJE', 'MOXICO', 'NAMIBE', 'UIGE', 'ZAIRE', 'BENGO'
     ].map(p => ({ value: p, label: p.replace(/_/g, ' ') }));
 
@@ -278,16 +277,16 @@ const VisualizarInfraestrutura = () => {
             setError(null);
 
             try {
-                const response = await fetch(`https://mwangobrainsa-001-site2.mtempurl.com/api/infraestrutura/${id}`);
-                
+                const response = await fetch(`http://mwangobrainsa-001-site2.mtempurl.com/api/infraestrutura/${id}`);
+
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                
+
                 const data = await response.json();
                 setInfraestrutura(data);
                 setFormData(data);
-                
+
             } catch (err) {
                 console.error('Erro ao buscar infraestrutura:', err);
                 setError('Erro ao buscar dados da infraestrutura.');
@@ -368,7 +367,7 @@ const VisualizarInfraestrutura = () => {
 
             console.log('Enviando dados:', dataToSend);
 
-            const response = await fetch(`https://mwangobrainsa-001-site2.mtempurl.com/api/infraestrutura/${infraestrutura._id}`, {
+            const response = await fetch(`http://mwangobrainsa-001-site2.mtempurl.com/api/infraestrutura/${infraestrutura._id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -381,9 +380,9 @@ const VisualizarInfraestrutura = () => {
             }
 
             showToast('success', 'Infraestrutura atualizada', 'Os dados foram salvos com sucesso!');
-            
+
             // Recarregar dados da infraestrutura após salvar
-            const updatedResponse = await fetch(`https://mwangobrainsa-001-site2.mtempurl.com/api/infraestrutura/${infraestrutura._id}`);
+            const updatedResponse = await fetch(`http://mwangobrainsa-001-site2.mtempurl.com/api/infraestrutura/${infraestrutura._id}`);
             const updatedData = await updatedResponse.json();
             setInfraestrutura(updatedData);
             setIsEditing(false);
@@ -411,7 +410,7 @@ const VisualizarInfraestrutura = () => {
     // Função para parsear coordenadas GPS
     const parseCoordinates = (coordenadas) => {
         if (!coordenadas) return { lat: '--', lng: '--', alt: '--', precision: '--' };
-        
+
         const parts = coordenadas.split(' ');
         return {
             lat: parts[0] || '--',
@@ -458,14 +457,14 @@ const VisualizarInfraestrutura = () => {
     return (
         <div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8">
             <Toast toastMessage={toastMessage} onClose={() => setToastMessage(null)} />
-            
+
             <div className="w-full">
                 {/* Cabeçalho */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white rounded-lg shadow p-6 mb-6 border">
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2">
-                            <button 
-                                onClick={handleBack} 
+                            <button
+                                onClick={handleBack}
                                 className="p-2 rounded hover:bg-gray-100 text-gray-600"
                             >
                                 <ArrowLeft className="w-5 h-5" />
@@ -480,13 +479,12 @@ const VisualizarInfraestrutura = () => {
                             </div>
                         </div>
                         <div className="flex gap-2 flex-wrap items-center mt-2">
-                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${
-                                infraestrutura.estado_de_Conserva_o?.toUpperCase() === 'BOM' 
-                                    ? 'bg-green-50 text-green-700 border-green-200' 
+                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${infraestrutura.estado_de_Conserva_o?.toUpperCase() === 'BOM'
+                                    ? 'bg-green-50 text-green-700 border-green-200'
                                     : infraestrutura.estado_de_Conserva_o?.toUpperCase() === 'MAU'
-                                    ? 'bg-red-50 text-red-700 border-red-200'
-                                    : 'bg-yellow-50 text-yellow-700 border-yellow-200'
-                            }`}>
+                                        ? 'bg-red-50 text-red-700 border-red-200'
+                                        : 'bg-yellow-50 text-yellow-700 border-yellow-200'
+                                }`}>
                                 {infraestrutura.estado_de_Conserva_o?.toUpperCase() === 'BOM' && <CheckCircle className="w-4 h-4 mr-1" />}
                                 {infraestrutura.estado_de_Conserva_o?.toUpperCase() === 'MAU' && <X className="w-4 h-4 mr-1" />}
                                 {infraestrutura.estado_de_Conserva_o?.toUpperCase() === 'RAZOAVEL' && <AlertTriangle className="w-4 h-4 mr-1" />}
@@ -561,9 +559,9 @@ const VisualizarInfraestrutura = () => {
                                 <CustomInput
                                     label="Tipo de Infraestrutura"
                                     type="select"
-                                    value={isEditing ? 
-                                        (typeof formData?.tipo_de_Infraestrutura === 'object' ? 
-                                            formData.tipo_de_Infraestrutura : 
+                                    value={isEditing ?
+                                        (typeof formData?.tipo_de_Infraestrutura === 'object' ?
+                                            formData.tipo_de_Infraestrutura :
                                             tiposInfraestrutura.find(t => t.value === formData?.tipo_de_Infraestrutura)
                                         ) : formatTipoInfraestrutura(infraestrutura.tipo_de_Infraestrutura)
                                     }
@@ -576,7 +574,7 @@ const VisualizarInfraestrutura = () => {
                                     <CustomInput
                                         label="Data de Registro"
                                         type="date"
-                                        value={isEditing ? 
+                                        value={isEditing ?
                                             (formData?.data_de_Registo ? new Date(formData.data_de_Registo).toISOString().split('T')[0] : '') :
                                             (infraestrutura.data_de_Registo ? new Date(infraestrutura.data_de_Registo).toISOString().split('T')[0] : '')
                                         }
@@ -602,9 +600,9 @@ const VisualizarInfraestrutura = () => {
                                 <CustomInput
                                     label="Província"
                                     type={isEditing ? "select" : "text"}
-                                    value={isEditing ? 
-                                        (typeof formData?.provincia === 'object' ? 
-                                            formData.provincia : 
+                                    value={isEditing ?
+                                        (typeof formData?.provincia === 'object' ?
+                                            formData.provincia :
                                             provinciasAngolanas.find(p => p.value.toLowerCase() === formData?.provincia?.toLowerCase())
                                         ) : (infraestrutura.provincia || '')
                                     }
@@ -677,9 +675,9 @@ const VisualizarInfraestrutura = () => {
                                 <CustomInput
                                     label="Estado de Conservação"
                                     type={isEditing ? "select" : "text"}
-                                    value={isEditing ? 
-                                        (typeof formData?.estado_de_Conserva_o === 'object' ? 
-                                            formData.estado_de_Conserva_o : 
+                                    value={isEditing ?
+                                        (typeof formData?.estado_de_Conserva_o === 'object' ?
+                                            formData.estado_de_Conserva_o :
                                             estadosConservacao.find(e => e.value.toLowerCase() === formData?.estado_de_Conserva_o?.toLowerCase())
                                         ) : formatEstadoConservacao(infraestrutura.estado_de_Conserva_o)
                                     }
@@ -753,9 +751,9 @@ const VisualizarInfraestrutura = () => {
                                 <CustomInput
                                     label="Frequência de Utilização"
                                     type={isEditing ? "select" : "text"}
-                                    value={isEditing ? 
-                                        (typeof formData?.frequ_ncia_de_Utiliza_o === 'object' ? 
-                                            formData.frequ_ncia_de_Utiliza_o : 
+                                    value={isEditing ?
+                                        (typeof formData?.frequ_ncia_de_Utiliza_o === 'object' ?
+                                            formData.frequ_ncia_de_Utiliza_o :
                                             frequenciasUtilizacao.find(f => f.value.toLowerCase() === formData?.frequ_ncia_de_Utiliza_o?.toLowerCase())
                                         ) : (infraestrutura.frequ_ncia_de_Utiliza_o || '')
                                     }
@@ -846,8 +844,8 @@ const VisualizarInfraestrutura = () => {
                         <div>
                             <div className="text-gray-500">Data de Registro:</div>
                             <div className="font-medium text-gray-900">
-                                {infraestrutura.data_de_Registo ? 
-                                    new Date(infraestrutura.data_de_Registo).toLocaleDateString('pt-BR') : 
+                                {infraestrutura.data_de_Registo ?
+                                    new Date(infraestrutura.data_de_Registo).toLocaleDateString('pt-BR') :
                                     '--'
                                 }
                             </div>
