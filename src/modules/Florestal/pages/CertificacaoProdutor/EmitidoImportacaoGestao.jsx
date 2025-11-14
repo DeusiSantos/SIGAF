@@ -35,7 +35,7 @@ const useDeclaracoesFlorestaisImportacao = () => {
                 setError(null);
 
                 const response = await axios.get(
-                    'https://mwangobrainsa-001-site2.mtempurl.com/api/declaracaoFlorestal/all',
+                    'http://mwangobrainsa-001-site2.mtempurl.com/api/declaracaoFlorestal/all',
                     { timeout: 10000 }
                 );
 
@@ -185,7 +185,7 @@ const EmitidoImportacaoGestao = () => {
                             if (decl.produtorFlorestalId) {
                                 try {
                                     const produtorResponse = await axios.get(
-                                        `https://mwangobrainsa-001-site2.mtempurl.com/api/produtorFlorestal/${decl.produtorFlorestalId}`,
+                                        `http://mwangobrainsa-001-site2.mtempurl.com/api/produtorFlorestal/${decl.produtorFlorestalId}`,
                                         { timeout: 5000 }
                                     );
 
@@ -255,7 +255,7 @@ const EmitidoImportacaoGestao = () => {
                     showToast('info', 'Carregando', 'Buscando dados do produtor...');
 
                     const produtorResponse = await axios.get(
-                        `https://mwangobrainsa-001-site2.mtempurl.com/api/produtorFlorestal/${decl.produtorFlorestalId}`,
+                        `http://mwangobrainsa-001-site2.mtempurl.com/api/produtorFlorestal/${decl.produtorFlorestalId}`,
                         { timeout: 10000 }
                     );
 

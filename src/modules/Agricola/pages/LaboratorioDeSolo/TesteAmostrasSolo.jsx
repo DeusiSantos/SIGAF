@@ -17,9 +17,9 @@ import {
 import QRCode from 'qrcode';
 import React, { useEffect, useRef, useState } from 'react';
 import { MapContainer, Marker, Popup, TileLayer, useMapEvents } from 'react-leaflet';
-import CustomInput from '../../../../core/components/CustomInput';
 import insiginia from '../../../../assets/emblema.png';
 import SIGAF from '../../../../assets/SIGAF.png';
+import CustomInput from '../../../../core/components/CustomInput';
 
 // Configuração do ícone do Leaflet
 const defaultIcon = L.icon({
@@ -215,7 +215,7 @@ const TesteAmostrasSolo = () => {
         const fetchProdutores = async () => {
             setLoadingProdutores(true);
             try {
-                const response = await axios.get('https://mwangobrainsa-001-site2.mtempurl.com/api/formulario/all');
+                const response = await axios.get('http://mwangobrainsa-001-site2.mtempurl.com/api/formulario/all');
                 setProdutores(response.data);
             } catch (error) {
                 console.error('Erro ao buscar produtores:', error);
@@ -373,7 +373,7 @@ const TesteAmostrasSolo = () => {
             }
 
             const response = await axios.post(
-                'https://mwangobrainsa-001-site2.mtempurl.com/api/testeDeAmostraDeSolo',
+                'http://mwangobrainsa-001-site2.mtempurl.com/api/testeDeAmostraDeSolo',
                 apiFormData,
                 {
                     headers: {
@@ -952,7 +952,7 @@ const TesteAmostrasSolo = () => {
                                                 <th className="border w-20 border-gray-400 p-1 text-center font-semibold">Unidade</th>
                                             </tr>
                                         </thead>
-                                        <tbody style={{lineHeight: 0.2}}>
+                                        <tbody style={{ lineHeight: 0.2 }}>
                                             {[
                                                 { param: "pH", unit: "-" },
                                                 { param: "MO", unit: "g/dm³" },
@@ -969,9 +969,9 @@ const TesteAmostrasSolo = () => {
                                                 { param: "Mn", unit: "mg/dm³" },
                                             ].map((item, index) => (
                                                 <tr key={index}>
-                                                    <td className="border border-gray-400 font-semibold text-gray-700 p-1 text-center text-[11px] align-middle" style={{lineHeight: 0.8}}>{item.param}</td>
+                                                    <td className="border border-gray-400 font-semibold text-gray-700 p-1 text-center text-[11px] align-middle" style={{ lineHeight: 0.8 }}>{item.param}</td>
                                                     <td className="border border-gray-400 p-1 text-center align-middle"></td>
-                                                    <td className="border border-gray-400 p-1 font-semibold text-gray-700 text-center text-[11px] align-middle" style={{lineHeight: 0.8}}>{item.unit}</td>
+                                                    <td className="border border-gray-400 p-1 font-semibold text-gray-700 text-center text-[11px] align-middle" style={{ lineHeight: 0.8 }}>{item.unit}</td>
                                                 </tr>
                                             ))}
                                         </tbody>

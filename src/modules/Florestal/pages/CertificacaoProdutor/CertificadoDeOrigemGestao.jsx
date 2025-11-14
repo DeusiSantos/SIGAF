@@ -38,7 +38,7 @@ const useCertificadosOrigem = () => {
                 setError(null);
 
                 const response = await axios.get(
-                    'https://mwangobrainsa-001-site2.mtempurl.com/api/certificadoDeOrigem/all',
+                    'http://mwangobrainsa-001-site2.mtempurl.com/api/certificadoDeOrigem/all',
                     { timeout: 10000 }
                 );
 

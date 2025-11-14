@@ -125,7 +125,7 @@ const VisualizarAmostra = () => {
         console.log('🔄 Carregando amostra:', id);
 
         const response = await axios.get(
-          `https://mwangobrainsa-001-site2.mtempurl.com/api/testeDeAmostraDeSolo/${id}`
+          `http://mwangobrainsa-001-site2.mtempurl.com/api/testeDeAmostraDeSolo/${id}`
         );
 
         const data = response.data;
@@ -154,7 +154,7 @@ const VisualizarAmostra = () => {
         console.log('🔍 Buscando foto da amostra:', id);
 
         const response = await axios.get(
-          `https://mwangobrainsa-001-site2.mtempurl.com/api/testeDeAmostraDeSolo/${id}/fotografiaDeAmostra`,
+          `http://mwangobrainsa-001-site2.mtempurl.com/api/testeDeAmostraDeSolo/${id}/fotografiaDeAmostra`,
           {
             responseType: 'blob',
             timeout: 60000
@@ -244,7 +244,7 @@ const VisualizarAmostra = () => {
       formData.append('novaImagem', file);
 
       const response = await axios.patch(
-        `https://mwangobrainsa-001-site2.mtempurl.com/api/testeDeAmostraDeSolo/${id}/fotografiaDeAmostra`,
+        `http://mwangobrainsa-001-site2.mtempurl.com/api/testeDeAmostraDeSolo/${id}/fotografiaDeAmostra`,
         formData,
         {
           headers: {
@@ -309,7 +309,7 @@ const VisualizarAmostra = () => {
       console.log('📤 Payload enviado:', payload);
 
       const response = await fetch(
-        `https://mwangobrainsa-001-site2.mtempurl.com/api/testeDeAmostraDeSolo/${id}`,
+        `http://mwangobrainsa-001-site2.mtempurl.com/api/testeDeAmostraDeSolo/${id}`,
         {
           method: 'PUT',
           headers: {

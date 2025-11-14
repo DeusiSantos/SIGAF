@@ -674,7 +674,7 @@ const CertificadoFitossanitario = () => {
             console.log('📦 Enviando dados para API:', payload);
 
             const response = await axios.post(
-                'https://mwangobrainsa-001-site2.mtempurl.com/api/certificaoFitossanitario',
+                'http://mwangobrainsa-001-site2.mtempurl.com/api/certificaoFitossanitario',
                 payload,
                 { headers: { 'Content-Type': 'application/json' } }
             );

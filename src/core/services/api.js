@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://mwangobrainsa-001-site2.mtempurl.com/api',
+  baseURL: 'http://mwangobrainsa-001-site2.mtempurl.com/api',
   timeout: 60000,
   headers: {
     'Content-Type': 'application/json',

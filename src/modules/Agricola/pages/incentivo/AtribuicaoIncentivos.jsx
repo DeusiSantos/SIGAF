@@ -181,7 +181,7 @@ const AtribuicaoIncentivos = () => {
 
       // Requisição com Axios
       const response = await axios.post(
-        'https://mwangobrainsa-001-site2.mtempurl.com/api/distribuicaoDeIncentivo',
+        'http://mwangobrainsa-001-site2.mtempurl.com/api/distribuicaoDeIncentivo',
         payload,
         {
           headers: {
@@ -226,7 +226,7 @@ const AtribuicaoIncentivos = () => {
   // Função para carregar imagem do produtor
   const carregarImagemProdutor = async (produtorId) => {
     try {
-      const imageUrl = `https://mwangobrainsa-001-site2.mtempurl.com/api/formulario/${produtorId}/foto-beneficiary`;
+      const imageUrl = `http://mwangobrainsa-001-site2.mtempurl.com/api/formulario/${produtorId}/foto-beneficiary`;
 
       // Testar se a imagem carrega
       const img = new Image();
@@ -255,7 +255,7 @@ const AtribuicaoIncentivos = () => {
   const buscarIncentivos = async () => {
     setLoadingIncentivos(true);
     try {
-      const response = await fetch('https://mwangobrainsa-001-site2.mtempurl.com/api/incentivo/all');
+      const response = await fetch('http://mwangobrainsa-001-site2.mtempurl.com/api/incentivo/all');
       if (response.ok) {
         const data = await response.json();
         setIncentivosDisponiveis(data);
@@ -274,13 +274,13 @@ const AtribuicaoIncentivos = () => {
   const buscarIncentivosModalProdutor = useCallback(async (produtorId) => {
     try {
       setLoadingIncentivosModal(true);
-      const response = await axios.get(`https://mwangobrainsa-001-site2.mtempurl.com/api/reembolsoDoIncentivo/produtor/${produtorId}/incentivos`);
+      const response = await axios.get(`http://mwangobrainsa-001-site2.mtempurl.com/api/reembolsoDoIncentivo/produtor/${produtorId}/incentivos`);
 
       // Buscar detalhes de cada incentivo
       const incentivosComDetalhes = await Promise.all(
         response.data.map(async (incentivo) => {
           try {
-            const detalhesResponse = await axios.get(`https://mwangobrainsa-001-site2.mtempurl.com/api/incentivo/produtor/${produtorId}/incentivos`);
+            const detalhesResponse = await axios.get(`http://mwangobrainsa-001-site2.mtempurl.com/api/incentivo/produtor/${produtorId}/incentivos`);
             const detalheIncentivo = detalhesResponse.data.find(det => det.id === incentivo.incentivoId);
 
             return {

@@ -137,7 +137,7 @@ const CadastroIncentivos = () => {
       const dadosAPI = mapearDadosParaAPI();
 
       // Fazer POST para a API
-      const response = await fetch('https://mwangobrainsa-001-site2.mtempurl.com/api/incentivo', {
+      const response = await fetch('http://mwangobrainsa-001-site2.mtempurl.com/api/incentivo', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
