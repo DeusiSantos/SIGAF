@@ -23,8 +23,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CustomInput from '../../../../../core/components/CustomInput';
 import { exportToExcel } from '@/core/components/exportToExcel';
-
-;
+import api from '@/core/services/api';
 
 const GestaoInfraestruturaAgricola = () => {
     const navigate = useNavigate();
@@ -49,13 +48,8 @@ const GestaoInfraestruturaAgricola = () => {
         const fetchInfraestruturas = async () => {
             try {
                 setLoading(true);
-                const response = await fetch('https://mwangobrainsa-001-site2.mtempurl.com/api/infraestrutura/all');
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
+                const response = await api.get('/infraestrutura/all');
+                const data = response.data;
 
                 // Filtrar dados válidos (remover entradas com campos nulos/vazios)
                 const validData = data.filter(item =>
@@ -242,16 +236,9 @@ const GestaoInfraestruturaAgricola = () => {
         if (!infraestruturaToDelete) return;
 
         try {
-            const response = await fetch(`https://mwangobrainsa-001-site2.mtempurl.com/api/infraestrutura/${infraestruturaToDelete}`, {
-                method: 'DELETE'
-            });
-
-            if (response.ok) {
-                setInfraestruturas(prev => prev.filter(infra => infra._id !== infraestruturaToDelete));
-                showToast('success', 'Excluído', 'Infraestrutura excluída com sucesso!');
-            } else {
-                throw new Error('Erro ao excluir');
-            }
+            await api.delete(`/infraestrutura/${infraestruturaToDelete}`);
+            setInfraestruturas(prev => prev.filter(infra => infra._id !== infraestruturaToDelete));
+            showToast('success', 'Excluído', 'Infraestrutura excluída com sucesso!');
         } catch (erro) {
             showToast('error', 'Erro', 'Erro ao excluir infraestrutura.');
             console.error(erro);

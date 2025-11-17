@@ -22,4 +22,13 @@ export default defineConfig({
       '@assets': path.resolve(__dirname, './src/assets'),
     },
   },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://mwangobrainsa-001-site2.mtempurl.com',
+        changeOrigin: true,
+        secure: true
+      }
+    }
+  }
 });
