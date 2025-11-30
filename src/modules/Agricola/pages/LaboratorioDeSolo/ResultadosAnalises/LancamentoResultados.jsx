@@ -25,7 +25,7 @@ const LancamentoResultados = () => {
   const [parametrosEnsaio, setParametrosEnsaio] = useState([]);
   const [toastMessage, setToastMessage] = useState(null);
 
-  const API_BASE_URL = 'http://mwangobrainsa-001-site2.mtempurl.com/api';
+  const API_BASE_URL = 'https://mwangobrainsa-001-site2.mtempurl.com/api';
 
   const steps = [
     { label: 'Identificação', icon: Search },
@@ -420,8 +420,8 @@ const LancamentoResultados = () => {
                           <div className="flex items-center space-x-2">
                             {getSituacaoIcon(parametro.situacao)}
                             <span className={`text-sm font-medium ${parametro.situacao === 'dentro' ? 'text-green-600' :
-                                parametro.situacao === 'abaixo' ? 'text-yellow-600' :
-                                  parametro.situacao === 'acima' ? 'text-red-600' : 'text-gray-400'
+                              parametro.situacao === 'abaixo' ? 'text-yellow-600' :
+                                parametro.situacao === 'acima' ? 'text-red-600' : 'text-gray-400'
                               }`}>
                               {getSituacaoTexto(parametro.situacao)}
                             </span>
@@ -593,10 +593,10 @@ const LancamentoResultados = () => {
                   onClick={() => setActiveIndex(index)}
                 >
                   <div className={`flex items-center justify-center w-14 h-14 rounded-full mb-3 transition-colors ${isActive
-                      ? 'bg-blue-600 text-white'
-                      : isCompleted
-                        ? 'bg-green-500 text-white'
-                        : 'bg-gray-200 text-gray-500'
+                    ? 'bg-blue-600 text-white'
+                    : isCompleted
+                      ? 'bg-green-500 text-white'
+                      : 'bg-gray-200 text-gray-500'
                     }`}>
                     {isCompleted ? (
                       <Check size={24} />
@@ -632,8 +632,8 @@ const LancamentoResultados = () => {
                 onClick={prevStep}
                 disabled={activeIndex === 0}
                 className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all ${activeIndex === 0
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
               >
                 <ChevronLeft size={20} className="mr-2" />
@@ -668,8 +668,8 @@ const LancamentoResultados = () => {
                     onClick={handleSave}
                     disabled={saving || !formData.amostraId || !formData.tecnicoResponsavel}
                     className={`flex items-center px-8 py-3 rounded-lg font-medium transition-all ${saving || !formData.amostraId || !formData.tecnicoResponsavel
-                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
                       }`}
                   >
                     {saving ? (
@@ -690,8 +690,8 @@ const LancamentoResultados = () => {
                     onClick={nextStep}
                     disabled={activeIndex === 0 && !formData.amostraId}
                     className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all ${activeIndex === 0 && !formData.amostraId
-                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
                       }`}
                   >
                     Próximo

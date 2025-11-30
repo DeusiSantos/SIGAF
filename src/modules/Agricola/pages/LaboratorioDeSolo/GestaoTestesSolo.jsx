@@ -41,7 +41,7 @@ const GestaoTestesSolo = () => {
     const fetchTestesSolo = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('http://mwangobrainsa-001-site2.mtempurl.com/api/testeDeAmostraDeSolo/all');
+        const response = await axios.get('https://mwangobrainsa-001-site2.mtempurl.com/api/testeDeAmostraDeSolo/all');
         setTestesSolo(response.data);
       } catch (error) {
         console.error('Erro ao buscar testes:', error);

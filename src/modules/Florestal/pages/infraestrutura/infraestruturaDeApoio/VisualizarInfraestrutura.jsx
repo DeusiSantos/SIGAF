@@ -277,7 +277,7 @@ const VisualizarInfraestrutura = () => {
             setError(null);
 
             try {
-                const response = await fetch(`http://mwangobrainsa-001-site2.mtempurl.com/api/infraestrutura/${id}`);
+                const response = await fetch(`https://mwangobrainsa-001-site2.mtempurl.com/api/infraestrutura/${id}`);
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -367,7 +367,7 @@ const VisualizarInfraestrutura = () => {
 
             console.log('Enviando dados:', dataToSend);
 
-            const response = await fetch(`http://mwangobrainsa-001-site2.mtempurl.com/api/infraestrutura/${infraestrutura._id}`, {
+            const response = await fetch(`https://mwangobrainsa-001-site2.mtempurl.com/api/infraestrutura/${infraestrutura._id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -382,7 +382,7 @@ const VisualizarInfraestrutura = () => {
             showToast('success', 'Infraestrutura atualizada', 'Os dados foram salvos com sucesso!');
 
             // Recarregar dados da infraestrutura após salvar
-            const updatedResponse = await fetch(`http://mwangobrainsa-001-site2.mtempurl.com/api/infraestrutura/${infraestrutura._id}`);
+            const updatedResponse = await fetch(`https://mwangobrainsa-001-site2.mtempurl.com/api/infraestrutura/${infraestrutura._id}`);
             const updatedData = await updatedResponse.json();
             setInfraestrutura(updatedData);
             setIsEditing(false);
@@ -480,10 +480,10 @@ const VisualizarInfraestrutura = () => {
                         </div>
                         <div className="flex gap-2 flex-wrap items-center mt-2">
                             <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${infraestrutura.estado_de_Conserva_o?.toUpperCase() === 'BOM'
-                                    ? 'bg-green-50 text-green-700 border-green-200'
-                                    : infraestrutura.estado_de_Conserva_o?.toUpperCase() === 'MAU'
-                                        ? 'bg-red-50 text-red-700 border-red-200'
-                                        : 'bg-yellow-50 text-yellow-700 border-yellow-200'
+                                ? 'bg-green-50 text-green-700 border-green-200'
+                                : infraestrutura.estado_de_Conserva_o?.toUpperCase() === 'MAU'
+                                    ? 'bg-red-50 text-red-700 border-red-200'
+                                    : 'bg-yellow-50 text-yellow-700 border-yellow-200'
                                 }`}>
                                 {infraestrutura.estado_de_Conserva_o?.toUpperCase() === 'BOM' && <CheckCircle className="w-4 h-4 mr-1" />}
                                 {infraestrutura.estado_de_Conserva_o?.toUpperCase() === 'MAU' && <X className="w-4 h-4 mr-1" />}

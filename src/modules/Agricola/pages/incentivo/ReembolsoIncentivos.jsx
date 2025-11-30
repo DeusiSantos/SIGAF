@@ -101,7 +101,7 @@ const ReembolsoIncentivos = () => {
       setLoadingProdutores(true);
 
       // Buscar produtores com incentivos
-      const response = await axios.get('http://mwangobrainsa-001-site2.mtempurl.com/api/reembolsoDoIncentivo/produtoresComIncentivo');
+      const response = await axios.get('https://mwangobrainsa-001-site2.mtempurl.com/api/reembolsoDoIncentivo/produtoresComIncentivo');
       const produtoresData = response.data;
 
       // Para cada produtor, buscar o número de incentivos
@@ -109,7 +109,7 @@ const ReembolsoIncentivos = () => {
         produtoresData.map(async (produtor) => {
           try {
             const incentivosResponse = await axios.get(
-              `http://mwangobrainsa-001-site2.mtempurl.com/api/reembolsoDoIncentivo/totalIncentivoPorProdutor/${produtor._id}`
+              `https://mwangobrainsa-001-site2.mtempurl.com/api/reembolsoDoIncentivo/totalIncentivoPorProdutor/${produtor._id}`
             );
 
             return {
@@ -148,13 +148,13 @@ const ReembolsoIncentivos = () => {
   const buscarIncentivosModalProdutor = useCallback(async (produtorId) => {
     try {
       setLoadingIncentivosModal(true);
-      const response = await axios.get(`http://mwangobrainsa-001-site2.mtempurl.com/api/reembolsoDoIncentivo/produtor/${produtorId}/incentivos`);
+      const response = await axios.get(`https://mwangobrainsa-001-site2.mtempurl.com/api/reembolsoDoIncentivo/produtor/${produtorId}/incentivos`);
 
       // Buscar detalhes de cada incentivo
       const incentivosComDetalhes = await Promise.all(
         response.data.map(async (incentivo) => {
           try {
-            const detalhesResponse = await axios.get(`http://mwangobrainsa-001-site2.mtempurl.com/api/incentivo/produtor/${produtorId}/incentivos`);
+            const detalhesResponse = await axios.get(`https://mwangobrainsa-001-site2.mtempurl.com/api/incentivo/produtor/${produtorId}/incentivos`);
             const detalheIncentivo = detalhesResponse.data.find(det => det.id === incentivo.incentivoId);
 
             return {
@@ -247,7 +247,7 @@ const ReembolsoIncentivos = () => {
   // Função para buscar incentivos do produtor
   const buscarIncentivosProdutor = useCallback(async (produtorId) => {
     try {
-      const response = await axios.get(`http://mwangobrainsa-001-site2.mtempurl.com/api/incentivo/produtor/${produtorId}/incentivos`);
+      const response = await axios.get(`https://mwangobrainsa-001-site2.mtempurl.com/api/incentivo/produtor/${produtorId}/incentivos`);
 
       // Transformar os dados da API para o formato esperado
       return response.data.map(incentivo => ({
@@ -333,7 +333,7 @@ const ReembolsoIncentivos = () => {
     if (fotosCarregadas.has(produtorId)) return;
 
     try {
-      const resposta = await axios.get(`http://mwangobrainsa-001-site2.mtempurl.com/api/formulario/${produtorId}/foto-beneficiary`, {
+      const resposta = await axios.get(`https://mwangobrainsa-001-site2.mtempurl.com/api/formulario/${produtorId}/foto-beneficiary`, {
         responseType: 'blob',
         timeout: 5000 // timeout de 5 segundos
       });
@@ -1659,7 +1659,7 @@ const ReembolsoIncentivos = () => {
 
       // Fazer requisição para a API
       const response = await axios.post(
-        'http://mwangobrainsa-001-site2.mtempurl.com/api/reembolsoDoIncentivo',
+        'https://mwangobrainsa-001-site2.mtempurl.com/api/reembolsoDoIncentivo',
         dadosParaEnvio,
         {
           headers: {

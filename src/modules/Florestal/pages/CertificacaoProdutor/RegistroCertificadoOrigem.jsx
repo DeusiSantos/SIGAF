@@ -728,7 +728,7 @@ const RegistroCertificadoOrigem = () => {
             console.log('📦 Payload enviado para API:', payload);
 
             const response = await axios.post(
-                'http://mwangobrainsa-001-site2.mtempurl.com/api/certificadoDeOrigem',
+                'https://mwangobrainsa-001-site2.mtempurl.com/api/certificadoDeOrigem',
                 payload,
                 { headers: { 'Content-Type': 'application/json' } }
             );

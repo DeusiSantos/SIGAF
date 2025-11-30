@@ -581,7 +581,7 @@ const CadastroCooperativaAgricola = () => {
       showToast('info', 'Enviando', 'Processando dados da organização...');
 
       // Fazer requisição POST para a API com FormData - ROTA CORRIGIDA
-      const response = await axios.post('http://mwangobrainsa-001-site2.mtempurl.com/api/organizacao', submitFormData, {
+      const response = await axios.post('https://mwangobrainsa-001-site2.mtempurl.com/api/organizacao', submitFormData, {
         headers: {
           'Content-Type': undefined
         },

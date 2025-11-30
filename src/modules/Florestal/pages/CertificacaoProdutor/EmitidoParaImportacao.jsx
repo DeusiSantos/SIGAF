@@ -28,7 +28,7 @@ const useProdutoresSIGAF = () => {
   useEffect(() => {
     const fetchProdutores = async () => {
       try {
-        const response = await fetch('http://mwangobrainsa-001-site2.mtempurl.com/api/produtorFlorestal/all');
+        const response = await fetch('https://mwangobrainsa-001-site2.mtempurl.com/api/produtorFlorestal/all');
         const data = await response.json();
 
         // Mapear os dados da API para o formato esperado
@@ -827,7 +827,7 @@ const RegistroMercadorias = () => {
       console.log('📦 Payload enviado:', payload);
 
       const response = await axios.post(
-        'http://mwangobrainsa-001-site2.mtempurl.com/api/declaracaoFlorestal',
+        'https://mwangobrainsa-001-site2.mtempurl.com/api/declaracaoFlorestal',
         payload,
         { headers: { 'Content-Type': 'application/json' } }
       );

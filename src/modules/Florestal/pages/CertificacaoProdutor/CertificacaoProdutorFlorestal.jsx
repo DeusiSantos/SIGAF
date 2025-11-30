@@ -43,7 +43,7 @@ const useProdutoresFlorestais = () => {
   useEffect(() => {
     const fetchProdutores = async () => {
       try {
-        const response = await fetch('http://mwangobrainsa-001-site2.mtempurl.com/api/produtorFlorestal/all');
+        const response = await fetch('https://mwangobrainsa-001-site2.mtempurl.com/api/produtorFlorestal/all');
         const data = await response.json();
         setProdutores(data);
       } catch (error) {
@@ -70,9 +70,9 @@ const useEntidades = () => {
     const fetchEntidades = async () => {
       try {
         const [empresasRes, cooperativasRes, associacoesRes] = await Promise.all([
-          fetch('http://mwangobrainsa-001-site2.mtempurl.com/api/organizacao/empresasFlorestais'),
-          fetch('http://mwangobrainsa-001-site2.mtempurl.com/api/organizacao/cooperativasFlorestais'),
-          fetch('http://mwangobrainsa-001-site2.mtempurl.com/api/organizacao/AssociacoesFlorestais')
+          fetch('https://mwangobrainsa-001-site2.mtempurl.com/api/organizacao/empresasFlorestais'),
+          fetch('https://mwangobrainsa-001-site2.mtempurl.com/api/organizacao/cooperativasFlorestais'),
+          fetch('https://mwangobrainsa-001-site2.mtempurl.com/api/organizacao/AssociacoesFlorestais')
         ]);
 
         const [empresasData, cooperativasData, associacoesData] = await Promise.all([
@@ -204,7 +204,7 @@ const CertificacaoProdutorFlorestal = () => {
 
       // ✅ Busca diretamente no tipo correto
       if (tipoEntidade === 'produtor') {
-        const resProdutores = await fetch('http://mwangobrainsa-001-site2.mtempurl.com/api/produtorFlorestal/all');
+        const resProdutores = await fetch('https://mwangobrainsa-001-site2.mtempurl.com/api/produtorFlorestal/all');
         const produtores = await resProdutores.json();
         const produtorEncontrado = produtores.find(p => p._id === parseInt(idEntidade));
 
@@ -244,7 +244,7 @@ const CertificacaoProdutorFlorestal = () => {
         }
       }
       else if (tipoEntidade === 'empresa') {
-        const res = await fetch('http://mwangobrainsa-001-site2.mtempurl.com/api/organizacao/empresasFlorestais');
+        const res = await fetch('https://mwangobrainsa-001-site2.mtempurl.com/api/organizacao/empresasFlorestais');
         const empresas = await res.json();
         const empresaEncontrada = empresas.find(e => e.id === parseInt(idEntidade));
 
@@ -256,7 +256,7 @@ const CertificacaoProdutorFlorestal = () => {
         }
       }
       else if (tipoEntidade === 'cooperativa') {
-        const res = await fetch('http://mwangobrainsa-001-site2.mtempurl.com/api/organizacao/cooperativasFlorestais');
+        const res = await fetch('https://mwangobrainsa-001-site2.mtempurl.com/api/organizacao/cooperativasFlorestais');
         const cooperativas = await res.json();
         const cooperativaEncontrada = cooperativas.find(c => c.id === parseInt(idEntidade));
 
@@ -268,7 +268,7 @@ const CertificacaoProdutorFlorestal = () => {
         }
       }
       else if (tipoEntidade === 'associacao') {
-        const res = await fetch('http://mwangobrainsa-001-site2.mtempurl.com/api/organizacao/AssociacoesFlorestais');
+        const res = await fetch('https://mwangobrainsa-001-site2.mtempurl.com/api/organizacao/AssociacoesFlorestais');
         const associacoes = await res.json();
         const associacaoEncontrada = associacoes.find(a => a.id === parseInt(idEntidade));
 
@@ -1860,7 +1860,7 @@ const CertificacaoProdutorFlorestal = () => {
       }
 
       // Fazer requisição
-      const response = await fetch('http://mwangobrainsa-001-site2.mtempurl.com/api/certificaoDoProdutorFlorestal', {
+      const response = await fetch('https://mwangobrainsa-001-site2.mtempurl.com/api/certificaoDoProdutorFlorestal', {
         method: 'POST',
         body: formDataToSend,
       });

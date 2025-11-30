@@ -303,7 +303,7 @@ const RegistroInfraestrutura = () => {
 
       // 🚀 Enviar com Axios
       const response = await axios.post(
-        "http://mwangobrainsa-001-site2.mtempurl.com/api/infraestrutura",
+        "https://mwangobrainsa-001-site2.mtempurl.com/api/infraestrutura",
         dataToSend,
         {
           headers: {

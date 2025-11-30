@@ -26,7 +26,7 @@ const LancamentoResultadosSolo = () => {
     const navigate = useNavigate();
     const amostraId = id;
 
-    const API_BASE_URL = 'http://mwangobrainsa-001-site2.mtempurl.com/api';
+    const API_BASE_URL = 'https://mwangobrainsa-001-site2.mtempurl.com/api';
 
     const [activeIndex, setActiveIndex] = useState(amostraId ? 1 : 0);
     const [saving, setSaving] = useState(false);

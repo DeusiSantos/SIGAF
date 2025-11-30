@@ -16,7 +16,7 @@ const CadastroDeSolo = () => {
         const fetchProdutores = async () => {
             setLoadingProdutores(true);
             try {
-                const response = await axios.get('http://mwangobrainsa-001-site2.mtempurl.com/api/formulario/all');
+                const response = await axios.get('https://mwangobrainsa-001-site2.mtempurl.com/api/formulario/all');
                 setProdutores(response.data);
             } catch (error) {
                 console.error('Erro ao carregar produtores:', error);
@@ -657,8 +657,8 @@ const CadastroDeSolo = () => {
                                 <label
                                     htmlFor={`foto-upload-${Date.now()}`}
                                     className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${data.fotoAmostra
-                                            ? 'bg-pink-50 border-pink-300 hover:bg-pink-100'
-                                            : 'bg-gray-50 border-gray-300 hover:border-pink-400 hover:bg-pink-50'
+                                        ? 'bg-pink-50 border-pink-300 hover:bg-pink-100'
+                                        : 'bg-gray-50 border-gray-300 hover:border-pink-400 hover:bg-pink-50'
                                         }`}
                                 >
                                     <Camera className={`w-8 h-8 mb-3 ${data.fotoAmostra ? 'text-pink-500' : 'text-gray-400'}`} />

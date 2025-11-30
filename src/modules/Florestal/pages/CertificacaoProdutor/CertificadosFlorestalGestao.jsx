@@ -32,7 +32,7 @@ const useCertificadosFlorestais = () => {
                 setError(null);
 
                 const response = await axios.get(
-                    'http://mwangobrainsa-001-site2.mtempurl.com/api/certificaoDoProdutorFlorestal/all',
+                    'https://mwangobrainsa-001-site2.mtempurl.com/api/certificaoDoProdutorFlorestal/all',
                     { timeout: 10000 }
                 );
 

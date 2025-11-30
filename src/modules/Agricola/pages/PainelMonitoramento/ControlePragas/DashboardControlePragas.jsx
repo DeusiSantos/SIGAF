@@ -58,7 +58,7 @@ const DashboardControlePragas = () => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-      const response = await fetch('http://mwangobrainsa-001-site2.mtempurl.com/api/pragas/all', {
+      const response = await fetch('https://mwangobrainsa-001-site2.mtempurl.com/api/pragas/all', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
