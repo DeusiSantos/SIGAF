@@ -33,7 +33,7 @@ const useCertificadosFitossanitarios = () => {
                 setError(null);
 
                 const response = await axios.get(
-                    'http://mwangobrainsa-001-site2.mtempurl.com/api/certificaoFitossanitario/all',
+                    'https://mwangobrainsa-001-site2.mtempurl.com/api/certificaoFitossanitario/all',
                     { timeout: 10000 }
                 );
 

@@ -108,7 +108,7 @@ const VisualizarIrrigacao = () => {
                     setSistemaIrrigacao(sistemaFormatado);
 
                     // Load photo - usando URL direta da API
-                    setImagemUrlFotografia(`http://mwangobrainsa-001-site2.mtempurl.com/api/irrigacao/${id}/fotografiaDeFonteDeAgua`);
+                    setImagemUrlFotografia(`https://mwangobrainsa-001-site2.mtempurl.com/api/irrigacao/${id}/fotografiaDeFonteDeAgua`);
 
                 } catch (error) {
                     console.error('Erro ao carregar sistema:', error);

@@ -296,7 +296,7 @@ const alterarEstadoProdutor = async (id, novoEstado, token) => {
         formData.append('Estado', estadoAPI);
 
         const response = await axios.patch(
-            'http://mwangobrainsa-001-site2.mtempurl.com/api/formulario/estado',
+            'https://mwangobrainsa-001-site2.mtempurl.com/api/formulario/estado',
             formData,
             {
                 headers: {
@@ -1351,7 +1351,7 @@ const VisualizarProdutor = () => {
     };
 
     const handleGenerateCard = () => {
-        navigate(`/GerenciaSIGAF/gestao-escolar/produtores/gerar-cartao/${id}`);
+        navigate(`/GerenciaSIGAF/gestao-agricultores/produtores/gerar-cartao/${id}`);
     };
 
     // Função para renderizar botões de ação

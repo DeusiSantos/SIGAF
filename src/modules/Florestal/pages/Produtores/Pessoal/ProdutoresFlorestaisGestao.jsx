@@ -59,7 +59,7 @@ const ProdutorAvatar = ({
                 setImageError(false);
 
                 const response = await axios.get(
-                    `http://mwangobrainsa-001-site2.mtempurl.com/api/produtorFlorestais/${produtor.id}/foto`,
+                    `https://mwangobrainsa-001-site2.mtempurl.com/api/produtorFlorestais/${produtor.id}/foto`,
                     {
                         responseType: 'blob',
                         timeout: 10000,

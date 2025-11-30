@@ -48,7 +48,7 @@ const GestaoInfraestruturaAgricola = () => {
         const fetchInfraestruturas = async () => {
             try {
                 setLoading(true);
-                const response = await fetch('http://mwangobrainsa-001-site2.mtempurl.com/api/infraestrutura/all');
+                const response = await fetch('https://mwangobrainsa-001-site2.mtempurl.com/api/infraestrutura/all');
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -218,7 +218,7 @@ const GestaoInfraestruturaAgricola = () => {
         if (!infraestruturaToDelete) return;
 
         try {
-            const response = await fetch(`http://mwangobrainsa-001-site2.mtempurl.com/api/infraestrutura/${infraestruturaToDelete}`, {
+            const response = await fetch(`https://mwangobrainsa-001-site2.mtempurl.com/api/infraestrutura/${infraestruturaToDelete}`, {
                 method: 'DELETE'
             });
 

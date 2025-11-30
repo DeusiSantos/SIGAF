@@ -215,7 +215,7 @@ const TesteAmostrasSolo = () => {
         const fetchProdutores = async () => {
             setLoadingProdutores(true);
             try {
-                const response = await axios.get('http://mwangobrainsa-001-site2.mtempurl.com/api/formulario/all');
+                const response = await axios.get('https://mwangobrainsa-001-site2.mtempurl.com/api/formulario/all');
                 setProdutores(response.data);
             } catch (error) {
                 console.error('Erro ao buscar produtores:', error);
@@ -373,7 +373,7 @@ const TesteAmostrasSolo = () => {
             }
 
             const response = await axios.post(
-                'http://mwangobrainsa-001-site2.mtempurl.com/api/testeDeAmostraDeSolo',
+                'https://mwangobrainsa-001-site2.mtempurl.com/api/testeDeAmostraDeSolo',
                 apiFormData,
                 {
                     headers: {

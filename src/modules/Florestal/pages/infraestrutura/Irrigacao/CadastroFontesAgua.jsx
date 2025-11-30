@@ -300,7 +300,7 @@ const CadastroFontesAgua = () => {
 
             // 🚀 Chamada com axios
             const response = await axios.post(
-                "http://mwangobrainsa-001-site2.mtempurl.com/api/irrigacao",
+                "https://mwangobrainsa-001-site2.mtempurl.com/api/irrigacao",
                 form,
                 {
                     headers: {

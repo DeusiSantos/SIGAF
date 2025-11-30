@@ -71,7 +71,7 @@ const GestaoIncentivos = () => {
         setError(null);
 
         try {
-            const response = await fetch('http://mwangobrainsa-001-site2.mtempurl.com/api/incentivo/all');
+            const response = await fetch('https://mwangobrainsa-001-site2.mtempurl.com/api/incentivo/all');
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
