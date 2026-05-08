@@ -139,7 +139,7 @@ const VisualizarIncentivo = () => {
                     setImageError(false);
 
                     const response = await axios.get(
-                        `https://mwangobrainsa-001-site2.mtempurl.com/api/formulario/${produtor.id}/foto-beneficiary`,
+                        `http://mwangobrainsa-001-site2.mtempurl.com/api/formulario/${produtor.id}/foto-beneficiary`,
                         {
                             responseType: 'blob',
                             timeout: 10000, // 10 segundos de timeout
@@ -288,7 +288,7 @@ const VisualizarIncentivo = () => {
             console.log(`📡 Buscando produtores para incentivo ID: ${id}`);
 
             const response = await axios.get(
-                `https://mwangobrainsa-001-site2.mtempurl.com/api/distribuicaoDeIncentivo/incentivo/${id}/produtores`
+                `http://mwangobrainsa-001-site2.mtempurl.com/api/distribuicaoDeIncentivo/incentivo/${id}/produtores`
             );
 
             console.log('👥 Produtores recebidos:', response.data);

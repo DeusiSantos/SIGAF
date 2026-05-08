@@ -74,7 +74,7 @@ const VisualizarCertificados = () => {
                     setImageError(false);
 
                     const response = await axios.get(
-                        `https://mwangobrainsa-001-site2.mtempurl.com/api/formulario/${produtor.id}/foto-beneficiary`,
+                        `http://mwangobrainsa-001-site2.mtempurl.com/api/formulario/${produtor.id}/foto-beneficiary`,
                         {
                             responseType: 'blob',
                             timeout: 10000,

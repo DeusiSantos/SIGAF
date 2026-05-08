@@ -29,7 +29,8 @@ import {
   Users,
   Wheat,
   X,
-  TestTube
+  TestTube,
+  LucideTicketsPlane
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
@@ -218,11 +219,11 @@ const rnpaRoutes = {
 
         ],
       },
-      // {
-      //   text: "Exportação",
-      //   icon: LucideTicketsPlane,
-      //   path: "/GerenciaSIGAF/gestao-agricultores/exportacao",
-      // },
+       {
+        text: "Exportação",
+        icon: LucideTicketsPlane,
+        path: "/GerenciaSIGAF/gestao-agricultores/exportacao",
+      },
     ],
 
     "Produtores Florestais": [

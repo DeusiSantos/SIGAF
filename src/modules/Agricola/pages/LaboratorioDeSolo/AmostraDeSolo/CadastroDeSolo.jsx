@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
-import { User, TestTube, MapPin, FlaskConical, Camera, ChevronLeft, ChevronRight, Check, CheckCircle, AlertCircle, Copy, Trash2, Loader } from 'lucide-react';
+import axios from 'axios';
+import { AlertCircle, Camera, Check, CheckCircle, ChevronLeft, ChevronRight, Copy, FlaskConical, Loader, MapPin, TestTube, Trash2, User } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import CustomInput from '../../../../../core/components/CustomInput';
 import { useFaturas } from '../../../hooks/useFaturas';
-import axios from 'axios';
 
 const CadastroDeSolo = () => {
     const [activeIndex, setActiveIndex] = useState(0);
@@ -16,7 +16,7 @@ const CadastroDeSolo = () => {
         const fetchProdutores = async () => {
             setLoadingProdutores(true);
             try {
-                const response = await axios.get('https://mwangobrainsa-001-site2.mtempurl.com/api/formulario/all');
+                const response = await axios.get('http://mwangobrainsa-001-site2.mtempurl.com/api/formulario/all');
                 setProdutores(response.data);
             } catch (error) {
                 console.error('Erro ao carregar produtores:', error);
@@ -183,7 +183,7 @@ const CadastroDeSolo = () => {
     const duplicateSection = (stepIndex) => {
         const sectionKey = `step_${stepIndex}_${Date.now()}`;
         const currentData = { ...formData };
-        
+
         // Clear fields that should be unique for each duplicate
         if (stepIndex === 1) { // Amostra
             const year = new Date().getFullYear();
@@ -194,7 +194,7 @@ const CadastroDeSolo = () => {
         } else if (stepIndex === 0) { // Produtor
             currentData.codigoProdutor = '';
         }
-        
+
         setDuplicatedSections(prev => ({
             ...prev,
             [stepIndex]: {
@@ -280,7 +280,7 @@ const CadastroDeSolo = () => {
 
         try {
             console.log('Dados da amostra:', formData);
-            
+
             // Gerar fatura automática se houver ensaios selecionados
             if (formData.ensaiosSelecionados.length > 0) {
                 try {
@@ -356,10 +356,10 @@ const CadastroDeSolo = () => {
             3: { title: 'Ensaios', icon: FlaskConical, color: 'purple' },
             4: { title: 'Coleta', icon: Camera, color: 'pink' }
         };
-        
+
         const config = stepConfig[stepIndex];
         const Icon = config.icon;
-        
+
         return (
             <div key={sectionKey} className="mt-8 border-t-2 border-gray-200 pt-6">
                 <div className={`bg-gradient-to-r from-${config.color}-50 to-${config.color}-50 rounded-2xl p-4 mb-6 border border-${config.color}-200`}>
@@ -656,11 +656,10 @@ const CadastroDeSolo = () => {
                                 />
                                 <label
                                     htmlFor={`foto-upload-${Date.now()}`}
-                                    className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-                                        data.fotoAmostra
+                                    className={`flex flex-col items-center justify-center h-40 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${data.fotoAmostra
                                             ? 'bg-pink-50 border-pink-300 hover:bg-pink-100'
                                             : 'bg-gray-50 border-gray-300 hover:border-pink-400 hover:bg-pink-50'
-                                    }`}
+                                        }`}
                                 >
                                     <Camera className={`w-8 h-8 mb-3 ${data.fotoAmostra ? 'text-pink-500' : 'text-gray-400'}`} />
                                     <p className={`text-sm font-medium ${data.fotoAmostra ? 'text-pink-600' : 'text-gray-500'}`}>
@@ -877,7 +876,7 @@ const CadastroDeSolo = () => {
                                 iconStart={<TestTube size={18} />}
                             />
                         </div>
-                        {duplicatedSections[1] && Object.entries(duplicatedSections[1]).map(([sectionKey, sectionData], idx) => 
+                        {duplicatedSections[1] && Object.entries(duplicatedSections[1]).map(([sectionKey, sectionData], idx) =>
                             renderDuplicatedSection(1, sectionKey, sectionData, idx + 2)
                         )}
                     </div>
@@ -953,7 +952,7 @@ const CadastroDeSolo = () => {
                                 )}
                             </div>
                         </div>
-                        {duplicatedSections[2] && Object.entries(duplicatedSections[2]).map(([sectionKey, sectionData], idx) => 
+                        {duplicatedSections[2] && Object.entries(duplicatedSections[2]).map(([sectionKey, sectionData], idx) =>
                             renderDuplicatedSection(2, sectionKey, sectionData, idx + 2)
                         )}
                     </div>
@@ -1005,7 +1004,7 @@ const CadastroDeSolo = () => {
                                 </div>
                             )}
                         </div>
-                        {duplicatedSections[3] && Object.entries(duplicatedSections[3]).map(([sectionKey, sectionData], idx) => 
+                        {duplicatedSections[3] && Object.entries(duplicatedSections[3]).map(([sectionKey, sectionData], idx) =>
                             renderDuplicatedSection(3, sectionKey, sectionData, idx + 2)
                         )}
                     </div>
@@ -1032,7 +1031,7 @@ const CadastroDeSolo = () => {
                             </div>
                         </div>
                         <div className="">
-                          
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <CustomInput
                                     type="select"
@@ -1126,7 +1125,7 @@ const CadastroDeSolo = () => {
                                 </div>
                             </div>
                         </div>
-                        {duplicatedSections[4] && Object.entries(duplicatedSections[4]).map(([sectionKey, sectionData], idx) => 
+                        {duplicatedSections[4] && Object.entries(duplicatedSections[4]).map(([sectionKey, sectionData], idx) =>
                             renderDuplicatedSection(4, sectionKey, sectionData, idx + 2)
                         )}
                     </div>
